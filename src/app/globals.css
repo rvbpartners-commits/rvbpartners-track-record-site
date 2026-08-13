@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/*
+ * Navexa-informed: white ground, thin type, almost no borders. Contrast is
+ * carried by weight and colour, not by boxes — so the palette has three text
+ * weights and exactly one hairline, and everything else is spacing.
+ *
+ * Green/red are the only saturated colours and they mean exactly one thing:
+ * the sign of a return. Nothing decorative is allowed to use them, or they stop
+ * reading as data.
+ */
+
+:root {
+  --bg: #ffffff;
+  --bg-subtle: #fafafa;
+  --bg-raised: #ffffff;
+  --fg: #111318;
+  --fg-muted: #5b6270;
+  --fg-faint: #8b93a1;
+  --hairline: #ececf0;
+  --up: #10814a;
+  --up-soft: #e7f4ed;
+  --down: #c0392f;
+  --down-soft: #fdecea;
+  --accent: #1b3a6b;
+  --bench: #9aa3b2;
+  --warn-bg: #fff8e6;
+  --warn-fg: #7a5a12;
+  --warn-line: #f0dfae;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d0f12;
+    --bg-subtle: #121519;
+    --bg-raised: #15181d;
+    --fg: #eef1f5;
+    --fg-muted: #a2abba;
+    --fg-faint: #6f7889;
+    --hairline: #23272e;
+    --up: #3ddc97;
+    --up-soft: #123026;
+    --down: #ff7a6e;
+    --down-soft: #2e1613;
+    --accent: #9dc0f5;
+    --bench: #616b7c;
+    --warn-bg: #241f10;
+    --warn-fg: #e8cf94;
+    --warn-line: #4a3f1e;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-bg-raised: var(--bg-raised);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-hairline: var(--hairline);
+  --color-up: var(--up);
+  --color-up-soft: var(--up-soft);
+  --color-down: var(--down);
+  --color-down-soft: var(--down-soft);
+  --color-accent: var(--accent);
+  --color-bench: var(--bench);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-fg: var(--warn-fg);
+  --color-warn-line: var(--warn-line);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  /* The page itself must never scroll sideways; wide content scrolls inside
+     its own container instead. */
+  overflow-x: hidden;
+}
+
+/* Tabular figures everywhere a number sits in a column, so digits line up and
+   a changing value does not make the row jitter. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.hairline {
+  border-color: var(--hairline);
+}
+
+/* Wide tables and charts scroll in place. */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+a {
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,38 @@
+# Build and lint the site. That is the whole job.
+#
+# This workflow deliberately declares NO secrets and requests no credential.
+# The site reads a public repository, so it needs none — and a workflow that
+# never holds one cannot leak one. Broker credentials in particular live only in
+# gitignored files on the trading box and are not present in any CI system.
+#
+# Publication of the DATA happens on the trading box, not here. Nothing in this
+# repository can write to the data repository.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      # The production build prerenders against the live public data, so this
+      # also catches a data-shape change that would break the site.
+      - run: npm run build
