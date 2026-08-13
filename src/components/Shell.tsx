@@ -19,20 +19,26 @@ export function Shell({ children }: { children: ReactNode }) {
             leaves the whole site pinned to one edge. Every container that caps
             its width at MEASURE below does both, and they all use the same
             token so the masthead, the body and the footer share one edge. */}
-        <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-4 flex flex-wrap items-baseline gap-x-8 gap-y-2">
+        <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-3 sm:py-4 flex flex-wrap items-baseline gap-x-8 gap-y-2">
           <Link href="/" className="text-[15px] font-semibold tracking-tight">
             RVB Partners
           </Link>
-          <nav className="flex gap-6 text-[13px]">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-fg-muted hover:text-fg transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
+          {/* On a phone the four links wrap onto a second row and the masthead
+              doubles in height. Below `sm` they scroll sideways on one line
+              instead; `-mx-5 px-5` lets the row bleed to the screen edge so the
+              last link is visibly cut off rather than looking like the end. */}
+          <nav className="order-3 sm:order-none w-full sm:w-auto -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x">
+            <div className="flex gap-6 text-[13px] min-w-max py-1 sm:py-0">
+              {NAV.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-fg-muted hover:text-fg transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </nav>
           <span className="ml-auto text-[12px] text-fg-faint">
             Live paper-trading record

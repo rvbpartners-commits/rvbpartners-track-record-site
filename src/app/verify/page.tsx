@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Note } from "@/components/Note";
 import {
   DATA_BASE,
   DATA_REPO_URL,
+  MAINTAINER_AVATAR,
   MAINTAINER_URL,
   SITE_REPO_URL,
   getChain,
@@ -66,7 +68,7 @@ export default async function VerifyPage() {
         <h2 className="text-[15px] font-semibold tracking-tight">
           The four checks
         </h2>
-        <ol className="mt-5 space-y-6 text-[13px] leading-relaxed max-w-[80ch]">
+        <ol className="mt-5 space-y-5 sm:space-y-6 text-[13px] leading-relaxed max-w-[80ch]">
           <Check
             n={1}
             title="Each record hashes its own content"
@@ -126,7 +128,7 @@ export default async function VerifyPage() {
           <p className="text-[13px] text-fg-muted mb-2">
             Checks 1 and 2, end to end, on a clone:
           </p>
-          <pre className="scroll-x bg-bg-subtle border hairline p-4 text-[12px] leading-relaxed">
+          <pre className="scroll-x bg-bg-subtle border hairline p-3 sm:p-4 text-[11px] sm:text-[12px] leading-relaxed">
             <code>{`git clone ${DATA_REPO_URL}.git
 cd rvbpartners-track-record-data
 python -c "
@@ -156,13 +158,13 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         </div>
 
         <div className="scroll-x mt-5">
-          <table className="w-full min-w-[760px] text-[13px]">
+          <table className="w-full sm:min-w-[760px] text-[13px]">
             <thead>
               <tr className="text-[11px] text-fg-faint">
                 <th className="text-left font-normal pb-3">Session</th>
-                <th className="text-left font-normal pb-3">Book</th>
+                <th className="hidden sm:table-cell text-left font-normal pb-3">Book</th>
                 <th className="text-left font-normal pb-3">Record hash</th>
-                <th className="text-left font-normal pb-3">Chains to</th>
+                <th className="hidden sm:table-cell text-left font-normal pb-3">Chains to</th>
                 <th className="text-right font-normal pb-3">Files</th>
               </tr>
             </thead>
@@ -172,11 +174,11 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                   <td className="py-2.5 pr-4 tnum whitespace-nowrap">
                     {date(e.session_date)}
                   </td>
-                  <td className="py-2.5 pr-4 text-fg-muted">{e.book}</td>
+                  <td className="hidden sm:table-cell py-2.5 pr-4 text-fg-muted">{e.book}</td>
                   <td className="py-2.5 pr-4 tnum text-fg-muted">
                     {shortHash(e.hash)}
                   </td>
-                  <td className="py-2.5 pr-4 tnum text-fg-faint">
+                  <td className="hidden sm:table-cell py-2.5 pr-4 tnum text-fg-faint">
                     {e.prev_hash === "0".repeat(64)
                       ? "genesis"
                       : shortHash(e.prev_hash)}
@@ -263,7 +265,33 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               </a>
               . A track record nobody can question is not one worth publishing.
             </p>
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
+            {/* The avatar makes the maintainer a person rather than a handle,
+                which is the point of putting a contact here at all. */}
+            <a
+              href={MAINTAINER_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="mt-5 inline-flex items-center gap-3 group"
+            >
+              <Image
+                src={`${MAINTAINER_AVATAR}&s=160`}
+                alt=""
+                width={40}
+                height={40}
+                unoptimized
+                className="rounded-full shrink-0"
+              />
+              <span className="min-w-0">
+                <span className="block text-[13px] font-medium group-hover:underline">
+                  @v89ysppdry
+                </span>
+                <span className="block text-[12px] text-fg-muted">
+                  maintains this record
+                </span>
+              </span>
+            </a>
+
+            <div className="mt-5 flex flex-col sm:flex-row sm:flex-wrap gap-x-5 gap-y-2 text-[13px]">
               <a className="text-accent hover:underline"
                  href={`${DATA_REPO_URL}/issues/new`}
                  target="_blank" rel="noreferrer noopener">
@@ -273,10 +301,6 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                  href={`${SITE_REPO_URL}/issues/new`}
                  target="_blank" rel="noreferrer noopener">
                 Open an issue on the site
-              </a>
-              <a className="text-accent hover:underline" href={MAINTAINER_URL}
-                 target="_blank" rel="noreferrer noopener">
-                github.com/v89ysppdry
               </a>
             </div>
           </div>

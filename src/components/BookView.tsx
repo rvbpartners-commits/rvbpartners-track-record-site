@@ -240,7 +240,7 @@ function BookView({
       >
         {summary.categories?.length > 0 && (
           <div className="scroll-x mb-9">
-            <table className="w-full min-w-[420px] max-w-[600px] text-[13px]">
+            <table className="w-full sm:min-w-[420px] max-w-[600px] text-[13px]">
               <thead>
                 <tr className="text-[11.5px] text-fg-faint">
                   <th className="text-left font-normal pb-2">Category</th>

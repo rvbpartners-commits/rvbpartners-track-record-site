@@ -17,14 +17,14 @@ export function Section({
 }) {
   return (
     <section
-      className={`grid lg:grid-cols-[190px_1fr] gap-x-10 gap-y-4 ${
-        first ? "mt-10" : "mt-14 border-t hairline pt-8"
+      className={`grid lg:grid-cols-[190px_1fr] gap-x-10 gap-y-3 lg:gap-y-4 ${
+        first ? "mt-8 lg:mt-10" : "mt-10 lg:mt-14 border-t hairline pt-6 lg:pt-8"
       }`}
     >
-      <div>
+      <div className="contents lg:block">
         <h2 className="text-[14px] font-semibold tracking-tight">{title}</h2>
         {note && (
-          <div className="mt-2 text-[11.5px] text-fg-muted leading-relaxed">
+          <div className="order-last lg:order-none mt-4 lg:mt-2 text-[11.5px] text-fg-muted leading-relaxed">
             {note}
           </div>
         )}

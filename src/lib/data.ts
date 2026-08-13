@@ -14,6 +14,8 @@ export const DATA_REPO_URL = `https://github.com/${DATA_REPO}`;
 export const SITE_REPO_URL =
   "https://github.com/rvbpartners-commits/rvbpartners-track-record-site";
 export const MAINTAINER_URL = "https://github.com/v89ysppdry";
+export const MAINTAINER_AVATAR =
+  "https://avatars.githubusercontent.com/u/247671242?v=4";
 /** @deprecated use DATA_REPO_URL */
 export const REPO_URL = DATA_REPO_URL;
 

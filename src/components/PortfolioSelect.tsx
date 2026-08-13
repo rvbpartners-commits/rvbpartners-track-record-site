@@ -44,13 +44,13 @@ export function PortfolioSelect({
   if (!current) return null;
 
   return (
-    <div className="relative inline-block" ref={ref}>
+    <div className="relative block sm:inline-block" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-3 border hairline px-4 py-2.5 hover:bg-bg-subtle transition-colors min-w-[240px]"
+        className="flex items-center gap-3 border hairline px-4 py-2.5 hover:bg-bg-subtle transition-colors w-full sm:w-auto sm:min-w-[240px]"
       >
         <span className="text-left">
           <span className="block text-[14px] font-medium leading-tight">
@@ -69,7 +69,7 @@ export function PortfolioSelect({
         <ul
           role="listbox"
           aria-label="Portfolio"
-          className="absolute z-20 mt-1.5 w-[320px] max-w-[86vw] border hairline bg-bg-raised shadow-lg overflow-hidden"
+          className="absolute z-20 mt-1.5 w-full sm:w-[320px] sm:max-w-[86vw] border hairline bg-bg-raised shadow-lg overflow-hidden"
         >
           {options.map((o) => {
             const selected = o.book === value;

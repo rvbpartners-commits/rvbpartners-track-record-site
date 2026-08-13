@@ -26,7 +26,7 @@ export function Footer() {
           any financial instrument.
         </p>
 
-        <div className="mt-8 pt-6 border-t hairline flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-fg-muted">
+        <div className="mt-8 pt-6 border-t hairline grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-2.5 sm:gap-y-2 text-[13px] text-fg-muted">
           <Link href="/disclosures" className="hover:text-fg transition-colors">
             Disclosures
           </Link>
@@ -54,11 +54,11 @@ export function Footer() {
           </a>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className="hover:text-fg transition-colors"
+            className="col-span-2 sm:col-span-1 hover:text-fg transition-colors"
           >
             {CONTACT_EMAIL}
           </a>
-          <span className="ml-auto text-fg-faint">
+          <span className="col-span-2 sm:col-span-1 sm:ml-auto text-fg-faint mt-2 sm:mt-0">
             &copy; {new Date().getFullYear()} RVB Partners
           </span>
         </div>

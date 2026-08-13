@@ -15,6 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import type { AnalyticsPayload, RollingPoint } from "@/lib/data";
+import { useNarrow } from "@/lib/useNarrow";
 import { date, pct, ratio, signedPct } from "@/lib/format";
 
 /**
@@ -91,10 +92,7 @@ function Plot({
       </figcaption>
       <div className="mt-3">
         {held || empty ? (
-          <div
-            className="flex items-center justify-center border hairline text-[12px] text-fg-faint"
-            style={{ height: 176 }}
-          >
+          <div className="flex items-center justify-center border hairline text-[12px] text-fg-faint h-[150px] sm:h-[176px] px-4 text-center">
             {held ?? "not enough sessions yet"}
           </div>
         ) : (
@@ -106,6 +104,12 @@ function Plot({
 }
 
 const axis = { fill: "var(--fg-faint)", fontSize: 11 };
+const axisNarrow = { fill: "var(--fg-faint)", fontSize: 10 };
+
+/** One chart box. Shorter on a phone; the axis gutter shrinks with it. */
+function ChartBox({ children }: { children: React.ReactNode }) {
+  return <div className="w-full h-[150px] sm:h-[176px]">{children}</div>;
+}
 const fmtDay = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -134,6 +138,7 @@ function TinyTooltip({
 }
 
 function DailyBars({ analytics }: { analytics: AnalyticsPayload }) {
+  const narrow = useNarrow();
   const data = analytics.daily_returns.filter((d) => d.return !== null);
   return (
     <Plot
@@ -141,13 +146,13 @@ function DailyBars({ analytics }: { analytics: AnalyticsPayload }) {
       note="Every session since inception. Not gated — this is what happened, not an estimate of anything."
       empty={data.length === 0}
     >
-      <div style={{ width: "100%", height: 176 }}>
+      <ChartBox>
         <ResponsiveContainer>
           <BarChart data={data} margin={{ top: 4, right: 6, bottom: 0, left: 0 }}>
             <XAxis dataKey="date" tickFormatter={fmtDay} tickLine={false}
-                   axisLine={false} tick={axis} minTickGap={30} />
-            <YAxis tickFormatter={(v: number) => `${(v * 100).toFixed(2)}%`}
-                   tickLine={false} axisLine={false} width={58} tick={axis} />
+                   axisLine={false} tick={narrow ? axisNarrow : axis} minTickGap={narrow ? 52 : 30} />
+            <YAxis tickFormatter={(v: number) => `${(v * 100).toFixed(narrow ? 1 : 2)}%`}
+                   tickLine={false} axisLine={false} width={narrow ? 40 : 58} tick={narrow ? axisNarrow : axis} />
             <Tooltip content={<TinyTooltip format={(v) => signedPct(v ?? null, 3)} />}
                      cursor={{ fill: "var(--bg-subtle)" }} />
             <ReferenceLine y={0} stroke="var(--hairline)" />
@@ -159,12 +164,13 @@ function DailyBars({ analytics }: { analytics: AnalyticsPayload }) {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </ChartBox>
     </Plot>
   );
 }
 
 function DrawdownPath({ analytics }: { analytics: AnalyticsPayload }) {
+  const narrow = useNarrow();
   const data = analytics.drawdown.filter((d) => d.drawdown !== null);
   return (
     <Plot
@@ -172,7 +178,7 @@ function DrawdownPath({ analytics }: { analytics: AnalyticsPayload }) {
       note="Equity against its own running maximum. The minimum of this path is the maximum drawdown in the ledger — the same definition, not a second one."
       empty={data.length === 0}
     >
-      <div style={{ width: "100%", height: 176 }}>
+      <ChartBox>
         <ResponsiveContainer>
           <AreaChart data={data} margin={{ top: 4, right: 6, bottom: 0, left: 0 }}>
             <defs>
@@ -182,9 +188,9 @@ function DrawdownPath({ analytics }: { analytics: AnalyticsPayload }) {
               </linearGradient>
             </defs>
             <XAxis dataKey="date" tickFormatter={fmtDay} tickLine={false}
-                   axisLine={false} tick={axis} minTickGap={30} />
-            <YAxis tickFormatter={(v: number) => `${(v * 100).toFixed(2)}%`}
-                   tickLine={false} axisLine={false} width={58} tick={axis} />
+                   axisLine={false} tick={narrow ? axisNarrow : axis} minTickGap={narrow ? 52 : 30} />
+            <YAxis tickFormatter={(v: number) => `${(v * 100).toFixed(narrow ? 1 : 2)}%`}
+                   tickLine={false} axisLine={false} width={narrow ? 40 : 58} tick={narrow ? axisNarrow : axis} />
             <Tooltip content={<TinyTooltip format={(v) => pct(v ?? null, 3)} />}
                      cursor={{ stroke: "var(--hairline)" }} />
             <Area type="linear" dataKey="drawdown" stroke="var(--down)"
@@ -192,7 +198,7 @@ function DrawdownPath({ analytics }: { analytics: AnalyticsPayload }) {
                   connectNulls={false} isAnimationActive={false} />
           </AreaChart>
         </ResponsiveContainer>
-      </div>
+      </ChartBox>
     </Plot>
   );
 }
@@ -212,6 +218,7 @@ function Rolling({
   format: (v: number | null) => string;
   asPercent?: boolean;
 }) {
+  const narrow = useNarrow();
   const windows = Object.keys(series ?? {}).sort((a, b) => Number(a) - Number(b));
   const data = windows.length > 0 ? series[windows[0]] : [];
   return (
@@ -221,15 +228,15 @@ function Rolling({
       held={held}
       empty={data.length === 0}
     >
-      <div style={{ width: "100%", height: 176 }}>
+      <ChartBox>
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 4, right: 6, bottom: 0, left: 0 }}>
             <XAxis dataKey="date" tickFormatter={fmtDay} tickLine={false}
-                   axisLine={false} tick={axis} minTickGap={30} />
+                   axisLine={false} tick={narrow ? axisNarrow : axis} minTickGap={narrow ? 52 : 30} />
             <YAxis
               tickFormatter={(v: number) =>
                 asPercent ? `${(v * 100).toFixed(1)}%` : v.toFixed(1)}
-              tickLine={false} axisLine={false} width={58} tick={axis} />
+              tickLine={false} axisLine={false} width={narrow ? 40 : 58} tick={narrow ? axisNarrow : axis} />
             <Tooltip content={<TinyTooltip format={(v) => format(v ?? null)} />}
                      cursor={{ stroke: "var(--hairline)" }} />
             <ReferenceLine y={0} stroke="var(--hairline)" />
@@ -238,12 +245,13 @@ function Rolling({
                   isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
-      </div>
+      </ChartBox>
     </Plot>
   );
 }
 
 function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
+  const narrow = useNarrow();
   const bins = analytics.distribution?.bins ?? [];
   const data = bins.map((b) => ({
     label: `${(b.from * 100).toFixed(2)}%`,
@@ -256,12 +264,12 @@ function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
       note="The raw shape behind skew and kurtosis — how fat the tails are, rather than one number describing them."
       empty={data.length === 0}
     >
-      <div style={{ width: "100%", height: 176 }}>
+      <ChartBox>
         <ResponsiveContainer>
           <BarChart data={data} margin={{ top: 4, right: 6, bottom: 0, left: 0 }}>
-            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={axis}
-                   minTickGap={18} />
-            <YAxis tickLine={false} axisLine={false} width={40} tick={axis}
+            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={narrow ? axisNarrow : axis}
+                   minTickGap={narrow ? 40 : 18} />
+            <YAxis tickLine={false} axisLine={false} width={narrow ? 30 : 40} tick={narrow ? axisNarrow : axis}
                    allowDecimals={false} />
             <Tooltip
               cursor={{ fill: "var(--bg-subtle)" }}
@@ -285,7 +293,7 @@ function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </ChartBox>
     </Plot>
   );
 }
@@ -420,7 +428,7 @@ function DrawdownEpisodes({ analytics }: { analytics: AnalyticsPayload }) {
       empty={rows.length === 0}
     >
       <div className="scroll-x">
-        <table className="w-full min-w-[540px] text-[13px]">
+        <table className="w-full sm:min-w-[540px] text-[13px]">
           <thead>
             <tr className="text-[11.5px] text-fg-faint">
               <th className="text-left font-normal pb-2">Started</th>

@@ -36,15 +36,15 @@ export function HoldingsTable({
 
   return (
     <div className="scroll-x">
-      <table className="w-full min-w-[680px] text-[13px]">
+      <table className="w-full sm:min-w-[680px] text-[13px]">
         <thead>
           <tr className="text-[11px] text-fg-faint">
             <th className="text-left font-normal pb-3">Category</th>
             <th className="text-right font-normal pb-3">Positions</th>
             <th className="text-right font-normal pb-3">Cost basis</th>
-            <th className="text-right font-normal pb-3">Market value</th>
+            <th className="hidden sm:table-cell text-right font-normal pb-3">Market value</th>
             <th className="text-right font-normal pb-3">Open P&amp;L</th>
-            <th className="text-right font-normal pb-3 w-[64px]">Share</th>
+            <th className="hidden sm:table-cell text-right font-normal pb-3 w-[64px]">Share</th>
           </tr>
         </thead>
         <tbody>
@@ -92,7 +92,7 @@ export function HoldingsTable({
                   <td className="py-3 text-right tnum">
                     {money(g.cost_basis, currency, 0)}
                   </td>
-                  <td className="py-3 text-right tnum">
+                  <td className="hidden sm:table-cell py-3 text-right tnum">
                     {money(g.market_value, currency, 0)}
                   </td>
                   <td className={`py-3 text-right tnum font-medium ${pnlColour}`}>
@@ -102,7 +102,7 @@ export function HoldingsTable({
                       {g.open_pnl_pct === null ? "" : `(${signedPct(g.open_pnl_pct)})`}
                     </span>
                   </td>
-                  <td className="py-3 text-right tnum text-fg-muted">
+                  <td className="hidden sm:table-cell py-3 text-right tnum text-fg-muted">
                     {share === null ? "—" : pct(share, 1)}
                   </td>
                 </tr>
@@ -117,14 +117,14 @@ export function HoldingsTable({
                       <td className="py-2 text-right tnum text-fg-muted">
                         {money(p.cost_basis, currency, 0)}
                       </td>
-                      <td className="py-2 text-right tnum text-fg-faint">
+                      <td className="hidden sm:table-cell py-2 text-right tnum text-fg-faint">
                         {p.mark === null
                           ? "no mark"
                           : money(p.qty * p.mark, currency, 0)}
                       </td>
                       {/* No per-symbol P&L, by design. */}
                       <td className="py-2 text-right text-fg-faint">—</td>
-                      <td className="py-2 text-right tnum text-fg-faint whitespace-nowrap">
+                      <td className="hidden sm:table-cell py-2 text-right tnum text-fg-faint whitespace-nowrap">
                         @ {money(p.avg_price, currency)}
                       </td>
                     </tr>
@@ -139,7 +139,7 @@ export function HoldingsTable({
             <td className="py-3 text-right tnum font-semibold">
               {money(totalCost, currency, 0)}
             </td>
-            <td className="py-3 text-right tnum font-semibold">
+            <td className="hidden sm:table-cell py-3 text-right tnum font-semibold">
               {money(totalValue, currency, 0)}
             </td>
             <td
@@ -149,7 +149,7 @@ export function HoldingsTable({
             >
               {money(totalPnl, currency, 0)}
             </td>
-            <td />
+            <td className="hidden sm:table-cell" />
           </tr>
         </tbody>
       </table>

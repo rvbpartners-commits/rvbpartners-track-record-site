@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useNarrow } from "@/lib/useNarrow";
 
 export type ChartPoint = {
   /** ISO instant for intraday points, ISO date for daily ones. */
@@ -96,25 +97,22 @@ function ChartTooltip({
 export function PerformanceChart({
   data,
   granular,
-  height = 340,
 }: {
   data: ChartPoint[];
   granular: boolean;
-  height?: number;
 }) {
+  const narrow = useNarrow();
+
   if (data.length === 0) {
     return (
-      <div
-        className="flex items-center justify-center text-[13px] text-fg-faint"
-        style={{ height }}
-      >
+      <div className="flex items-center justify-center text-[13px] text-fg-faint h-[220px] sm:h-[340px]">
         No published sessions yet.
       </div>
     );
   }
 
   return (
-    <div style={{ width: "100%", height }}>
+    <div className="w-full h-[220px] sm:h-[340px]">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <defs>
@@ -129,15 +127,16 @@ export function PerformanceChart({
             tickFormatter={fmtDay}
             tickLine={false}
             axisLine={false}
-            tick={{ fill: "var(--fg-faint)", fontSize: 11 }}
-            minTickGap={44}
+            tick={{ fill: "var(--fg-faint)", fontSize: narrow ? 10 : 11 }}
+            minTickGap={narrow ? 60 : 44}
           />
           <YAxis
-            tickFormatter={(v: number) => `${(v * 100).toFixed(2)}%`}
+            tickFormatter={(v: number) =>
+              `${(v * 100).toFixed(narrow ? 1 : 2)}%`}
             tickLine={false}
             axisLine={false}
-            width={62}
-            tick={{ fill: "var(--fg-faint)", fontSize: 11 }}
+            width={narrow ? 42 : 62}
+            tick={{ fill: "var(--fg-faint)", fontSize: narrow ? 10 : 11 }}
           />
           <Tooltip
             content={<ChartTooltip granular={granular} />}
@@ -195,7 +194,7 @@ export function PerformanceChart({
 
 export function ChartLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[12px] text-fg-muted">
+    <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-5 gap-y-1 sm:gap-y-1.5 text-[11.5px] sm:text-[12px] text-fg-muted">
       <span className="inline-flex items-center gap-2">
         <span className="inline-block h-[2px] w-4" style={{ background: "var(--accent)" }} />
         Portfolio
