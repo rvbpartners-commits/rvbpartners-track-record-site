@@ -24,9 +24,12 @@
   --down-soft: #fdecea;
   --accent: #1b3a6b;
   --bench: #9aa3b2;
-  --warn-bg: #fff8e6;
-  --warn-fg: #7a5a12;
-  --warn-line: #f0dfae;
+  /* No amber. A withheld statistic is not a warning, it is an absence, and the
+     page carries one accent colour only — the portfolio line. Notices are set
+     apart by ground and weight, never by hue. */
+  --warn-bg: #f6f6f7;
+  --warn-fg: #3f4450;
+  --warn-line: #e4e4e8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,9 +47,9 @@
     --down-soft: #2e1613;
     --accent: #9dc0f5;
     --bench: #616b7c;
-    --warn-bg: #241f10;
-    --warn-fg: #e8cf94;
-    --warn-line: #4a3f1e;
+    --warn-bg: #16181c;
+    --warn-fg: #c7cdd8;
+    --warn-line: #292d35;
   }
 }
 

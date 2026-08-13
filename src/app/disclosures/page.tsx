@@ -62,15 +62,11 @@ export default async function DisclosuresPage() {
               <h2 className="mt-2 text-[18px] font-semibold tracking-tight leading-snug">
                 {d.title_en}
               </h2>
+              {/* English only. The published records carry a French field as
+                  well, but this site is not bilingual: a translation printed
+                  under every paragraph doubles the length of the page a reader
+                  has to get through to reach the caveat that matters. */}
               <p className="mt-3 text-[14px] leading-relaxed">{d.body_en}</p>
-              <div className="mt-5 pl-4 border-l-2 hairline">
-                <div className="text-[13px] font-medium text-fg-muted">
-                  {d.title_fr}
-                </div>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-fg-muted">
-                  {d.body_fr}
-                </p>
-              </div>
             </section>
           );
         })}

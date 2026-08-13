@@ -67,9 +67,17 @@ function ChartTooltip({
 /**
  * Cumulative return: the book as a filled area, the benchmarks as thin lines.
  *
- * `connectNulls` is deliberately OFF. If the desk was down and a session has no
- * value, the line breaks there. Bridging the gap would draw a performance path
- * that was never measured — the one thing a track record chart must not do.
+ * Two rules here, and both are about not drawing things that did not happen.
+ *
+ * **`type="linear"`, never `"monotone"`.** Monotone interpolation fits a smooth
+ * spline through the points, which invents a path between two sessions — on a
+ * short series it produces graceful curves out of what is really three straight
+ * segments, and it can bulge past the actual high or low between two marks. A
+ * daily NAV series has no intraday shape we measured, so the honest join between
+ * two marks is a straight line.
+ *
+ * **`connectNulls` OFF.** If the desk was down and a session has no value, the
+ * line breaks there rather than bridging the gap.
  */
 export function PerformanceChart({
   data,
@@ -124,7 +132,7 @@ export function PerformanceChart({
           />
 
           <Area
-            type="monotone"
+            type="linear"
             dataKey="book"
             name="Portfolio"
             stroke="var(--accent)"
@@ -136,7 +144,7 @@ export function PerformanceChart({
             isAnimationActive={false}
           />
           <Line
-            type="monotone"
+            type="linear"
             dataKey="spy"
             name="SPY total return"
             stroke="var(--bench)"
@@ -146,7 +154,7 @@ export function PerformanceChart({
             isAnimationActive={false}
           />
           <Line
-            type="monotone"
+            type="linear"
             dataKey="cash"
             name="Cash (risk-free)"
             stroke="var(--bench)"

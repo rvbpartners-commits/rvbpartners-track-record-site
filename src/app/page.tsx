@@ -1,6 +1,7 @@
 import { BookSwitcher, type BookBundle } from "@/components/BookView";
 import { Note } from "@/components/Note";
 import {
+  getAnalytics,
   getBenchmark,
   getIndex,
   getLatestDetail,
@@ -28,14 +29,15 @@ export default async function Home() {
 
   const bundles: BookBundle[] = await Promise.all(
     index.books.map(async (summary) => {
-      const [meta, metrics, nav, benchmark] = await Promise.all([
+      const [meta, metrics, analytics, nav, benchmark] = await Promise.all([
         getMeta(summary.book),
         getMetrics(summary.book),
+        getAnalytics(summary.book),
         getNav(summary.book),
         getBenchmark(summary.book),
       ]);
       const detail = await getLatestDetail(summary.book, meta);
-      return { summary, meta, metrics, nav, benchmark, detail };
+      return { summary, meta, metrics, analytics, nav, benchmark, detail };
     }),
   );
 
