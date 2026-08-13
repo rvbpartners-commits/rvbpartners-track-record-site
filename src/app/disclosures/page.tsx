@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { REPO_URL, getIndex } from "@/lib/data";
 
-// Next.js requires this to be a statically analysable literal, so it cannot
-// be the REVALIDATE_SECONDS constant. 900s = 15 min; the desk publishes daily.
-export const revalidate = 900;
+// Rendered per request. A static prerender plus framework caching left the
+// site serving data hours old with no way for traffic to clear it; the data
+// layer memoises for 60s, which is the whole of the caching now.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Disclosures",

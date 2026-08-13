@@ -15,13 +15,20 @@ export const SITE_REPO_URL =
   "https://github.com/rvbpartners-commits/rvbpartners-track-record-site";
 export const MAINTAINER_URL = "https://github.com/v89ysppdry";
 export const MAINTAINER_AVATAR =
-  "https://avatars.githubusercontent.com/u/247671242?v=4";
+  "https://avatars.githubusercontent.com/u/247671242?v=4&s=64";
 /** @deprecated use DATA_REPO_URL */
 export const REPO_URL = DATA_REPO_URL;
 
-/** Re-fetch every 15 minutes. The desk publishes once a day, so this is only
- *  about how quickly a fresh publish reaches visitors, never about load. */
-export const REVALIDATE_SECONDS = 900;
+/** How long a fetched file is reused inside one server instance.
+ *
+ *  Deliberately OUR cache and not the framework's. Statically prerendering these
+ *  pages and relying on `next: { revalidate }` left the live site serving data
+ *  six hours old: the page regenerated, but the underlying fetch kept returning
+ *  a cached response, and no amount of traffic cleared it. The pages are dynamic
+ *  now and every fetch is `no-store`, so freshness is bounded by this window
+ *  plus raw.githubusercontent's own CDN (~5 minutes) — both small, both
+ *  predictable, neither able to silently pin the site to an old publish. */
+export const MEMO_SECONDS = 60;
 
 /** English only; the published `_fr` fields are deliberately not typed here. */
 export type Disclosure = {
@@ -229,12 +236,20 @@ export type ChainEntry = {
   hash: string;
 };
 
+type Memo = { at: number; body: string | null };
+const memo = new Map<string, Memo>();
+
 async function getText(path: string): Promise<string | null> {
-  const res = await fetch(`${DATA_BASE}/${path}`, {
-    next: { revalidate: REVALIDATE_SECONDS },
-  });
-  if (!res.ok) return null;
-  return res.text();
+  const now = Date.now();
+  const hit = memo.get(path);
+  if (hit && now - hit.at < MEMO_SECONDS * 1000) return hit.body;
+
+  const res = await fetch(`${DATA_BASE}/${path}`, { cache: "no-store" });
+  const body = res.ok ? await res.text() : null;
+  // A 404 is memoised too: most session dates legitimately have no detail file,
+  // and re-asking on every render would spend the whole page budget on misses.
+  memo.set(path, { at: now, body });
+  return body;
 }
 
 /** Drop `*_fr` keys at the boundary. Rendering only English is not enough -
