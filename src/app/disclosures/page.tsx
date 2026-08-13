@@ -55,7 +55,7 @@ export default async function DisclosuresPage() {
           return (
             <section key={d.id} className="border-t hairline pt-6">
               <div
-                className={`text-[11px] uppercase tracking-[0.12em] ${sev.className}`}
+                className={`text-[11px] ${sev.className}`}
               >
                 {sev.label}
               </div>

@@ -60,7 +60,7 @@ export function Analytics({ analytics }: { analytics: AnalyticsPayload | null })
       {open && (
         <div className="mt-8 space-y-12">
           {analytics.gated && (
-            <p className="text-[13px] text-warn-fg bg-warn-bg border border-warn-line rounded-lg px-4 py-3.5 max-w-[80ch] leading-relaxed">
+            <p className="text-[13px] text-warn-fg bg-warn-bg border border-warn-line px-4 py-3.5 max-w-[80ch] leading-relaxed">
               <strong className="font-semibold">
                 Rolling statistics and the annualised summary are withheld —{" "}
                 {analytics.sessions} of {analytics.min_sessions_for_annualised}{" "}
@@ -132,7 +132,7 @@ function TinyTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-md border hairline bg-bg-raised px-2.5 py-1.5 text-[12px]">
+    <div className="border hairline bg-bg-raised px-2.5 py-1.5 text-[12px]">
       <div className="text-fg-faint text-[11px]">{label ? fmtDay(label) : ""}</div>
       <div className="tnum font-medium">{format(payload[0]?.value)}</div>
     </div>
@@ -261,7 +261,7 @@ function MonthlyTable({ analytics }: { analytics: AnalyticsPayload }) {
       <div className="scroll-x">
         <table className="w-full min-w-[620px] text-[12px]">
           <thead>
-            <tr className="text-[11px] uppercase tracking-[0.1em] text-fg-faint">
+            <tr className="text-[11px] text-fg-faint">
               <th className="text-left font-normal pb-2">Year</th>
               {MONTHS.map((m) => (
                 <th key={m} className="text-right font-normal pb-2">{m}</th>
@@ -330,7 +330,7 @@ function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
               cursor={{ fill: "var(--bg-subtle)" }}
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
-                  <div className="rounded-md border hairline bg-bg-raised px-2.5 py-1.5 text-[12px]">
+                  <div className="border hairline bg-bg-raised px-2.5 py-1.5 text-[12px]">
                     <div className="text-fg-faint text-[11px]">from {label}</div>
                     <div className="tnum font-medium">
                       {payload[0].value} session
@@ -364,7 +364,7 @@ function DrawdownEpisodes({ analytics }: { analytics: AnalyticsPayload }) {
       <div className="scroll-x">
         <table className="w-full min-w-[560px] text-[13px]">
           <thead>
-            <tr className="text-[11px] uppercase tracking-[0.1em] text-fg-faint">
+            <tr className="text-[11px] text-fg-faint">
               <th className="text-left font-normal pb-2">Started</th>
               <th className="text-left font-normal pb-2">Trough</th>
               <th className="text-left font-normal pb-2">Recovered</th>

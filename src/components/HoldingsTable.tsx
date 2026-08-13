@@ -49,7 +49,7 @@ export function HoldingsTable({
     <div className="scroll-x">
       <table className="w-full min-w-[680px] text-[13px]">
         <thead>
-          <tr className="text-[11px] uppercase tracking-[0.1em] text-fg-faint">
+          <tr className="text-[11px] text-fg-faint">
             <th className="text-left font-normal pb-3">Category</th>
             <th className="text-right font-normal pb-3">Positions</th>
             <th className="text-right font-normal pb-3">Cost basis</th>
@@ -87,7 +87,7 @@ export function HoldingsTable({
                         ▶
                       </span>
                       <span className="font-medium">{g.label}</span>
-                      <span className="text-[10px] tracking-[0.08em] text-fg-faint border hairline rounded px-1.5 py-0.5">
+                      <span className="text-[10px] tracking-[0.08em] text-fg-faint border hairline px-1.5 py-0.5">
                         {g.code}
                       </span>
                       {g.partial && (

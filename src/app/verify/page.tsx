@@ -124,7 +124,7 @@ export default async function VerifyPage() {
           <p className="text-[13px] text-fg-muted mb-2">
             Checks 1 and 2, end to end, on a clone:
           </p>
-          <pre className="scroll-x rounded-lg bg-bg-subtle border hairline p-4 text-[12px] leading-relaxed">
+          <pre className="scroll-x bg-bg-subtle border hairline p-4 text-[12px] leading-relaxed">
             <code>{`git clone ${REPO_URL}.git
 cd rvbpartners-track-record-data
 python -c "
@@ -156,7 +156,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         <div className="scroll-x mt-5">
           <table className="w-full min-w-[760px] text-[13px]">
             <thead>
-              <tr className="text-[11px] uppercase tracking-[0.1em] text-fg-faint">
+              <tr className="text-[11px] text-fg-faint">
                 <th className="text-left font-normal pb-3">Session</th>
                 <th className="text-left font-normal pb-3">Book</th>
                 <th className="text-left font-normal pb-3">Record hash</th>
@@ -268,7 +268,7 @@ function Check({
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="rounded bg-bg-subtle px-1.5 py-0.5 text-[12px] tnum">
+    <code className="bg-bg-subtle px-1.5 py-0.5 text-[12px] tnum">
       {children}
     </code>
   );

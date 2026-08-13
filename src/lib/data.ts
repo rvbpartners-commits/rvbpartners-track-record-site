@@ -90,6 +90,14 @@ export type BenchmarkPoint = {
   cash_cum: number | null;
 };
 
+/** Broker account equity at 5-minute resolution. This is what makes the curve a
+ *  curve rather than two line segments — real broker data, not interpolation. */
+export type IntradayPoint = {
+  timestamp: string;
+  session_date: string;
+  equity: number;
+};
+
 export type Position = {
   symbol: string;
   qty: number;
@@ -187,6 +195,9 @@ export type BookMeta = {
   detail_lag_days: number;
   min_sessions_for_annualised: number;
   categories: BookCategory[];
+  intraday_points: number;
+  intraday_resolution: string;
+  intraday_sessions_rejected: string[];
   desk_manifest_hash: string | null;
   chain_head: string;
   published_at: string;
@@ -299,6 +310,18 @@ export async function getNav(book: string): Promise<NavPoint[]> {
     cash: num(r.cash),
     daily_return: num(r.daily_return),
   }));
+}
+
+export async function getIntraday(book: string): Promise<IntradayPoint[]> {
+  const text = await getText(`books/${book}/intraday.csv`);
+  if (!text) return [];
+  return parseCsv(text)
+    .map((r) => ({
+      timestamp: r.timestamp,
+      session_date: r.session_date,
+      equity: num(r.equity) ?? 0,
+    }))
+    .filter((p) => p.timestamp && p.equity > 0);
 }
 
 export async function getBenchmark(book: string): Promise<BenchmarkPoint[]> {

@@ -30,7 +30,7 @@ export function Kpi({
 
   return (
     <div className="min-w-0">
-      <div className="text-[11px] uppercase tracking-[0.12em] text-fg-faint">
+      <div className="text-[11px] text-fg-faint">
         {label}
       </div>
 

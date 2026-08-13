@@ -88,6 +88,10 @@ body {
   overflow-x: hidden;
 }
 
+/* An accounts page has no rounded corners and no shadows: every edge is a rule
+   or it is nothing. Set once, so no component can quietly reintroduce a card. */
+table, th, td, pre, code, .hairline { border-radius: 0; }
+
 /* Tabular figures everywhere a number sits in a column, so digits line up and
    a changing value does not make the row jitter. */
 .tnum {
