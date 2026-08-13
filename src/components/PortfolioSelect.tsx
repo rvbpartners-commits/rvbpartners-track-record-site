@@ -10,19 +10,8 @@ export type PortfolioOption = {
   cumulative: number | null;
 };
 
-/**
- * The portfolio selector.
- *
- * A dropdown rather than a tab strip: tabs read as sections of one thing, and
- * these are four separate portfolios on four separate accounts. The control
- * says "you are looking at one of several" in a way a row of tabs does not, and
- * it does not silently run out of room when a fifth book is added.
- *
- * Native `<select>` was the alternative and is rejected for one reason: each
- * option carries its return, and an OS-rendered option list cannot show two
- * columns. The listbox below keeps keyboard behaviour (Escape closes, focus
- * returns, `aria-*` set) rather than trading it away for the layout.
- */
+/** Portfolio selector. A listbox rather than a native `<select>` because each
+ *  option carries its return in a second column. */
 export function PortfolioSelect({
   options,
   value,

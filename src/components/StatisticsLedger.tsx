@@ -11,15 +11,8 @@ type Row = {
 };
 
 /**
- * The statistics ledger — a ruled account of everything measured, on the page
- * rather than behind a disclosure triangle.
- *
- * Two rules make it read as an accounts page rather than a dashboard. Every
- * figure sits in a fixed column so the decimal points line up down the whole
- * table (`tabular-nums`), and a withheld statistic keeps its row: it is struck
- * with *why* it is withheld instead of disappearing, so the count of things
- * measured stays the same whether or not there is enough history yet. A table
- * that silently gets longer as the record matures hides how much was missing.
+ * The statistics ledger. Figures are tabular so decimals line up; a withheld
+ * statistic keeps its row and says why rather than disappearing.
  */
 export function StatisticsLedger({
   metrics,

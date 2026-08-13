@@ -18,17 +18,9 @@ import type { AnalyticsPayload, RollingPoint } from "@/lib/data";
 import { date, pct, ratio, signedPct } from "@/lib/format";
 
 /**
- * The chart suite under the statistics ledger — the plots a QuantStats
- * tear-sheet produces, drawn from series the desk computed.
- *
- * Nothing is calculated in the browser, including the rolling windows: a rolling
- * Sharpe is a per-window call to the same `compute_sharpe` that produced the
- * headline, made upstream and published as points.
- *
- * A chart whose series is withheld does not disappear — it keeps its frame and
- * states the threshold, for the same reason a withheld row stays in the ledger.
- * A page that quietly grows more charts as the record matures hides how much was
- * missing at the start.
+ * The chart suite under the ledger, drawn from series the desk computed -
+ * including the rolling windows. A withheld chart keeps its frame and states the
+ * threshold rather than disappearing.
  */
 export function AnalyticsCharts({
   analytics,

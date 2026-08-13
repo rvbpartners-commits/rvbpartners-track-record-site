@@ -86,25 +86,12 @@ function ChartTooltip({
 }
 
 /**
- * Cumulative return.
+ * Cumulative return, drawn from the broker's 5-minute equity.
  *
- * The portfolio line is drawn from the broker's 5-minute equity where that is
- * published, so the curve has the shape the day actually had rather than one
- * point per session joined up. That is why three rules apply here:
- *
- * **`type="linear"`, never `"monotone"`.** A spline fits a curve through the
- * points and invents a path between them — it can bulge past the real high or
- * low between two marks, which on an equity chart is a claim about a price that
- * never printed.
- *
- * **`connectNulls` off.** A session the desk did not publish leaves a break in
- * the line, not a bridge across it.
- *
- * **Session closes are marked separately.** The official NAV for a session is
- * the desk's after-close mark; the last intraday point is the broker's 16:00
- * figure. They differ by a few basis points because they are read at different
- * instants, so both are shown rather than one being quietly adjusted onto the
- * other.
+ * `type="linear"` not `"monotone"`: a spline invents a path between marks.
+ * `connectNulls` off: a missing session breaks the line rather than bridging it.
+ * Session closes are dotted separately - the official NAV and the broker's 16:00
+ * figure differ by a few basis points and neither is adjusted onto the other.
  */
 export function PerformanceChart({
   data,

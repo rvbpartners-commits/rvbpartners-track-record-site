@@ -5,22 +5,11 @@ import type { CategoryGroup } from "@/lib/data";
 import { money, pct, qty, signedPct } from "@/lib/format";
 
 /**
- * Holdings by strategy category, one expandable row per category.
+ * Holdings by strategy category, expandable.
  *
- * The published data contains no strategy identifier — not on the group, not on
- * the position — so there is nothing here to hide at render time. Groups are
- * styles (mean reversion, momentum, …); the strategies inside them are not
- * named anywhere in the pipeline.
- *
- * **P&L is a category total and never a per-symbol line.** The expanded rows
- * show what is held and at what average price, but the profit sits on the group.
- * A per-symbol P&L column under a named style is the trade record itself — which
- * name it made money on, and when it got out.
- *
- * Cost basis is qty × average entry; market value uses the session's mark. A
- * holding with no same-day mark contributes to cost basis, is counted as
- * unmarked, and flags its group partial — rather than being valued at a
- * borrowed price that would look authoritative and not be.
+ * P&L is a category total, never a per-symbol line. A holding with no same-day
+ * mark counts toward cost basis only and flags its group partial, rather than
+ * being valued at a borrowed price.
  */
 export function HoldingsTable({
   groups,

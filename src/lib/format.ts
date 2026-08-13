@@ -1,7 +1,4 @@
-/**
- * Presentation helpers. Formatting only — no arithmetic that changes a number's
- * meaning, and in particular nothing that turns "not published" into a value.
- */
+/** Formatting only. Nothing here turns "not published" into a value. */
 
 /** The one thing this module must never do quietly: render a missing number as
  *  0, "0.00%", or "—" without the reader knowing which it was. `null` from the

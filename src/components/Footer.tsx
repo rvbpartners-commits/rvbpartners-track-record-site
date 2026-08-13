@@ -1,17 +1,10 @@
 import Link from "next/link";
-import { REPO_URL } from "@/lib/data";
+import { DATA_REPO_URL, SITE_REPO_URL } from "@/lib/data";
 
-/**
- * The paper-account disclosure lives here, in the footer, by the operator's
- * decision — and it is written to survive that placement.
- *
- * A disclosure in a footer is only honest if it is still *read as one*: normal
- * body size (14px, the same as the tables above it), full foreground colour
- * rather than a grey wash, plain wording in the first sentence, and no
- * competing links above it. It is deliberately the first thing in the footer
- * and not the last line of a legal stack. If someone later shrinks this to 10px
- * grey, the disclosure has been removed in everything but name.
- */
+const CONTACT_EMAIL = "contact@rvbpartners.fr";
+
+/** The paper-account disclosure sits here at body size and full contrast, first
+ *  in the footer. Shrinking or greying it removes it in all but name. */
 export function Footer() {
   return (
     <footer className="mt-16 border-t hairline">
@@ -35,21 +28,35 @@ export function Footer() {
 
         <div className="mt-8 pt-6 border-t hairline flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-fg-muted">
           <Link href="/disclosures" className="hover:text-fg transition-colors">
-            Full disclosures
+            Disclosures
           </Link>
           <Link href="/methodology" className="hover:text-fg transition-colors">
             Methodology
           </Link>
           <Link href="/verify" className="hover:text-fg transition-colors">
-            Verify the record
+            Verify
           </Link>
           <a
-            href={REPO_URL}
+            href={DATA_REPO_URL}
             className="hover:text-fg transition-colors"
             rel="noreferrer noopener"
             target="_blank"
           >
-            Data repository
+            Data
+          </a>
+          <a
+            href={SITE_REPO_URL}
+            className="hover:text-fg transition-colors"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            Source
+          </a>
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="hover:text-fg transition-colors"
+          >
+            {CONTACT_EMAIL}
           </a>
           <span className="ml-auto text-fg-faint">
             &copy; {new Date().getFullYear()} RVB Partners

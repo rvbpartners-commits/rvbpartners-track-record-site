@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Note } from "@/components/Note";
 import {
   DATA_BASE,
-  REPO_URL,
+  DATA_REPO_URL,
+  MAINTAINER_URL,
+  SITE_REPO_URL,
   getChain,
   getIndex,
 } from "@/lib/data";
@@ -125,7 +127,7 @@ export default async function VerifyPage() {
             Checks 1 and 2, end to end, on a clone:
           </p>
           <pre className="scroll-x bg-bg-subtle border hairline p-4 text-[12px] leading-relaxed">
-            <code>{`git clone ${REPO_URL}.git
+            <code>{`git clone ${DATA_REPO_URL}.git
 cd rvbpartners-track-record-data
 python -c "
 import json,hashlib,pathlib
@@ -200,7 +202,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                     <span className="text-fg-faint px-1.5">·</span>
                     <a
                       className="text-accent hover:underline"
-                      href={`${REPO_URL}/commits/main/${e.file}`}
+                      href={`${DATA_REPO_URL}/commits/main/${e.file}`}
                       target="_blank"
                       rel="noreferrer noopener"
                     >
@@ -220,25 +222,65 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         )}
       </section>
 
-      <section className="mt-14">
-        <h2 className="text-[15px] font-semibold tracking-tight">
+      <section className="mt-14 grid lg:grid-cols-[190px_1fr] gap-x-10 gap-y-4 border-t hairline pt-8">
+        <h2 className="text-[14px] font-semibold tracking-tight">
           Where everything lives
         </h2>
-        <p className="mt-3 text-[13px] text-fg-muted max-w-[72ch] leading-relaxed">
-          The data repository is{" "}
-          <a
-            className="text-accent hover:underline"
-            href={REPO_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            {REPO_URL.replace("https://github.com/", "")}
-          </a>
-          . Its <Code>main</Code> branch is protected against force-push and
-          deletion, so the append-only history cannot be rewritten without leaving
-          a trace. Publication runs on the trading box itself — GitHub Actions is
-          not involved in producing this data and holds no broker credential.
-        </p>
+        <div className="max-w-[74ch]">
+          <p className="text-[13px] text-fg-muted leading-relaxed">
+            The data is in{" "}
+            <a className="text-accent hover:underline" href={DATA_REPO_URL}
+               target="_blank" rel="noreferrer noopener">
+              {DATA_REPO_URL.replace("https://github.com/", "")}
+            </a>{" "}
+            and this site is in{" "}
+            <a className="text-accent hover:underline" href={SITE_REPO_URL}
+               target="_blank" rel="noreferrer noopener">
+              {SITE_REPO_URL.replace("https://github.com/", "")}
+            </a>
+            . Both are public. Their <Code>main</Code> branches are protected
+            against force-push and deletion, so the append-only history cannot be
+            rewritten without leaving a trace. Publication runs on the trading box
+            itself — GitHub Actions is not involved in producing this data and
+            holds no broker credential.
+          </p>
+
+          <div className="mt-6 border-t hairline pt-5">
+            <h3 className="text-[13px] font-semibold tracking-tight">
+              Found something wrong?
+            </h3>
+            <p className="mt-2 text-[13px] text-fg-muted leading-relaxed">
+              If a check fails, a number does not reconcile, or something here is
+              unclear, please say so. Open an issue on either repository and tag{" "}
+              <a className="text-accent hover:underline" href={MAINTAINER_URL}
+                 target="_blank" rel="noreferrer noopener">
+                @v89ysppdry
+              </a>
+              , or write to{" "}
+              <a className="text-accent hover:underline"
+                 href="mailto:contact@rvbpartners.fr">
+                contact@rvbpartners.fr
+              </a>
+              . A track record nobody can question is not one worth publishing.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
+              <a className="text-accent hover:underline"
+                 href={`${DATA_REPO_URL}/issues/new`}
+                 target="_blank" rel="noreferrer noopener">
+                Open an issue on the data
+              </a>
+              <a className="text-accent hover:underline"
+                 href={`${SITE_REPO_URL}/issues/new`}
+                 target="_blank" rel="noreferrer noopener">
+                Open an issue on the site
+              </a>
+              <a className="text-accent hover:underline" href={MAINTAINER_URL}
+                 target="_blank" rel="noreferrer noopener">
+                github.com/v89ysppdry
+              </a>
+            </div>
+          </div>
+        </div>
       </section>
     </>
   );

@@ -1,19 +1,7 @@
 import type { ReactNode } from "react";
 
-/**
- * The page's spine.
- *
- * Every section is the same two-column grid: a fixed 190px rail carrying the
- * heading and its explanatory note, then the content. That gives the page two
- * vertical rules every block aligns to, which is what an accounts document has
- * and what a stack of full-width blocks does not — with mixed content widths
- * (a wide table, a narrow paragraph, a chart) a single column reads as ragged
- * even when every element is individually fine.
- *
- * It also puts the caveats where they belong. A three-line explanation of how
- * the equity series is constructed is not body copy; it is a margin note, and
- * setting it as one lets it be complete without interrupting the reader.
- */
+/** Two-column section: a 190px rail for the heading and its note, then the
+ *  content. Gives every block the same two vertical rules to align to. */
 export function Section({
   title,
   note,

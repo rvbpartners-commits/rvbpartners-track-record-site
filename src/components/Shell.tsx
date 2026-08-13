@@ -9,16 +9,7 @@ const NAV = [
   { href: "/disclosures", label: "Disclosures" },
 ];
 
-/**
- * A ruled page rather than a set of panels: one hairline under the masthead,
- * one above the footer, and nothing boxed in between. Hierarchy comes from
- * weight and spacing.
- *
- * Nothing is set in capitals. Uppercase reads as a system label — a machine
- * shouting a field name — and on a page that is otherwise an accounts document
- * it fights the tone rather than reinforcing it. Small, quiet, sentence case
- * does the same job without the shouting.
- */
+/** A ruled page, not a set of panels. Nothing is set in capitals. */
 export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">

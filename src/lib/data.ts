@@ -10,18 +10,18 @@
 
 export const DATA_REPO = "rvbpartners-commits/rvbpartners-track-record-data";
 export const DATA_BASE = `https://raw.githubusercontent.com/${DATA_REPO}/main`;
-export const REPO_URL = `https://github.com/${DATA_REPO}`;
+export const DATA_REPO_URL = `https://github.com/${DATA_REPO}`;
+export const SITE_REPO_URL =
+  "https://github.com/rvbpartners-commits/rvbpartners-track-record-site";
+export const MAINTAINER_URL = "https://github.com/v89ysppdry";
+/** @deprecated use DATA_REPO_URL */
+export const REPO_URL = DATA_REPO_URL;
 
 /** Re-fetch every 15 minutes. The desk publishes once a day, so this is only
  *  about how quickly a fresh publish reaches visitors, never about load. */
 export const REVALIDATE_SECONDS = 900;
 
-/**
- * The published records carry a French translation of each disclosure as well.
- * This site is English only, so the `_fr` fields are deliberately absent from
- * this type — leaving them out is what stops a later component from rendering
- * them back onto the page by reflex.
- */
+/** English only; the published `_fr` fields are deliberately not typed here. */
 export type Disclosure = {
   id: string;
   severity: "critical" | "important" | "note";
@@ -106,11 +106,8 @@ export type Position = {
   cost_basis: number;
 };
 
-/**
- * Holdings arrive grouped by strategy CATEGORY. There is no strategy identifier
- * in the published data at all — not on the group, not on the position — and
- * nothing in this site should try to reconstruct one.
- */
+/** Holdings are grouped by strategy category; no strategy identifier exists
+ *  anywhere in the published data. */
 export type CategoryGroup = {
   category: string;
   code: string;
@@ -238,18 +235,8 @@ async function getText(path: string): Promise<string | null> {
   return res.text();
 }
 
-/**
- * Drop every `*_fr` key, recursively, the moment data enters the site.
- *
- * The published records are bilingual — a property of the machine-readable
- * archive, and removing those fields upstream would permanently invalidate the
- * hash of every snapshot already written. This site is English only, and "no
- * French rendered" is not the same as "no French shipped": whatever a server
- * component receives is serialised into the page payload, so a French string
- * that is never displayed still travels to the browser and sits in view-source.
- * Stripping at the boundary is the one place that holds for everything at once,
- * including fields added to the schema later.
- */
+/** Drop `*_fr` keys at the boundary. Rendering only English is not enough -
+ *  server props are serialised into the page and would ship the French too. */
 function stripFrench<T>(value: T): T {
   if (Array.isArray(value)) {
     return value.map(stripFrench) as unknown as T;
@@ -325,10 +312,8 @@ export async function getNav(book: string): Promise<NavPoint[]> {
   }));
 }
 
-/** Benchmarks stamped on the SAME instants as the intraday equity, so both
- *  series span the axis. The daily benchmark has a value at 3 of 237
- *  x-positions, which a chart library joins into long straight segments that
- *  read as horizontal rules from nowhere. */
+/** Benchmarks on the same instants as the intraday equity, so both series span
+ *  the axis instead of being joined across three points. */
 export async function getBenchmarkIntraday(
   book: string,
 ): Promise<Map<string, { spy: number | null; cash: number | null }>> {
@@ -371,17 +356,8 @@ export async function getDetail(
   return getJson<DetailPayload>(`books/${book}/detail/${session}.json`);
 }
 
-/**
- * The most recent released detail file, or null.
- *
- * The session is taken from `meta.latest_detail_session`, which the publisher
- * writes for exactly this purpose — it is never guessed by walking back through
- * NAV dates. Detail is released on a lag and only for cycles that actually
- * executed, so most session dates legitimately have no file, and probing for
- * one is worse than merely wasteful here: a 404 during Next's static generation
- * aborts the render of that component, which showed up as an empty holdings
- * table with no error anywhere.
- */
+/** The latest released detail file. The session comes from
+ *  `meta.latest_detail_session` - never probe, a 404 aborts static generation. */
 export async function getLatestDetail(
   book: string,
   meta: BookMeta | null,
