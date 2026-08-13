@@ -206,12 +206,12 @@ export function PerformanceChart({
   );
 }
 
-export function ChartLegend({ granular }: { granular: boolean }) {
+export function ChartLegend() {
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[12px] text-fg-muted">
       <span className="inline-flex items-center gap-2">
         <span className="inline-block h-[2px] w-4" style={{ background: "var(--accent)" }} />
-        Portfolio{granular ? " (5-minute)" : ""}
+        Portfolio
       </span>
       <span className="inline-flex items-center gap-2">
         <span

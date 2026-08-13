@@ -147,6 +147,8 @@ export type DetailPayload = {
   categories: CategoryGroup[];
 };
 
+export type RollingPoint = { date: string; value: number | null };
+
 export type AnalyticsPayload = {
   book: string;
   as_of: string;
@@ -158,7 +160,18 @@ export type AnalyticsPayload = {
   computed_by: string;
   daily_returns: { date: string; return: number | null }[];
   drawdown: { date: string; drawdown: number | null }[];
-  rolling_sharpe: Record<string, { date: string; sharpe: number | null }[]>;
+  rolling_sharpe: Record<string, RollingPoint[]>;
+  rolling_volatility: Record<string, RollingPoint[]>;
+  rolling_sortino: Record<string, RollingPoint[]>;
+  quantiles: {
+    horizon: string;
+    n: number;
+    min: number | null;
+    q25: number | null;
+    median: number | null;
+    q75: number | null;
+    max: number | null;
+  }[];
   rolling_windows_withheld?: number[];
   monthly_returns: {
     year: number;
@@ -310,6 +323,23 @@ export async function getNav(book: string): Promise<NavPoint[]> {
     cash: num(r.cash),
     daily_return: num(r.daily_return),
   }));
+}
+
+/** Benchmarks stamped on the SAME instants as the intraday equity, so both
+ *  series span the axis. The daily benchmark has a value at 3 of 237
+ *  x-positions, which a chart library joins into long straight segments that
+ *  read as horizontal rules from nowhere. */
+export async function getBenchmarkIntraday(
+  book: string,
+): Promise<Map<string, { spy: number | null; cash: number | null }>> {
+  const text = await getText(`books/${book}/benchmark_intraday.csv`);
+  const out = new Map<string, { spy: number | null; cash: number | null }>();
+  if (!text) return out;
+  for (const r of parseCsv(text)) {
+    if (!r.timestamp) continue;
+    out.set(r.timestamp, { spy: num(r.spy_cum), cash: num(r.cash_cum) });
+  }
+  return out;
 }
 
 export async function getIntraday(book: string): Promise<IntradayPoint[]> {

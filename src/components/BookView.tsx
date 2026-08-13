@@ -12,10 +12,11 @@ import type {
   NavPoint,
 } from "@/lib/data";
 import { date, money, pct, signedPct } from "@/lib/format";
-import { Analytics } from "./Analytics";
+import { AnalyticsCharts } from "./AnalyticsCharts";
 import { ChartLegend, PerformanceChart, type ChartPoint } from "./PerformanceChart";
 import { HoldingsTable } from "./HoldingsTable";
 import { Note } from "./Note";
+import { Section } from "./Section";
 import { PortfolioSelect } from "./PortfolioSelect";
 import { StatisticsLedger } from "./StatisticsLedger";
 
@@ -27,6 +28,7 @@ export type BookBundle = {
   nav: NavPoint[];
   benchmark: BenchmarkPoint[];
   intraday: IntradayPoint[];
+  benchIntraday: Map<string, { spy: number | null; cash: number | null }>;
   detail: DetailPayload | null;
 };
 
@@ -43,6 +45,7 @@ function buildChart(
   nav: NavPoint[],
   benchmark: BenchmarkPoint[],
   intraday: IntradayPoint[],
+  benchIntraday: Map<string, { spy: number | null; cash: number | null }>,
 ): { points: ChartPoint[]; granular: boolean } {
   const base = nav.length > 0 ? nav[0].equity : 0;
   if (!base) return { points: [], granular: false };
@@ -73,16 +76,20 @@ function buildChart(
 
   const points: ChartPoint[] = intraday.map((p) => {
     const isSessionEnd = lastOfSession.get(p.session_date) === p.timestamp;
-    const b = isSessionEnd ? bench.get(p.session_date) : undefined;
     const navPoint = isSessionEnd ? navByDate.get(p.session_date) : undefined;
+    // Benchmarks come stamped on the SAME instants as the equity. Attaching the
+    // DAILY benchmark to session ends instead would give the line a value at 3
+    // of 237 x-positions, and the chart would join them into long straight
+    // segments hanging across the plot — the "horizontal rules from nowhere".
+    const b = benchIntraday.get(p.timestamp);
     return {
       t: p.timestamp,
       date: p.session_date,
       book: p.equity / base - 1,
-      spy: b?.spy_cum ?? null,
-      cash: b?.cash_cum ?? null,
-      // The official published NAV, which is the desk's after-close mark and
-      // sits a few basis points off the broker's 16:00 intraday figure.
+      spy: b?.spy ?? null,
+      cash: b?.cash ?? null,
+      // The official published NAV: the desk's after-close mark, a few basis
+      // points off the broker's 16:00 intraday figure.
       close: navPoint ? navPoint.equity / base - 1 : null,
     };
   });
@@ -96,16 +103,16 @@ function BookView({
   bundle: BookBundle;
   minSessions: number;
 }) {
-  const { summary, meta, metrics, analytics, nav, benchmark, intraday, detail } =
-    bundle;
+  const { summary, meta, metrics, analytics, nav, benchmark, intraday,
+          benchIntraday, detail } = bundle;
   const gate = metrics?.insufficient_history;
   const currency = meta?.currency ?? "USD";
   const last = nav.length > 0 ? nav[nav.length - 1] : null;
   const cumulative = metrics?.values.cumulative_return ?? null;
 
   const { points, granular } = useMemo(
-    () => buildChart(nav, benchmark, intraday),
-    [nav, benchmark, intraday],
+    () => buildChart(nav, benchmark, intraday, benchIntraday),
+    [nav, benchmark, intraday, benchIntraday],
   );
 
   return (
@@ -152,56 +159,63 @@ function BookView({
         </Note>
       )}
 
-      {/* The curve. */}
-      <section className="mt-12">
-        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-5">
-          <h2 className="text-[15px] font-semibold tracking-tight">
-            Cumulative return
-          </h2>
-          <ChartLegend granular={granular} />
+      <Section
+        title="Cumulative return"
+        first
+        note={
+          <>
+            {granular ? (
+              <>
+                Broker account equity at 5-minute resolution —{" "}
+                {meta?.intraday_points ?? points.length} readings, not
+                interpolation. Dots are the official session NAV, read at the
+                desk&rsquo;s after-close mark; it sits a few basis points from the
+                broker&rsquo;s 16:00 figure and neither is adjusted onto the other.
+              </>
+            ) : (
+              <>
+                One point per session, joined by straight lines. A daily net asset
+                value has no intraday path we measured.
+              </>
+            )}{" "}
+            These accounts hold shorts and are not index-like: the benchmark is
+            context, not a comparison.
+            {meta?.intraday_sessions_rejected?.length ? (
+              <>
+                {" "}
+                <strong className="font-medium text-fg">
+                  {meta.intraday_sessions_rejected.length} session
+                  {meta.intraday_sessions_rejected.length === 1 ? "" : "s"}{" "}
+                  excluded
+                </strong>{" "}
+                from the intraday line — the broker feed contradicted the
+                published NAV: {meta.intraday_sessions_rejected.join("; ")}.
+              </>
+            ) : null}
+          </>
+        }
+      >
+        <div className="flex justify-end mb-4">
+          <ChartLegend />
         </div>
         <PerformanceChart data={points} granular={granular} />
-        <p className="mt-4 text-[12px] text-fg-muted max-w-[78ch] leading-relaxed">
-          {granular ? (
-            <>
-              The portfolio line is the broker&rsquo;s own account equity at{" "}
-              <strong className="font-medium text-fg">5-minute resolution</strong>{" "}
-              — {meta?.intraday_points ?? points.length} readings, not
-              interpolation between session closes. Points mark the official
-              session NAV, which is taken at the desk&rsquo;s after-close mark and
-              sits a few basis points from the broker&rsquo;s 16:00 figure; both
-              are shown rather than one being adjusted onto the other.
-            </>
-          ) : (
-            <>
-              One point per session. Sessions are joined by straight lines, never
-              smoothed: a daily net asset value has no intraday path we measured.
-            </>
-          )}{" "}
-          The benchmark is published daily and is attached to each session close.
-          These accounts carry short positions and are not index-like — the
-          benchmark is context, not a like-for-like comparison.
-          {meta?.intraday_sessions_rejected?.length ? (
-            <>
-              {" "}
-              <strong className="font-medium text-fg">
-                {meta.intraday_sessions_rejected.length} session
-                {meta.intraday_sessions_rejected.length === 1 ? " was" : "s were"}{" "}
-                excluded from the intraday line
-              </strong>{" "}
-              because the broker&rsquo;s feed contradicted the published NAV for
-              {meta.intraday_sessions_rejected.length === 1 ? " it" : " them"}:{" "}
-              {meta.intraday_sessions_rejected.join("; ")}.
-            </>
-          ) : null}
-        </p>
-      </section>
+      </Section>
 
-      {/* Statistics, on the page rather than behind a triangle. */}
-      <section className="mt-14">
-        <h2 className="text-[15px] font-semibold tracking-tight mb-6">
-          Statistics
-        </h2>
+      <Section
+        title="Statistics"
+        note={
+          <>
+            Every figure is computed by the firm&rsquo;s{" "}
+            <span className="tnum">rvb.metrics</span> module and published as
+            data; nothing here is calculated in your browser. Sharpe, Sortino and
+            Calmar are excess of the 3-month Treasury yield
+            {metrics
+              ? ` (${pct(metrics.risk_free_annual)}, ${metrics.risk_free_source})`
+              : ""}
+            . A withheld figure keeps its row and says why.
+          </>
+        }
+      >
         <StatisticsLedger
           metrics={metrics}
           analytics={analytics}
@@ -209,30 +223,21 @@ function BookView({
           nav={last?.equity ?? null}
           sessions={summary.sessions}
         />
-        <p className="mt-5 text-[12px] text-fg-faint max-w-[78ch] leading-relaxed">
-          Every figure is computed by the firm&rsquo;s{" "}
-          <span className="tnum">rvb.metrics</span> module and published as data;
-          nothing on this page is calculated in your browser. Sharpe, Sortino and
-          Calmar are excess of the 3-month Treasury yield
-          {metrics ? ` (${pct(metrics.risk_free_annual)}, ${metrics.risk_free_source})` : ""}.
-        </p>
-      </section>
+        <AnalyticsCharts analytics={analytics} />
+      </Section>
 
-      <Analytics analytics={analytics} />
-
-      {/* Composition and holdings — the supporting schedule, not the headline. */}
-      <section className="mt-14 border-t hairline pt-8">
-        <h2 className="text-[15px] font-semibold tracking-tight">
-          Composition and holdings
-        </h2>
-        <p className="mt-2 mb-6 text-[12px] text-fg-muted max-w-[78ch] leading-relaxed">
-          Grouped by the category of strategy holding them — the style is
-          published, the strategies are not. Profit is reported per category for
-          the same reason: a per-symbol line under a named style is the trade
-          record itself. The split across categories is an attributed model;
-          account-level equity above is exact.
-        </p>
-
+      <Section
+        title="Composition and holdings"
+        note={
+          <>
+            Grouped by the category of strategy holding them — the style is
+            published, the strategies are not. Profit is reported per category
+            for the same reason: a per-symbol line under a named style is the
+            trade record itself. The split is an attributed model; account-level
+            equity above is exact.
+          </>
+        }
+      >
         {summary.categories?.length > 0 && (
           <div className="scroll-x mb-9">
             <table className="w-full min-w-[420px] max-w-[600px] text-[13px]">
@@ -274,11 +279,10 @@ function BookView({
           )}
         </div>
         <HoldingsTable groups={detail?.categories ?? []} currency={currency} />
-      </section>
+      </Section>
 
-      <section className="mt-14 border-t hairline pt-8">
-        <h2 className="text-[15px] font-semibold tracking-tight mb-5">Account</h2>
-        <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-[13px] max-w-[860px]">
+      <Section title="Account">
+        <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-[13px]">
           <Line label="Type">Alpaca paper — no capital at risk</Line>
           <Line label="Reference">
             <span className="tnum">
@@ -300,7 +304,7 @@ function BookView({
             </span>
           </Line>
         </dl>
-      </section>
+      </Section>
     </>
   );
 }

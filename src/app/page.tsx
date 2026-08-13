@@ -3,6 +3,7 @@ import { Note } from "@/components/Note";
 import {
   getAnalytics,
   getBenchmark,
+  getBenchmarkIntraday,
   getIntraday,
   getIndex,
   getLatestDetail,
@@ -30,7 +31,7 @@ export default async function Home() {
 
   const bundles: BookBundle[] = await Promise.all(
     index.books.map(async (summary) => {
-      const [meta, metrics, analytics, nav, benchmark, intraday] =
+      const [meta, metrics, analytics, nav, benchmark, intraday, benchIntraday] =
         await Promise.all([
           getMeta(summary.book),
           getMetrics(summary.book),
@@ -38,9 +39,13 @@ export default async function Home() {
           getNav(summary.book),
           getBenchmark(summary.book),
           getIntraday(summary.book),
+          getBenchmarkIntraday(summary.book),
         ]);
       const detail = await getLatestDetail(summary.book, meta);
-      return { summary, meta, metrics, analytics, nav, benchmark, intraday, detail };
+      return {
+        summary, meta, metrics, analytics, nav, benchmark, intraday,
+        benchIntraday, detail,
+      };
     }),
   );
 
