@@ -15,7 +15,7 @@ import { REPO_URL } from "@/lib/data";
 export function Footer() {
   return (
     <footer className="mt-16 border-t hairline">
-      <div className="px-5 sm:px-8 lg:px-12 py-8 max-w-[1180px]">
+      <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8">
         <p className="text-[14px] leading-relaxed text-fg max-w-[68ch]">
           <span className="font-semibold">
             These results come from Alpaca paper-trading accounts.

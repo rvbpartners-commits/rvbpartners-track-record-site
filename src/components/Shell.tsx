@@ -23,7 +23,12 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b hairline">
-        <div className="max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-4 flex flex-wrap items-baseline gap-x-8 gap-y-2">
+        {/* `mx-auto` is what centres the column. A `max-w-*` on its own only
+            caps the width — the block stays flush left, which on a wide screen
+            leaves the whole site pinned to one edge. Every container that caps
+            its width at MEASURE below does both, and they all use the same
+            token so the masthead, the body and the footer share one edge. */}
+        <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-4 flex flex-wrap items-baseline gap-x-8 gap-y-2">
           <Link href="/" className="text-[15px] font-semibold tracking-tight">
             RVB Partners
           </Link>
@@ -44,7 +49,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="flex-1 px-5 sm:px-8 lg:px-12 py-8 lg:py-10 max-w-[1180px] w-full">
+      <main className="flex-1 mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8 lg:py-10">
         {children}
       </main>
       <Footer />
