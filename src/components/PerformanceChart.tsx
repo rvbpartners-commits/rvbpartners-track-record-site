@@ -90,7 +90,11 @@ function ChartTooltip({
  * Cumulative return, drawn from the broker's 5-minute equity.
  *
  * `type="linear"` not `"monotone"`: a spline invents a path between marks.
- * `connectNulls` off: a missing session breaks the line rather than bridging it.
+ *
+ * `connectNulls` is off on EVERY series, benchmarks included. Bridging a gap
+ * draws a straight line across a period nothing was measured for, which is
+ * exactly how a benchmark missing its older history renders as a flat line that
+ * looks like real data. A gap has to look like a gap.
  * Session closes are dotted separately - the official NAV and the broker's 16:00
  * figure differ by a few basis points and neither is adjusted onto the other.
  */
@@ -162,7 +166,7 @@ export function PerformanceChart({
             stroke="var(--bench)"
             strokeWidth={1.3}
             dot={false}
-            connectNulls
+            connectNulls={false}
             isAnimationActive={false}
           />
           <Line
@@ -173,7 +177,7 @@ export function PerformanceChart({
             strokeWidth={1}
             strokeDasharray="3 3"
             dot={false}
-            connectNulls
+            connectNulls={false}
             isAnimationActive={false}
           />
           <Line
