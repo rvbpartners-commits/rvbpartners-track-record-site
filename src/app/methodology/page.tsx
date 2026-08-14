@@ -138,19 +138,6 @@ export default async function MethodologyPage() {
         </Section>
 
         <Section title="Known biases and limits">
-          <Note tone="warn">
-            <strong className="font-semibold">
-              Limit-order fills are biased low, so these results understate.
-            </strong>{" "}
-            The desk uses Alpaca&rsquo;s free IEX feed, roughly 2–3% of
-            consolidated US equity volume, so the daily range the paper fill
-            engine sees is narrower than the real tape and resting limit orders
-            the consolidated market would have touched are recorded as expired.
-            Measured over the first sessions: market orders filled 100% (72 of
-            72), limit orders 6% (7 of 120), and of 18 expired limit orders not
-            one had touched its IEX bar. The direction of the bias is certain. The
-            magnitude has not been measured and is not stated here.
-          </Note>
           <p>
             <strong className="font-medium">Two broker endpoints disagree slightly.</strong>{" "}
             Alpaca&rsquo;s account equity (our published NAV) and its daily

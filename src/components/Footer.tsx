@@ -14,9 +14,7 @@ export function Footer() {
           No real money is invested, no capital is at risk, and every fill is
           simulated by the broker&rsquo;s paper engine. Results are a
           live-execution rehearsal of the strategies, not a record of managing
-          client money. Limit-order fills are biased low by the free market-data
-          feed used, so these figures understate the limit-order strategies by an
-          amount that has not been measured.
+          client money.
         </p>
         <p className="text-[14px] leading-relaxed text-fg-muted max-w-[68ch] mt-3">
           Past performance is not indicative of future results. Nothing on this

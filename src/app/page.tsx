@@ -63,8 +63,8 @@ export default async function Home() {
             </p>
             <p>
               A strategy only reaches capital after purged cross-validation,
-              walk-forward testing and an untouched holdout window &mdash; and
-              after accounting for every attempt it took to find it.
+              walk-forward testing and an untouched holdout window, and after
+              accounting for every attempt it took to find it.
             </p>
             <p>
               What remains trades live, on demo accounts, publicly. Each session
