@@ -1,4 +1,4 @@
-# RVB Partners — track record site
+# RVB — track record site
 
 The public site at **[trackrecord.rvbpartners.fr](https://trackrecord.rvbpartners.fr)**.
 It renders the
@@ -21,9 +21,10 @@ absence — a break in the chart, a dash, or an explicit *withheld · N/60*.
 
 ## Stack
 
-Next.js, Tailwind, Recharts, deployed on Vercel. Data is fetched from the public
-repository at request time with a 15-minute revalidation window. **No environment
-variables and no secrets** — reading a public repository needs no credential.
+Next.js, Tailwind, Recharts, deployed on Vercel. Pages render per request and
+fetch the public repository with `no-store`, memoised for 60 seconds; the desk
+publishes every 15 minutes during the session. **No environment variables and no
+secrets** — reading a public repository needs no credential.
 
 ```bash
 npm install

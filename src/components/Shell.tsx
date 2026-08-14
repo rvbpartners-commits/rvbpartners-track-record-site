@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Footer } from "./Footer";
 
 const NAV = [
-  { href: "/", label: "Track record" },
+  { href: "/portfolios", label: "Portfolios" },
   { href: "/verify", label: "Verify" },
   { href: "/methodology", label: "Methodology" },
   { href: "/disclosures", label: "Disclosures" },
@@ -21,7 +21,7 @@ export function Shell({ children }: { children: ReactNode }) {
             token so the masthead, the body and the footer share one edge. */}
         <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-3 sm:py-4 flex flex-wrap items-baseline gap-x-8 gap-y-2">
           <Link href="/" className="text-[15px] font-semibold tracking-tight">
-            RVB Partners
+            RVB
           </Link>
           {/* On a phone the four links wrap onto a second row and the masthead
               doubles in height. Below `sm` they scroll sideways on one line

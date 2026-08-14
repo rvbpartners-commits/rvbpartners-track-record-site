@@ -353,6 +353,14 @@ export async function getIntraday(book: string): Promise<IntradayPoint[]> {
       session_date: r.session_date,
       equity: num(r.equity) ?? 0,
     }))
+    // A BACKSTOP, and it must never be load-bearing. The desk is the only place
+    // allowed to decide which broker readings are true, and it now refuses to
+    // publish a zero-equity reading at all (an account reporting no equity is an
+    // account that was not yet funded, which against a funded base is -100%).
+    // This filter was silently absorbing exactly that defect for two books --
+    // the site looked correct while the published data was wrong, which is the
+    // worst of both. Kept only so a novel broker glitch cannot deface a public
+    // page; if it ever removes a point again, the bug is upstream.
     .filter((p) => p.timestamp && p.equity > 0);
 }
 

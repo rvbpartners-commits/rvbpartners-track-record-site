@@ -59,7 +59,7 @@ export function Footer() {
             {CONTACT_EMAIL}
           </a>
           <span className="col-span-2 sm:col-span-1 sm:ml-auto text-fg-faint mt-2 sm:mt-0">
-            &copy; {new Date().getFullYear()} RVB Partners
+            &copy; {new Date().getFullYear()} RVB
           </span>
         </div>
       </div>

@@ -84,7 +84,7 @@ export default async function DisclosuresPage() {
           Regulatory status
         </h2>
         <p className="mt-3 text-[14px] leading-relaxed text-fg-muted">
-          RVB Partners is a French entity. Publicly presenting performance may
+          RVB is a French entity. Publicly presenting performance may
           engage AMF and EU marketing rules even where the accounts are simulated
           and no service is offered. No regulatory assessment has been obtained
           for this site, and nothing here should be read as a claim that one has.
