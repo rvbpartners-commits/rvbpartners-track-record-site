@@ -52,23 +52,30 @@ export default async function Home() {
 
         <div className="order-1 lg:order-2 max-w-[52ch]">
           <h1 className="text-[30px] sm:text-[38px] font-semibold tracking-tight leading-[1.12]">
-            We reject most of what we build.
+            The strategy that trades is the one that survived.
           </h1>
 
           <div className="mt-6 space-y-4 text-[14.5px] leading-relaxed text-fg-muted">
             <p>
-              Research, backtesting and live execution share one framework: the
-              same cost model, the same execution lag, the same metrics computed
-              once. No discretion, no second answer.
+              RVB is research-driven end to end. Every strategy is built and
+              tested inside the same framework that later executes it live.
+              There is no separate &ldquo;live&rdquo; version of a strategy, only
+              the one that survived research. What performs well once is not
+              enough; what earns capital is what holds up when tested against
+              everything we know about how results deceive their own authors.
             </p>
             <p>
-              A strategy only reaches capital after purged cross-validation,
-              walk-forward testing and an untouched holdout window, and after
-              accounting for every attempt it took to find it.
+              That framework applies identical rules from research to execution:
+              one cost structure, one execution delay, one computation for every
+              metric, with no discretion to choose which number gets shown.
             </p>
             <p>
-              What remains trades live, on demo accounts, publicly. Each session
-              is timestamped and chained, so the record stands on its own.
+              Live sessions are hash-chained at the moment they happen, each
+              record cryptographically linked to the one before it, so a session
+              can be verified but never rewritten. Change one number after the
+              fact and the chain breaks; that&rsquo;s what makes the record
+              something you can check rather than something you have to take our
+              word for.
             </p>
           </div>
 
