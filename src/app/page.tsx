@@ -52,7 +52,7 @@ export default async function Home() {
 
         <div className="order-1 lg:order-2 max-w-[52ch]">
           <h1 className="text-[30px] sm:text-[38px] font-semibold tracking-tight leading-[1.12]">
-            The strategy that trades is the one that survived.
+            Method, and the record it produces.
           </h1>
 
           <div className="mt-6 space-y-4 text-[14.5px] leading-relaxed text-fg-muted">
