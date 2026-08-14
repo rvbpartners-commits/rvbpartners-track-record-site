@@ -4,11 +4,14 @@ import { Shell } from "@/components/Shell";
 
 export const metadata: Metadata = {
   title: {
-    default: "RVB — live track record",
-    template: "%s — RVB",
+    default: "RVB live track record",
+    template: "%s · RVB",
   },
+  // No portfolio count and no publishing cadence in here: both have already
+  // changed once (four books became six, daily became every fifteen minutes)
+  // and metadata nobody re-reads is exactly where a stale number survives.
   description:
-    "Independently verifiable live paper-trading track record for four RVB " +
+    "Independently verifiable live paper-trading track record for the RVB " +
     "portfolios. Every published number is hash-chained, timestamped, " +
     "and reproducible from open data.",
   // These are paper accounts with a short history. Ranking a page that makes
@@ -16,10 +19,10 @@ export const metadata: Metadata = {
   // but not promoted.
   robots: { index: true, follow: true },
   openGraph: {
-    title: "RVB — live track record",
+    title: "RVB live track record",
     description:
-      "Four paper-trading portfolios, published daily, hash-chained and " +
-      "timestamped. Verify every number yourself.",
+      "Live paper-trading portfolios, hash-chained and timestamped. " +
+      "Verify every number yourself.",
     type: "website",
   },
 };
