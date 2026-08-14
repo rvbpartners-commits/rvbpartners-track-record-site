@@ -52,29 +52,23 @@ export default async function Home() {
 
         <div className="order-1 lg:order-2 max-w-[52ch]">
           <h1 className="text-[30px] sm:text-[38px] font-semibold tracking-tight leading-[1.12]">
-            Most of what we build does not survive our own tests.
+            We reject most of what we build.
           </h1>
 
           <div className="mt-6 space-y-4 text-[14.5px] leading-relaxed text-fg-muted">
             <p>
-              RVB is a systematic fund. Research, backtesting and execution run
-              through one framework: a single accounting engine that charges
-              every idea the same costs and the same execution lag, and a single
-              metrics module that computes each figure exactly once. Two people
-              cannot arrive at two answers for the same track record.
+              Research, backtesting and live execution share one framework: the
+              same cost model, the same execution lag, the same metrics computed
+              once. No discretion, no second answer.
             </p>
             <p>
-              The research pipeline is built to reject. A candidate faces purged
-              cross-validation, permutation tests, walk-forward analysis and a
-              holdout window it was never selected on. Every backtest and every
-              parameter sweep we have run is recorded, and results are deflated
-              by that count, so searching harder raises the bar instead of
-              lowering it.
+              A strategy only reaches capital after purged cross-validation,
+              walk-forward testing and an untouched holdout window &mdash; and
+              after accounting for every attempt it took to find it.
             </p>
             <p>
-              What clears all of that trades here, on live demo accounts, in the
-              open. Every session is published, hash-chained and timestamped, so
-              the record can be audited line by line rather than taken on trust.
+              What remains trades live, on demo accounts, publicly. Each session
+              is timestamped and chained, so the record stands on its own.
             </p>
           </div>
 
