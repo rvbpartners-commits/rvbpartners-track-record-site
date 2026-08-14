@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { signedPct } from "@/lib/format";
+import { orderWithVariants, parentOf, variantSize } from "@/lib/variants";
 
 export type PortfolioOption = {
   book: string;
@@ -23,7 +24,11 @@ export function PortfolioSelect({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const current = options.find((o) => o.book === value) ?? options[0];
+  // A capital variant is the same portfolio at a different size, so it is listed
+  // directly beneath its parent and indented rather than as a peer entry.
+  const ordered = orderWithVariants(options, (o) => o.book);
+  const books = ordered.map((o) => o.book);
+  const current = options.find((o) => o.book === value) ?? ordered[0];
 
   useEffect(() => {
     if (!open) return;
@@ -71,8 +76,11 @@ export function PortfolioSelect({
           aria-label="Portfolio"
           className="absolute z-20 mt-1.5 w-full sm:w-[320px] sm:max-w-[86vw] border hairline bg-bg-raised shadow-lg overflow-hidden"
         >
-          {options.map((o) => {
+          {ordered.map((o) => {
             const selected = o.book === value;
+            const parent = parentOf(o.book);
+            const isVariant = parent !== null && books.includes(parent);
+            const size = variantSize(o.book);
             const colour =
               o.cumulative === null
                 ? "text-fg-faint"
@@ -88,16 +96,25 @@ export function PortfolioSelect({
                     setOpen(false);
                   }}
                   className={`w-full text-left px-4 py-3 flex items-baseline gap-4 transition-colors ${
-                    selected ? "bg-bg-subtle" : "hover:bg-bg-subtle"
-                  }`}
+                    isVariant ? "pl-8" : ""
+                  } ${selected ? "bg-bg-subtle" : "hover:bg-bg-subtle"}`}
                 >
                   <span className="min-w-0">
                     <span className="block text-[13px] font-medium truncate">
+                      {/* A rule tying the row to the one above: this is not a
+                          separate portfolio, it is the same one at another size. */}
+                      {isVariant && (
+                        <span aria-hidden="true" className="text-fg-faint mr-1.5">
+                          └
+                        </span>
+                      )}
                       {o.label}
                     </span>
-                    {o.tagline && (
+                    {(isVariant ? size : o.tagline) && (
                       <span className="block text-[11px] text-fg-faint truncate mt-0.5">
-                        {o.tagline}
+                        {isVariant
+                          ? `Same strategies and weights, funded with $${size}`
+                          : o.tagline}
                       </span>
                     )}
                   </span>

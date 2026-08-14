@@ -11,13 +11,17 @@ import {
 } from "recharts";
 import type { IntradayPoint, NavPoint } from "@/lib/data";
 import { useNarrow } from "@/lib/useNarrow";
+import {
+  colourIndex,
+  orderWithVariants,
+  seriesOpacity,
+  variantSize,
+} from "@/lib/variants";
 
-// One entry per published book. The chart indexes with `i % SERIES_COLOURS.length`,
-// so this array MUST grow with the published book list: short by two, books 5 and 6
-// reuse s1/s2 — the exact colours of the $1M books they exist to be compared against.
-export const SERIES_COLOURS = [
-  "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)",
-];
+// One entry per PORTFOLIO, not per published book: a capital variant borrows its
+// parent's colour and is drawn softer (see lib/variants), so the pair reads as one
+// idea at two sizes rather than as two unrelated portfolios.
+export const SERIES_COLOURS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"];
 
 export type OverviewSeries = {
   book: string;
@@ -113,10 +117,15 @@ function OverviewTooltip({
 
 export function OverviewChart({ series }: { series: OverviewSeries[] }) {
   const narrow = useNarrow();
-  const rows = useMemo(() => buildRows(series), [series]);
-  const labels = useMemo(
-    () => new Map(series.map((s) => [s.book, s.label])),
+  const ordered = useMemo(
+    () => orderWithVariants(series, (s) => s.book),
     [series],
+  );
+  const books = useMemo(() => ordered.map((s) => s.book), [ordered]);
+  const rows = useMemo(() => buildRows(ordered), [ordered]);
+  const labels = useMemo(
+    () => new Map(ordered.map((s) => [s.book, s.label])),
+    [ordered],
   );
 
   // One tick per session, placed on that session's first instant. Left to pick
@@ -169,13 +178,16 @@ export function OverviewChart({ series }: { series: OverviewSeries[] }) {
             content={<OverviewTooltip labels={labels} />}
             cursor={{ stroke: "var(--hairline)", strokeWidth: 1 }}
           />
-          {series.map((s, i) => (
+          {ordered.map((s) => (
             <Line
               key={s.book}
               type="linear"
               dataKey={s.book}
               name={s.book}
-              stroke={SERIES_COLOURS[i % SERIES_COLOURS.length]}
+              stroke={
+                SERIES_COLOURS[colourIndex(s.book, books) % SERIES_COLOURS.length]
+              }
+              strokeOpacity={seriesOpacity(s.book, books)}
               strokeWidth={1.4}
               dot={false}
               activeDot={{ r: 3 }}
@@ -192,17 +204,33 @@ export function OverviewChart({ series }: { series: OverviewSeries[] }) {
 }
 
 export function OverviewLegend({ series }: { series: OverviewSeries[] }) {
+  const ordered = orderWithVariants(series, (s) => s.book);
+  const books = ordered.map((s) => s.book);
   return (
     <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[11.5px] sm:text-[12px] text-fg-muted">
-      {series.map((s, i) => (
-        <span key={s.book} className="inline-flex items-center gap-2">
-          <span
-            className="inline-block h-[2px] w-4"
-            style={{ background: SERIES_COLOURS[i % SERIES_COLOURS.length] }}
-          />
-          {s.label}
-        </span>
-      ))}
+      {ordered.map((s) => {
+        const size = variantSize(s.book);
+        return (
+          <span key={s.book} className="inline-flex items-center gap-2">
+            <span
+              className="inline-block h-[2px] w-4"
+              style={{
+                background:
+                  SERIES_COLOURS[colourIndex(s.book, books) % SERIES_COLOURS.length],
+                opacity: seriesOpacity(s.book, books),
+              }}
+            />
+            {s.label}
+            {/* Says outright that this line is the one above at a smaller size,
+                so the shared hue reads as deliberate rather than as a clash. */}
+            {size && (
+              <span className="text-fg-faint">
+                · same strategies at ${size}
+              </span>
+            )}
+          </span>
+        );
+      })}
     </div>
   );
 }

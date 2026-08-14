@@ -30,20 +30,18 @@
   --warn-bg: #f6f6f7;
   --warn-fg: #3f4450;
   --warn-line: #e4e4e8;
-  /* Portfolio lines on the overview chart, where no single line is "the"
+  /* One colour per PORTFOLIO on the overview chart, where no single line is "the"
      portfolio and grey is free (that chart carries no benchmark). Deliberately
      NOT --up/--down: those two mean the sign of a return everywhere else, and a
      portfolio drawn in green would read as a portfolio that is up. Muted on
-     purpose — saturated lines on one plot is a chart nobody can read.
-     s5/s6 are the $100k twins: the chart indexes with `i % SERIES_COLOURS.length`,
-     so without them books 5 and 6 would be drawn in s1/s2 — the exact colours of
-     the $1M books they are meant to be compared against. */
+     purpose — four saturated lines on one plot is a chart nobody can read.
+     A capital variant does NOT get its own entry: it borrows its parent's colour
+     at a lower opacity (src/lib/variants.ts), because it is the same portfolio
+     at a different size and a distinct hue would deny that. */
   --s1: #1b3a6b;
   --s2: #9a6b1f;
   --s3: #7a4a6b;
   --s4: #256f7c;
-  --s5: #5b6b3a;
-  --s6: #8c4a3f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -70,8 +68,6 @@
     --s2: #e0b072;
     --s3: #d49ac0;
     --s4: #6fc4d4;
-    --s5: #b3c489;
-    --s6: #e4a196;
   }
 }
 
@@ -96,8 +92,6 @@
   --color-s2: var(--s2);
   --color-s3: var(--s3);
   --color-s4: var(--s4);
-  --color-s5: var(--s5);
-  --color-s6: var(--s6);
 }
 
 html {
