@@ -49,6 +49,7 @@ export type BookSummary = {
   sessions: number;
   initial_capital: number;
   cumulative_return: number | null;
+  live: LiveReading | null;
   annualised_gated: boolean;
   categories: BookCategory[];
   account_ref: string | null;
@@ -201,6 +202,19 @@ export type AnalyticsPayload = {
   withheld_note?: string;
 };
 
+/** The latest broker reading. NOT chained evidence: it is a mid-session equity
+ *  reading, not an after-close mark, and it can still move. Published by the
+ *  desk (never divided out here) so the headline a reader sees and the curve
+ *  drawn beside it come from the same source and the same funded-capital base. */
+export type LiveReading = {
+  equity: number;
+  at: string;
+  session_date: string;
+  cumulative_return: number;
+  marked: boolean;
+  source: string;
+};
+
 export type BookMeta = {
   book: string;
   account_ref: string | null;
@@ -219,6 +233,7 @@ export type BookMeta = {
   intraday_points: number;
   intraday_resolution: string;
   intraday_sessions_rejected: string[];
+  live: LiveReading | null;
   desk_manifest_hash: string | null;
   chain_head: string;
   published_at: string;

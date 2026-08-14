@@ -11,7 +11,7 @@ import type {
   MetricsPayload,
   NavPoint,
 } from "@/lib/data";
-import { date, money, pct, signedPct } from "@/lib/format";
+import { date, marketTime, money, pct, signedPct } from "@/lib/format";
 import { AnalyticsCharts } from "./AnalyticsCharts";
 import { ChartLegend, PerformanceChart, type ChartPoint } from "./PerformanceChart";
 import { HoldingsTable } from "./HoldingsTable";
@@ -109,6 +109,7 @@ function BookView({
   const currency = meta?.currency ?? "USD";
   const last = nav.length > 0 ? nav[nav.length - 1] : null;
   const cumulative = metrics?.values.cumulative_return ?? null;
+  const live = meta?.live ?? summary.live ?? null;
 
   const { points, granular } = useMemo(
     () => buildChart(nav, benchmark, intraday, benchIntraday),
@@ -125,11 +126,30 @@ function BookView({
         <p className="mt-1.5 text-[14px] text-fg-muted">{summary.tagline_en}</p>
 
         <dl className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
-          <Field label="Net asset value" value={money(last?.equity, currency, 2)} />
+          {/* The LIVE reading leads, because "what is this account worth" is the
+              question a reader is asking, and answering it with the previous
+              close while the curve below draws today put two clocks on one
+              screen — the broker said +4,992 and the page said +4,641. The
+              marked figure is not dropped: it is the chained evidence, and it
+              sits underneath, dated. */}
+          <Field
+            label="Net asset value"
+            value={money(live?.equity ?? last?.equity, currency, 2)}
+            note={
+              live
+                ? `live · ${marketTime(live.at)}`
+                : `marked ${date(last?.date)}`
+            }
+          />
           <Field
             label="Since inception"
-            value={signedPct(cumulative, 3)}
-            sign={cumulative}
+            value={signedPct(live?.cumulative_return ?? cumulative, 3)}
+            sign={live?.cumulative_return ?? cumulative}
+            note={
+              live && cumulative !== null
+                ? `${signedPct(cumulative, 3)} at the ${date(summary.last_session)} close`
+                : undefined
+            }
           />
           <Field
             label="Last session"

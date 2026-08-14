@@ -100,3 +100,21 @@ export function shortHash(hash: string | null | undefined, len = 12): string {
   if (!hash) return NO_VALUE;
   return hash.length <= len ? hash : `${hash.slice(0, len)}…`;
 }
+
+/** A broker reading's instant, in the market's own clock.
+ *
+ *  New York, not UTC and not the reader's zone: every session boundary in this
+ *  record is an ET date, so a reading stamped "16:45 CEST" cannot be placed
+ *  against the session it belongs to without the reader doing arithmetic. */
+export function marketTime(iso: string | null | undefined): string {
+  if (!iso) return NO_VALUE;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return `${new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/New_York",
+  }).format(d)} ET`;
+}
