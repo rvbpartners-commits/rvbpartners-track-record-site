@@ -16,6 +16,8 @@ export const SITE_REPO_URL =
 export const MAINTAINER_URL = "https://github.com/v89ysppdry";
 export const MAINTAINER_AVATAR =
   "https://avatars.githubusercontent.com/u/247671242?v=4";
+/** One address, used by the footer and the landing page. */
+export const CONTACT_EMAIL = "contact@rvbpartners.fr";
 /** @deprecated use DATA_REPO_URL */
 export const REPO_URL = DATA_REPO_URL;
 

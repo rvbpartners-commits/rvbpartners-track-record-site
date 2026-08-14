@@ -5,7 +5,7 @@ import {
   OverviewLegend,
   type OverviewSeries,
 } from "@/components/OverviewChart";
-import { getIndex, getIntraday, getNav } from "@/lib/data";
+import { CONTACT_EMAIL, getIndex, getIntraday, getNav } from "@/lib/data";
 
 // Same reasoning as the portfolios page: rendered per request, because the
 // curve below is the live one and a cached landing page is a stale claim.
@@ -88,6 +88,12 @@ export default async function Home() {
             >
               Verify it yourself
             </Link>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="text-[13.5px] text-fg-muted hover:text-fg transition-colors underline underline-offset-4 decoration-hairline"
+            >
+              Contact us
+            </a>
           </div>
         </div>
       </div>
@@ -112,10 +118,10 @@ export default async function Home() {
       <p className="mt-8 text-[12px] text-fg-faint max-w-[80ch]">
         Alpaca paper accounts: fills are simulated and no capital is at risk.
         Cumulative return since each account was funded, rebased on its own
-        opening equity, so accounts of different sizes are comparable. A line
-        sits flat at zero while that account was funded but had not yet traded,
-        and begins where its record does. No benchmark is drawn here; past
-        performance is not indicative of future results.
+        opening equity, so accounts of different sizes are comparable. Each line
+        begins at that account&rsquo;s first traded session; the return is still
+        measured from the capital it was funded with. No benchmark is drawn here;
+        past performance is not indicative of future results.
       </p>
     </>
   );

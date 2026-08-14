@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { DATA_REPO_URL, SITE_REPO_URL } from "@/lib/data";
-
-const CONTACT_EMAIL = "contact@rvbpartners.fr";
+import { CONTACT_EMAIL, DATA_REPO_URL, SITE_REPO_URL } from "@/lib/data";
 
 /** The paper-account disclosure sits here at body size and full contrast, first
  *  in the footer. Shrinking or greying it removes it in all but name. */
