@@ -12,7 +12,12 @@ import {
 import type { IntradayPoint, NavPoint } from "@/lib/data";
 import { useNarrow } from "@/lib/useNarrow";
 
-export const SERIES_COLOURS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"];
+// One entry per published book. The chart indexes with `i % SERIES_COLOURS.length`,
+// so this array MUST grow with the published book list: short by two, books 5 and 6
+// reuse s1/s2 — the exact colours of the $1M books they exist to be compared against.
+export const SERIES_COLOURS = [
+  "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)",
+];
 
 export type OverviewSeries = {
   book: string;
