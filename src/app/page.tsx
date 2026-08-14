@@ -52,25 +52,29 @@ export default async function Home() {
 
         <div className="order-1 lg:order-2 max-w-[52ch]">
           <h1 className="text-[30px] sm:text-[38px] font-semibold tracking-tight leading-[1.12]">
-            A systematic fund, run by research rather than by opinion.
+            Most of what we build does not survive our own tests.
           </h1>
 
           <div className="mt-6 space-y-4 text-[14.5px] leading-relaxed text-fg-muted">
             <p>
-              RVB is systematic and data-driven. Every position is decided by
-              rules, tested against decades of point-in-time data, and measured
-              by one shared metrics module — so two people never see two numbers
-              for the same return.
+              RVB is a systematic fund. Research, backtesting and execution run
+              through one framework: a single accounting engine that charges
+              every idea the same costs and the same execution lag, and a single
+              metrics module that computes each figure exactly once. Two people
+              cannot arrive at two answers for the same track record.
             </p>
             <p>
-              Research comes first. A strategy only reaches an account after it
-              survives a battery built to reject it, and most of what we test
-              does not survive.
+              The research pipeline is built to reject. A candidate faces purged
+              cross-validation, permutation tests, walk-forward analysis and a
+              holdout window it was never selected on. Every backtest and every
+              parameter sweep we have run is recorded, and results are deflated
+              by that count, so searching harder raises the bar instead of
+              lowering it.
             </p>
             <p>
-              We are glad to be running our portfolios on live demo accounts, in
-              the open: every session is published, hash-chained, timestamped and
-              reproducible from the data itself.
+              What clears all of that trades here, on live demo accounts, in the
+              open. Every session is published, hash-chained and timestamped, so
+              the record can be audited line by line rather than taken on trust.
             </p>
           </div>
 
