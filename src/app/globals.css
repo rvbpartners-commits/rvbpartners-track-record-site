@@ -1,9 +1,20 @@
 @import "tailwindcss";
 
 /*
- * Navexa-informed: white ground, thin type, almost no borders. Contrast is
- * carried by weight and colour, not by boxes — so the palette has three text
- * weights and exactly one hairline, and everything else is spacing.
+ * Dark ground, thin type, almost no borders. Contrast is carried by weight and
+ * colour, not by boxes — so the palette has three text weights and exactly one
+ * hairline, and everything else is spacing.
+ *
+ * SINGLE THEME, deliberately. There is no light palette and no
+ * `prefers-color-scheme` switch: the page renders dark for every reader,
+ * whatever their system is set to. That is a design decision, not an omission,
+ * so every colour below is stated explicitly rather than inherited from the
+ * browser's defaults — a token left undefined would fall back to a light-mode
+ * default and put light text on a dark ground, or the reverse.
+ *
+ * `color-scheme: dark` is what carries the decision into the parts of the page
+ * CSS does not paint: scrollbars, form controls, and the canvas behind an
+ * over-scroll. Without it those stay light and flash white at the edges.
  *
  * Green/red are the only saturated colours and they mean exactly one thing:
  * the sign of a return. Nothing decorative is allowed to use them, or they stop
@@ -11,25 +22,26 @@
  */
 
 :root {
-  --bg: #ffffff;
-  --bg-subtle: #fafafa;
-  --bg-raised: #ffffff;
-  --fg: #111318;
-  --fg-muted: #5b6270;
-  --fg-faint: #8b93a1;
-  --hairline: #ececf0;
-  --up: #10814a;
-  --up-soft: #e7f4ed;
-  --down: #c0392f;
-  --down-soft: #fdecea;
-  --accent: #1b3a6b;
-  --bench: #9aa3b2;
+  color-scheme: dark;
+  --bg: #0d0f12;
+  --bg-subtle: #121519;
+  --bg-raised: #15181d;
+  --fg: #eef1f5;
+  --fg-muted: #a2abba;
+  --fg-faint: #6f7889;
+  --hairline: #23272e;
+  --up: #3ddc97;
+  --up-soft: #123026;
+  --down: #ff7a6e;
+  --down-soft: #2e1613;
+  --accent: #9dc0f5;
+  --bench: #616b7c;
   /* No amber. A withheld statistic is not a warning, it is an absence, and the
      page carries one accent colour only — the portfolio line. Notices are set
      apart by ground and weight, never by hue. */
-  --warn-bg: #f6f6f7;
-  --warn-fg: #3f4450;
-  --warn-line: #e4e4e8;
+  --warn-bg: #16181c;
+  --warn-fg: #c7cdd8;
+  --warn-line: #292d35;
   /* One colour per PORTFOLIO on the overview chart, where no single line is "the"
      portfolio and grey is free (that chart carries no benchmark). Deliberately
      NOT --up/--down: those two mean the sign of a return everywhere else, and a
@@ -37,38 +49,14 @@
      purpose — four saturated lines on one plot is a chart nobody can read.
      A capital variant does NOT get its own entry: it borrows its parent's colour
      at a lower opacity (src/lib/variants.ts), because it is the same portfolio
-     at a different size and a distinct hue would deny that. */
-  --s1: #1b3a6b;
-  --s2: #9a6b1f;
-  --s3: #7a4a6b;
-  --s4: #256f7c;
-}
+     at a different size and a distinct hue would deny that.
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d0f12;
-    --bg-subtle: #121519;
-    --bg-raised: #15181d;
-    --fg: #eef1f5;
-    --fg-muted: #a2abba;
-    --fg-faint: #6f7889;
-    --hairline: #23272e;
-    --up: #3ddc97;
-    --up-soft: #123026;
-    --down: #ff7a6e;
-    --down-soft: #2e1613;
-    --accent: #9dc0f5;
-    --bench: #616b7c;
-    --warn-bg: #16181c;
-    --warn-fg: #c7cdd8;
-    --warn-line: #292d35;
-    /* Lifted, not inverted: the light values are far too dark to read on the
-       dark ground, and four lines have to stay separable at 1.4px. */
-    --s1: #9dc0f5;
-    --s2: #e0b072;
-    --s3: #d49ac0;
-    --s4: #6fc4d4;
-  }
+     These are the LIFTED values. The versions used against a white ground were
+     far too dark to read here, and four lines have to stay separable at 1.4px. */
+  --s1: #9dc0f5;
+  --s2: #e0b072;
+  --s3: #d49ac0;
+  --s4: #6fc4d4;
 }
 
 @theme inline {
