@@ -59,8 +59,9 @@ export default async function VerifyPage() {
             the trading was skilful, that these paper fills would have happened in
             a real market, or that no other book exists unpublished. Git history
             can be rewritten by whoever controls a repository — which is exactly
-            why the hash chain, the timestamps and branch protection are used
-            together rather than relying on any one of them.
+            why the hash chain, the Bitcoin timestamps, the signed commits and the
+            branch ruleset are used together rather than relying on any one of
+            them.
           </Note>
         </div>
       </section>
@@ -241,9 +242,12 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                target="_blank" rel="noreferrer noopener">
               {SITE_REPO_URL.replace("https://github.com/", "")}
             </a>
-            . Both are public. Their <Code>main</Code> branches are protected
-            against force-push and deletion, so the append-only history cannot be
-            rewritten without leaving a trace. Publication runs on the trading box
+            . Both are public. Their <Code>main</Code> branches carry a ruleset
+            that blocks force-pushes and deletions, requires linear history, and
+            requires every commit to be signed, so the append-only history cannot
+            be rewritten without leaving a trace. Each publish commit is signed
+            with an SSH key; GitHub shows it as Verified, and{" "}
+            <Code>git log --show-signature</Code> checks it on any clone. Publication runs on the trading box
             itself — GitHub Actions is not involved in producing this data and
             holds no broker credential.
           </p>
