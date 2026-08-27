@@ -1,31 +1,23 @@
-import { BookSwitcher, type BookBundle } from "@/components/BookView";
+import { redirect } from "next/navigation";
 import { Note } from "@/components/Note";
-import {
-  getAnalytics,
-  getBenchmark,
-  getBenchmarkIntraday,
-  getDaily,
-  getEvents,
-  getIntraday,
-  getIndex,
-  getLatestDetail,
-  getMetrics,
-  getMeta,
-  getNav,
-} from "@/lib/data";
-import { dateTime } from "@/lib/format";
+import { bookSlug, getIndex } from "@/lib/data";
 
-// Rendered per request. A static prerender plus framework caching left the
-// site serving data hours old with no way for traffic to clear it; the data
-// layer memoises for 60s, which is the whole of the caching now.
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Portfolios" };
 
+/**
+ * `/portfolios` is not a page any more — every portfolio has its own address.
+ *
+ * It redirects to the first published book rather than rendering it here. Two
+ * URLs serving identical content is one canonical link too many: a reader who
+ * shares "the page they were on" would share an address that shows a different
+ * book to whoever opens it next, the day the publishing order changes.
+ */
 export default async function Portfolios() {
   const index = await getIndex();
 
-  if (!index) {
+  if (!index || index.books.length === 0) {
     return (
       <Note tone="warn">
         The published data could not be loaded. Nothing is being shown rather
@@ -34,42 +26,5 @@ export default async function Portfolios() {
     );
   }
 
-  const bundles: BookBundle[] = await Promise.all(
-    index.books.map(async (summary) => {
-      const [meta, metrics, analytics, nav, benchmark, intraday, benchIntraday,
-             daily, events] =
-        await Promise.all([
-          getMeta(summary.book),
-          getMetrics(summary.book),
-          getAnalytics(summary.book),
-          getNav(summary.book),
-          getBenchmark(summary.book),
-          getIntraday(summary.book),
-          getBenchmarkIntraday(summary.book),
-          // Absents pour la plupart des books, et c'est une reponse : une
-          // serie vide veut dire « non publiee », jamais « plate ».
-          getDaily(summary.book),
-          getEvents(summary.book),
-        ]);
-      const detail = await getLatestDetail(summary.book, meta);
-      return {
-        summary, meta, metrics, analytics, nav, benchmark, intraday,
-        benchIntraday, detail, daily, events,
-      };
-    }),
-  );
-
-  return (
-    <>
-      <BookSwitcher
-        bundles={bundles}
-        minSessions={index.min_sessions_for_annualised}
-      />
-
-      <p className="mt-14 text-[12px] text-fg-faint">
-        Published {dateTime(index.published_at)} · {index.chain.entries} chained
-        records · every number computed by the desk, not the browser.
-      </p>
-    </>
-  );
+  redirect(`/portfolios/${bookSlug(index.books[0])}`);
 }

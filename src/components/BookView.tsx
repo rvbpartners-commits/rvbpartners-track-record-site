@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type {
   AnalyticsPayload,
   BenchmarkPoint,
@@ -22,7 +22,7 @@ import { HoldingsTable } from "./HoldingsTable";
 import { Note } from "./Note";
 import { RoundTripStats } from "./RoundTripStats";
 import { Section } from "./Section";
-import { PortfolioSelect } from "./PortfolioSelect";
+import { PortfolioSelect, type PortfolioOption } from "./PortfolioSelect";
 import { StatisticsLedger } from "./StatisticsLedger";
 
 export type BookBundle = {
@@ -132,9 +132,17 @@ function BookView({
   const roundTrips = meta?.round_trips ?? null;
   const accountLabel =
     meta?.account_kind_label ??
+    summary.account_kind_label ??
     (summary.capital_at_risk
-      ? "REAL CAPITAL — operator's own funds"
-      : "PAPER — broker-simulated, no capital at risk");
+      ? "Real capital (live test)"
+      : "Paper (broker-simulated)");
+  // Jusqu'ou va la courbe, lu dans la donnee. « Pourquoi les trades de cette
+  // nuit ne sont pas dessus ? » est une question d'etiquette absente, pas un
+  // bug : le site trace des seances CLOSES. L'heure de cloture vient du book —
+  // chacun ferme a la sienne, et une page qui en devine une se trompe sur tous
+  // les autres.
+  const sessionClose = meta?.session_close ?? summary.session_close ?? null;
+  const lastSession = summary.last_session ?? last?.date ?? null;
 
   return (
     <>
@@ -146,12 +154,15 @@ function BookView({
         <p className="mt-1.5 text-[14px] text-fg-muted">{summary.tagline_en}</p>
         {/* Le badge est une DONNEE du book, jamais une phrase en dur : celle qui
             enumerait « 6 comptes papier et 1 reel » est devenue fausse le jour
-            ou un second book en capital reel est arrive. */}
-        <p
-          className={`mt-3 inline-block rounded-[3px] border hairline px-2 py-[3px] text-[11px] tracking-[0.06em] uppercase ${
-            summary.capital_at_risk ? "text-down" : "text-fg-muted"
-          }`}
-        >
+            ou un second book en capital reel est arrive.
+
+            Et le MEME traitement visuel pour les deux natures -- casse normale,
+            pas de couleur d'alerte. Un bandeau rouge en capitales sur l'un des
+            deux est du theatre la ou il faut de l'information : le lecteur qui a
+            besoin de savoir a besoin de le LIRE, et crier sous-entend en plus un
+            avertissement que le capital propre de l'operateur ne justifie pas.
+            Seul le texte differe. */}
+        <p className="mt-3 inline-block border hairline px-1.5 py-px text-[11px] leading-[1.6] text-fg-faint">
           {accountLabel}
         </p>
 
@@ -264,6 +275,20 @@ function BookView({
           granular={granular}
           showEquityBenchmark={showEquityBenchmark}
         />
+        {lastSession && (
+          <p className="mt-4 text-[12.5px] text-fg-muted">
+            Last point: session of{" "}
+            <span className="text-fg">{date(lastSession)}</span>
+            {sessionClose ? ` (close ${sessionClose.label})` : ""}. Next point at
+            the next close.
+            {sessionClose ? (
+              <span className="block text-[11.5px] text-fg-faint mt-1">
+                {sessionClose.note}. Nothing intraday and provisional is drawn
+                here: this record publishes what is settled.
+              </span>
+            ) : null}
+          </p>
+        )}
       </Section>
 
       {daily.length > 0 && (
@@ -472,38 +497,18 @@ function Line({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-export function BookSwitcher({
-  bundles,
+export function BookPage({
+  bundle,
+  options,
   minSessions,
 }: {
-  bundles: BookBundle[];
+  bundle: BookBundle;
+  options: PortfolioOption[];
   minSessions: number;
 }) {
-  const [current, setCurrent] = useState(bundles[0]?.summary.book ?? "");
-  const bundle =
-    bundles.find((b) => b.summary.book === current) ?? bundles[0] ?? null;
-
-  if (!bundle) {
-    return (
-      <p className="text-[14px] text-fg-muted">
-        No published data yet. The desk publishes after each session&rsquo;s close.
-      </p>
-    );
-  }
-
   return (
     <>
-      <PortfolioSelect
-        options={bundles.map((b) => ({
-          book: b.summary.book,
-          label: b.summary.label,
-          tagline: b.summary.tagline_en,
-          cumulative: b.metrics?.values.cumulative_return ?? null,
-          capitalAtRisk: b.summary.capital_at_risk,
-        }))}
-        value={bundle.summary.book}
-        onChange={setCurrent}
-      />
+      <PortfolioSelect options={options} value={bundle.summary.book} />
       <BookView bundle={bundle} minSessions={minSessions} />
     </>
   );

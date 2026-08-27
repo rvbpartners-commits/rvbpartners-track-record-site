@@ -40,8 +40,19 @@ export type Disclosure = {
   body_en: string;
 };
 
+/** Where the curve stops, and why it stops there.
+ *
+ *  Published per book because each one closes at its own hour. A page that
+ *  guesses a close time is right about one book and wrong about the rest. */
+export type SessionClose = {
+  label: string;
+  note: string;
+};
+
 export type BookSummary = {
   book: string;
+  /** The book's URL segment, published by the publisher. See `bookSlug`. */
+  slug?: string;
   label: string;
   tagline_en: string | null;
   inception: string;
@@ -61,9 +72,34 @@ export type BookSummary = {
   /** True when the book trades real money. Optional: a payload published before
    *  this field existed reads as `false`, which is what every book was then. */
   capital_at_risk?: boolean;
+  /** The badge wording, published by the book. Both kinds of account get the
+   *  same visual treatment and differ only in this text. */
+  account_kind?: string;
+  account_kind_label?: string;
+  session_close?: SessionClose;
   latest_detail_session: string | null;
   paths: Record<string, string>;
 };
+
+/** A book's URL segment.
+ *
+ *  Read from the payload. The fallback recomputes what the publisher would have
+ *  written — from the LABEL, never from the internal book id: the ids say
+ *  `best_cagr`, `best_mdd`, `best_sharpe`, which name the criterion each
+ *  portfolio was selected on and is exactly what the labels keep off the page.
+ *  Putting that in the address bar would re-expose it in every shared link.
+ *
+ *  Because the fallback is the same function, a book published before the field
+ *  existed resolves to the SAME slug it will get once republished — so no URL
+ *  moves under a reader who bookmarked it. */
+export function bookSlug(
+  b: { slug?: string | null; label?: string | null; book: string },
+): string {
+  if (b.slug) return b.slug;
+  const source = (b.label ?? b.book).trim().toLowerCase();
+  const slug = source.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return slug || b.book.replace(/_/g, "-");
+}
 
 export type IndexPayload = {
   schema: string;
@@ -260,6 +296,8 @@ export type BookMeta = {
    *  and 1 real" became false the day a second real book arrived. */
   account_kind?: string;
   account_kind_label?: string;
+  slug?: string;
+  session_close?: SessionClose;
   /** Equity at the OPEN of the inception session — the denominator of the first
    *  day's return, which is not the same number as `initial_capital` on a book
    *  whose capital lands intraday. Never a curve point. */
