@@ -298,6 +298,20 @@ export type BookMeta = {
   account_kind_label?: string;
   slug?: string;
   session_close?: SessionClose;
+  /** Sessions the book carried an open, unmatched position past the close.
+   *  Disclosed, never marked: a locked pair is realised the day it locks, and
+   *  an unmatched remainder carries the market risk and none of the published
+   *  profit. Its result appears on the day it locks. */
+  open_at_close?: {
+    sessions_checked: number;
+    sessions_flat: number;
+    sessions_with_open_exposure: {
+      session: string;
+      tickets: number;
+      net_volume: number;
+    }[];
+    note: string;
+  };
   /** Equity at the OPEN of the inception session — the denominator of the first
    *  day's return, which is not the same number as `initial_capital` on a book
    *  whose capital lands intraday. Never a curve point. */

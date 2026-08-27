@@ -143,6 +143,14 @@ function BookView({
   // les autres.
   const sessionClose = meta?.session_close ?? summary.session_close ?? null;
   const lastSession = summary.last_session ?? last?.date ?? null;
+  // Une position portee au-dela de la cloture repond a la MEME question que
+  // l'etiquette ci-dessus — « pourquoi les trades de cette nuit n'y sont
+  // pas ? ». Elle est divulguee, jamais marquee : son resultat paraitra au jour
+  // ou elle se verrouillera, et le dire ici evite au lecteur de conclure que la
+  // courbe a rate quelque chose.
+  const openAtLast = meta?.open_at_close?.sessions_with_open_exposure?.find(
+    (x) => x.session === lastSession,
+  );
 
   return (
     <>
@@ -285,6 +293,17 @@ function BookView({
               <span className="block text-[11.5px] text-fg-faint mt-1">
                 {sessionClose.note}. Nothing intraday and provisional is drawn
                 here: this record publishes what is settled.
+              </span>
+            ) : null}
+            {openAtLast ? (
+              <span className="block text-[11.5px] text-fg-faint mt-1">
+                The book carried an open position past this close
+                {openAtLast.tickets === 1
+                  ? " (1 unmatched ticket"
+                  : ` (${openAtLast.tickets} unmatched tickets`}
+                , net {openAtLast.net_volume > 0 ? "+" : ""}
+                {openAtLast.net_volume}). It is disclosed, not marked: its result
+                will appear on the session it is closed out against, not this one.
               </span>
             ) : null}
           </p>
