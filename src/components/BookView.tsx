@@ -393,6 +393,7 @@ export function BookSwitcher({
           label: b.summary.label,
           tagline: b.summary.tagline_en,
           cumulative: b.metrics?.values.cumulative_return ?? null,
+          capitalAtRisk: b.summary.capital_at_risk,
         }))}
         value={bundle.summary.book}
         onChange={setCurrent}

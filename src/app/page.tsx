@@ -6,6 +6,7 @@ import {
   type OverviewSeries,
 } from "@/components/OverviewChart";
 import { CONTACT_EMAIL, getIndex, getIntraday, getNav } from "@/lib/data";
+import { forOverview } from "@/lib/overview";
 
 // Same reasoning as the portfolios page: rendered per request, because the
 // curve below is the live one and a cached landing page is a stale claim.
@@ -14,9 +15,15 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const index = await getIndex();
 
+  // The chart draws only what is comparable on one rebased axis: capital
+  // variants would repeat a line, and a book trading real capital is not a
+  // paper book with a different label. Both stay first-class everywhere else.
+  const drawn = index ? forOverview(index.books) : [];
+  const live = index?.books.filter((b) => b.capital_at_risk) ?? [];
+
   const series: OverviewSeries[] = index
     ? await Promise.all(
-        index.books.map(async (summary) => {
+        drawn.map(async (summary) => {
           const [nav, intraday] = await Promise.all([
             getNav(summary.book),
             getIntraday(summary.book),
@@ -105,7 +112,15 @@ export default async function Home() {
 
       {index && (
         <dl className="mt-14 lg:mt-20 border-t hairline pt-6 grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-5">
-          <Stat label="Portfolios" value={String(index.books.length)} />
+          <Stat
+            label="Portfolios"
+            value={String(index.books.length)}
+            note={
+              live.length > 0
+                ? `${index.books.length - live.length} paper · ${live.length} live`
+                : undefined
+            }
+          />
           <Stat label="Sessions published" value={String(sessions)} />
           <Stat
             label="Chained records"
@@ -115,13 +130,36 @@ export default async function Home() {
           <Stat
             label="Curve resolution"
             value="5 min"
-            note="broker equity, not interpolation"
+            note={
+              live.length > 0
+                ? "paper books, broker equity; the live book is event-driven"
+                : "broker equity, not interpolation"
+            }
           />
         </dl>
       )}
 
       <p className="mt-8 text-[12px] text-fg-faint max-w-[80ch]">
-        Alpaca paper accounts: fills are simulated and no capital is at risk.
+        The lines above are Alpaca paper accounts: fills are simulated and no
+        capital is at risk.{" "}
+        {index && drawn.length < index.books.length && (
+          <>
+            Not drawn here: capital variants, which would repeat a line already on
+            the chart
+            {live.length > 0 && (
+              <>
+                , and {live.length === 1 ? "a book" : "books"} trading real
+                capital, which a rebased axis would invite you to compare with a
+                simulated one
+              </>
+            )}
+            . Both are on the{" "}
+            <Link href="/portfolios" className="underline underline-offset-2">
+              portfolios page
+            </Link>
+            .{" "}
+          </>
+        )}
         Cumulative return since each account was funded, rebased on its own
         opening equity, so accounts of different sizes are comparable. Each line
         begins at that account&rsquo;s first traded session; the return is still

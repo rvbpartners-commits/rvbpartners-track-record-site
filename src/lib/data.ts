@@ -54,6 +54,9 @@ export type BookSummary = {
   categories: BookCategory[];
   account_ref: string | null;
   account_number: string | null;
+  /** True when the book trades real money. Optional: a payload published before
+   *  this field existed reads as `false`, which is what every book was then. */
+  capital_at_risk?: boolean;
   latest_detail_session: string | null;
   paths: Record<string, string>;
 };
@@ -219,6 +222,9 @@ export type BookMeta = {
   book: string;
   account_ref: string | null;
   account_number: string | null;
+  /** True when the book trades real money. Optional: a payload published before
+   *  this field existed reads as `false`, which is what every book was then. */
+  capital_at_risk?: boolean;
   account_type: string;
   inception: string;
   inception_anchored_to_funded_capital: boolean;

@@ -9,7 +9,26 @@ export type PortfolioOption = {
   label: string;
   tagline: string | null;
   cumulative: number | null;
+  /** True when the book trades real money rather than a paper account. */
+  capitalAtRisk?: boolean;
 };
+
+/** Paper or real capital, marked on EVERY row rather than only on the exception.
+ *
+ *  Marking just the live book would make the others readable only by inference —
+ *  and a reader who does not know what the unmarked default is cannot infer it.
+ *  The two labels cost one line each and remove the guess. */
+function AccountTag({ live }: { live?: boolean }) {
+  return (
+    <span
+      className={`inline-block border hairline px-1.5 py-px text-[10px] leading-[1.5] align-middle ${
+        live ? "text-fg" : "text-fg-faint"
+      }`}
+    >
+      {live ? "real capital" : "paper"}
+    </span>
+  );
+}
 
 /** Portfolio selector. A listbox rather than a native `<select>` because each
  *  option carries its return in a second column. */
@@ -62,7 +81,7 @@ export function PortfolioSelect({
             {current.label}
           </span>
           <span className="block text-[11px] text-fg-faint leading-tight mt-0.5">
-            Portfolio
+            {current.capitalAtRisk ? "Portfolio · real capital" : "Portfolio · paper"}
           </span>
         </span>
         <span className="ml-auto text-fg-faint text-[10px]">
@@ -109,6 +128,9 @@ export function PortfolioSelect({
                         </span>
                       )}
                       {o.label}
+                      <span className="ml-2">
+                        <AccountTag live={o.capitalAtRisk} />
+                      </span>
                     </span>
                     {(isVariant ? size : o.tagline) && (
                       <span className="block text-[11px] text-fg-faint truncate mt-0.5">

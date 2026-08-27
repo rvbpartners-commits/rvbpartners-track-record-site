@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { getIndex } from "@/lib/data";
 import { Footer } from "./Footer";
 
 const NAV = [
@@ -10,7 +11,13 @@ const NAV = [
 ];
 
 /** A ruled page, not a set of panels. Nothing is set in capitals. */
-export function Shell({ children }: { children: ReactNode }) {
+export async function Shell({ children }: { children: ReactNode }) {
+  // The masthead tagline described every book here as paper. It is read from the
+  // payload for the same reason the footer disclosure is: a standing claim about
+  // what the accounts ARE cannot be a constant once one of them changes.
+  const index = await getIndex();
+  const hasLive = (index?.books ?? []).some((b) => b.capital_at_risk);
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b hairline">
@@ -41,7 +48,7 @@ export function Shell({ children }: { children: ReactNode }) {
             </div>
           </nav>
           <span className="ml-auto text-[12px] text-fg-faint">
-            Live paper-trading record
+            {hasLive ? "Live record · paper and real capital" : "Live paper-trading record"}
           </span>
         </div>
       </header>
