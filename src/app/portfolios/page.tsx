@@ -4,6 +4,8 @@ import {
   getAnalytics,
   getBenchmark,
   getBenchmarkIntraday,
+  getDaily,
+  getEvents,
   getIntraday,
   getIndex,
   getLatestDetail,
@@ -34,7 +36,8 @@ export default async function Portfolios() {
 
   const bundles: BookBundle[] = await Promise.all(
     index.books.map(async (summary) => {
-      const [meta, metrics, analytics, nav, benchmark, intraday, benchIntraday] =
+      const [meta, metrics, analytics, nav, benchmark, intraday, benchIntraday,
+             daily, events] =
         await Promise.all([
           getMeta(summary.book),
           getMetrics(summary.book),
@@ -43,11 +46,15 @@ export default async function Portfolios() {
           getBenchmark(summary.book),
           getIntraday(summary.book),
           getBenchmarkIntraday(summary.book),
+          // Absents pour la plupart des books, et c'est une reponse : une
+          // serie vide veut dire « non publiee », jamais « plate ».
+          getDaily(summary.book),
+          getEvents(summary.book),
         ]);
       const detail = await getLatestDetail(summary.book, meta);
       return {
         summary, meta, metrics, analytics, nav, benchmark, intraday,
-        benchIntraday, detail,
+        benchIntraday, detail, daily, events,
       };
     }),
   );

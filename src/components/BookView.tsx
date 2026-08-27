@@ -6,7 +6,9 @@ import type {
   BenchmarkPoint,
   BookMeta,
   BookSummary,
+  DailyPoint,
   DetailPayload,
+  EventsPayload,
   IntradayPoint,
   MetricsPayload,
   NavPoint,
@@ -14,8 +16,11 @@ import type {
 import { date, marketTime, money, pct, signedPct } from "@/lib/format";
 import { AnalyticsCharts } from "./AnalyticsCharts";
 import { ChartLegend, PerformanceChart, type ChartPoint } from "./PerformanceChart";
+import { DailyPnlChart } from "./DailyPnlChart";
+import { EventLog } from "./EventLog";
 import { HoldingsTable } from "./HoldingsTable";
 import { Note } from "./Note";
+import { RoundTripStats } from "./RoundTripStats";
 import { Section } from "./Section";
 import { PortfolioSelect } from "./PortfolioSelect";
 import { StatisticsLedger } from "./StatisticsLedger";
@@ -30,6 +35,8 @@ export type BookBundle = {
   intraday: IntradayPoint[];
   benchIntraday: Map<string, { spy: number | null; cash: number | null }>;
   detail: DetailPayload | null;
+  daily: DailyPoint[];
+  events: EventsPayload | null;
 };
 
 /**
@@ -104,7 +111,7 @@ function BookView({
   minSessions: number;
 }) {
   const { summary, meta, metrics, analytics, nav, benchmark, intraday,
-          benchIntraday, detail } = bundle;
+          benchIntraday, detail, daily, events } = bundle;
   const gate = metrics?.insufficient_history;
   const currency = meta?.currency ?? "USD";
   const last = nav.length > 0 ? nav[nav.length - 1] : null;
@@ -116,6 +123,19 @@ function BookView({
     [nav, benchmark, intraday, benchIntraday],
   );
 
+  // Whether to draw an equity index is decided by the DATA, not by the book's
+  // name. A book that publishes an empty `spy_cum` column is saying it has no
+  // equity benchmark; drawing a flat line, or a legend that names one, would
+  // put a comparison on the page the data explicitly refuses to make. It also
+  // means the rule keeps working for the next such book without an edit here.
+  const showEquityBenchmark = points.some((p) => p.spy !== null);
+  const roundTrips = meta?.round_trips ?? null;
+  const accountLabel =
+    meta?.account_kind_label ??
+    (summary.capital_at_risk
+      ? "REAL CAPITAL — operator's own funds"
+      : "PAPER — broker-simulated, no capital at risk");
+
   return (
     <>
       {/* Identity row — the account header of a ledger page. */}
@@ -124,6 +144,16 @@ function BookView({
           {summary.label}
         </h1>
         <p className="mt-1.5 text-[14px] text-fg-muted">{summary.tagline_en}</p>
+        {/* Le badge est une DONNEE du book, jamais une phrase en dur : celle qui
+            enumerait « 6 comptes papier et 1 reel » est devenue fausse le jour
+            ou un second book en capital reel est arrive. */}
+        <p
+          className={`mt-3 inline-block rounded-[3px] border hairline px-2 py-[3px] text-[11px] tracking-[0.06em] uppercase ${
+            summary.capital_at_risk ? "text-down" : "text-fg-muted"
+          }`}
+        >
+          {accountLabel}
+        </p>
 
         <dl className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
           {/* The LIVE reading leads, because "what is this account worth" is the
@@ -198,8 +228,19 @@ function BookView({
                 value has no intraday path we measured.
               </>
             )}{" "}
-            These accounts hold shorts and are not index-like: the benchmark is
-            context, not a comparison.
+            {showEquityBenchmark ? (
+              <>
+                These accounts hold shorts and are not index-like: the benchmark
+                is context, not a comparison.
+              </>
+            ) : (
+              <>
+                The only comparator drawn is cash at the risk-free rate. An
+                equity index is not the opportunity cost of a book that holds
+                offsetting positions on two venues and aims to be neutral to the
+                market — cash is, and it is the one line beside the book.
+              </>
+            )}
             {meta?.intraday_sessions_rejected?.length ? (
               <>
                 {" "}
@@ -216,10 +257,75 @@ function BookView({
         }
       >
         <div className="flex justify-end mb-4">
-          <ChartLegend />
+          <ChartLegend showEquityBenchmark={showEquityBenchmark} />
         </div>
-        <PerformanceChart data={points} granular={granular} />
+        <PerformanceChart
+          data={points}
+          granular={granular}
+          showEquityBenchmark={showEquityBenchmark}
+        />
       </Section>
+
+      {daily.length > 0 && (
+        <Section
+          title="Daily and cumulative result"
+          note={
+            <>
+              The combined result of both legs, in {currency}, on the broker&rsquo;s
+              own trading day — whose midnight is 21:00 UTC. Every calendar day is
+              a row: a day with no trade is a bar of zero, never a missing one, and
+              weekends are flat rather than interpolated. The percentage toggle
+              divides the running total by the capital at inception
+              {meta?.initial_capital
+                ? ` (${money(meta.initial_capital, currency, 2)})`
+                : ""}
+              ; it is a reading axis, not the compounded return published above.
+            </>
+          }
+        >
+          <DailyPnlChart
+            data={daily}
+            events={events?.events ?? []}
+            currency={currency}
+            initialCapital={meta?.initial_capital ?? null}
+          />
+        </Section>
+      )}
+
+      {roundTrips && (
+        <Section
+          title="Round trips"
+          note={
+            <>
+              This book&rsquo;s unit of account is the round trip, not the session:
+              it executed on {summary.sessions > 0 ? `${meta?.active_sessions ?? "a few"} of ${summary.sessions}` : "a few"}{" "}
+              published sessions, so a session-based denominator would measure the
+              calendar rather than the strategy. Everything below is a count or a
+              measured duration; nothing here is a ratio that needs a distribution.
+            </>
+          }
+        >
+          <RoundTripStats rt={roundTrips} />
+        </Section>
+      )}
+
+      {events && events.events.length > 0 && (
+        <Section
+          title="Operational log"
+          note={
+            <>
+              A curve that dips does not say whether the strategy lost money or
+              the machine was switched off, and those are not the same fact about
+              a track record. Outages, restarts and maintenance are published for
+              that reason. Parameter <em>values</em> are not: the date and the
+              fact that something changed are disclosure, the number would be the
+              strategy.
+            </>
+          }
+        >
+          <EventLog events={events.events} />
+        </Section>
+      )}
 
       <Section
         title="Statistics"
@@ -303,7 +409,7 @@ function BookView({
 
       <Section title="Account">
         <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-[13px]">
-          <Line label="Type">Alpaca paper — no capital at risk</Line>
+          <Line label="Type">{accountLabel}</Line>
           <Line label="Reference">
             <span className="tnum">
               {summary.account_number ?? summary.account_ref ?? "—"}

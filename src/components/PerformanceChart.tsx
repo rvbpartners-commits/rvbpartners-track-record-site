@@ -101,9 +101,16 @@ function ChartTooltip({
 export function PerformanceChart({
   data,
   granular,
+  showEquityBenchmark = true,
 }: {
   data: ChartPoint[];
   granular: boolean;
+  /** Draw the equity-index line. Driven by whether the book PUBLISHES that
+   *  series, never by its name: a book whose `spy_cum` column is empty is
+   *  saying it has no equity benchmark, and drawing a line for it — or a legend
+   *  entry naming one — would put a comparison on the page that the data
+   *  refuses to make. A market-neutral book's opportunity cost is cash. */
+  showEquityBenchmark?: boolean;
 }) {
   const narrow = useNarrow();
 
@@ -159,16 +166,18 @@ export function PerformanceChart({
             connectNulls={false}
             isAnimationActive={false}
           />
-          <Line
-            type="linear"
-            dataKey="spy"
-            name="S&P 500 (SPY, total return)"
-            stroke="var(--bench)"
-            strokeWidth={1.3}
-            dot={false}
-            connectNulls={false}
-            isAnimationActive={false}
-          />
+          {showEquityBenchmark && (
+            <Line
+              type="linear"
+              dataKey="spy"
+              name="S&P 500 (SPY, total return)"
+              stroke="var(--bench)"
+              strokeWidth={1.3}
+              dot={false}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+          )}
           <Line
             type="linear"
             dataKey="cash"
@@ -196,7 +205,11 @@ export function PerformanceChart({
   );
 }
 
-export function ChartLegend() {
+export function ChartLegend({
+  showEquityBenchmark = true,
+}: {
+  showEquityBenchmark?: boolean;
+}) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-5 gap-y-1 sm:gap-y-1.5 text-[11.5px] sm:text-[12px] text-fg-muted">
       <span className="inline-flex items-center gap-2">
@@ -210,10 +223,15 @@ export function ChartLegend() {
         />
         Session close
       </span>
-      <span className="inline-flex items-center gap-2">
-        <span className="inline-block h-[2px] w-4" style={{ background: "var(--bench)" }} />
-        S&amp;P 500
-      </span>
+      {showEquityBenchmark && (
+        <span className="inline-flex items-center gap-2">
+          <span
+            className="inline-block h-[2px] w-4"
+            style={{ background: "var(--bench)" }}
+          />
+          S&amp;P 500
+        </span>
+      )}
       <span className="inline-flex items-center gap-2">
         <span
           className="inline-block w-4"

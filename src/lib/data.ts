@@ -47,6 +47,10 @@ export type BookSummary = {
   inception: string;
   last_session: string;
   sessions: number;
+  /** Sessions on which the book actually executed. Counted from executions,
+   *  never from non-zero returns: funding accrues while a position is held
+   *  without any order being placed. */
+  active_sessions?: number;
   initial_capital: number;
   cumulative_return: number | null;
   live: LiveReading | null;
@@ -231,6 +235,10 @@ export type BookMeta = {
   inception_note: string;
   last_session: string;
   sessions: number;
+  /** Sessions on which the book actually executed. Counted from executions,
+   *  never from non-zero returns: funding accrues while a position is held
+   *  without any order being placed. */
+  active_sessions?: number;
   initial_capital: number;
   currency: string;
   detail_lag_days: number;
@@ -247,6 +255,67 @@ export type BookMeta = {
    *  the site reads these, it never probes for files that may not exist. */
   detail_sessions: string[];
   latest_detail_session: string | null;
+  /** The account badge, as DATA. The page must not decide what kind of account
+   *  this is from a hardcoded sentence: the sentence that enumerated "6 paper
+   *  and 1 real" became false the day a second real book arrived. */
+  account_kind?: string;
+  account_kind_label?: string;
+  /** Equity at the OPEN of the inception session — the denominator of the first
+   *  day's return, which is not the same number as `initial_capital` on a book
+   *  whose capital lands intraday. Never a curve point. */
+  opening_capital?: number;
+  round_trips?: RoundTrips | null;
+};
+
+/** The combined daily profit and loss, in the book's currency.
+ *
+ *  Published beside the unit NAV rather than instead of it, because the two
+ *  answer different questions: "what did this book make" and "what return did
+ *  it serve". On a book that took deposits those are not the same number, and
+ *  showing one under the other's label is how a curve starts lying. */
+export type DailyPoint = {
+  date: string;
+  pnl: number | null;
+  cumulative: number | null;
+  cumulativePct: number | null;
+};
+
+/** One line of the operational log.
+ *
+ *  `at` is absent for a standing rule — there is no date to mark, so it appears
+ *  in the table and produces no marker. Parameter VALUES never appear here:
+ *  an outage is a fact about availability that a reader is owed, a threshold is
+ *  the strategy itself. */
+export type BookEvent = {
+  at?: string;
+  kind: string;
+  label: string;
+  detail: string;
+};
+
+export type EventsPayload = {
+  book: string;
+  published_at: string;
+  note: string;
+  events: BookEvent[];
+};
+
+/** Round trips, for a book whose unit of account is the round trip rather than
+ *  the session. Absent on every book that counts in sessions. */
+export type RoundTrips = {
+  round_trips: number;
+  round_trips_needed_for_annualising: number;
+  annualised_withheld: boolean;
+  net_total_usd: number;
+  net_mean_usd: number | null;
+  winners: number;
+  hit_rate: number | null;
+  median_holding_seconds: number | null;
+  funding_total_usd: number;
+  funding_share_of_net: number | null;
+  fees_total_usd: number;
+  combined_note: string;
+  unit_note: string;
 };
 
 export type ChainEntry = {
@@ -413,6 +482,23 @@ export async function getLatestDetail(
   const session = meta?.latest_detail_session;
   if (!session) return null;
   return getDetail(book, session);
+}
+
+/** The daily profit-and-loss series. Absent for books that publish only a NAV;
+ *  an empty array then means "not published", never "flat". */
+export async function getDaily(book: string): Promise<DailyPoint[]> {
+  const text = await getText(`books/${book}/daily.csv`);
+  if (!text) return [];
+  return parseCsv(text).map((r) => ({
+    date: r.date,
+    pnl: num(r.pnl_usd),
+    cumulative: num(r.pnl_cumulative_usd),
+    cumulativePct: num(r.pnl_cumulative_pct),
+  }));
+}
+
+export async function getEvents(book: string): Promise<EventsPayload | null> {
+  return getJson<EventsPayload>(`books/${book}/events.json`);
 }
 
 export async function getChain(): Promise<ChainEntry[]> {

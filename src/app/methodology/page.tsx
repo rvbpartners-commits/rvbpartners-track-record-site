@@ -135,6 +135,18 @@ export default async function MethodologyPage() {
             &ldquo;versus just holding the index?&rdquo; and should not be read as
             a like-for-like comparison.
           </p>
+          <p>
+            <strong className="font-medium">
+              Not every book gets an equity benchmark.
+            </strong>{" "}
+            A book that holds offsetting positions on two venues and aims to be
+            neutral to the market has no meaningful comparison to an index — its
+            opportunity cost is cash, and cash is the only line drawn beside it.
+            That is decided by the published data, not by the page: a book whose
+            benchmark file carries no index column is drawn without one, legend
+            included. Each book&rsquo;s own methodology note, published in the data
+            repository, states the conventions that are specific to it.
+          </p>
         </Section>
 
         <Section title="Known biases and limits">
