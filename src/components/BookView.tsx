@@ -8,7 +8,6 @@ import type {
   BookSummary,
   DailyPoint,
   DetailPayload,
-  EventsPayload,
   IntradayPoint,
   MetricsPayload,
   NavPoint,
@@ -17,7 +16,7 @@ import { date, marketTime, money, pct, signedPct } from "@/lib/format";
 import { AnalyticsCharts } from "./AnalyticsCharts";
 import { ChartLegend, PerformanceChart, type ChartPoint } from "./PerformanceChart";
 import { DailyPnlChart } from "./DailyPnlChart";
-import { EventLog } from "./EventLog";
+import { ExposureSection } from "./ExposureSection";
 import { HoldingsTable } from "./HoldingsTable";
 import { Note } from "./Note";
 import { RoundTripStats } from "./RoundTripStats";
@@ -36,7 +35,6 @@ export type BookBundle = {
   benchIntraday: Map<string, { spy: number | null; cash: number | null }>;
   detail: DetailPayload | null;
   daily: DailyPoint[];
-  events: EventsPayload | null;
 };
 
 /**
@@ -111,7 +109,7 @@ function BookView({
   minSessions: number;
 }) {
   const { summary, meta, metrics, analytics, nav, benchmark, intraday,
-          benchIntraday, detail, daily, events } = bundle;
+          benchIntraday, detail, daily } = bundle;
   const gate = metrics?.insufficient_history;
   const currency = meta?.currency ?? "USD";
   const last = nav.length > 0 ? nav[nav.length - 1] : null;
@@ -130,6 +128,11 @@ function BookView({
   // means the rule keeps working for the next such book without an edit here.
   const showEquityBenchmark = points.some((p) => p.spy !== null);
   const roundTrips = meta?.round_trips ?? null;
+  // Un book qui publie `exposure` n'a pas de holdings a publier -- c'est la
+  // donnee qui decide de la section, pas une liste de noms de books dans la
+  // page. « Que detient ce portefeuille » n'a pas de reponse ici : il tient une
+  // position 93 minutes en mediane et passe l'essentiel de son temps a plat.
+  const exposure = meta?.exposure ?? summary.exposure ?? null;
   const accountLabel =
     meta?.account_kind_label ??
     summary.account_kind_label ??
@@ -329,7 +332,6 @@ function BookView({
         >
           <DailyPnlChart
             data={daily}
-            events={events?.events ?? []}
             currency={currency}
             initialCapital={meta?.initial_capital ?? null}
           />
@@ -350,24 +352,6 @@ function BookView({
           }
         >
           <RoundTripStats rt={roundTrips} />
-        </Section>
-      )}
-
-      {events && events.events.length > 0 && (
-        <Section
-          title="Operational log"
-          note={
-            <>
-              A curve that dips does not say whether the strategy lost money or
-              the machine was switched off, and those are not the same fact about
-              a track record. Outages, restarts and maintenance are published for
-              that reason. Parameter <em>values</em> are not: the date and the
-              fact that something changed are disclosure, the number would be the
-              strategy.
-            </>
-          }
-        >
-          <EventLog events={events.events} />
         </Section>
       )}
 
@@ -396,6 +380,20 @@ function BookView({
         <AnalyticsCharts analytics={analytics} />
       </Section>
 
+      {exposure ? (
+        <Section
+          title="Exposure"
+          note={
+            <>
+              Every figure below is published data, computed by the desk. The
+              instrument, the venues and the size are not published, and will
+              not be: they are the strategy.
+            </>
+          }
+        >
+          <ExposureSection exposure={exposure} />
+        </Section>
+      ) : (
       <Section
         title="Composition and holdings"
         note={
@@ -450,6 +448,7 @@ function BookView({
         </div>
         <HoldingsTable groups={detail?.categories ?? []} currency={currency} />
       </Section>
+      )}
 
       <Section title="Account">
         <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-[13px]">

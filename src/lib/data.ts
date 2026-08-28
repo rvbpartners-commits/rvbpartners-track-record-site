@@ -77,6 +77,7 @@ export type BookSummary = {
   account_kind?: string;
   account_kind_label?: string;
   session_close?: SessionClose;
+  exposure?: Exposure;
   latest_detail_session: string | null;
   paths: Record<string, string>;
 };
@@ -298,6 +299,7 @@ export type BookMeta = {
   account_kind_label?: string;
   slug?: string;
   session_close?: SessionClose;
+  exposure?: Exposure;
   /** Sessions the book carried an open, unmatched position past the close.
    *  Disclosed, never marked: a locked pair is realised the day it locks, and
    *  an unmatched remainder carries the market risk and none of the published
@@ -319,6 +321,23 @@ export type BookMeta = {
   round_trips?: RoundTrips | null;
 };
 
+/** What a book is exposed to, for one that does not hold anything for long.
+ *
+ *  Its presence is also what tells the page to show exposure instead of a
+ *  holdings table: a book that publishes this has no holdings to publish. An
+ *  equity book publishes `categories` and positions; this one publishes how
+ *  much of the time it is exposed. */
+export type Exposure = {
+  sessions_published: number;
+  sessions_traded: number;
+  sessions_checked: number;
+  sessions_flat_at_close: number;
+  carried_past_close: { session: string; tickets: number; net_volume: number }[];
+  median_holding_seconds: number | null;
+  structure: string;
+  note: string;
+};
+
 /** The combined daily profit and loss, in the book's currency.
  *
  *  Published beside the unit NAV rather than instead of it, because the two
@@ -330,26 +349,6 @@ export type DailyPoint = {
   pnl: number | null;
   cumulative: number | null;
   cumulativePct: number | null;
-};
-
-/** One line of the operational log.
- *
- *  `at` is absent for a standing rule — there is no date to mark, so it appears
- *  in the table and produces no marker. Parameter VALUES never appear here:
- *  an outage is a fact about availability that a reader is owed, a threshold is
- *  the strategy itself. */
-export type BookEvent = {
-  at?: string;
-  kind: string;
-  label: string;
-  detail: string;
-};
-
-export type EventsPayload = {
-  book: string;
-  published_at: string;
-  note: string;
-  events: BookEvent[];
 };
 
 /** Round trips, for a book whose unit of account is the round trip rather than
@@ -547,10 +546,6 @@ export async function getDaily(book: string): Promise<DailyPoint[]> {
     cumulative: num(r.pnl_cumulative_usd),
     cumulativePct: num(r.pnl_cumulative_pct),
   }));
-}
-
-export async function getEvents(book: string): Promise<EventsPayload | null> {
-  return getJson<EventsPayload>(`books/${book}/events.json`);
 }
 
 export async function getChain(): Promise<ChainEntry[]> {

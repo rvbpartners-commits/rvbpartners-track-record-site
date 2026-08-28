@@ -7,7 +7,6 @@ import {
   getBenchmark,
   getBenchmarkIntraday,
   getDaily,
-  getEvents,
   getIntraday,
   getIndex,
   getLatestDetail,
@@ -66,7 +65,7 @@ export default async function Portfolio({
   if (!summary) notFound();
 
   const [meta, metrics, analytics, nav, benchmark, intraday, benchIntraday,
-         daily, events] =
+         daily] =
     await Promise.all([
       getMeta(summary.book),
       getMetrics(summary.book),
@@ -75,15 +74,14 @@ export default async function Portfolio({
       getBenchmark(summary.book),
       getIntraday(summary.book),
       getBenchmarkIntraday(summary.book),
-      // Absents pour la plupart des books, et c'est une reponse : une serie
+      // Absente pour la plupart des books, et c'est une reponse : une serie
       // vide veut dire « non publiee », jamais « plate ».
       getDaily(summary.book),
-      getEvents(summary.book),
     ]);
   const detail = await getLatestDetail(summary.book, meta);
   const bundle: BookBundle = {
     summary, meta, metrics, analytics, nav, benchmark, intraday,
-    benchIntraday, detail, daily, events,
+    benchIntraday, detail, daily,
   };
 
   // Le selecteur se contente de ce que l'index porte deja : un rendement par

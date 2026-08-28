@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Bar,
   BarChart,
@@ -14,7 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { BookEvent, DailyPoint } from "@/lib/data";
+import type { DailyPoint } from "@/lib/data";
 import { useNarrow } from "@/lib/useNarrow";
 
 /**
@@ -42,29 +42,15 @@ type Mode = "usd" | "pct";
 
 export function DailyPnlChart({
   data,
-  events,
   currency,
   initialCapital,
 }: {
   data: DailyPoint[];
-  events: BookEvent[];
   currency: string;
   initialCapital: number | null;
 }) {
   const narrow = useNarrow();
   const [mode, setMode] = useState<Mode>("usd");
-
-  // An event is marked on the day it happened, and only if that day is on the
-  // chart. Dropping it onto the nearest published day instead would put a
-  // reboot on a date it did not occur.
-  const days = useMemo(() => new Set(data.map((d) => d.date)), [data]);
-  const marks = useMemo(
-    () =>
-      events
-        .filter((e) => e.at && days.has(e.at.slice(0, 10)))
-        .map((e) => ({ date: e.at!.slice(0, 10), label: e.label, kind: e.kind })),
-    [events, days],
-  );
 
   if (data.length === 0) {
     return (
@@ -111,7 +97,7 @@ export function DailyPnlChart({
               />
               <Tooltip
                 cursor={{ fill: "var(--hairline)", fillOpacity: 0.35 }}
-                content={<DayTooltip currency={currency} marks={marks} />}
+                content={<DayTooltip currency={currency} />}
               />
               <ReferenceLine y={0} stroke="var(--fg-faint)" strokeDasharray="3 3" />
               <Bar dataKey="pnl" isAnimationActive={false} maxBarSize={narrow ? 8 : 14}>
@@ -175,22 +161,12 @@ export function DailyPnlChart({
                 cursor={{ stroke: "var(--hairline)", strokeWidth: 1 }}
                 content={
                   <CumulativeTooltip
-                    marks={marks}
                     fmt={fmtValue}
                     currency={pct ? "" : currency}
                   />
                 }
               />
               <ReferenceLine y={0} stroke="var(--fg-faint)" strokeDasharray="3 3" />
-              {marks.map((m) => (
-                <ReferenceLine
-                  key={`${m.date}-${m.label}`}
-                  x={m.date}
-                  stroke="var(--bench)"
-                  strokeDasharray="2 3"
-                  strokeWidth={1}
-                />
-              ))}
               <Line
                 type="linear"
                 dataKey="value"
@@ -204,11 +180,6 @@ export function DailyPnlChart({
             </ComposedChart>
           </ResponsiveContainer>
         </div>
-        {marks.length > 0 && (
-          <p className="mt-2 text-[11.5px] text-fg-faint">
-            Dashed verticals mark the operational events listed below.
-          </p>
-        )}
       </div>
     </div>
   );
@@ -239,29 +210,21 @@ function Toggle({
   );
 }
 
-type Mark = { date: string; label: string; kind: string };
-
-function marksFor(marks: Mark[], date: string) {
-  return marks.filter((m) => m.date === date);
-}
-
 function DayTooltip({
   active,
   payload,
   label,
   currency,
-  marks,
 }: {
   active?: boolean;
   payload?: { value: number | null }[];
   label?: string;
   currency: string;
-  marks: Mark[];
 }) {
   if (!active || !payload?.length || !label) return null;
   const v = payload[0]?.value;
   return (
-    <Panel date={label} marks={marksFor(marks, label)}>
+    <Panel date={label}>
       <span className="tnum">
         {v === null || v === undefined
           ? "—"
@@ -275,21 +238,19 @@ function CumulativeTooltip({
   active,
   payload,
   label,
-  marks,
   fmt,
   currency,
 }: {
   active?: boolean;
   payload?: { value: number | null }[];
   label?: string;
-  marks: Mark[];
   fmt: (v: number) => string;
   currency: string;
 }) {
   if (!active || !payload?.length || !label) return null;
   const v = payload[0]?.value;
   return (
-    <Panel date={label} marks={marksFor(marks, label)}>
+    <Panel date={label}>
       <span className="tnum">
         {v === null || v === undefined
           ? "—"
@@ -301,22 +262,15 @@ function CumulativeTooltip({
 
 function Panel({
   date,
-  marks,
   children,
 }: {
   date: string;
-  marks: Mark[];
   children: React.ReactNode;
 }) {
   return (
     <div className="rounded-[4px] border hairline bg-bg px-3 py-2 text-[12px] shadow-sm">
       <div className="text-fg-faint text-[11px]">{date}</div>
       <div className="mt-0.5">{children}</div>
-      {marks.map((m) => (
-        <div key={m.label} className="mt-1 text-[11px] text-fg-muted">
-          {m.label}
-        </div>
-      ))}
     </div>
   );
 }
