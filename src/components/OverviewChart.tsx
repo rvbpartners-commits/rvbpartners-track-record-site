@@ -28,6 +28,10 @@ export type OverviewSeries = {
   label: string;
   nav: NavPoint[];
   intraday: IntradayPoint[];
+  /** Places a RAW intraday reading on the adjusted index for the session that
+   *  has no NAV row yet. 1 for every book with no declared capital event, which
+   *  is why this is optional rather than threaded through every call. */
+  liveFactor?: number;
 };
 
 type Row = { t: string; [book: string]: string | number | null };
@@ -55,15 +59,25 @@ function buildRows(series: OverviewSeries[]): Row[] {
   const byInstant = new Map<string, Row>();
 
   for (const s of series) {
-    const base = s.nav.length > 0 ? s.nav[0].equity : 0;
+    const base = s.nav.length > 0 ? s.nav[0].equity_adj : 0;
     if (!base) continue;
+
+    // The adjusted index, not the raw broker equity: a capital movement that is
+    // not a trade has no place on a performance line. Identical for every book
+    // that has never had one.
+    const factorByDate = new Map(s.nav.map((p) => [p.date, p.adj_factor]));
+    const factorFor = (session: string) =>
+      factorByDate.get(session) ?? s.liveFactor ?? 1;
 
     // Intraday where the broker gave it to us, the daily marks otherwise. Never
     // both for one book: mixing resolutions puts two points of different
     // meaning on one line.
     const points = s.intraday.length
-      ? s.intraday.map((p) => ({ t: p.timestamp, equity: p.equity }))
-      : s.nav.map((p) => ({ t: p.date, equity: p.equity }));
+      ? s.intraday.map((p) => ({
+          t: p.timestamp,
+          equity: p.equity * factorFor(p.session_date),
+        }))
+      : s.nav.map((p) => ({ t: p.date, equity: p.equity_adj }));
 
     for (const p of points) {
       const row = byInstant.get(p.t) ?? { t: p.t };

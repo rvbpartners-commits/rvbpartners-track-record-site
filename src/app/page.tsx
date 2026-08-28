@@ -5,7 +5,7 @@ import {
   OverviewLegend,
   type OverviewSeries,
 } from "@/components/OverviewChart";
-import { CONTACT_EMAIL, getIndex, getIntraday, getNav } from "@/lib/data";
+import { CONTACT_EMAIL, getIndex, getIntraday, getMeta, getNav } from "@/lib/data";
 import { forOverview } from "@/lib/overview";
 
 // Same reasoning as the portfolios page: rendered per request, because the
@@ -24,11 +24,21 @@ export default async function Home() {
   const series: OverviewSeries[] = index
     ? await Promise.all(
         drawn.map(async (summary) => {
-          const [nav, intraday] = await Promise.all([
+          // `meta` only for the live adjustment factor. Today's session has no
+          // NAV row until the desk marks after the close, so a capital event
+          // declared today reaches this chart through nothing else.
+          const [nav, intraday, meta] = await Promise.all([
             getNav(summary.book),
             getIntraday(summary.book),
+            getMeta(summary.book),
           ]);
-          return { book: summary.book, label: summary.label, nav, intraday };
+          return {
+            book: summary.book,
+            label: summary.label,
+            nav,
+            intraday,
+            liveFactor: meta?.capital_events?.live_factor ?? 1,
+          };
         }),
       )
     : [];

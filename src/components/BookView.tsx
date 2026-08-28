@@ -51,8 +51,9 @@ function buildChart(
   benchmark: BenchmarkPoint[],
   intraday: IntradayPoint[],
   benchIntraday: Map<string, { spy: number | null; cash: number | null }>,
+  liveFactor = 1,
 ): { points: ChartPoint[]; granular: boolean } {
-  const base = nav.length > 0 ? nav[0].equity : 0;
+  const base = nav.length > 0 ? nav[0].equity_adj : 0;
   if (!base) return { points: [], granular: false };
 
   const bench = new Map(benchmark.map((b) => [b.date, b]));
@@ -66,10 +67,10 @@ function buildChart(
         return {
           t: p.date,
           date: p.date,
-          book: p.equity / base - 1,
+          book: p.equity_adj / base - 1,
           spy: b?.spy_cum ?? null,
           cash: b?.cash_cum ?? null,
-          close: p.equity / base - 1,
+          close: p.equity_adj / base - 1,
         };
       }),
     };
@@ -78,6 +79,15 @@ function buildChart(
   // The last intraday point of each session is where the daily figures attach.
   const lastOfSession = new Map<string, string>();
   for (const p of intraday) lastOfSession.set(p.session_date, p.timestamp);
+
+  // The intraday file holds RAW broker readings, so each one is placed on the
+  // adjusted index by its session's own factor. Today's session has no NAV row
+  // yet — the desk marks after the close — and that is exactly the window where
+  // a capital event is already in the broker's equity and not yet in the marked
+  // curve. `liveFactor` covers it; without it the chart would draw a step the
+  // rest of the page has excluded, on the one part a reader is watching.
+  const factorFor = (session: string) =>
+    navByDate.get(session)?.adj_factor ?? liveFactor;
 
   const points: ChartPoint[] = intraday.map((p) => {
     const isSessionEnd = lastOfSession.get(p.session_date) === p.timestamp;
@@ -90,12 +100,12 @@ function buildChart(
     return {
       t: p.timestamp,
       date: p.session_date,
-      book: p.equity / base - 1,
+      book: (p.equity * factorFor(p.session_date)) / base - 1,
       spy: b?.spy ?? null,
       cash: b?.cash ?? null,
       // The official published NAV: the desk's after-close mark, a few basis
       // points off the broker's 16:00 intraday figure.
-      close: navPoint ? navPoint.equity / base - 1 : null,
+      close: navPoint ? navPoint.equity_adj / base - 1 : null,
     };
   });
   return { points, granular: true };
@@ -117,8 +127,10 @@ function BookView({
   const live = meta?.live ?? summary.live ?? null;
 
   const { points, granular } = useMemo(
-    () => buildChart(nav, benchmark, intraday, benchIntraday),
-    [nav, benchmark, intraday, benchIntraday],
+    () =>
+      buildChart(nav, benchmark, intraday, benchIntraday,
+                 meta?.capital_events?.live_factor ?? 1),
+    [nav, benchmark, intraday, benchIntraday, meta?.capital_events?.live_factor],
   );
 
   // Whether to draw an equity index is decided by the DATA, not by the book's
@@ -278,6 +290,36 @@ function BookView({
           </>
         }
       >
+        {/* A declared capital event is stated on the chart it changes, not
+            only in the disclosures page. An adjustment a reader has to go
+            looking for is an adjustment they are entitled to be suspicious of. */}
+        {meta?.capital_events?.events?.length ? (
+          <Note tone="warn" className="mb-5">
+            <strong className="font-medium">
+              Capital event
+              {meta.capital_events.events.length === 1 ? "" : "s"} excluded from
+              the return.
+            </strong>{" "}
+            {meta.capital_events.events.map((e) => (
+              <span key={e.date} className="block mt-1.5">
+                {date(e.date)}: {money(e.amount_usd, currency, 2)}.{" "}
+                {e.reason_en}
+                <span className="block text-fg-muted mt-1">
+                  Derived as {e.derivation}.
+                </span>
+              </span>
+            ))}
+            <span className="block mt-2 text-fg-muted">
+              The curve above measures the return on the capital actually
+              managed. Nothing is hidden and nothing is rewritten: the raw
+              broker equity is published unchanged in{" "}
+              <code className="text-fg">nav.csv</code> beside the flow, the
+              multiplier and the adjusted index, so the unadjusted curve can be
+              drawn from the same file. The full evidence is inside the
+              write-once, hash-chained snapshot for that session.
+            </span>
+          </Note>
+        ) : null}
         <div className="flex justify-end mb-4">
           <ChartLegend showEquityBenchmark={showEquityBenchmark} />
         </div>

@@ -135,8 +135,18 @@ export type MetricsPayload = {
 
 export type NavPoint = {
   date: string;
+  /** Exactly what the broker reported, never rewritten. */
   equity: number;
   cash: number | null;
+  /** Declared external capital movement on this date, signed. Zero on every
+   *  session that had none, which is almost all of them. */
+  flow: number;
+  /** The multiplier that removes declared external flows from the return.
+   *  Exactly 1 for a book that has never had one, so `equity_adj === equity`. */
+  adj_factor: number;
+  /** equity x adj_factor: the track-record index, and the series every
+   *  published metric is computed on. This is what the charts draw. */
+  equity_adj: number;
   daily_return: number | null;
 };
 
@@ -251,12 +261,43 @@ export type AnalyticsPayload = {
  *  desk (never divided out here) so the headline a reader sees and the curve
  *  drawn beside it come from the same source and the same funded-capital base. */
 export type LiveReading = {
+  /** The raw broker reading. */
   equity: number;
   at: string;
   session_date: string;
+  /** Already on the adjusted index: the desk applies `adj_factor` before
+   *  publishing, so this never needs adjusting again here. */
   cumulative_return: number;
+  /** The multiplier applied. 1 unless a capital event is declared. */
+  adj_factor?: number;
   marked: boolean;
   source: string;
+};
+
+/** A declared external capital movement: money or assets entering or leaving an
+ *  account by an act that is not a trade. Excluded from the return, kept in the
+ *  balance — the standard time-weighted treatment. Absent for every book that
+ *  has never had one. */
+export type CapitalEvents = {
+  convention: string;
+  raw_series_preserved: string;
+  events: {
+    date: string;
+    kind: string;
+    amount_usd: number;
+    derivation: string;
+    reason_en: string;
+    reason_fr: string;
+    evidence: Record<string, unknown>;
+  }[];
+  cumulative_flow_usd: number;
+  /** Multiply a RAW intraday reading by this to place it on the adjusted index.
+   *  It matters in one window and matters a lot there: a flow reaches the
+   *  broker's equity hours before the mark that creates its NAV row, so until
+   *  that mark this is the only thing keeping the live line on the same axis as
+   *  the marked one. */
+  live_factor: number;
+  live_factor_note: string;
 };
 
 export type BookMeta = {
@@ -285,6 +326,7 @@ export type BookMeta = {
   intraday_resolution: string;
   intraday_sessions_rejected: string[];
   live: LiveReading | null;
+  capital_events?: CapitalEvents | null;
   desk_manifest_hash: string | null;
   chain_head: string;
   published_at: string;
@@ -464,12 +506,22 @@ export async function getMeta(book: string): Promise<BookMeta | null> {
 export async function getNav(book: string): Promise<NavPoint[]> {
   const text = await getText(`books/${book}/nav.csv`);
   if (!text) return [];
-  return parseCsv(text).map((r) => ({
-    date: r.date,
-    equity: num(r.equity) ?? 0,
-    cash: num(r.cash),
-    daily_return: num(r.daily_return),
-  }));
+  return parseCsv(text).map((r) => {
+    const equity = num(r.equity) ?? 0;
+    // A file published before the columns existed has no flow to remove, so it
+    // falls back to the identity. That is the correct reading of an older file,
+    // not a guess: those books had no capital event.
+    const adjFactor = num(r.adj_factor) ?? 1;
+    return {
+      date: r.date,
+      equity,
+      cash: num(r.cash),
+      flow: num(r.flow) ?? 0,
+      adj_factor: adjFactor,
+      equity_adj: num(r.equity_adj) ?? equity * adjFactor,
+      daily_return: num(r.daily_return),
+    };
+  });
 }
 
 /** Benchmarks on the same instants as the intraday equity, so both series span
@@ -566,11 +618,16 @@ export async function getChain(): Promise<ChainEntry[]> {
 }
 
 /** Cumulative return series derived from published NAV — a rebase, not a metric.
- *  (equity / equity[0] − 1 is the definition of the axis the chart draws, and it
- *  reconciles exactly with the published `cumulative_return`.) */
+ *  (equity_adj / equity_adj[0] − 1 is the definition of the axis the chart draws,
+ *  and it reconciles exactly with the published `cumulative_return`.)
+ *
+ *  `equity_adj` rather than `equity`: a capital movement that is not a trade
+ *  does not belong in a performance line. The two columns are identical for
+ *  every book that has never had one, and the raw column stays in the same file
+ *  for anyone who wants the unadjusted curve. */
 export function toCumulative(nav: NavPoint[]): { date: string; value: number }[] {
   if (nav.length === 0) return [];
-  const base = nav[0].equity;
+  const base = nav[0].equity_adj;
   if (!base) return [];
-  return nav.map((p) => ({ date: p.date, value: p.equity / base - 1 }));
+  return nav.map((p) => ({ date: p.date, value: p.equity_adj / base - 1 }));
 }
