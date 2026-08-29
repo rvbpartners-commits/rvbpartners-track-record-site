@@ -125,6 +125,9 @@ function BookView({
   const last = nav.length > 0 ? nav[nav.length - 1] : null;
   const cumulative = metrics?.values.cumulative_return ?? null;
   const live = meta?.live ?? summary.live ?? null;
+  // Non-zero only where a capital event is declared, so every other book
+  // renders exactly the header it rendered before.
+  const capitalFlow = meta?.capital_events?.cumulative_flow_usd ?? 0;
 
   const { points, granular } = useMemo(
     () =>
@@ -196,13 +199,28 @@ function BookView({
               screen — the broker said +4,992 and the page said +4,641. The
               marked figure is not dropped: it is the chained evidence, and it
               sits underneath, dated. */}
+          {/* The balance and the return answer two different questions, and
+              beside each other without a word they read as a contradiction: an
+              account opened at $1,000,000, now worth $980,657, above a line
+              saying "+1.07% since inception". Both are right. A capital
+              movement that is not a trade is excluded from the RETURN and kept
+              in the BALANCE, which is the whole point of the treatment, and the
+              gap between the two numbers is exactly that movement. It has to be
+              said where the gap is visible, not only in the note under the
+              chart. */}
           <Field
             label="Net asset value"
             value={money(live?.equity ?? last?.equity, currency, 2)}
             note={
-              live
-                ? `live · ${marketTime(live.at)}`
-                : `marked ${date(last?.date)}`
+              <>
+                {live ? `live · ${marketTime(live.at)}` : `marked ${date(last?.date)}`}
+                {capitalFlow ? (
+                  <span className="block">
+                    after {money(capitalFlow, currency, 0)} removed from the
+                    account, excluded from the return
+                  </span>
+                ) : null}
+              </>
             }
           />
           <Field
@@ -528,7 +546,7 @@ function Field({
 }: {
   label: string;
   value: string;
-  note?: string;
+  note?: React.ReactNode;
   sign?: number | null;
 }) {
   const colour =
