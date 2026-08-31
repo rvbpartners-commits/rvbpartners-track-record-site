@@ -128,6 +128,7 @@ function BookView({
   // Non-zero only where a capital event is declared, so every other book
   // renders exactly the header it rendered before.
   const capitalFlow = meta?.capital_events?.cumulative_flow_usd ?? 0;
+  const capitalEventCount = meta?.capital_events?.events?.length ?? 0;
 
   const { points, granular } = useMemo(
     () =>
@@ -216,8 +217,9 @@ function BookView({
                 {live ? `live · ${marketTime(live.at)}` : `marked ${date(last?.date)}`}
                 {capitalFlow ? (
                   <span className="block">
-                    after {money(capitalFlow, currency, 0)} removed from the
-                    account, excluded from the return
+                    {capitalEventCount > 1
+                      ? `net ${money(capitalFlow, currency, 0)} across ${capitalEventCount} capital movements, excluded from the return`
+                      : `after ${money(capitalFlow, currency, 0)} ${capitalFlow < 0 ? "removed from" : "added to"} the account, excluded from the return`}
                   </span>
                 ) : null}
               </>
@@ -314,9 +316,8 @@ function BookView({
         {meta?.capital_events?.events?.length ? (
           <Note tone="warn" className="mb-5">
             <strong className="font-medium">
-              Capital event
-              {meta.capital_events.events.length === 1 ? "" : "s"} excluded from
-              the return.
+              {`Capital event${meta.capital_events.events.length === 1 ? "" : "s"}`}{" "}
+              excluded from the return.
             </strong>{" "}
             {meta.capital_events.events.map((e) => (
               <span key={e.date} className="block mt-1.5">
