@@ -128,7 +128,8 @@ function BookView({
   // Non-zero only where a capital event is declared, so every other book
   // renders exactly the header it rendered before.
   const capitalFlow = meta?.capital_events?.cumulative_flow_usd ?? 0;
-  const capitalEventCount = meta?.capital_events?.events?.length ?? 0;
+  const capitalEvents = meta?.capital_events?.events ?? [];
+  const capitalEventCount = capitalEvents.length;
 
   const { points, granular } = useMemo(
     () =>
@@ -307,38 +308,26 @@ function BookView({
                 published NAV: {meta.intraday_sessions_rejected.join("; ")}.
               </>
             ) : null}
+            {capitalEventCount ? (
+              <>
+                {" "}
+                <strong className="font-medium text-fg">
+                  {capitalEventCount} capital movement
+                  {capitalEventCount === 1 ? "" : "s"}
+                </strong>{" "}
+                {capitalEventCount === 1 ? "is" : "are"} excluded from this
+                curve, net {money(capitalFlow, currency, 0)}: assets{" "}
+                {capitalEventCount === 1
+                  ? "moved in or out of"
+                  : "left and re-entered"}{" "}
+                the account by acts that were not trades. Detail below the
+                chart; the raw broker equity is published unchanged in{" "}
+                <code>nav.csv</code>.
+              </>
+            ) : null}
           </>
         }
       >
-        {/* A declared capital event is stated on the chart it changes, not
-            only in the disclosures page. An adjustment a reader has to go
-            looking for is an adjustment they are entitled to be suspicious of. */}
-        {meta?.capital_events?.events?.length ? (
-          <Note tone="warn" className="mb-5">
-            <strong className="font-medium">
-              {`Capital event${meta.capital_events.events.length === 1 ? "" : "s"}`}{" "}
-              excluded from the return.
-            </strong>{" "}
-            {meta.capital_events.events.map((e) => (
-              <span key={e.date} className="block mt-1.5">
-                {date(e.date)}: {money(e.amount_usd, currency, 2)}.{" "}
-                {e.reason_en}
-                <span className="block text-fg-muted mt-1">
-                  Derived as {e.derivation}.
-                </span>
-              </span>
-            ))}
-            <span className="block mt-2 text-fg-muted">
-              The curve above measures the return on the capital actually
-              managed. Nothing is hidden and nothing is rewritten: the raw
-              broker equity is published unchanged in{" "}
-              <code className="text-fg">nav.csv</code> beside the flow, the
-              multiplier and the adjusted index, so the unadjusted curve can be
-              drawn from the same file. The full evidence is inside the
-              write-once, hash-chained snapshot for that session.
-            </span>
-          </Note>
-        ) : null}
         <div className="flex justify-end mb-4">
           <ChartLegend showEquityBenchmark={showEquityBenchmark} />
         </div>
@@ -372,6 +361,49 @@ function BookView({
             ) : null}
           </p>
         )}
+
+        {/* Folded, not hidden, and not shouted.
+            A declared adjustment has to be readable on the chart it changes: an
+            adjustment a reader must go hunting for is one they are entitled to
+            be suspicious of. But this was a warn-toned banner sitting above the
+            curve, and after the broker reversed itself the two movements net to
+            0.1% of the book. A permanent alarm over a resolved bookkeeping
+            round-trip is its own kind of dishonesty: it makes the page look
+            wounded and it spends, on a footnote, the attention reserved for
+            things a reader must not miss. So the claim goes in the rail with
+            the chart's other caveats, and the evidence goes here, one click
+            away, in full. Native <details>: no state, and it opens with
+            JavaScript off. */}
+        {capitalEvents.length ? (
+          <details className="mt-4 text-[12px] text-fg-muted max-w-[80ch]">
+            <summary className="cursor-pointer text-fg-faint hover:text-fg">
+              {capitalEvents.length} capital movement
+              {capitalEvents.length === 1 ? "" : "s"} excluded from the return
+            </summary>
+            <div className="mt-3 space-y-3 border-l hairline pl-4">
+              {capitalEvents.map((e) => (
+                <div key={e.date}>
+                  <span className="text-fg tnum">{date(e.date)}</span>{" "}
+                  <span className="text-fg tnum">
+                    {money(e.amount_usd, currency, 2)}
+                  </span>
+                  <span className="block mt-1">{e.reason_en}</span>
+                  <span className="block mt-1 text-fg-faint">
+                    Derived as {e.derivation}.
+                  </span>
+                </div>
+              ))}
+              <p className="text-fg-faint">
+                The curve measures the return on the capital actually managed.
+                Nothing is hidden and nothing is rewritten: the raw broker
+                equity stays in <code>nav.csv</code> beside the flow, the
+                multiplier and the adjusted index, so the unadjusted curve is
+                drawn from the same file. The full evidence for each movement is
+                inside the write-once, hash-chained snapshot for its session.
+              </p>
+            </div>
+          </details>
+        ) : null}
       </Section>
 
       {daily.length > 0 && (
