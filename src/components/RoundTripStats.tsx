@@ -1,5 +1,6 @@
 import type { RoundTrips } from "@/lib/data";
 import { pct } from "@/lib/format";
+import { duration } from "@/lib/format";
 
 /**
  * The round-trip ledger.
@@ -93,14 +94,6 @@ function money(v: number | null) {
 
 /** Minutes up to an hour, then hours. A median holding of "4260 s" is a number
  *  the reader has to divide themselves. */
-function duration(seconds: number | null) {
-  if (seconds === null) return "—";
-  if (seconds < 90) return `${Math.round(seconds)} s`;
-  const minutes = seconds / 60;
-  if (minutes < 90) return `${minutes.toFixed(0)} min`;
-  return `${(minutes / 60).toFixed(1)} h`;
-}
-
 function Stat({
   label,
   value,
