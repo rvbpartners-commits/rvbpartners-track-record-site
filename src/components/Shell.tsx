@@ -6,6 +6,7 @@ import { Footer } from "./Footer";
 const NAV = [
   { href: "/portfolios", label: "Portfolios" },
   { href: "/verify", label: "Verify" },
+  { href: "/research", label: "Research" },
   { href: "/methodology", label: "Methodology" },
   { href: "/disclosures", label: "Disclosures" },
 ];
