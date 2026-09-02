@@ -118,3 +118,19 @@ export function marketTime(iso: string | null | undefined): string {
     timeZone: "America/New_York",
   }).format(d)} ET`;
 }
+
+/**
+ * A holding time, in the largest unit that stays readable.
+ *
+ * Lives here because two components used to define it independently, with
+ * different thresholds, and rendered the same quantity as "93 min" in one
+ * section and "1.5 h" in another on one page. On a record whose argument is
+ * internal consistency, that is not a rounding difference.
+ */
+export function duration(seconds: number | null | undefined): string {
+  if (seconds === null || seconds === undefined) return "—";
+  if (seconds < 90) return `${Math.round(seconds)} s`;
+  const minutes = seconds / 60;
+  if (minutes < 120) return `${minutes.toFixed(0)} min`;
+  return `${(minutes / 60).toFixed(1)} h`;
+}

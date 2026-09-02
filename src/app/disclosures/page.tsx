@@ -20,6 +20,18 @@ const SEVERITY: Record<string, { label: string; className: string }> = {
 };
 
 /**
+ * Who a disclosure is true of. The repository publishes paper accounts and one
+ * real-capital book, and the publisher now sends only the items that hold for
+ * the books actually in the index — but "applies to everything" and "applies to
+ * the six paper books" are different statements, and the page must not let a
+ * reader assume the first.
+ */
+const AUDIENCE: Record<string, string> = {
+  paper: "Applies to the paper-account portfolios",
+  real_capital: "Applies to the real-capital portfolio",
+};
+
+/**
  * Rendered from the SAME source the publisher stamps into every snapshot, so the
  * page and the data cannot drift apart. If this list is ever shorter than the
  * one in the records, that is a bug and not an editorial decision.
@@ -63,6 +75,11 @@ export default async function DisclosuresPage() {
               <h2 className="mt-2 text-[18px] font-semibold tracking-tight leading-snug">
                 {d.title_en}
               </h2>
+              {AUDIENCE[d.applies_to ?? "all"] && (
+                <div className="mt-1.5 text-[12px] text-fg-faint">
+                  {AUDIENCE[d.applies_to ?? "all"]}
+                </div>
+              )}
               {/* English only. The published records carry a French field as
                   well, but this site is not bilingual: a translation printed
                   under every paragraph doubles the length of the page a reader

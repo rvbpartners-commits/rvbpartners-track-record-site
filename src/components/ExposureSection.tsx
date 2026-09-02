@@ -1,5 +1,6 @@
 import type { Exposure } from "@/lib/data";
 import { date } from "@/lib/format";
+import { duration } from "@/lib/format";
 
 /**
  * What "composition" means for a book that does not hold anything for long.
@@ -93,14 +94,6 @@ export function ExposureSection({ exposure }: { exposure: Exposure }) {
 /** Minutes up to two hours, then hours. "5575 s" is a number the reader has to
  *  divide themselves, and "1.5 h" throws away the precision that makes a
  *  93-minute median mean something on a book whose whole point is being brief. */
-function duration(seconds: number | null | undefined) {
-  if (seconds === null || seconds === undefined) return "—";
-  if (seconds < 90) return `${Math.round(seconds)} s`;
-  const minutes = seconds / 60;
-  if (minutes < 120) return `${minutes.toFixed(0)} min`;
-  return `${(minutes / 60).toFixed(1)} h`;
-}
-
 function Stat({
   label,
   value,

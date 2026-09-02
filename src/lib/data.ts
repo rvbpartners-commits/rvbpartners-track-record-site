@@ -38,6 +38,10 @@ export type Disclosure = {
   severity: "critical" | "important" | "note";
   title_en: string;
   body_en: string;
+  /** Which books the item is true of: "all", "paper", or "real_capital".
+   *  Older records predate the field; absent means it applies to everything,
+   *  which is what those records meant when they were written. */
+  applies_to?: string;
 };
 
 /** Where the curve stops, and why it stops there.
@@ -429,8 +433,20 @@ async function getText(path: string): Promise<string | null> {
   const hit = memo.get(path);
   if (hit && now - hit.at < MEMO_SECONDS * 1000) return hit.body;
 
-  const res = await fetch(`${DATA_BASE}/${path}`, { cache: "no-store" });
-  const body = res.ok ? await res.text() : null;
+  // A transport failure is not a different kind of event from a missing file:
+  // in both cases we do not have the data, and the page says so rather than
+  // showing something stale. Without this, a DNS or TLS failure against the
+  // data host threw out of the render and replaced every carefully worded
+  // absence with a framework crash page.
+  let body: string | null = null;
+  try {
+    const res = await fetch(`${DATA_BASE}/${path}`, { cache: "no-store" });
+    body = res.ok ? await res.text() : null;
+  } catch {
+    // Not memoised: a network failure is transient, and caching it for a
+    // minute would turn one bad second into a minute of empty pages.
+    return null;
+  }
   // A 404 is memoised too: most session dates legitimately have no detail file,
   // and re-asking on every render would spend the whole page budget on misses.
   memo.set(path, { at: now, body });

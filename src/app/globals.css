@@ -28,7 +28,10 @@
   --bg-raised: #15181d;
   --fg: #eef1f5;
   --fg-muted: #a2abba;
-  --fg-faint: #6f7889;
+  /* Lifted from #6f7889 (2.9:1 on the page ground, below AA) to a
+     compliant value: this token carries the captions and the withheld
+     markers, i.e. exactly the text a reader must not have to squint at. */
+  --fg-faint: #8b939f;
   --hairline: #23272e;
   --up: #3ddc97;
   --up-soft: #123026;
