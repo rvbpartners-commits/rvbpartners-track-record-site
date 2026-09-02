@@ -33,6 +33,38 @@ export const REPO_URL = DATA_REPO_URL;
 export const MEMO_SECONDS = 60;
 
 /** English only; the published `_fr` fields are deliberately not typed here. */
+/** The research denominator: how much was searched to find what is published.
+ *  Aggregates only — the file names no strategy, by construction. */
+export type ResearchSummary = {
+  schema: string;
+  generated_at: string;
+  note?: string;
+  source?: string;
+  search: {
+    strategies_researched: number;
+    recorded_trials: number;
+    ledger_entries: number;
+    idea_families: number;
+    effective_independent_trials: number;
+    effective_independent_strategies: number;
+    note?: string;
+  };
+  deflation: {
+    alpha: number;
+    clear_nominal_bar: number;
+    expected_false_positives_at_alpha: number;
+    survive_book_level: number;
+    demoted_by_book_level: number;
+    gross_sharpe_fallback_rows?: number;
+    note?: string;
+  };
+  catalogue?: {
+    by_tier?: Record<string, Record<string, number>>;
+    presented_folders?: number;
+  };
+  gate_debt?: Record<string, Record<string, number | string | null>>;
+};
+
 export type Disclosure = {
   id: string;
   severity: "critical" | "important" | "note";
@@ -614,6 +646,12 @@ export async function getDaily(book: string): Promise<DailyPoint[]> {
     cumulative: num(r.pnl_cumulative_usd),
     cumulativePct: num(r.pnl_cumulative_pct),
   }));
+}
+
+/** Absent until the summary has been generated and published — the page is
+ *  simply not rendered in that case, rather than shown with holes in it. */
+export async function getResearch(): Promise<ResearchSummary | null> {
+  return getJson<ResearchSummary>("research.json");
 }
 
 export async function getChain(): Promise<ChainEntry[]> {
