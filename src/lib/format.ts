@@ -50,6 +50,15 @@ export function qty(value: number | null | undefined): string {
   }
   // Fractional shares are real here (Alpaca fills them), so they are shown
   // rather than rounded away — but four decimals is where it stops mattering.
+  //
+  // A HOLDING THAT ROUNDS TO ZERO IS NOT A HOLDING OF ZERO. The published
+  // detail files carry dust rows (−9.2e-08 shares of HPE, −3.3e-10 of DELL),
+  // and at four decimals those render as "0" and "-0" — a row that looks like a
+  // position of nothing rather than a residual too small to print. It is shown
+  // as a bounded magnitude instead, so the reader sees a real, tiny quantity.
+  if (value !== 0 && Math.abs(value) < 0.0001) {
+    return `${value < 0 ? "−" : ""}<0.0001`;
+  }
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 }).format(value);
 }
 
@@ -101,12 +110,50 @@ export function shortHash(hash: string | null | undefined, len = 12): string {
   return hash.length <= len ? hash : `${hash.slice(0, len)}…`;
 }
 
-/** A broker reading's instant, in the market's own clock.
+/** The clock a book's readings are shown on.
  *
- *  New York, not UTC and not the reader's zone: every session boundary in this
- *  record is an ET date, so a reading stamped "16:45 CEST" cannot be placed
- *  against the session it belongs to without the reader doing arithmetic. */
-export function marketTime(iso: string | null | undefined): string {
+ *  Not a module constant any more. The comment that used to sit here said
+ *  "every session boundary in this record is an ET date" — true of the six
+ *  Alpaca books and false of the book whose published `session_close` is
+ *  "21:00 UTC", which was being labelled in New York time on the same page that
+ *  printed its UTC close. The zone is therefore read from the book's own
+ *  published convention, and only falls back to ET for a book that publishes
+ *  none (which is what every Alpaca book's close is). */
+export type DisplayZone = { timeZone: string; suffix: string };
+
+export const ET_ZONE: DisplayZone = { timeZone: "America/New_York", suffix: "ET" };
+
+/** Derive the display zone from a book's published `session_close.label`.
+ *
+ *  Two shapes appear in the data: an IANA zone ("16:00 America/New_York") and a
+ *  bare UTC offset label ("21:00 UTC"). Anything else falls back to ET rather
+ *  than guessing — a wrong zone silently re-dates a reading. */
+export function sessionZone(
+  label: string | null | undefined,
+): DisplayZone {
+  if (!label) return ET_ZONE;
+  const iana = label.match(/[A-Za-z]+\/[A-Za-z_]+/);
+  if (iana) {
+    const timeZone = iana[0];
+    return {
+      timeZone,
+      suffix: timeZone === "America/New_York" ? "ET" : timeZone,
+    };
+  }
+  if (/\bUTC\b/.test(label)) return { timeZone: "UTC", suffix: "UTC" };
+  return ET_ZONE;
+}
+
+/** A broker reading's instant, on the book's own clock.
+ *
+ *  The zone is passed in rather than assumed: a reading stamped "16:45 CEST"
+ *  cannot be placed against the session it belongs to without the reader doing
+ *  arithmetic, and doing that arithmetic in the wrong zone is worse than not
+ *  doing it at all. */
+export function marketTime(
+  iso: string | null | undefined,
+  zone: DisplayZone = ET_ZONE,
+): string {
   if (!iso) return NO_VALUE;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
@@ -115,8 +162,8 @@ export function marketTime(iso: string | null | undefined): string {
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "America/New_York",
-  }).format(d)} ET`;
+    timeZone: zone.timeZone,
+  }).format(d)} ${zone.suffix}`;
 }
 
 /**
@@ -128,7 +175,14 @@ export function marketTime(iso: string | null | undefined): string {
  * internal consistency, that is not a rounding difference.
  */
 export function duration(seconds: number | null | undefined): string {
-  if (seconds === null || seconds === undefined) return "—";
+  // `Number.isFinite`, like every other formatter here: a non-finite value must
+  // render as absence rather than as "NaN h". It cannot arrive through
+  // `JSON.parse` (a bare NaN literal makes the whole payload fail to parse and
+  // the page renders the absence branch instead), so this is a backstop against
+  // a future caller that computes rather than reads.
+  if (seconds === null || seconds === undefined || !Number.isFinite(seconds)) {
+    return NO_VALUE;
+  }
   if (seconds < 90) return `${Math.round(seconds)} s`;
   const minutes = seconds / 60;
   if (minutes < 120) return `${minutes.toFixed(0)} min`;

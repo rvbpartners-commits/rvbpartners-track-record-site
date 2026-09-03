@@ -73,10 +73,23 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
         negative; counted on both, it does not. The convention is set out in the
         methodology and every snapshot carries the decomposition.
       </p>
+      {/* "drawdown" is struck from this list deliberately: the realised
+          drawdown path and its episodes are published on this same page,
+          ungated, because they are statements of what happened. Naming a
+          withheld figure that the reader can see two panels below is the kind
+          of small contradiction that costs a record its credit. */}
       <p className="mt-3 text-[12.5px] leading-relaxed text-fg-muted max-w-[72ch]">
-        Sharpe, volatility, drawdown and every other annualised figure stay
-        withheld below {rt.round_trips_needed_for_annualising} round trips. On{" "}
-        {rt.round_trips} they would not be imprecise, they would be meaningless.
+        Sharpe, volatility and every other annualised figure stay withheld below{" "}
+        {rt.round_trips_needed_for_annualising} round trips. On {rt.round_trips}{" "}
+        they would not be imprecise, they would be meaningless. The realised
+        series — every daily result, and the drawdown path — are not annualised
+        estimates and are published in full.
+      </p>
+      <p className="mt-3 text-[12.5px] leading-relaxed text-fg-muted max-w-[72ch]">
+        The net result above covers the closed round trips only. It is not the
+        same population as the cumulative result charted for this book, which is
+        the whole combined P&amp;L on every published day; the two are different
+        measurements and are not expected to be the same number.
       </p>
     </>
   );

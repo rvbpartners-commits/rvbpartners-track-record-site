@@ -1,11 +1,18 @@
 /**
  * The site's only data source: the public track-record repository.
  *
- * Everything here is a fetch and a parse. No metric is computed in this file or
+ * Everything here is a fetch and a parse. No METRIC is computed in this file or
  * anywhere else in the frontend — the numbers arrive already calculated by the
  * desk's `rvb.metrics` module, which is the whole point of publishing them as
  * JSON. If you find yourself about to write `Math.sqrt(252) * ...` here, stop:
  * the answer belongs upstream, in the one place metrics are allowed to live.
+ *
+ * "No metric", not "no arithmetic": the frontend still sums a table's own rows
+ * into its total row, scales an axis, and rebases a published NAV column onto
+ * the axis a chart draws. Those are drawing operations over published numbers.
+ * The claim on the pages is worded to match — every METRIC comes from the desk
+ * — because a broader claim than the code can keep is worth less than an
+ * accurate narrow one.
  */
 
 export const DATA_REPO = "rvbpartners-commits/rvbpartners-track-record-data";
@@ -116,6 +123,14 @@ export type BookSummary = {
   exposure?: Exposure;
   latest_detail_session: string | null;
   paths: Record<string, string>;
+  /** The book this one is the capital twin of, when the publisher says so.
+   *  Preferred over `variants.ts`'s name-suffix inference wherever it is
+   *  present: a relationship read off a string suffix is a guess that happens
+   *  to be right, and it stops being right the day a book is renamed. */
+  variant_of?: string | null;
+  /** Declared capital movements, when the index carries them. Read only to
+   *  decide whether a page may still describe the fleet as flow-free. */
+  capital_events?: { events?: unknown[] } | null;
 };
 
 /** A book's URL segment.
@@ -166,6 +181,10 @@ export type MetricsPayload = {
     need: number;
     suppressed: string[];
     label_en: string;
+    /** What the gate counts in. Absent means marked sessions, which is what
+     *  every book counted in when the field did not exist. A book whose binding
+     *  bar is round trips publishes it here so one gate governs one page. */
+    unit?: string;
   };
 };
 
@@ -238,7 +257,14 @@ export type BookCategory = {
 
 export type DetailPayload = {
   book: string;
+  /** The CYCLE key, not the day the positions were held. The desk stages a plan
+   *  after this session's close and executes it at the next open, so the
+   *  holdings in this file are the ones held from that next open. */
   session_date: string;
+  /** The session the positions were actually held in, when the publisher emits
+   *  it. Absent on files written before the field existed — the page then says
+   *  which cycle staged them rather than dating them a session early. */
+  positions_as_of?: string | null;
   released_under_lag_days: number;
   note: string;
   orders: Record<string, unknown>[];
@@ -270,6 +296,11 @@ export type AnalyticsPayload = {
     median: number | null;
     q75: number | null;
     max: number | null;
+    /** Groups in this horizon that cover only part of their period — a one-day
+     *  "week" at the start of a record. Optional: absent on a payload published
+     *  before the publisher counted them, and the panel then says only that
+     *  partial groups are possible rather than how many there are. */
+    partial_groups?: number;
   }[];
   rolling_windows_withheld?: number[];
   monthly_returns: {
@@ -278,6 +309,10 @@ export type AnalyticsPayload = {
     return: number | null;
     sessions: number;
     partial: boolean;
+    /** Sessions the month could have had on this book's own calendar. Optional:
+     *  where it is published the tooltip reads "15 of 31" instead of "15", so
+     *  "complete" is checkable rather than implied by a missing asterisk. */
+    sessions_possible?: number;
   }[];
   distribution: { bins: { from: number; to: number; count: number }[] };
   drawdown_episodes: {
@@ -396,7 +431,16 @@ export type BookMeta = {
    *  day's return, which is not the same number as `initial_capital` on a book
    *  whose capital lands intraday. Never a curve point. */
   opening_capital?: number;
+  /** Why `opening_capital` is not `initial_capital`, in the desk's own words. */
+  opening_capital_note?: string;
   round_trips?: RoundTrips | null;
+  /** The book's own published conventions, as free text keyed by subject
+   *  (`calendar`, `pnl`, `superseded_chain`, …). Rendered rather than
+   *  paraphrased: a caption hardcoded in this repository went stale against the
+   *  book it described, and the published string did not. */
+  convention?: Record<string, string>;
+  /** Sessions the account was funded and flat before it first traded. */
+  intraday_pre_trading_sessions?: string[];
 };
 
 /** What a book is exposed to, for one that does not hold anything for long.
@@ -554,22 +598,34 @@ export async function getMeta(book: string): Promise<BookMeta | null> {
 export async function getNav(book: string): Promise<NavPoint[]> {
   const text = await getText(`books/${book}/nav.csv`);
   if (!text) return [];
-  return parseCsv(text).map((r) => {
-    const equity = num(r.equity) ?? 0;
-    // A file published before the columns existed has no flow to remove, so it
-    // falls back to the identity. That is the correct reading of an older file,
-    // not a guess: those books had no capital event.
-    const adjFactor = num(r.adj_factor) ?? 1;
-    return {
-      date: r.date,
-      equity,
-      cash: num(r.cash),
-      flow: num(r.flow) ?? 0,
-      adj_factor: adjFactor,
-      equity_adj: num(r.equity_adj) ?? equity * adjFactor,
-      daily_return: num(r.daily_return),
-    };
-  });
+  return (
+    parseCsv(text)
+      .map((r) => {
+        // A ROW WITH NO EQUITY IS AN ABSENT MEASUREMENT, NOT A ZERO ONE. This
+        // used to be `num(r.equity) ?? 0`, which turned a blank cell into an
+        // account worth nothing — a -100% bar against a funded base, drawn as
+        // if the broker had reported it. `getIntraday` twenty lines below
+        // already refuses exactly that reading. The row is dropped instead: the
+        // charts run `connectNulls={false}`, so a missing session renders as
+        // the gap it is.
+        const equity = num(r.equity);
+        if (equity === null) return null;
+        // A file published before the columns existed has no flow to remove, so
+        // it falls back to the identity. That is the correct reading of an older
+        // file, not a guess: those books had no capital event.
+        const adjFactor = num(r.adj_factor) ?? 1;
+        return {
+          date: r.date,
+          equity,
+          cash: num(r.cash),
+          flow: num(r.flow) ?? 0,
+          adj_factor: adjFactor,
+          equity_adj: num(r.equity_adj) ?? equity * adjFactor,
+          daily_return: num(r.daily_return),
+        };
+      })
+      .filter((p): p is NavPoint => p !== null)
+  );
 }
 
 /** Benchmarks on the same instants as the intraday equity, so both series span
@@ -672,8 +728,17 @@ export async function getChain(): Promise<ChainEntry[]> {
 }
 
 /** Cumulative return series derived from published NAV — a rebase, not a metric.
- *  (equity_adj / equity_adj[0] − 1 is the definition of the axis the chart draws,
- *  and it reconciles exactly with the published `cumulative_return`.)
+ *  `equity_adj / equity_adj[0] − 1` is the definition of the axis the chart
+ *  draws.
+ *
+ *  It does NOT always reconcile with the published `cumulative_return`, and the
+ *  sentence that used to claim it did was false for a real book. It reconciles
+ *  when the book's first NAV row is also the denominator of its first return.
+ *  On a book whose funding lands intraday, the first session's return is
+ *  measured against an opening balance that nav.csv does not carry, so this
+ *  rebase is short by exactly that session and the page must say so rather than
+ *  print two numbers and let the reader find the gap. `BookView` compares the
+ *  two and discloses the difference; nothing here invents the missing base.
  *
  *  `equity_adj` rather than `equity`: a capital movement that is not a trade
  *  does not belong in a performance line. The two columns are identical for

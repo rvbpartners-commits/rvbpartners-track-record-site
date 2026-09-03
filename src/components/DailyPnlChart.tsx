@@ -15,6 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import type { DailyPoint } from "@/lib/data";
+import { date as fmtDate } from "@/lib/format";
 import { useNarrow } from "@/lib/useNarrow";
 
 /**
@@ -27,10 +28,14 @@ import { useNarrow } from "@/lib/useNarrow";
  * whole point of publishing every calendar day rather than only the days that
  * traded.
  *
- * The percentage toggle divides the running total by the capital at inception.
- * It is a reading axis, NOT a metric: it does not compound, and it is not the
- * time-weighted return published above. Labelling it plainly is cheaper than
- * having a reader discover the difference themselves.
+ * The percentage series is the PUBLISHED one (`pnl_cumulative_pct`), not a
+ * division done here. This component used to compute `cumulative / initial
+ * capital` in the browser, on a page that told the reader nothing was computed
+ * in their browser — and it agreed with the published column only for as long
+ * as the desk kept using the same denominator, with nothing to notice the day
+ * it changed. It is a reading axis, NOT a metric: it does not compound and it
+ * is not the time-weighted return published above. A book that publishes no
+ * percentage column gets no percentage toggle, rather than a derived one.
  */
 
 const fmtDay = (v: string) => {
@@ -43,11 +48,9 @@ type Mode = "usd" | "pct";
 export function DailyPnlChart({
   data,
   currency,
-  initialCapital,
 }: {
   data: DailyPoint[];
   currency: string;
-  initialCapital: number | null;
 }) {
   const narrow = useNarrow();
   const [mode, setMode] = useState<Mode>("usd");
@@ -60,14 +63,18 @@ export function DailyPnlChart({
     );
   }
 
-  const pct = mode === "pct" && initialCapital ? 1 / initialCapital : null;
+  // The toggle exists only when the percentage column does. `some`, not
+  // `every`: a gap in the published column is a gap in the drawn line, which is
+  // what `connectNulls={false}` below is for.
+  const hasPct = data.some((d) => d.cumulativePct !== null);
+  const asPct = mode === "pct" && hasPct;
   const cumulative = data.map((d) => ({
     date: d.date,
-    value: d.cumulative === null ? null : pct ? d.cumulative * pct : d.cumulative,
+    value: asPct ? d.cumulativePct : d.cumulative,
   }));
 
   const fmtValue = (v: number) =>
-    pct ? `${(v * 100).toFixed(2)}%` : `${v.toFixed(2)}`;
+    asPct ? `${(v * 100).toFixed(2)}%` : `${v.toFixed(2)}`;
 
   return (
     <div className="space-y-8">
@@ -129,7 +136,7 @@ export function DailyPnlChart({
             <Toggle
               active={mode === "pct"}
               onClick={() => setMode("pct")}
-              disabled={!initialCapital}
+              disabled={!hasPct}
             >
               %
             </Toggle>
@@ -162,7 +169,7 @@ export function DailyPnlChart({
                 content={
                   <CumulativeTooltip
                     fmt={fmtValue}
-                    currency={pct ? "" : currency}
+                    currency={asPct ? "" : currency}
                   />
                 }
               />
@@ -269,7 +276,10 @@ function Panel({
 }) {
   return (
     <div className="rounded-[4px] border hairline bg-bg px-3 py-2 text-[12px] shadow-sm">
-      <div className="text-fg-faint text-[11px]">{date}</div>
+      {/* Through the shared formatter. The raw ISO key printed here gave one
+          chart three date formats — "2026-08-27" in the tooltip, "27/08" on the
+          axis, "27 Aug 2026" everywhere else on the page. */}
+      <div className="text-fg-faint text-[11px]">{fmtDate(date)}</div>
       <div className="mt-0.5">{children}</div>
     </div>
   );

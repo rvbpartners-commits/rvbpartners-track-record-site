@@ -25,13 +25,28 @@ import { date, pct, ratio, signedPct } from "@/lib/format";
  */
 export function AnalyticsCharts({
   analytics,
+  gate,
 }: {
   analytics: AnalyticsPayload | null;
+  /** The book's ONE withholding gate, from `metrics.json`. Passed in rather
+   *  than read from `analytics.sessions`, which counts a different window on at
+   *  least one book — the frames said "15/60" beside a ledger saying 16. */
+  gate?: { have: number; need: number; unit?: string } | null;
 }) {
-  if (!analytics) return null;
-  const held = analytics.gated
-    ? `withheld · ${analytics.sessions}/${analytics.min_sessions_for_annualised} sessions`
-    : undefined;
+  // An absent payload used to remove the whole chart suite silently, which is
+  // indistinguishable from a book that has no analytics to show. Say so.
+  if (!analytics) {
+    return (
+      <p className="mt-10 text-[13px] text-fg-muted max-w-[80ch]">
+        The analytics series could not be loaded from the data repository. The
+        charts are not drawn rather than drawn from a partial payload.
+      </p>
+    );
+  }
+  const have = gate?.have ?? analytics.sessions;
+  const need = gate?.need ?? analytics.min_sessions_for_annualised;
+  const unit = gate?.unit ?? "sessions";
+  const held = analytics.gated ? `withheld · ${have}/${need} ${unit}` : undefined;
 
   return (
     <div className="mt-10 grid xl:grid-cols-2 gap-x-12 gap-y-10">
@@ -175,7 +190,7 @@ function DrawdownPath({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Drawdown"
-      note="Equity against its own running maximum. The minimum of this path is the maximum drawdown in the ledger — the same definition, not a second one."
+      note="Equity against its own running maximum. Not gated: this is what happened. The ledger's Maximum drawdown row is the single gated field in metrics.json — the same definition as the minimum of this path, not a second one, and it is withheld while this is not."
       empty={data.length === 0}
     >
       <ChartBox>
@@ -303,14 +318,18 @@ function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
 function Quantiles({ analytics }: { analytics: AnalyticsPayload }) {
   const rows = analytics.quantiles ?? [];
   const span = Math.max(
-    ...rows.flatMap((r) => [Math.abs(r.min ?? 0), Math.abs(r.max ?? 0)]),
+    ...rows.flatMap((r) =>
+      [r.min, r.max]
+        .filter((v): v is number => v !== null)
+        .map((v) => Math.abs(v)),
+    ),
     0.0001,
   );
   const x = (v: number) => (v / span) * 50 + 50;
   return (
     <Plot
       title="Return spread by horizon"
-      note="Where the shape changes with horizon — a book that looks calm daily and lumpy monthly gives itself away here. Whiskers are min and max; the box is the interquartile range; the line is the median."
+      note="Where the shape changes with horizon — a book that looks calm daily and lumpy monthly gives itself away here. Whiskers are min and max; the box is the interquartile range; the line is the median. Horizons are calendar groups, so on a short record the first and last group of a weekly or monthly row can be a partial period; the observation count beside each row is the count of groups, not of full periods."
       empty={rows.length === 0}
     >
       <div className="space-y-4 pt-1">
@@ -319,37 +338,51 @@ function Quantiles({ analytics }: { analytics: AnalyticsPayload }) {
             <div className="flex items-baseline justify-between text-[11.5px] mb-1.5">
               <span className="text-fg-muted">
                 {r.horizon}
-                <span className="text-fg-faint"> · {r.n} observations</span>
+                <span className="text-fg-faint">
+                  {" "}
+                  · {r.n} observations
+                  {r.partial_groups ? ` (${r.partial_groups} partial)` : ""}
+                </span>
               </span>
               <span className="tnum text-fg-faint">
                 {signedPct(r.min, 2)} … {signedPct(r.max, 2)}
               </span>
             </div>
+            {/* ABSENCE IS NOT ZERO, IN THE PICTURE TOO. Each element used to
+                fall back to `?? 0`, so a withheld quantile was drawn as a mark
+                at exactly zero — beside a text label that correctly said "—".
+                An element with no value is simply not drawn. */}
             <div className="relative h-5 border-b hairline">
               <div
                 className="absolute top-0 bottom-0 w-px"
                 style={{ left: "50%", background: "var(--hairline)" }}
               />
-              <div
-                className="absolute top-1/2 h-px"
-                style={{
-                  left: `${x(r.min ?? 0)}%`,
-                  width: `${x(r.max ?? 0) - x(r.min ?? 0)}%`,
-                  background: "var(--bench)",
-                }}
-              />
-              <div
-                className="absolute top-1 bottom-1 border hairline"
-                style={{
-                  left: `${x(r.q25 ?? 0)}%`,
-                  width: `${Math.max(x(r.q75 ?? 0) - x(r.q25 ?? 0), 0.4)}%`,
-                  background: "var(--bg-subtle)",
-                }}
-              />
-              <div
-                className="absolute top-0.5 bottom-0.5 w-px"
-                style={{ left: `${x(r.median ?? 0)}%`, background: "var(--accent)" }}
-              />
+              {r.min !== null && r.max !== null && (
+                <div
+                  className="absolute top-1/2 h-px"
+                  style={{
+                    left: `${x(r.min)}%`,
+                    width: `${x(r.max) - x(r.min)}%`,
+                    background: "var(--bench)",
+                  }}
+                />
+              )}
+              {r.q25 !== null && r.q75 !== null && (
+                <div
+                  className="absolute top-1 bottom-1 border hairline"
+                  style={{
+                    left: `${x(r.q25)}%`,
+                    width: `${Math.max(x(r.q75) - x(r.q25), 0.4)}%`,
+                    background: "var(--bg-subtle)",
+                  }}
+                />
+              )}
+              {r.median !== null && (
+                <div
+                  className="absolute top-0.5 bottom-0.5 w-px"
+                  style={{ left: `${x(r.median)}%`, background: "var(--accent)" }}
+                />
+              )}
             </div>
           </div>
         ))}
@@ -369,7 +402,7 @@ function MonthlyHeatmap({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Monthly returns"
-      note="Shaded against the largest month so far. A month with fewer than 15 sessions is marked partial — a three-day August beside a full July invites a comparison that is not there."
+      note="Shaded against the largest month so far. The asterisk is the publisher's own partial marker, set by a session count: a month with fewer than 15 sessions carries it. That count is the only rule, so a month that contains a book's first or last published session can be incomplete without carrying the marker — hover any cell for the number of sessions actually behind it rather than reading completeness off the absence of an asterisk."
       empty={rows.length === 0}
     >
       <div className="scroll-x">
@@ -401,9 +434,16 @@ function MonthlyHeatmap({ analytics }: { analytics: AnalyticsPayload }) {
                           cell.return >= 0 ? "up" : "down"
                         }) ${intensity.toFixed(0)}%, transparent)`,
                       }}
-                      title={
-                        cell.partial ? `${cell.sessions} sessions (partial)` : undefined
-                      }
+                      // On EVERY cell, not only the flagged ones: "complete"
+                      // must be checkable rather than implied by the absence of
+                      // a marker.
+                      title={`${cell.sessions}${
+                        cell.sessions_possible
+                          ? ` of ${cell.sessions_possible}`
+                          : ""
+                      } session${cell.sessions === 1 ? "" : "s"}${
+                        cell.partial ? " (marked partial)" : ""
+                      }`}
                     >
                       {signedPct(cell.return, 2)}
                       {cell.partial && <span className="text-fg-faint">*</span>}
@@ -446,7 +486,20 @@ function DrawdownEpisodes({ analytics }: { analytics: AnalyticsPayload }) {
                 <td className="py-2 tnum text-fg-muted">
                   {e.ongoing ? "ongoing" : date(e.recovered)}
                 </td>
-                <td className="py-2 text-right tnum text-down">{pct(e.depth, 3)}</td>
+                {/* Loss colour on a loss, not on the column. An unpublished
+                    depth renders "—", and an em-dash painted red reads as a
+                    drawdown rather than as an absent number. */}
+                <td
+                  className={`py-2 text-right tnum ${
+                    e.depth === null || e.depth === undefined
+                      ? "text-fg-faint"
+                      : e.depth < 0
+                        ? "text-down"
+                        : ""
+                  }`}
+                >
+                  {pct(e.depth, 3)}
+                </td>
                 <td className="py-2 text-right tnum text-fg-muted">{e.sessions}</td>
               </tr>
             ))}

@@ -32,10 +32,14 @@ export function ExposureSection({ exposure }: { exposure: Exposure }) {
           value={`${exposure.sessions_traded} of ${exposure.sessions_published}`}
           note="counted from executions, not from non-zero returns"
         />
+        {/* "15 of 16" and no derived percentage. The share was computed here,
+            in the browser, on a page whose whole claim is that it renders
+            figures rather than producing them — and it added nothing the two
+            counts beside it do not already say. */}
         <Stat
           label="Flat at the close"
           value={`${flat} of ${checked}`}
-          note={checked ? `${((flat / checked) * 100).toFixed(0)}% of published sessions` : undefined}
+          note="published sessions checked"
         />
         <Stat
           label="Median time in a position"
