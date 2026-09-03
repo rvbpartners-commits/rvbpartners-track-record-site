@@ -43,7 +43,11 @@ export default async function Home() {
       )
     : [];
 
-  const sessions = index?.books.reduce((n, b) => Math.max(n, b.sessions), 0) ?? 0;
+  // The MAXIMUM across books, not a total — labelled accordingly below. It was
+  // captioned "Sessions published", which reads as the site-wide count and is
+  // 112, the figure already shown in the next tile as chained records.
+  const longestRecord =
+    index?.books.reduce((n, b) => Math.max(n, b.sessions), 0) ?? 0;
 
   return (
     <>
@@ -131,7 +135,11 @@ export default async function Home() {
                 : undefined
             }
           />
-          <Stat label="Sessions published" value={String(sessions)} />
+          <Stat
+            label="Longest record"
+            value={String(longestRecord)}
+            note="sessions, on the oldest portfolio"
+          />
           <Stat
             label="Chained records"
             value={String(index.chain.entries)}

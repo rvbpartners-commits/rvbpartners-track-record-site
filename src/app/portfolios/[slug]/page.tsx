@@ -15,6 +15,7 @@ import {
   getNav,
 } from "@/lib/data";
 import { dateTime } from "@/lib/format";
+import { parentOf, variantSize } from "@/lib/variants";
 
 // Rendered per request. A static prerender plus framework caching left the
 // site serving data hours old with no way for traffic to clear it; the data
@@ -79,9 +80,19 @@ export default async function Portfolio({
       getDaily(summary.book),
     ]);
   const detail = await getLatestDetail(summary.book, meta);
+  // The twin relationship, resolved from the payload where the publisher states
+  // it and from the name suffix only as a fallback. It was previously visible
+  // nowhere but the collapsed selector, so a reader landing on a twin's own page
+  // had no way to know it was one.
+  const parentBook = summary.variant_of ?? parentOf(summary.book);
+  const parent = parentBook
+    ? index.books.find((b) => b.book === parentBook)
+    : undefined;
   const bundle: BookBundle = {
     summary, meta, metrics, analytics, nav, benchmark, intraday,
     benchIntraday, detail, daily,
+    variantParentLabel: parent?.label ?? null,
+    variantSize: parent ? variantSize(summary.book) : null,
   };
 
   // Le selecteur se contente de ce que l'index porte deja : un rendement par
@@ -102,12 +113,19 @@ export default async function Portfolio({
       <BookPage
         bundle={bundle}
         options={options}
-        minSessions={index.min_sessions_for_annualised}
+        publishedAt={index.published_at}
       />
 
+      {/* THIS BOOK'S OWN RECENCY, not the index's. A book that has published
+          nothing for five days was borrowing the whole repository's publish
+          timestamp and printing it under its own numbers. The site-wide chain
+          count keeps its own label so the two cannot be read as one fact. */}
       <p className="mt-14 text-[12px] text-fg-faint">
-        Published {dateTime(index.published_at)} · {index.chain.entries} chained
-        records · every number computed by the desk, not the browser.
+        This portfolio&rsquo;s data published{" "}
+        {dateTime(meta?.published_at ?? metrics?.published_at ?? null)}
+        {metrics?.as_of ? ` · statistics as of ${metrics.as_of}` : ""} ·{" "}
+        {index.chain.entries} chained records across all portfolios · every
+        metric computed by the desk, not the browser.
       </p>
     </>
   );

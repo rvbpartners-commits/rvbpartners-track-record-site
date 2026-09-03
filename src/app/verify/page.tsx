@@ -9,6 +9,7 @@ import {
   SITE_REPO_URL,
   getChain,
   getIndex,
+  getMeta,
 } from "@/lib/data";
 import { date, dateTime, shortHash } from "@/lib/format";
 
@@ -28,6 +29,19 @@ export default async function VerifyPage() {
   const [index, chain] = await Promise.all([getIndex(), getChain()]);
   const entries = [...chain].reverse();
 
+  // A restarted chain is DATA, not prose: a book whose published conventions
+  // name a superseded chain has had its earlier record withdrawn and replaced,
+  // and the "no session has been quietly dropped" claim below has to carve that
+  // out by name. Read from each book's own meta rather than inferred from a
+  // genesis date — a book that simply started later also has a late genesis,
+  // and guessing from that would flag every capital twin.
+  const metas = index
+    ? await Promise.all(index.books.map((b) => getMeta(b.book)))
+    : [];
+  const superseded = (index?.books ?? [])
+    .map((b, i) => ({ book: b, meta: metas[i] }))
+    .filter(({ meta }) => meta?.convention?.superseded_chain);
+
   return (
     <>
       <header>
@@ -35,11 +49,14 @@ export default async function VerifyPage() {
           Verify this record
         </h1>
         <p className="mt-2 text-[14px] text-fg-muted max-w-[72ch] leading-relaxed">
-          Every number on this site comes from a file in a public repository.
-          Each file hashes its own content, carries the hash of the previous
-          session, and has a third-party timestamp proving when it existed. You
-          do not have to take any of it on trust, and you do not need our
-          cooperation to check it.
+          Every marked number on this site comes from a file in a public
+          repository. Each file hashes its own content, carries the hash of the
+          previous session, and has a third-party timestamp bounding when it
+          existed. You do not have to take any of it on trust, and you do not need
+          our cooperation to check it. The one exception is the latest broker
+          reading in each portfolio&rsquo;s header: it is a current reading of an
+          account, not an after-close mark, and it is not chained evidence — the
+          page labels it as such and shows the chained figure beneath it.
         </p>
       </header>
 
@@ -50,21 +67,65 @@ export default async function VerifyPage() {
         <div className="mt-4 grid md:grid-cols-2 gap-4">
           <Note>
             <strong className="font-semibold text-fg">This proves:</strong> no
-            published number has been edited after the fact; no session has been
-            quietly dropped; each record existed when it claims to; and every
-            metric follows from the published equity curve by open code.
+            published number has been edited in place; no session has been removed
+            from a chain without breaking it; each record existed no later than
+            the block its timestamp is anchored in; and every metric follows from
+            the published equity curve by open code.
           </Note>
           <Note tone="warn">
             <strong className="font-semibold">This does not prove:</strong> that
-            the trading was skilful, that these paper fills would have happened in
-            a real market, or that no other book exists unpublished. Git history
-            can be rewritten by whoever controls a repository — which is exactly
-            why the hash chain, the Bitcoin timestamps, the signed commits and the
-            branch ruleset are used together rather than relying on any one of
-            them.
+            the trading was skilful, that a simulated fill would have happened in
+            a real market, or that no other book exists unpublished. A chain
+            proves no session was dropped <em>from that chain</em> — it cannot
+            prove a chain was never restarted, so a restart is declared
+            separately below. A timestamp bounds a record from above only: it
+            proves the file existed by a given block and says nothing about how
+            much earlier. Git history can be rewritten by whoever controls a
+            repository — which is exactly why the hash chain, the Bitcoin
+            timestamps, the signed commits and the branch ruleset are used
+            together rather than relying on any one of them.
           </Note>
         </div>
       </section>
+
+      {/* Declared restarts. Rendered from the books' own published conventions,
+          so a future restart cannot go unlisted by anyone forgetting to edit
+          this page. */}
+      {superseded.length > 0 && (
+        <section className="mt-12">
+          <h2 className="text-[15px] font-semibold tracking-tight">
+            Declared chain restarts
+          </h2>
+          <div className="mt-4 space-y-4 max-w-[80ch]">
+            {superseded.map(({ book, meta }) => (
+              <Note key={book.book} tone="warn">
+                <strong className="font-semibold">{book.label}</strong> — this
+                book&rsquo;s chain was restarted, and the table below therefore
+                shows a genesis entry dated after the record begins.{" "}
+                {meta?.convention?.superseded_chain}
+                {meta?.convention?.superseded_snapshots ? (
+                  <>
+                    {" "}
+                    {meta.convention.superseded_snapshots}
+                  </>
+                ) : null}{" "}
+                The withdrawn record is published verbatim, with its own chain and
+                its own timestamps, and verifies independently back to its own
+                genesis:{" "}
+                <a
+                  className="underline underline-offset-2"
+                  href={`${DATA_REPO_URL}/tree/main/books/${book.book}/superseded`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  books/{book.book}/superseded/
+                </a>
+                .
+              </Note>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mt-12">
         <h2 className="text-[15px] font-semibold tracking-tight">
@@ -93,21 +154,30 @@ export default async function VerifyPage() {
                 nothing about whether the series is <em>complete</em>. Because
                 each session commits to the one before it, a day cannot be
                 removed later without breaking every record after it — so
-                publishing only the good days leaves evidence.
+                publishing only the good days leaves evidence. What it does not
+                cover is a chain that was replaced wholesale; where that has
+                happened it is declared above, with the withdrawn chain published
+                beside the current one.
               </>
             }
           />
           <Check
             n={3}
-            title="The records were not back-dated"
+            title="A record cannot have been written later than its proof"
             body={
               <>
                 Each snapshot has an OpenTimestamps proof beside it, anchored in
                 the Bitcoin blockchain. Run{" "}
-                <Code>ots verify &lt;file&gt;.ots</Code>. A fresh proof reads
-                &ldquo;pending confirmation&rdquo; for a few hours until the
-                aggregating transaction confirms — that means not yet confirmed,
-                not invalid.
+                <Code>ots verify &lt;file&gt;.ots</Code>. Read the direction
+                carefully: a proof bounds a record from <em>above</em> — it
+                establishes that the file existed no later than the block it is
+                anchored in, and says nothing about how much earlier. A record
+                written in a later backfill and stamped once therefore carries a
+                proof for the day it was stamped, not for its session date. The{" "}
+                <strong className="font-medium">Recorded</strong> column in the
+                table below is the chain&rsquo;s own <Code>ts</Code> for each
+                entry — the day the record joined the chain — printed beside its
+                session so the gap is visible rather than assumed to be zero.
               </>
             }
           />
@@ -119,8 +189,10 @@ export default async function VerifyPage() {
                 <Code>nav.csv</Code> is the whole equity curve. Every metric is
                 computed from it by one function in the firm&rsquo;s metrics
                 module, with the risk-free rate echoed in{" "}
-                <Code>metrics.json</Code>. Nothing is computed in your browser —
-                this page renders numbers it was handed.
+                <Code>metrics.json</Code>. No metric is computed in your browser —
+                this page renders numbers it was handed. The browser does scale
+                axes and total a table&rsquo;s own rows, which is drawing, not
+                measuring.
               </>
             }
           />
@@ -164,6 +236,10 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             <thead>
               <tr className="text-[11px] text-fg-faint">
                 <th className="text-left font-normal pb-3">Session</th>
+                {/* When the record entered the chain. A backfilled record shows
+                    a date well after its session, which is the one thing an
+                    OpenTimestamps proof cannot tell a reader on its own. */}
+                <th className="hidden sm:table-cell text-left font-normal pb-3">Recorded</th>
                 <th className="hidden sm:table-cell text-left font-normal pb-3">Book</th>
                 <th className="text-left font-normal pb-3">Record hash</th>
                 <th className="hidden sm:table-cell text-left font-normal pb-3">Chains to</th>
@@ -175,6 +251,9 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                 <tr key={`${e.book}:${e.session_date}`} className="border-t hairline">
                   <td className="py-2.5 pr-4 tnum whitespace-nowrap">
                     {date(e.session_date)}
+                  </td>
+                  <td className="hidden sm:table-cell py-2.5 pr-4 tnum text-fg-faint whitespace-nowrap">
+                    {date(e.ts)}
                   </td>
                   <td className="hidden sm:table-cell py-2.5 pr-4 text-fg-muted">{e.book}</td>
                   <td className="py-2.5 pr-4 tnum text-fg-muted">

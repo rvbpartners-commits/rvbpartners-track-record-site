@@ -31,6 +31,9 @@ export function StatisticsLedger({
   const gate = metrics?.insufficient_history;
   const s = analytics?.summary ?? {};
   const held = gate ? `withheld · ${gate.have}/${gate.need}` : undefined;
+  const hasDrawdownPath =
+    (analytics?.drawdown ?? []).some((d) => d.drawdown !== null) ||
+    (analytics?.drawdown_episodes ?? []).length > 0;
 
   const position: Row[] = [
     { label: "Net asset value", value: money(nav, currency, 2) },
@@ -58,11 +61,25 @@ export function StatisticsLedger({
     { label: "Best session", value: signedPct(v.best_day, 3), sign: v.best_day ?? null },
     { label: "Worst session", value: signedPct(v.worst_day, 3), sign: v.worst_day ?? null },
     {
+      // THE BROWSER IS NOT ENTITLED TO INVENT THE DENOMINATOR. This used to
+      // render `positive of (positive + negative)`, which reads as a total —
+      // and on a book with nine flat sessions it printed "4 of 7" beside a row
+      // saying the book has 16 observations. Up and down are published; the
+      // total is not the sum of them, so no total is stated unless the desk
+      // publishes the flat count too.
       label: "Winning sessions",
       value:
-        v.positive_days === null
+        v.positive_days === null && v.negative_days === null
           ? "—"
-          : `${v.positive_days} of ${(v.positive_days ?? 0) + (v.negative_days ?? 0)}`,
+          : v.flat_days === null || v.flat_days === undefined
+            ? `${v.positive_days ?? 0} up · ${v.negative_days ?? 0} down`
+            : `${v.positive_days ?? 0} up · ${v.negative_days ?? 0} down · ${v.flat_days} flat`,
+      note:
+        v.n_obs !== null &&
+        v.n_obs !== undefined &&
+        (v.positive_days ?? 0) + (v.negative_days ?? 0) < v.n_obs
+          ? `of ${v.n_obs} observations; the rest were flat`
+          : undefined,
     },
     {
       label: "Win rate",
@@ -78,9 +95,18 @@ export function StatisticsLedger({
       withheld: v.volatility === null ? held : undefined,
     },
     {
+      // Withheld here, and drawn in full two panels below — which reads as a
+      // contradiction unless the row says which is which. The gated field is
+      // the single `max_drawdown` number in metrics.json; the realised path and
+      // its episodes are statements of what happened and are not gated. Same
+      // definition, one of them released.
       label: "Maximum drawdown",
       value: pct(v.max_drawdown),
       withheld: v.max_drawdown === null ? held : undefined,
+      note:
+        v.max_drawdown === null && hasDrawdownPath
+          ? "the realised path is published below, ungated"
+          : undefined,
       sign: v.max_drawdown ?? null,
     },
     {

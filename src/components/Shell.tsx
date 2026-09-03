@@ -1,12 +1,16 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getIndex } from "@/lib/data";
+import { getIndex, getResearch } from "@/lib/data";
 import { Footer } from "./Footer";
 
 const NAV = [
   { href: "/portfolios", label: "Portfolios" },
   { href: "/verify", label: "Verify" },
-  { href: "/research", label: "Research" },
+  // Listed only while the research summary is actually published. The link led
+  // to a page that read "the research summary has not been published yet" for
+  // as long as the file was absent, and a primary navigation item with nothing
+  // behind it is a promise the record cannot keep.
+  { href: "/research", label: "Research", needsResearch: true },
   { href: "/methodology", label: "Methodology" },
   { href: "/disclosures", label: "Disclosures" },
 ];
@@ -16,8 +20,9 @@ export async function Shell({ children }: { children: ReactNode }) {
   // The masthead tagline described every book here as paper. It is read from the
   // payload for the same reason the footer disclosure is: a standing claim about
   // what the accounts ARE cannot be a constant once one of them changes.
-  const index = await getIndex();
+  const [index, research] = await Promise.all([getIndex(), getResearch()]);
   const hasLive = (index?.books ?? []).some((b) => b.capital_at_risk);
+  const nav = NAV.filter((item) => !item.needsResearch || research !== null);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -37,7 +42,7 @@ export async function Shell({ children }: { children: ReactNode }) {
               last link is visibly cut off rather than looking like the end. */}
           <nav className="order-3 sm:order-none w-full sm:w-auto -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x">
             <div className="flex gap-6 text-[13px] min-w-max py-1 sm:py-0">
-              {NAV.map((item) => (
+              {nav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

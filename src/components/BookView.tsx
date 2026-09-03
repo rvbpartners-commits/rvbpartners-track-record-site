@@ -12,7 +12,8 @@ import type {
   MetricsPayload,
   NavPoint,
 } from "@/lib/data";
-import { date, marketTime, money, pct, signedPct } from "@/lib/format";
+import { DATA_REPO_URL } from "@/lib/data";
+import { date, marketTime, money, pct, sessionZone, signedPct } from "@/lib/format";
 import { AnalyticsCharts } from "./AnalyticsCharts";
 import { ChartLegend, PerformanceChart, type ChartPoint } from "./PerformanceChart";
 import { DailyPnlChart } from "./DailyPnlChart";
@@ -35,7 +36,46 @@ export type BookBundle = {
   benchIntraday: Map<string, { spy: number | null; cash: number | null }>;
   detail: DetailPayload | null;
   daily: DailyPoint[];
+  /** The parent book of a capital twin, when both are published. Resolved by
+   *  the page from the index so the header can say what the selector already
+   *  knows. */
+  variantParentLabel?: string | null;
+  variantSize?: string | null;
 };
+
+/** How far behind the publish a broker reading may be and still be called
+ *  "live". One session plus slack: a reading refreshed on the publishing run is
+ *  hours old, and anything the publisher could not refresh is not a live
+ *  reading whatever the field is named. */
+const LIVE_MAX_AGE_HOURS = 36;
+
+/**
+ * Is the published `live` block actually current?
+ *
+ * The header used to lead with `live` unconditionally. On a book whose desk had
+ * published nothing for five days that rendered a stale, unchained, unhashed
+ * reading under the word "live" — and it was the largest of the three competing
+ * figures on the page. So the reading has to earn the label: it is measured
+ * against the moment the payload was written, not against the reader's clock,
+ * because the question is whether the publisher refreshed it on this run.
+ *
+ * Fails CLOSED. If either instant is missing or unparseable we cannot establish
+ * freshness, so the reading is treated as stale and the chained figure leads.
+ */
+function liveIsFresh(at: string | undefined, publishedAt: string | undefined): boolean {
+  if (!at || !publishedAt) return false;
+  const read = new Date(at).getTime();
+  const published = new Date(publishedAt).getTime();
+  if (Number.isNaN(read) || Number.isNaN(published)) return false;
+  return published - read <= LIVE_MAX_AGE_HOURS * 3600 * 1000;
+}
+
+/** The leading ISO date of a rejection label such as
+ *  `"2026-08-11 (max deviation 100.3% from published NAV)"`. */
+function rejectedDate(label: string): string | null {
+  const m = label.match(/^\d{4}-\d{2}-\d{2}/);
+  return m ? m[0] : null;
+}
 
 /**
  * Build the chart series.
@@ -113,18 +153,78 @@ function buildChart(
 
 function BookView({
   bundle,
-  minSessions,
+  publishedAt,
 }: {
   bundle: BookBundle;
-  minSessions: number;
+  /** When the payload this page is rendering was written. Used only to decide
+   *  whether the book's `live` block was refreshed on that run. */
+  publishedAt: string | undefined;
 }) {
-  const { summary, meta, metrics, analytics, nav, benchmark, intraday,
+  const { summary, meta, metrics, analytics, nav, benchmark, intraday: intradayRaw,
           benchIntraday, detail, daily } = bundle;
   const gate = metrics?.insufficient_history;
+  // The unit the gate counts in, from the payload. Absent means marked
+  // sessions — what every book counted in before a 24/7 book started counting
+  // round trips. Rendering the payload's own unit is what keeps one page from
+  // stating two different bars as though both were binding.
+  const gateUnit = gate?.unit ?? "marked sessions";
   const currency = meta?.currency ?? "USD";
   const last = nav.length > 0 ? nav[nav.length - 1] : null;
   const cumulative = metrics?.values.cumulative_return ?? null;
-  const live = meta?.live ?? summary.live ?? null;
+  const observations = metrics?.values.n_obs ?? gate?.have ?? null;
+  const rawLive = meta?.live ?? summary.live ?? null;
+  // Against the INDEX's publish time, never the book's own. A book that stopped
+  // publishing carries a stale `published_at` too, so measuring its reading
+  // against its own clock declares every stale reading fresh — the reading and
+  // the timestamp went stale together. The index is the moment the payload this
+  // page renders was written.
+  const liveFresh = liveIsFresh(rawLive?.at, publishedAt);
+  // A stale reading is still shown — dated, and labelled as the last reading
+  // rather than a live one — but it no longer displaces the chained figures in
+  // the two headline fields.
+  const live = liveFresh ? rawLive : null;
+  const zone = sessionZone(
+    (meta?.session_close ?? summary.session_close)?.label,
+  );
+  // Did this book publish on the run that produced the payload? Its own
+  // `published_at` against the index's answers that with no threshold guessing
+  // about calendars: a book that published on this run carries the same
+  // instant, and one that did not is behind by however long it has been silent.
+  // The page then stops promising "the next close" for a book that has stopped
+  // producing closes.
+  const bookBehind =
+    publishedAt !== undefined &&
+    meta?.published_at !== undefined &&
+    !liveIsFresh(meta.published_at, publishedAt);
+
+  // A SESSION THE DESK DECLARED IMPOSSIBLE IS NOT DRAWN. The publisher measured
+  // these sessions' broker feed at ~100% deviation from the published NAV and
+  // listed them as rejected — but they are still in the accumulated
+  // intraday.csv, so the curve drew them under a note claiming they were
+  // excluded. Withholding is the fail-closed reading of a rejection, and the
+  // note below states that the published file still contains them so the
+  // divergence stays visible rather than being papered over.
+  const rejectedLabels = useMemo(
+    () => meta?.intraday_sessions_rejected ?? [],
+    [meta?.intraday_sessions_rejected],
+  );
+  const rejectedDates = useMemo(
+    () =>
+      new Set(
+        rejectedLabels
+          .map(rejectedDate)
+          .filter((d): d is string => d !== null),
+      ),
+    [rejectedLabels],
+  );
+  const intraday = useMemo(
+    () =>
+      rejectedDates.size === 0
+        ? intradayRaw
+        : intradayRaw.filter((p) => !rejectedDates.has(p.session_date)),
+    [intradayRaw, rejectedDates],
+  );
+  const rejectedDrawnCount = intradayRaw.length - intraday.length;
   // Non-zero only where a capital event is declared, so every other book
   // renders exactly the header it rendered before.
   const capitalFlow = meta?.capital_events?.cumulative_flow_usd ?? 0;
@@ -137,6 +237,21 @@ function BookView({
                  meta?.capital_events?.live_factor ?? 1),
     [nav, benchmark, intraday, benchIntraday, meta?.capital_events?.live_factor],
   );
+
+  // Does the drawn curve actually end on the published cumulative return? On
+  // most books it does to the last digit. Where it does not, the page says so
+  // rather than showing two numbers a reader has to catch themselves. The
+  // tolerance is a drawing tolerance (a tenth of a basis point), not a
+  // statistical one — a disagreement smaller than the third decimal both
+  // figures are printed to is not a disagreement a reader can see.
+  const chartMismatch = useMemo(() => {
+    if (cumulative === null || points.length === 0) return null;
+    const chartEnd = points[points.length - 1]?.close ?? null;
+    if (chartEnd === null) return null;
+    return Math.abs(chartEnd - cumulative) > 1e-5
+      ? { chartEnd, published: cumulative }
+      : null;
+  }, [points, cumulative]);
 
   // Whether to draw an equity index is decided by the DATA, not by the book's
   // name. A book that publishes an empty `spy_cum` column is saying it has no
@@ -193,14 +308,32 @@ function BookView({
         <p className="mt-3 inline-block border hairline px-1.5 py-px text-[11px] leading-[1.6] text-fg-faint">
           {accountLabel}
         </p>
+        {/* A capital twin is not a fifth portfolio, and the relationship was
+            visible only in the collapsed selector — inferred there from a name
+            suffix. Stated here, so a reader landing on the twin's own page
+            knows what they are looking at. */}
+        {bundle.variantParentLabel && (
+          <p className="mt-2 text-[12px] text-fg-faint">
+            Capital variant
+            {bundle.variantSize ? ` (${bundle.variantSize})` : ""} of{" "}
+            <span className="text-fg-muted">{bundle.variantParentLabel}</span> —
+            the pair is published to measure capital sensitivity, and both
+            books&rsquo; target weights are published in the index.
+          </p>
+        )}
 
         <dl className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4">
-          {/* The LIVE reading leads, because "what is this account worth" is the
-              question a reader is asking, and answering it with the previous
-              close while the curve below draws today put two clocks on one
-              screen — the broker said +4,992 and the page said +4,641. The
-              marked figure is not dropped: it is the chained evidence, and it
-              sits underneath, dated. */}
+          {/* The LIVE reading leads WHEN IT IS ACTUALLY LIVE, because "what is
+              this account worth" is the question a reader is asking, and
+              answering it with the previous close while the curve below draws
+              today put two clocks on one screen — the broker said +4,992 and the
+              page said +4,641. The marked figure is not dropped: it is the
+              chained evidence, and it sits underneath, dated.
+
+              A reading the publisher could not refresh is a different thing
+              entirely, and `liveIsFresh` demotes it: the chained figure leads
+              and the old reading is shown below it with its date. Labelling a
+              five-day-old number "live" was the worst of both. */}
           {/* The balance and the return answer two different questions, and
               beside each other without a word they read as a contradiction: an
               account opened at $1,000,000, now worth $980,657, above a line
@@ -215,7 +348,9 @@ function BookView({
             value={money(live?.equity ?? last?.equity, currency, 2)}
             note={
               <>
-                {live ? `live · ${marketTime(live.at)}` : `marked ${date(last?.date)}`}
+                {live
+                  ? `live · ${marketTime(live.at, zone)}`
+                  : `marked ${date(last?.date)}`}
                 {capitalFlow ? (
                   <span className="block">
                     {capitalEventCount > 1
@@ -245,24 +380,96 @@ function BookView({
           <Field
             label="Opened"
             value={date(summary.inception)}
-            note={`${summary.sessions} sessions · ${money(summary.initial_capital, currency, 0)}`}
+            note={
+              /* "17 sessions" and the gate's "16 of 60" are two different
+                 counts sharing one word. The chain has 17 entries; 16 of them
+                 carry a measured return, because the first is the funding
+                 anchor. Both are published, so both are named. */
+              observations !== null && observations !== summary.sessions
+                ? `${summary.sessions} snapshots · ${observations} marked sessions · ${money(summary.initial_capital, currency, 0)}`
+                : `${summary.sessions} sessions · ${money(summary.initial_capital, currency, 0)}`
+            }
           />
         </dl>
+
+        {/* The live block publishes what it is, and the page used to throw both
+            fields away. `source` says in the desk's own words that the reading
+            is not chained evidence; `marked: false` says it is not an
+            after-close mark. Neither reached the reader. */}
+        {rawLive && (
+          <p className="mt-5 text-[11.5px] text-fg-faint max-w-[80ch] leading-relaxed">
+            {live ? (
+              <>
+                Latest broker reading, {marketTime(rawLive.at, zone)}
+                {rawLive.marked ? "" : ", not an after-close mark"}
+                {rawLive.source ? ` — ${rawLive.source}` : ""}.
+              </>
+            ) : (
+              <>
+                <span className="text-warn-fg">
+                  The last broker reading for this book is dated{" "}
+                  {marketTime(rawLive.at, zone)}, before the data on this page
+                  was published
+                  {summary.last_session
+                    ? `, and its last marked session is ${date(summary.last_session)}`
+                    : ""}
+                  .
+                </span>{" "}
+                It is not labelled live and does not lead the figures above:
+                those are the marked, chained ones. The reading itself was{" "}
+                {signedPct(rawLive.cumulative_return, 3)} on equity of{" "}
+                {money(rawLive.equity, currency, 2)}
+                {rawLive.source ? ` — ${rawLive.source}` : ""}.
+              </>
+            )}
+          </p>
+        )}
       </header>
 
-      {gate && (
+      {/* THE GATE, FROM THE BOOK'S OWN PAYLOAD.
+          Both numbers used to be wrong in the same direction: the threshold was
+          the index-wide one rather than this book's, and the list of withheld
+          names was a hardcoded sentence that drifted from
+          `insufficient_history.suppressed`. And when `metrics.json` failed to
+          fetch, the whole banner vanished while the charts kept rendering — a
+          withholding notice that disappears on a fetch error is not a gate. It
+          fails closed now: no payload, no statistics, and the page says why. */}
+      {metrics === null ? (
+        <Note tone="warn" className="mt-8">
+          <strong className="font-semibold">
+            The statistics for this portfolio could not be loaded.
+          </strong>{" "}
+          They are withheld rather than shown partially: the file that says which
+          figures this book is allowed to publish is the same file the figures
+          come from, and without it neither can be trusted. The equity curve
+          below is read from a separate file and is unaffected.
+        </Note>
+      ) : gate ? (
         <Note tone="warn" className="mt-8">
           <strong className="font-semibold">
             Annualised statistics are withheld — {gate.have} of {gate.need}{" "}
-            sessions.
+            {gateUnit}.
           </strong>{" "}
-          Sharpe, CAGR, Calmar, volatility, maximum drawdown and win rate stay
-          withheld until this account has {minSessions} marked sessions. On a
-          handful of sessions they are not imprecise, they are meaningless. Every
-          row below keeps its place in the ledger and says so, rather than
-          disappearing until it flatters us.
+          {gate.suppressed?.length
+            ? `${gate.suppressed.length} figures stay withheld until this account has ${gate.need} ${gateUnit}; each keeps its row in the ledger and names itself.`
+            : `Annualised figures stay withheld until this account has ${gate.need} ${gateUnit}.`}{" "}
+          On a handful of sessions they are not imprecise, they are meaningless.
+          What actually happened is not gated and is published below: every daily
+          return, and the realised drawdown path with its episodes. The ledger
+          row named &ldquo;Maximum drawdown&rdquo; is the single gated field from{" "}
+          <code>metrics.json</code>, not a second definition of that path.
+          {roundTrips && gate.unit !== "round_trips" ? (
+            <>
+              {" "}
+              This book also publishes its own, stricter bar: it counts in round
+              trips rather than sessions, and stands at{" "}
+              {roundTrips.round_trips} of{" "}
+              {roundTrips.round_trips_needed_for_annualising}. Both are unmet;
+              neither releases anything on its own.
+            </>
+          ) : null}
         </Note>
-      )}
+      ) : null}
 
       <Section
         title="Cumulative return"
@@ -271,11 +478,22 @@ function BookView({
           <>
             {granular ? (
               <>
-                Broker account equity at 5-minute resolution —{" "}
-                {meta?.intraday_points ?? points.length} readings, not
-                interpolation. Dots are the official session NAV, read at the
-                desk&rsquo;s after-close mark; it sits a few basis points from the
-                broker&rsquo;s 16:00 figure and neither is adjusted onto the other.
+                {/* The count is the one DRAWN, not the one in the metadata. The
+                    two disagree on four books, and printing the metadata figure
+                    beside a chart holding a different number of points is a
+                    caption about a chart that is not there. Where they differ,
+                    both are named — the divergence is a signal, not something to
+                    reconcile away. */}
+                Broker account equity at 5-minute resolution — {points.length}{" "}
+                readings, not interpolation
+                {typeof meta?.intraday_points === "number" &&
+                meta.intraday_points !== points.length
+                  ? `; the published metadata counts ${meta.intraday_points}`
+                  : ""}
+                . Dots are the official session NAV, read at the desk&rsquo;s
+                after-close mark; it sits a few basis points from the
+                broker&rsquo;s closing intraday figure and neither is adjusted
+                onto the other.
               </>
             ) : (
               <>
@@ -286,26 +504,60 @@ function BookView({
             {showEquityBenchmark ? (
               <>
                 These accounts hold shorts and are not index-like: the benchmark
-                is context, not a comparison.
+                is context, not a comparison.{" "}
+                {granular ? (
+                  <>
+                    The index line here is a 5-minute <em>price</em> path —
+                    dividends are not applied intraday and it is rebased on its
+                    own first published bar, so it will not end where the daily
+                    total-return series in <code>benchmark.csv</code> ends.
+                  </>
+                ) : (
+                  <>
+                    The index line is SPY total return, split- and
+                    dividend-adjusted, on the same dates.
+                  </>
+                )}
               </>
             ) : (
               <>
-                The only comparator drawn is cash at the risk-free rate. An
-                equity index is not the opportunity cost of a book that holds
-                offsetting positions on two venues and aims to be neutral to the
-                market — cash is, and it is the one line beside the book.
+                {/* Deliberately NOT "cash at the risk-free rate". This book
+                    publishes every calendar day, and its cash line is accrued on
+                    a different grid from the trading-day books' — so the drawn
+                    line and the annual rate printed in the ledger are not the
+                    same statement, and the page must not weld them together.
+                    The rate is named as what it is: a published field. */}
+                The only comparator drawn is the cash line this book publishes.
+                Its accrual grid is this book&rsquo;s own calendar, not the
+                trading-day grid the paper desk uses, and the rule is stated in
+                this book&rsquo;s own methodology note — read the line against
+                that note rather than against the annual risk-free rate published
+                beside it
+                {metrics ? ` (${pct(metrics.risk_free_annual)})` : ""}, which is
+                a separate published field. An equity index is not the
+                opportunity cost of a book that holds offsetting positions on two
+                venues and aims to be neutral to the market.
               </>
             )}
-            {meta?.intraday_sessions_rejected?.length ? (
+            {rejectedLabels.length ? (
               <>
                 {" "}
                 <strong className="font-medium text-fg">
-                  {meta.intraday_sessions_rejected.length} session
-                  {meta.intraday_sessions_rejected.length === 1 ? "" : "s"}{" "}
-                  excluded
+                  {rejectedLabels.length} session
+                  {rejectedLabels.length === 1 ? "" : "s"} excluded
                 </strong>{" "}
                 from the intraday line — the broker feed contradicted the
-                published NAV: {meta.intraday_sessions_rejected.join("; ")}.
+                published NAV: {rejectedLabels.join("; ")}.
+                {rejectedDrawnCount > 0 ? (
+                  <>
+                    {" "}
+                    Those readings are still present in the published{" "}
+                    <code>intraday.csv</code> ({rejectedDrawnCount} row
+                    {rejectedDrawnCount === 1 ? "" : "s"}); this page withholds
+                    them rather than drawing a session the desk has declared
+                    impossible.
+                  </>
+                ) : null}
               </>
             ) : null}
             {capitalEventCount ? (
@@ -329,19 +581,71 @@ function BookView({
         }
       >
         <div className="flex justify-end mb-4">
-          <ChartLegend showEquityBenchmark={showEquityBenchmark} />
+          <ChartLegend
+            showEquityBenchmark={showEquityBenchmark}
+            granular={granular}
+          />
         </div>
         <PerformanceChart
           data={points}
           granular={granular}
           showEquityBenchmark={showEquityBenchmark}
+          zone={zone}
         />
+        {/* THE CURVE AND THE HEADLINE MUST NOT DISAGREE IN SILENCE.
+            The curve is a rebase of the published NAV column onto its own first
+            row. On a book funded intraday, that first row is not the denominator
+            of the first session's return — the desk measures it against an
+            opening balance nav.csv does not carry — so the curve's last point
+            sits below the published cumulative return by exactly that session.
+            Nothing here invents the missing base; the two published figures are
+            named, and the ledger's is the one that counts. */}
+        {chartMismatch && (
+          <p className="mt-4 text-[12px] text-fg-faint max-w-[80ch] leading-relaxed">
+            <span className="text-warn-fg">
+              This curve does not end on the published cumulative return.
+            </span>{" "}
+            It is a rebase of the <code>equity</code> column on its first
+            published row and ends at {signedPct(chartMismatch.chartEnd, 3)},
+            while the figure published in the ledger is{" "}
+            {signedPct(chartMismatch.published, 3)}.
+            {meta?.opening_capital !== undefined ? (
+              <>
+                {" "}
+                The difference is the inception session, whose return this book
+                measures against its opening balance of{" "}
+                {money(meta.opening_capital, currency, 2)} — a number this
+                book&rsquo;s <code>nav.csv</code> does not carry, so the rebase
+                cannot reproduce it.
+                {meta.opening_capital_note
+                  ? ` The desk states why: ${meta.opening_capital_note}.`
+                  : ""}
+              </>
+            ) : null}{" "}
+            The published figure is the one in the ledger and in the chained
+            record; the curve&rsquo;s shape is unaffected.
+          </p>
+        )}
         {lastSession && (
           <p className="mt-4 text-[12.5px] text-fg-muted">
             Last point: session of{" "}
             <span className="text-fg">{date(lastSession)}</span>
-            {sessionClose ? ` (close ${sessionClose.label})` : ""}. Next point at
-            the next close.
+            {sessionClose ? ` (close ${sessionClose.label})` : ""}.{" "}
+            {/* "Next point at the next close" is a promise, and it was being
+                made on a book that had published nothing for five days. Where
+                the book is behind the record's own publish, the page says the
+                record stops there instead — and nothing is carried forward to
+                fill the gap. */}
+            {bookBehind ? (
+              <span className="text-warn-fg">
+                This portfolio has published no session since then, while the
+                rest of the record has moved on. The curve stops where the
+                record stops: no value is carried forward and no session is
+                estimated.
+              </span>
+            ) : (
+              "Next point at the next close."
+            )}
             {sessionClose ? (
               <span className="block text-[11.5px] text-fg-faint mt-1">
                 {sessionClose.note}. Nothing intraday and provisional is drawn
@@ -411,11 +715,28 @@ function BookView({
           title="Daily and cumulative result"
           note={
             <>
-              The combined result of both legs, in {currency}, on the broker&rsquo;s
-              own trading day — whose midnight is 21:00 UTC. Every calendar day is
-              a row: a day with no trade is a bar of zero, never a missing one, and
-              weekends are flat rather than interpolated. The percentage toggle
-              divides the running total by the capital at inception
+              The combined result of both legs, in {currency}
+              {sessionClose ? `, on the book's own trading day (close ${sessionClose.label})` : ""}
+              .{" "}
+              {/* THE CALENDAR CONVENTION IS THE BOOK'S, NOT THIS FILE'S. The
+                  sentence hardcoded here said "weekends are flat rather than
+                  interpolated" and rendered on the one book whose published
+                  series has non-zero Saturday and Sunday rows, and whose own
+                  methodology says so in terms. The published convention is
+                  rendered instead; a caption in this repository cannot go stale
+                  against the data if it comes from the data. */}
+              {meta?.convention?.calendar ? (
+                <>{meta.convention.calendar}. </>
+              ) : (
+                <>
+                  Every calendar day is a row: a day with no trade is a bar of
+                  zero, never a missing one, and a day the book did not execute
+                  can still carry a non-zero value. Nothing is interpolated and
+                  nothing is carried onto the next day.{" "}
+                </>
+              )}
+              The percentage toggle shows the running total as the desk publishes
+              it, against the capital at inception
               {meta?.initial_capital
                 ? ` (${money(meta.initial_capital, currency, 2)})`
                 : ""}
@@ -423,11 +744,7 @@ function BookView({
             </>
           }
         >
-          <DailyPnlChart
-            data={daily}
-            currency={currency}
-            initialCapital={meta?.initial_capital ?? null}
-          />
+          <DailyPnlChart data={daily} currency={currency} />
         </Section>
       )}
 
@@ -452,10 +769,10 @@ function BookView({
         title="Statistics"
         note={
           <>
-            Every figure is computed by the firm&rsquo;s{" "}
+            Every figure here is computed by the firm&rsquo;s{" "}
             <span className="tnum">rvb.metrics</span> module and published as
-            data; nothing here is calculated in your browser. Sharpe, Sortino and
-            Calmar are excess of the 3-month Treasury yield
+            data; no statistic in this section is calculated in your browser.
+            Sharpe, Sortino and Calmar are excess of the 3-month Treasury yield
             {metrics
               ? ` (${pct(metrics.risk_free_annual)}, ${metrics.risk_free_source})`
               : ""}
@@ -463,14 +780,30 @@ function BookView({
           </>
         }
       >
-        <StatisticsLedger
-          metrics={metrics}
+        {metrics === null ? (
+          <p className="text-[13px] text-fg-muted max-w-[80ch]">
+            The statistics ledger could not be loaded from the data repository.
+            Nothing is shown here rather than a partial ledger with no way to
+            tell a withheld figure from an absent one.
+          </p>
+        ) : (
+          <StatisticsLedger
+            metrics={metrics}
+            analytics={analytics}
+            currency={currency}
+            nav={last?.equity ?? null}
+            sessions={summary.sessions}
+          />
+        )}
+        {/* One denominator per book. The chart frames used to read their own
+            session count out of analytics.json, which disagrees with
+            metrics.json by one on a book whose analytics window drops the
+            inception return — so a page showed "16 observations" in the ledger
+            and "withheld · 15/60" in the frame beside it. */}
+        <AnalyticsCharts
           analytics={analytics}
-          currency={currency}
-          nav={last?.equity ?? null}
-          sessions={summary.sessions}
+          gate={gate ? { have: gate.have, need: gate.need, unit: gateUnit } : null}
         />
-        <AnalyticsCharts analytics={analytics} />
       </Section>
 
       {exposure ? (
@@ -494,8 +827,16 @@ function BookView({
             Grouped by the category of strategy holding them — the style is
             published, the strategies are not. Profit is reported per category
             for the same reason: a per-symbol line under a named style is the
-            trade record itself. The split is an attributed model; account-level
-            equity above is exact.
+            trade record itself. The split is an attributed model that does not
+            sum to the book; account-level equity above is exact and is read from
+            the broker.{" "}
+            <strong className="font-medium text-fg">
+              A target weight is the plan, not the position.
+            </strong>{" "}
+            A sleeve declared in the table below can hold nothing on a given
+            session, and the desk&rsquo;s attribution can be missing a sleeve that
+            demonstrably held a position — so the two tables answer different
+            questions and are not two views of one number.
           </>
         }
       >
@@ -533,9 +874,18 @@ function BookView({
           <h3 className="text-[13px] font-semibold tracking-tight">
             Open positions
           </h3>
+          {/* A DETAIL FILE IS KEYED BY THE CYCLE, NOT BY THE DAY IT WAS HELD.
+              The desk stages a plan after one session's close and executes it at
+              the next open, so these positions were held from that next open —
+              labelling them "as at <cycle date>" dated them a session early on
+              every book. `positions_as_of` is rendered when the publisher emits
+              it; without it the label says which cycle staged them instead of
+              asserting a date the file does not carry. */}
           {detail && (
             <span className="text-[12px] text-fg-faint">
-              {`as at ${date(detail.session_date)}`}
+              {detail.positions_as_of
+                ? `as at ${date(detail.positions_as_of)}`
+                : `from the cycle staged ${date(detail.session_date)}, held from the following open`}
             </span>
           )}
         </div>
@@ -552,10 +902,14 @@ function BookView({
             </span>
           </Line>
           <Line label="Currency">{currency}</Line>
+          {/* A book with no intraday file is not a "daily" book by default —
+              one of them publishes "per closed round trip". The published
+              resolution string is used whenever there is one; the literal is the
+              last resort, not the first branch. */}
           <Line label="Equity resolution">
-            {meta?.intraday_points
+            {typeof meta?.intraday_points === "number" && meta.intraday_points > 0
               ? `${meta.intraday_resolution} · ${meta.intraday_points} readings`
-              : "daily"}
+              : (meta?.intraday_resolution ?? "daily")}
           </Line>
           <Line label="Record">
             <span className="tnum">{summary.sessions} chained snapshots</span>
@@ -565,6 +919,18 @@ function BookView({
               {summary.categories?.reduce((s, c) => s + c.strategies, 0) || "—"}
             </span>
           </Line>
+          {summary.paths?.methodology ? (
+            <Line label="Methodology">
+              <a
+                className="text-accent hover:underline"
+                href={`${DATA_REPO_URL}/blob/main/${summary.paths.methodology}`}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                this book&rsquo;s own note
+              </a>
+            </Line>
+          ) : null}
         </dl>
       </Section>
     </>
@@ -611,16 +977,16 @@ function Line({ label, children }: { label: string; children: React.ReactNode })
 export function BookPage({
   bundle,
   options,
-  minSessions,
+  publishedAt,
 }: {
   bundle: BookBundle;
   options: PortfolioOption[];
-  minSessions: number;
+  publishedAt: string | undefined;
 }) {
   return (
     <>
       <PortfolioSelect options={options} value={bundle.summary.book} />
-      <BookView bundle={bundle} minSessions={minSessions} />
+      <BookView bundle={bundle} publishedAt={publishedAt} />
     </>
   );
 }

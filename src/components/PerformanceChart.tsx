@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { ET_ZONE, type DisplayZone } from "@/lib/format";
 import { useNarrow } from "@/lib/useNarrow";
 
 export type ChartPoint = {
@@ -32,7 +33,9 @@ const fmtDay = (iso: string) =>
     timeZone: "UTC",
   });
 
-const fmtInstant = (iso: string) => {
+// The zone is the BOOK's, not a constant: one published book closes at 21:00
+// UTC and had its instants labelled in New York time.
+const fmtInstant = (iso: string, zone: DisplayZone) => {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return fmtDay(iso);
   return d.toLocaleString("en-GB", {
@@ -40,7 +43,7 @@ const fmtInstant = (iso: string) => {
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "America/New_York",
+    timeZone: zone.timeZone,
   });
 };
 
@@ -49,19 +52,21 @@ function ChartTooltip({
   payload,
   label,
   granular,
+  zone,
 }: {
   active?: boolean;
   payload?: { name?: string; value?: number | null; color?: string }[];
   label?: string;
   granular: boolean;
+  zone: DisplayZone;
 }) {
   if (!active || !payload?.length) return null;
   const rows = payload.filter((p) => p.name !== "Session close");
   return (
     <div className="border hairline bg-bg-raised px-3 py-2">
       <div className="text-[11px] text-fg-faint mb-1.5">
-        {label ? (granular ? fmtInstant(label) : fmtDay(label)) : ""}
-        {granular && <span className="ml-1">ET</span>}
+        {label ? (granular ? fmtInstant(label, zone) : fmtDay(label)) : ""}
+        {granular && <span className="ml-1">{zone.suffix}</span>}
       </div>
       {rows.map((entry) => (
         <div
@@ -98,10 +103,21 @@ function ChartTooltip({
  * Session closes are dotted separately - the official NAV and the broker's 16:00
  * figure differ by a few basis points and neither is adjusted onto the other.
  */
+/** The two SPY series are two different measurements and must not share a
+ *  label. `benchmark.csv` is the split- and dividend-adjusted daily total
+ *  return; `benchmark_intraday.csv` is the last 5-minute price bar at each
+ *  instant, with no dividend adjustment applied intraday and its own base. They
+ *  disagree on a session's own move by single-digit basis points, and calling
+ *  both "SPY total return" is what made that look like an error rather than two
+ *  conventions. */
+const SPY_DAILY = "S&P 500 (SPY, total return, official close)";
+const SPY_INTRADAY = "S&P 500 (SPY, price, 5-minute)";
+
 export function PerformanceChart({
   data,
   granular,
   showEquityBenchmark = true,
+  zone = ET_ZONE,
 }: {
   data: ChartPoint[];
   granular: boolean;
@@ -111,6 +127,8 @@ export function PerformanceChart({
    *  entry naming one — would put a comparison on the page that the data
    *  refuses to make. A market-neutral book's opportunity cost is cash. */
   showEquityBenchmark?: boolean;
+  /** The clock the book's own session boundaries are stated in. */
+  zone?: DisplayZone;
 }) {
   const narrow = useNarrow();
 
@@ -150,7 +168,7 @@ export function PerformanceChart({
             tick={{ fill: "var(--fg-faint)", fontSize: narrow ? 10 : 11 }}
           />
           <Tooltip
-            content={<ChartTooltip granular={granular} />}
+            content={<ChartTooltip granular={granular} zone={zone} />}
             cursor={{ stroke: "var(--hairline)", strokeWidth: 1 }}
           />
 
@@ -170,7 +188,7 @@ export function PerformanceChart({
             <Line
               type="linear"
               dataKey="spy"
-              name="S&P 500 (SPY, total return)"
+              name={granular ? SPY_INTRADAY : SPY_DAILY}
               stroke="var(--bench)"
               strokeWidth={1.3}
               dot={false}
@@ -207,8 +225,11 @@ export function PerformanceChart({
 
 export function ChartLegend({
   showEquityBenchmark = true,
+  granular = false,
 }: {
   showEquityBenchmark?: boolean;
+  /** Which SPY series the chart is actually drawing. */
+  granular?: boolean;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-5 gap-y-1 sm:gap-y-1.5 text-[11.5px] sm:text-[12px] text-fg-muted">
@@ -229,7 +250,7 @@ export function ChartLegend({
             className="inline-block h-[2px] w-4"
             style={{ background: "var(--bench)" }}
           />
-          S&amp;P 500
+          {granular ? "S&P 500 · price, 5-minute" : "S&P 500 · total return"}
         </span>
       )}
       <span className="inline-flex items-center gap-2">

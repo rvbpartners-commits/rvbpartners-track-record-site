@@ -6,12 +6,20 @@ import { REPO_URL, getResearch } from "@/lib/data";
 // catalogue does, and a prerender would serve last week's denominator.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Research",
-  description:
-    "How much was searched to find what is published: recorded trials, idea " +
-    "families, and how few strategies survive the book-level correction.",
-};
+/** The description promises figures. It must not promise them when the summary
+ *  has not been published: a page whose metadata advertises "recorded trials,
+ *  idea families" and whose body says "not published yet" is a claim with
+ *  nothing behind it, and search engines quote the metadata. */
+export async function generateMetadata(): Promise<Metadata> {
+  const r = await getResearch();
+  return {
+    title: "Research",
+    description: r
+      ? "How much was searched to find what is published: recorded trials, idea " +
+        "families, and how few strategies survive the book-level correction."
+      : "The research summary behind this track record.",
+  };
+}
 
 const int = (n: number | null | undefined) =>
   n === null || n === undefined ? "—" : n.toLocaleString("en-US");
@@ -69,10 +77,6 @@ export default async function ResearchPage() {
   const s = r.search;
   const d = r.deflation;
   const presented = r.catalogue?.presented_folders;
-  const notPresentedPct =
-    presented && s.strategies_researched
-      ? (100 * (1 - presented / s.strategies_researched)).toFixed(0)
-      : null;
 
   return (
     <>
@@ -118,14 +122,15 @@ export default async function ResearchPage() {
             note="The same collapse, counted in strategies rather than trials."
           />
           {presented !== undefined && (
+            /* Two published counts, and no percentage derived from them here.
+               The share was computed in the browser on the one page whose
+               subject is how carefully the firm counts. */
             <Figure
               value={int(presented)}
               label="Presented as an edge"
-              note={
-                notPresentedPct
-                  ? `Everything else stays on disk, fully auditable, and is never shown as a result — about ${notPresentedPct}% of what was researched.`
-                  : undefined
-              }
+              note={`Out of ${int(
+                s.strategies_researched,
+              )} researched. Everything else stays on disk, fully auditable, and is never shown as a result.`}
             />
           )}
         </div>
@@ -169,11 +174,16 @@ export default async function ResearchPage() {
           <h2 className="text-[15px] font-semibold tracking-tight">
             Our own known violations
           </h2>
+          {/* No count. "Eight checks block our build" was a literal that
+              nothing in the published payload supports — `gate_debt` lists only
+              the checks with outstanding debt, so deriving a number from it
+              would be a different, smaller number wearing the same words. */}
           <p className="mt-2 text-[14px] text-fg-muted max-w-[72ch] leading-relaxed">
-            Eight checks block our build. Where the catalogue still violates one,
-            the offending strategies are grandfathered in a dated list that may
-            only ever shrink — never a loosened rule. The lists are counted here
-            because a reader who can see the debt can believe the gates.
+            A set of checks blocks our build. Where the catalogue still violates
+            one, the offending strategies are grandfathered in a dated list that
+            may only ever shrink — never a loosened rule. The checks that
+            currently carry debt are listed here, because a reader who can see
+            the debt can believe the gates.
           </p>
           <div className="mt-5 scroll-x">
             <table className="w-full text-[13px]">
