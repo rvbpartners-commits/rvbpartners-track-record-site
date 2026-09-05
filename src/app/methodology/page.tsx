@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Note } from "@/components/Note";
-import { DATA_REPO_URL, REPO_URL, bookSlug, getIndex } from "@/lib/data";
+import {
+  DATA_REPO_URL,
+  REPO_URL,
+  bookSlug,
+  getFeedByAccountKind,
+  getIndex,
+} from "@/lib/data";
 
 // Rendered per request. A static prerender plus framework caching left the
 // site serving data hours old with no way for traffic to clear it; the data
@@ -17,6 +23,10 @@ export const metadata: Metadata = {
 
 export default async function MethodologyPage() {
   const index = await getIndex();
+  // The market-data feed each kind of account was priced against, read from the
+  // newest chained record of each. Empty if it cannot be read, and the
+  // paragraph that uses it simply does not render.
+  const feeds = await getFeedByAccountKind(index?.books ?? []);
   const minSessions = index?.min_sessions_for_annualised ?? 60;
   // `?? null`, never `?? 1`. A failed fetch used to invent a one-day lag policy
   // and print it as fact; an unknown lag is an unknown lag and the paragraph
@@ -66,8 +76,8 @@ export default async function MethodologyPage() {
             >
               index.json
             </a>{" "}
-            rather than counted in a sentence here — a sentence with arithmetic in
-            it goes stale, and this one did.
+            rather than counted in a sentence here: a sentence with arithmetic in
+            it goes stale.
           </p>
           {realCapital.length > 0 && (
             <p>
@@ -128,20 +138,34 @@ export default async function MethodologyPage() {
             curve measures the return on the capital actually managed rather than
             on the size of the account.
           </p>
+          {/* THE FOUR-COLUMN CLAIM WAS FALSE OF ONE BOOK, and it was stated of
+              "each book". The paper desk's files carry equity, flow, adj_factor
+              and equity_adj; the real-capital book's nav.csv carries date,
+              equity, cash and daily_return, because it handles capital
+              movements by unitisation — a deposit buys units at the day's
+              price, so it moves equity and never the unit price, which is the
+              same time-weighted treatment reached a different way. Its own
+              snapshots say so. The convention is stated as what it is, and the
+              exception is named rather than papered over by a plural. */}
           <p>
             <strong className="font-medium">Capital events are declared, not smoothed.</strong>{" "}
-            Each book&rsquo;s <Em>nav.csv</Em> carries four columns for this:{" "}
-            <Em>equity</Em> exactly as the broker reported it, <Em>flow</Em>,{" "}
-            <Em>adj_factor</Em>, and <Em>equity_adj</Em> — the flow-adjusted index
-            every published metric is computed on and every curve is drawn from.
-            A book that has never had a movement has <Em>adj_factor</Em> of 1 and
-            the two equity columns are identical. Where a book has had one, its
+            On the paper desk this is carried in four columns of each
+            book&rsquo;s <Em>nav.csv</Em>: <Em>equity</Em> exactly as the broker
+            reported it, <Em>flow</Em>, <Em>adj_factor</Em>, and{" "}
+            <Em>equity_adj</Em> — the flow-adjusted index every published metric
+            is computed on and every curve is drawn from. A book that has never
+            had a movement has <Em>adj_factor</Em> of 1 and the two equity
+            columns are identical. A book that reconstructs its own curve
+            rather than reading a broker&rsquo;s equity does it by{" "}
+            <strong className="font-medium">unitisation</strong> instead: a
+            deposit buys units at that day&rsquo;s price, so it moves the
+            balance and never the price, and its <Em>nav.csv</Em> carries no
+            flow columns because the flow never entered the return in the first
+            place. Both are time-weighted, and each book&rsquo;s published
+            convention says which it uses. Where a book has had a movement, its
             own page lists every event with its date, its amount, how it was
-            derived and the evidence for it, and the full evidence sits inside the
-            write-once snapshot for that session. An earlier version of this page
-            said these accounts had a single opening deposit and no later flows.
-            That stopped being true on 28 August 2026, and the convention above is
-            the one the published data has always used.
+            derived and the evidence for it, and the full evidence sits inside
+            the write-once snapshot for that session.
           </p>
           <p>
             <strong className="font-medium">The curve starts at funded capital.</strong>{" "}
@@ -164,15 +188,27 @@ export default async function MethodologyPage() {
         </Section>
 
         <Section title="Metrics">
+          {/* "OUR CALCULATION SOURCE IS OPEN" WAS NOT TRUE. The metrics module
+              is the firm's and is published nowhere; a reader cannot read it.
+              The claim that IS true is the one that does the work anyway — the
+              INPUT is published in full and every figure names its convention
+              and its rate — because that lets a sceptic recompute with their
+              own code rather than audit ours. Stating the weaker true thing and
+              the stronger true thing together, rather than the false one. */}
           <p>
             Every metric is computed by one function in the firm&rsquo;s metrics
             module and by nothing else — not in the publisher, and not in your
-            browser. That is the only way &ldquo;our calculation source is
-            open&rdquo; can be a fact rather than a claim. Your browser still does
-            arithmetic to <em>draw</em> — it scales an axis, sums a table&rsquo;s
-            own rows into its total row, and rebases a published equity column
-            onto the axis a chart uses — and none of that produces a statistic
-            reported anywhere on this site.
+            browser. That module is not published, so the check on offer is not
+            &ldquo;read our code&rdquo;: it is that the input is published in
+            full. <Em>nav.csv</Em> is the entire equity curve, every figure is
+            published beside the convention and the risk-free rate it used, and
+            the definitions are the standard ones — so any number here can be
+            recomputed independently, and a disagreement is a fact about the
+            numbers rather than about whose code you trust. Your browser still
+            does arithmetic to <em>draw</em> — it scales an axis, sums a
+            table&rsquo;s own rows into its total row, and rebases a published
+            equity column onto the axis a chart uses — and none of that produces
+            a statistic reported anywhere on this site.
           </p>
           <p>
             <strong className="font-medium">
@@ -212,13 +248,21 @@ export default async function MethodologyPage() {
             the same fills.
           </p>
           <p>
+            {/* THE PAGE STOPS NARRATING ITS OWN EDITING HISTORY. "This page
+                used to say" tells a reader what a previous draft claimed, which
+                is a fact about this repository and not about the record; four
+                such passages had accumulated, and their combined effect is a
+                document that reads as though it is arguing with itself. The
+                corrected statement is kept in full — it is the important one —
+                and the retraction is dropped. If the audit trail matters it
+                belongs in a dated changelog beside the data, not in the
+                paragraph a reader is trying to learn the convention from. */}
             <strong className="font-medium">
               The attribution does not close on the book.
             </strong>{" "}
-            This page used to say it summed to the book. It does not: the
-            per-category contributions published in <Em>attributed.csv</Em> are
-            weighted per-strategy returns, and on every dated set they add up to
-            something other than the broker&rsquo;s own daily return for that
+            The per-category contributions published in <Em>attributed.csv</Em>{" "}
+            are weighted per-strategy returns, and on every dated set they add up
+            to something other than the broker&rsquo;s own daily return for that
             book — sometimes with the opposite sign. The account-level figures are
             unaffected, because they are read from the broker and never
             reconstructed from the attribution. Read the split as a model of where
@@ -269,18 +313,45 @@ export default async function MethodologyPage() {
         </Section>
 
         <Section title="Known biases and limits">
+          {/* THE FEED BEHIND A SIMULATED FILL IS THE FIRST BIAS THERE IS, and
+              it was published in every snapshot and stated on no page a human
+              reads. It belongs at the top of this section, and it is read out
+              of the evidence rather than typed in here — a caveat this site
+              asserts about itself is worth less than one it can point at. */}
+          {feeds.size > 0 && (
+            <p>
+              <strong className="font-medium">
+                The market data behind the fills is not the whole tape.
+              </strong>{" "}
+              A simulated fill is only as good as the prices it was simulated
+              against, and each book stamps the feed it used into every one of
+              its records:{" "}
+              {[...feeds].map(([kind, feed], i) => (
+                <span key={kind}>
+                  {i > 0 ? "; " : ""}
+                  {kind === "paper"
+                    ? "the paper accounts"
+                    : kind === "real_capital"
+                      ? "the real-capital book"
+                      : kind}{" "}
+                  on <Em>{feed}</Em>
+                </span>
+              ))}
+              . A feed covering a few percent of consolidated volume prints
+              fewer quotes, and at wider spreads, than the consolidated tape a
+              real order meets — so a fill simulated against it is not
+              interchangeable with one that happened. It is disclosed because it
+              is a real limit on what these results demonstrate.
+            </p>
+          )}
           <p>
             <strong className="font-medium">Two broker endpoints disagree.</strong>{" "}
             Alpaca&rsquo;s account equity (our published NAV) and its daily
             portfolio-history series do not share a timing basis, so they differ
-            on most sessions. This page used to illustrate that with one
-            session&rsquo;s figure — &ldquo;about 17 basis points&rdquo; — which
-            was the smallest of the four books&rsquo; readings that day and well
-            below the worst in the record. No typical figure is quoted here now,
-            because the site does not compute one: both are broker figures, every
-            snapshot publishes ours, theirs and the difference in basis points,
-            and the distribution is there to be read rather than summarised for
-            you.
+            on most sessions. No typical figure is quoted here, because the site
+            does not compute one: both are broker figures, every snapshot
+            publishes ours, theirs and the difference in basis points, and the
+            distribution is there to be read rather than summarised for you.
           </p>
           <p>
             <strong className="font-medium">Gaps are gaps.</strong> If the box was

@@ -6,6 +6,7 @@ import {
   getAnalytics,
   getBenchmark,
   getBenchmarkIntraday,
+  getChain,
   getDaily,
   getIntraday,
   getIndex,
@@ -13,6 +14,7 @@ import {
   getMetrics,
   getMeta,
   getNav,
+  getSnapshot,
 } from "@/lib/data";
 import { dateTime } from "@/lib/format";
 import { parentOf, variantSize } from "@/lib/variants";
@@ -66,7 +68,7 @@ export default async function Portfolio({
   if (!summary) notFound();
 
   const [meta, metrics, analytics, nav, benchmark, intraday, benchIntraday,
-         daily] =
+         daily, chain] =
     await Promise.all([
       getMeta(summary.book),
       getMetrics(summary.book),
@@ -78,8 +80,24 @@ export default async function Portfolio({
       // Absente pour la plupart des books, et c'est une reponse : une serie
       // vide veut dire « non publiee », jamais « plate ».
       getDaily(summary.book),
+      // THE CHAIN IS EVIDENCE THIS PAGE MAKES CLAIMS ABOUT, so this page reads
+      // it. It said the published figure was "the one in the chained record"
+      // and said a restart made the genesis entry late, with nothing on the
+      // page able to check either. Both are checkable from the file.
+      getChain(),
     ]);
   const detail = await getLatestDetail(summary.book, meta);
+
+  // This book's own entries, oldest first, and what they say about WHEN the
+  // record was written as against when it happened.
+  const entries = chain.filter((e) => e.book === summary.book);
+  const backfilled = entries.filter((e) => e.ts.slice(0, 10) !== e.session_date);
+  const recordedOn = new Set(backfilled.map((e) => e.ts.slice(0, 10)));
+  const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null;
+  // The final chained record itself. The page prints a headline and asserts it
+  // is the chained one; on at least one book those are different numbers, and
+  // the only way for the page to know is to read the record.
+  const lastSnapshot = lastEntry ? await getSnapshot(lastEntry.file) : null;
   // The twin relationship, resolved from the payload where the publisher states
   // it and from the name suffix only as a fallback. It was previously visible
   // nowhere but the collapsed selector, so a reader landing on a twin's own page
@@ -91,6 +109,19 @@ export default async function Portfolio({
   const bundle: BookBundle = {
     summary, meta, metrics, analytics, nav, benchmark, intraday,
     benchIntraday, detail, daily,
+    chain:
+      entries.length > 0
+        ? {
+            records: entries.length,
+            backfilled: backfilled.length,
+            // Named only when every late record joined on ONE day, which is
+            // what a chain restart looks like. Several dates is an ordinary
+            // trickle of backfills and gets a count without a date.
+            recordedOn: recordedOn.size === 1 ? [...recordedOn][0] : null,
+          }
+        : null,
+    lastSnapshot,
+    lastSnapshotSession: lastEntry?.session_date ?? null,
     variantParentLabel: parent?.label ?? null,
     variantSize: parent ? variantSize(summary.book) : null,
     // The pair does not share a start date, and the difference between them is
@@ -109,6 +140,11 @@ export default async function Portfolio({
     cumulative: b.cumulative_return,
     capitalAtRisk: b.capital_at_risk,
     kindLabel: b.account_kind_label ?? null,
+    // A RETURN LISTED BESIDE SIX CURRENT ONES IS A CLAIM ABOUT TODAY. The
+    // publisher marks a book stale and names the session it stopped at; the
+    // selector was the one place a reader compares books, and it was the one
+    // place that did not say.
+    staleSince: b.stale ? (b.stale_since ?? null) : null,
   }));
 
   return (

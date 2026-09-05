@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Note } from "@/components/Note";
-import { bookSlug, REPO_URL, getIndex, type BookSummary } from "@/lib/data";
+import {
+  bookSlug,
+  REPO_URL,
+  getFeedByAccountKind,
+  getIndex,
+  type BookSummary,
+} from "@/lib/data";
 
 // Rendered per request. A static prerender plus framework caching left the
 // site serving data hours old with no way for traffic to clear it; the data
@@ -67,6 +73,12 @@ export default async function DisclosuresPage() {
   const index = await getIndex();
   const disclosures = index?.disclosures ?? [];
   const books = index?.books ?? [];
+  // The feed each account kind's fills were priced against. It is stamped into
+  // every snapshot and into none of these disclosure bodies, which is why a
+  // reader of this page — the page whose whole job is the caveats — never met
+  // the most material caveat there is about a simulated fill. Read from the
+  // evidence, and rendered under the disclosure whose audience it is true of.
+  const feeds = await getFeedByAccountKind(books);
 
   // Derived from the DATA, as a defence against the field going missing again.
   // The publisher is meant to scope each item; when it does not, this is what
@@ -179,6 +191,23 @@ export default async function DisclosuresPage() {
                   under every paragraph doubles the length of the page a reader
                   has to get through to reach the caveat that matters. */}
               <p className="mt-3 text-[14px] leading-relaxed">{d.body_en}</p>
+              {/* The published body says fills are "simulated by the broker's
+                  paper engine against its market data" and stops there. WHICH
+                  market data is the whole question, and every record answers it.
+                  Added beneath rather than woven in, because the body above is
+                  republished verbatim and must stay that way. */}
+              {d.applies_to && feeds.has(d.applies_to) && (
+                <p className="mt-3 text-[13px] leading-relaxed text-fg-muted">
+                  <strong className="font-medium text-fg">
+                    The market data behind those fills:
+                  </strong>{" "}
+                  {feeds.get(d.applies_to)}. It is stamped into every published
+                  record for these books. A feed carrying a few percent of
+                  consolidated volume prints fewer quotes, and wider ones, than
+                  the tape a real order meets — so a fill simulated against it
+                  is not interchangeable with one that happened.
+                </p>
+              )}
               {audience.warn && DENIES_RISK.test(d.body_en) && (
                 <p className="mt-3 text-[13px] leading-relaxed text-warn-fg">
                   This statement is published with no audience and is not true of
@@ -214,7 +243,17 @@ export default async function DisclosuresPage() {
                   from that book&rsquo;s own broker-measured daily return —
                   sometimes with the opposite sign. Book-level equity and returns
                   are unaffected: they are read from the broker and never
-                  reconstructed from the attribution.
+                  reconstructed from the attribution.{" "}
+                  {/* Say WHY an uncorrected paragraph is still sitting above a
+                      correction. Left unexplained it reads as the site having
+                      caught the publisher out and shrugged; it is actually the
+                      site refusing to edit text it republishes verbatim. */}
+                  <span className="text-fg-muted">
+                    The paragraph above is republished word for word from the
+                    published data and is not edited here — this page does not
+                    rewrite what it quotes. The correction stands until the
+                    published body is amended at its source.
+                  </span>
                 </p>
               )}
             </section>

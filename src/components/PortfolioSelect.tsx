@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { signedPct } from "@/lib/format";
+import { date, signedPct } from "@/lib/format";
 import { orderWithVariants, parentOf, variantSize } from "@/lib/variants";
 
 export type PortfolioOption = {
@@ -18,6 +18,10 @@ export type PortfolioOption = {
   /** The badge wording, published by the book itself. Both kinds get the same
    *  visual treatment; only this text differs. */
   kindLabel?: string | null;
+  /** The session a stale book stopped at, when the publisher declares one.
+   *  Null on a current book AND on a stale book that publishes no date — the
+   *  row then says it is stale without naming a session it was not given. */
+  staleSince?: string | null;
 };
 
 /** Paper or real capital, marked on EVERY row rather than only on the exception.
@@ -158,8 +162,20 @@ export function PortfolioSelect({
                       </span>
                     )}
                   </span>
-                  <span className={`ml-auto text-[13px] font-medium tnum ${colour}`}>
-                    {signedPct(o.cumulative)}
+                  {/* THE RETURN AND ITS DATE TRAVEL TOGETHER. A figure sitting
+                      in a column beside six others is read as "as of now"; the
+                      publisher already says which books that is untrue of, and
+                      the date goes directly under the number rather than being
+                      left to the page a reader has not opened yet. */}
+                  <span className="ml-auto text-right shrink-0">
+                    <span className={`block text-[13px] font-medium tnum ${colour}`}>
+                      {signedPct(o.cumulative)}
+                    </span>
+                    {o.staleSince !== null && o.staleSince !== undefined && (
+                      <span className="block text-[10.5px] text-fg-faint tnum mt-0.5">
+                        as of {date(o.staleSince)}
+                      </span>
+                    )}
                   </span>
                 </Link>
               </li>

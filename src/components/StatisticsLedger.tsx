@@ -11,6 +11,47 @@ type Row = {
 };
 
 /**
+ * Every `metrics.values` key this ledger has a row for.
+ *
+ * IT EXISTS SO A PROMISE CAN BE CHECKED INSTEAD OF REPEATED. The withholding
+ * banner tells the reader that each suppressed figure "keeps its row in the
+ * ledger and names itself" — a claim about THIS component, made in another
+ * one, with nothing connecting them. It was false by two: fifteen names were
+ * suppressed and thirteen rows rendered, because `sortino_gross` and
+ * `calmar_gross` had no line.
+ *
+ * The banner now subtracts this set from the suppressed list and names whatever
+ * is left over, so the next metric the desk adds to `suppressed` cannot quietly
+ * falsify the sentence — it will be printed instead. Keep it in step with the
+ * rows below; a key added here without a row is the bug this set exists to
+ * catch, pointed the wrong way.
+ */
+export const LEDGER_METRIC_KEYS: ReadonlySet<string> = new Set([
+  "cumulative_return",
+  "n_obs",
+  "cagr",
+  "ev_excess_annual",
+  "best_day",
+  "worst_day",
+  "positive_days",
+  "negative_days",
+  "flat_days",
+  "win_rate",
+  "volatility",
+  "max_drawdown",
+  "var_normal_95",
+  "skew",
+  "kurtosis",
+  "sharpe",
+  "sharpe_gross",
+  "sharpe_autocorr_adj",
+  "sortino",
+  "sortino_gross",
+  "calmar",
+  "calmar_gross",
+]);
+
+/**
  * The statistics ledger. Figures are tabular so decimals line up; a withheld
  * statistic keeps its row and says why rather than disappearing.
  */
@@ -149,11 +190,32 @@ export function StatisticsLedger({
       label: "Sortino",
       value: ratio(v.sortino),
       withheld: v.sortino === null ? held : undefined,
+      note: metrics ? `risk-free ${pct(metrics.risk_free_annual)}` : undefined,
+    },
+    // THE GROSS TWINS HAD NO ROW, AND THE BANNER ABOVE PROMISED THEY DID. The
+    // gate suppresses fifteen names and says each "keeps its row in the ledger
+    // and names itself"; thirteen rows rendered. `sortino_gross` and
+    // `calmar_gross` are published in `values` on every book, exactly as their
+    // Sharpe counterpart is, and were simply never given a line here. Adding
+    // them is the fix that makes the sentence true rather than the one that
+    // waters the sentence down — and `LEDGER_METRIC_KEYS` below keeps it true.
+    {
+      label: "Sortino, gross",
+      value: ratio(v.sortino_gross),
+      withheld: v.sortino_gross === null ? held : undefined,
+      note: "before subtracting cash",
     },
     {
       label: "Calmar",
       value: ratio(v.calmar),
       withheld: v.calmar === null ? held : undefined,
+      note: metrics ? `risk-free ${pct(metrics.risk_free_annual)}` : undefined,
+    },
+    {
+      label: "Calmar, gross",
+      value: ratio(v.calmar_gross),
+      withheld: v.calmar_gross === null ? held : undefined,
+      note: "before subtracting cash",
     },
   ];
 

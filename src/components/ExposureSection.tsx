@@ -1,5 +1,5 @@
 import type { Exposure } from "@/lib/data";
-import { date } from "@/lib/format";
+import { date, prose } from "@/lib/format";
 import { duration } from "@/lib/format";
 
 /**
@@ -24,7 +24,7 @@ export function ExposureSection({ exposure }: { exposure: Exposure }) {
 
   return (
     <>
-      <p className="text-[13px] text-fg-muted mb-6">{exposure.structure}.</p>
+      <p className="text-[13px] text-fg-muted mb-6">{prose(exposure.structure)}.</p>
 
       <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-5">
         <Stat
@@ -85,7 +85,7 @@ export function ExposureSection({ exposure }: { exposure: Exposure }) {
           </div>
         )}
         <p className="mt-4 text-[12.5px] leading-relaxed text-fg-muted max-w-[72ch]">
-          {exposure.note}. A position still open at a close carries the only
+          {prose(exposure.note)}. A position still open at a close carries the only
           market risk in the book and none of the published profit: it is
           disclosed here and marked nowhere, and its result appears on the
           session it is closed out against.

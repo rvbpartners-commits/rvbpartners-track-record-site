@@ -98,6 +98,25 @@ export function direction(value: number | null | undefined): "up" | "down" | "fl
   return value > 0 ? "up" : "down";
 }
 
+/**
+ * Published free text, typographically normalised before it reaches body copy.
+ *
+ * The desk writes its notes in plain ASCII, and a double hyphen is how a dash
+ * survives that: `"…the inception session -- a different number"`. Rendered
+ * verbatim, those two hyphens land mid-paragraph beside the em dashes this
+ * repository sets, on the same line, and read as damage in the data rather than
+ * as the punctuation they are. Five such strings reach visible copy.
+ *
+ * NOTHING ELSE IS TOUCHED. The words, the numbers and the claims are the
+ * desk's; this is the one substitution that cannot change what a sentence says.
+ * A SINGLE hyphen is left alone — it is a minus sign, a range, or a hyphenated
+ * word ("~2-3% of consolidated volume"), never a dash.
+ */
+export function prose(text: string | null | undefined): string {
+  if (!text) return "";
+  return text.replace(/\s*--\s*/g, " — ").trim();
+}
+
 export function slugLabel(slug: string): string {
   return slug
     .split("_")

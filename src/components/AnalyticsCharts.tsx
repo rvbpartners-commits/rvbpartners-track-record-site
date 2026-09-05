@@ -26,12 +26,24 @@ import { date, pct, ratio, signedPct } from "@/lib/format";
 export function AnalyticsCharts({
   analytics,
   gate,
+  observations,
+  headline,
 }: {
   analytics: AnalyticsPayload | null;
   /** The book's ONE withholding gate, from `metrics.json`. Passed in rather
    *  than read from `analytics.sessions`, which counts a different window on at
    *  least one book — the frames said "15/60" beside a ledger saying 16. */
   gate?: { have: number; need: number; unit?: string } | null;
+  /** `metrics.values.n_obs` — the count the ledger prints. The panels below are
+   *  drawn from a DIFFERENT file, and on one book the two files count the
+   *  history differently: 16 observations in the ledger, 15 behind these
+   *  charts. Passed so the difference can be stated once, here, instead of
+   *  being left as two numbers a reader has to catch. */
+  observations?: number | null;
+  /** `metrics.values.cumulative_return` — the headline. Its own monthly cells
+   *  are summed from the analytics series, so on a book with the mismatch above
+   *  the months do not compound to the headline. Named for the same reason. */
+  headline?: number | null;
 }) {
   // An absent payload used to remove the whole chart suite silently, which is
   // indistinguishable from a book that has no analytics to show. Say so.
@@ -47,9 +59,44 @@ export function AnalyticsCharts({
   const need = gate?.need ?? analytics.min_sessions_for_annualised;
   const unit = gate?.unit ?? "sessions";
   const held = analytics.gated ? `withheld · ${have}/${need} ${unit}` : undefined;
+  // TWO FILES, TWO COUNTS OF ONE HISTORY. `metrics.json` counts the sessions
+  // the ledger reports; `analytics.json` counts the ones behind these panels,
+  // and on a book whose inception return has no prior session to be measured
+  // against, the second is short by one. The page showed both numbers with
+  // nothing joining them — "Observations 16" in the ledger, "Daily · 15
+  // observations" in the panel beside it — which reads as one of them being
+  // wrong. Neither is: they are two windows, and the page names them.
+  const drawn = analytics.daily_returns.filter((d) => d.return !== null);
+  const drawnObs = drawn.length;
+  // The first date the analytics series actually carries. Stated rather than
+  // explained: WHY the two files differ is the publisher's to say, and a page
+  // that guesses at a reason is doing the thing this note exists to stop.
+  const firstDrawn = drawn.length > 0 ? drawn[0].date : null;
+  const countsDiffer =
+    typeof observations === "number" && observations !== drawnObs;
 
   return (
-    <div className="mt-10 grid xl:grid-cols-2 gap-x-12 gap-y-10">
+    <>
+      {countsDiffer && (
+        <p className="mt-8 text-[12px] text-fg-faint max-w-[80ch] leading-relaxed">
+          These panels are drawn from{" "}
+          <code>analytics.json</code>, which publishes {drawnObs} daily
+          {" "}
+          {drawnObs === 1 ? "return" : "returns"} for this book
+          {firstDrawn ? ` beginning ${date(firstDrawn)}` : ""}, while the ledger
+          above reports {observations} observations from <code>metrics.json</code>
+          . The two files cover different windows, so every count, spread and
+          monthly cell below is over {drawnObs}
+          {typeof headline === "number" ? (
+            <>
+              , and the months will not compound to the{" "}
+              {signedPct(headline, 3)} headline for the same reason
+            </>
+          ) : null}
+          . Both counts are published; neither is adjusted onto the other here.
+        </p>
+      )}
+      <div className="mt-10 grid xl:grid-cols-2 gap-x-12 gap-y-10">
       <DailyBars analytics={analytics} />
       <DrawdownPath analytics={analytics} />
       <Rolling
@@ -77,10 +124,11 @@ export function AnalyticsCharts({
       <Distribution analytics={analytics} />
       <Quantiles analytics={analytics} />
       <MonthlyHeatmap analytics={analytics} />
-      <div className="xl:col-span-2">
-        <DrawdownEpisodes analytics={analytics} />
+        <div className="xl:col-span-2">
+          <DrawdownEpisodes analytics={analytics} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -398,11 +446,43 @@ function MonthlyHeatmap({ analytics }: { analytics: AnalyticsPayload }) {
   const rows = analytics.monthly_returns ?? [];
   const years = [...new Set(rows.map((r) => r.year))].sort();
   const peak = Math.max(...rows.map((r) => Math.abs(r.return ?? 0)), 0.0001);
+  // THE NOTE DESCRIBED A RULE THE PUBLISHER DOES NOT USE. It said the marker
+  // was set by a session count — "fewer than 15 sessions" — and then warned
+  // that a first or last month could therefore be unmarked. The publisher
+  // actually publishes its REASON per month (`partial_reason`: "record begins
+  // mid-month", "record ends mid-month"), and marks exactly those. So the
+  // warning was aimed at a hole that does not exist, while the real gap —
+  // a book whose publisher emits no marker at all — went undescribed. The
+  // reasons are read off the data rather than restated.
+  const reasons = [
+    ...new Set(
+      rows
+        .map((r) => r.partial_reason)
+        .filter((r): r is string => typeof r === "string" && r.length > 0),
+    ),
+  ];
+  const marked = rows.filter((r) => r.partial).length;
+  const unexplained = rows.filter((r) => r.partial && !r.partial_reason).length;
 
   return (
     <Plot
       title="Monthly returns"
-      note="Shaded against the largest month so far. The asterisk is the publisher's own partial marker, set by a session count: a month with fewer than 15 sessions carries it. That count is the only rule, so a month that contains a book's first or last published session can be incomplete without carrying the marker — hover any cell for the number of sessions actually behind it rather than reading completeness off the absence of an asterisk."
+      note={
+        "Shaded against the largest month so far. " +
+        (marked > 0
+          ? `The asterisk is the publisher's own partial marker${
+              reasons.length > 0
+                ? `, and it publishes why: ${reasons.join("; ")}`
+                : ""
+            }. ` +
+            (unexplained > 0
+              ? `${unexplained} marked ${
+                  unexplained === 1 ? "month carries" : "months carry"
+                } no published reason. `
+              : "")
+          : "No month here carries a partial marker. A book whose publisher does not emit one will show none even for a month it only partly covers, so read the session count rather than the absence of an asterisk. ") +
+        "Hover any cell for the sessions actually behind it, against the sessions that month could have had."
+      }
       empty={rows.length === 0}
     >
       <div className="scroll-x">

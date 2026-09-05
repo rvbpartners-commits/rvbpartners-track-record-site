@@ -11,9 +11,19 @@ import type {
   IntradayPoint,
   MetricsPayload,
   NavPoint,
+  SnapshotRecord,
 } from "@/lib/data";
 import { DATA_REPO_URL } from "@/lib/data";
-import { date, marketTime, money, pct, sessionZone, signedPct } from "@/lib/format";
+import {
+  date,
+  dateTime,
+  marketTime,
+  money,
+  pct,
+  prose,
+  sessionZone,
+  signedPct,
+} from "@/lib/format";
 import { AnalyticsCharts } from "./AnalyticsCharts";
 import { ChartLegend, PerformanceChart, type ChartPoint } from "./PerformanceChart";
 import { DailyPnlChart } from "./DailyPnlChart";
@@ -23,7 +33,7 @@ import { Note } from "./Note";
 import { RoundTripStats } from "./RoundTripStats";
 import { Section } from "./Section";
 import { PortfolioSelect, type PortfolioOption } from "./PortfolioSelect";
-import { StatisticsLedger } from "./StatisticsLedger";
+import { LEDGER_METRIC_KEYS, StatisticsLedger } from "./StatisticsLedger";
 
 export type BookBundle = {
   summary: BookSummary;
@@ -36,6 +46,25 @@ export type BookBundle = {
   benchIntraday: Map<string, { spy: number | null; cash: number | null }>;
   detail: DetailPayload | null;
   daily: DailyPoint[];
+  /** What this book's own chain entries say about WHEN the record was written.
+   *
+   *  `backfilled` counts records whose chain timestamp falls on a different day
+   *  from the session they describe. It is the single most damaging thing a
+   *  sceptic can find unaided — a genesis entry dated after the record begins
+   *  looks like a rewrite — and it is entirely benign once stated, because the
+   *  chain publishes the recording date for every entry. Null when the chain
+   *  could not be read: the page then claims nothing about it. */
+  chain?: {
+    records: number;
+    backfilled: number;
+    /** The one day every late record joined on, when there is only one. */
+    recordedOn: string | null;
+  } | null;
+  /** The last record in this book's chain, read from the chain's own path.
+   *  The page prints a headline and says it is the chained figure; this is what
+   *  lets it check rather than assert. */
+  lastSnapshot?: SnapshotRecord | null;
+  lastSnapshotSession?: string | null;
   /** The parent book of a capital twin, when both are published. Resolved by
    *  the page from the index so the header can say what the selector already
    *  knows. */
@@ -51,6 +80,23 @@ export type BookBundle = {
  *  hours old, and anything the publisher could not refresh is not a live
  *  reading whatever the field is named. */
 const LIVE_MAX_AGE_HOURS = 36;
+
+/**
+ * Evidence fields that are prose written for a reader, rendered under the
+ * capital movement they belong to.
+ *
+ * An `evidence` object is a bag of whatever the desk recorded — quantities,
+ * endpoint responses, timestamps, prices — and dumping it would be noise. These
+ * three are sentences, and they are the ones a sceptic needs: what the net of a
+ * pair of movements actually IS, whether the broker later changed its own
+ * story, and what was deliberately left inside the return. Absent keys render
+ * nothing, so a book publishing none of them shows exactly what it shows today.
+ */
+const NARRATIVE_EVIDENCE: [key: string, label: string][] = [
+  ["net_of_the_two_events", "Net of the two movements"],
+  ["broker_restated_its_own_history", "The broker has since restated its own history"],
+  ["not_included_here", "Not treated as a flow"],
+];
 
 /**
  * Is the published `live` block actually current?
@@ -171,6 +217,11 @@ function BookView({
   // round trips. Rendering the payload's own unit is what keeps one page from
   // stating two different bars as though both were binding.
   const gateUnit = gate?.unit ?? "marked sessions";
+  // Suppressed names the ledger has no row for. Empty on every book today;
+  // computed rather than assumed so it stays empty or says so.
+  const unrenderedSuppressed = (gate?.suppressed ?? []).filter(
+    (name) => !LEDGER_METRIC_KEYS.has(name),
+  );
   const currency = meta?.currency ?? "USD";
   const last = nav.length > 0 ? nav[nav.length - 1] : null;
   const cumulative = metrics?.values.cumulative_return ?? null;
@@ -256,6 +307,21 @@ function BookView({
       : null;
   }, [points, cumulative]);
 
+  // Does the published headline match the number in the last CHAINED record?
+  // Same tolerance and same reasoning as the chart check above: a disagreement
+  // below the last printed digit is not one a reader can see. Fails closed in
+  // the honest direction — a missing chain, record or figure renders nothing
+  // rather than an unearned "these agree".
+  const snapshotMismatch = useMemo(() => {
+    const chained = bundle.lastSnapshot?.cumulative_return;
+    if (cumulative === null || chained === null || chained === undefined) {
+      return null;
+    }
+    return Math.abs(chained - cumulative) > 1e-5
+      ? { chained, published: cumulative }
+      : null;
+  }, [bundle.lastSnapshot, cumulative]);
+
   // Whether to draw an equity index is decided by the DATA, not by the book's
   // name. A book that publishes an empty `spy_cum` column is saying it has no
   // equity benchmark; drawing a flat line, or a legend that names one, would
@@ -281,6 +347,11 @@ function BookView({
     const days = Math.round((t1 - t0) / 86_400_000);
     return days > 0 ? days : null;
   })();
+
+  // The market-data feed named in this book's own last chained record. A
+  // string or nothing: an absent field is an absent field, and a book whose
+  // fills were executed rather than simulated has no feed to disclose here.
+  const marketDataFeed = bundle.lastSnapshot?.disclosure?.market_data_feed;
 
   const accountLabel =
     meta?.account_kind_label ??
@@ -379,8 +450,14 @@ function BookView({
             value={money(live?.equity ?? last?.equity, currency, 2)}
             note={
               <>
+                {/* "LIVE" IS RESERVED FOR REAL CAPITAL SITE-WIDE. This caption
+                    sat over a paper account's NAV, where "live" is the word a
+                    reader uses for money at risk — and six of the seven books
+                    it renders on have none. What the caption is actually saying
+                    is that the figure is the most recent reading rather than
+                    the after-close mark, which is what it now says. */}
                 {live
-                  ? `live · ${marketTime(live.at, zone)}`
+                  ? `latest reading · ${marketTime(live.at, zone)}`
                   : `marked ${date(last?.date)}`}
                 {capitalFlow ? (
                   <span className="block">
@@ -437,12 +514,21 @@ function BookView({
               </>
             ) : (
               <>
+                {/* "BEFORE THE DATA ON THIS PAGE WAS PUBLISHED" NAMED NEITHER
+                    SIDE OF ITS OWN COMPARISON, and the footer of this same page
+                    prints a publish instant that MATCHES the reading to the
+                    minute — because a book that has stopped publishing carries
+                    a stale `published_at` too. The two sentences read as a flat
+                    contradiction. The comparison is against the RECORD's
+                    publish, which is the instant this payload was written, so
+                    that is the one printed. */}
                 <span className="text-warn-fg">
                   The last broker reading for this book is dated{" "}
-                  {marketTime(rawLive.at, zone)}, before the data on this page
-                  was published
+                  {marketTime(rawLive.at, zone)} — the last reading this book
+                  produced, and older than this record&rsquo;s current publish
+                  {publishedAt ? ` (${dateTime(publishedAt)})` : ""}
                   {summary.last_session
-                    ? `, and its last marked session is ${date(summary.last_session)}`
+                    ? `. Its last marked session is ${date(summary.last_session)}`
                     : ""}
                   .
                 </span>{" "}
@@ -451,6 +537,22 @@ function BookView({
                 {signedPct(rawLive.cumulative_return, 3)} on equity of{" "}
                 {money(rawLive.equity, currency, 2)}
                 {rawLive.source ? ` — ${rawLive.source}` : ""}.
+                {/* THE TWO FIGURES IN THAT SENTENCE ARE NOT ON ONE BASIS, and
+                    a reader who divides the equity by the funded capital gets a
+                    third number that matches neither. That is not an error: on
+                    a book with a leg quoted in another currency, the published
+                    curve converts that leg once per session and never revalues
+                    it, while a direct read of both accounts is at today's rate.
+                    The book publishes the convention; the page renders it
+                    rather than leaving the arithmetic to fail silently. */}
+                {meta?.fx?.note ? (
+                  <>
+                    {" "}
+                    The return and the equity there are not on the same basis, so
+                    one does not follow from the other by division:{" "}
+                    {prose(meta.fx.note)}.
+                  </>
+                ) : null}
               </>
             )}
           </p>
@@ -481,9 +583,30 @@ function BookView({
             Annualised statistics are withheld — {gate.have} of {gate.need}{" "}
             {gateUnit}.
           </strong>{" "}
-          {gate.suppressed?.length
-            ? `${gate.suppressed.length} figures stay withheld until this account has ${gate.need} ${gateUnit}; each keeps its row in the ledger and names itself.`
-            : `Annualised figures stay withheld until this account has ${gate.need} ${gateUnit}.`}{" "}
+          {/* THE PROMISE IS CHECKED, NOT REPEATED. "Each keeps its row in the
+              ledger and names itself" is a claim about a different component,
+              and it was false by two: fifteen suppressed, thirteen rows. The
+              ledger now publishes the keys it renders, so the sentence either
+              holds or names the exceptions — it can no longer be quietly
+              falsified by the desk adding a name to `suppressed`. */}
+          {gate.suppressed?.length ? (
+            <>
+              {gate.suppressed.length} figures stay withheld until this account
+              has {gate.need} {gateUnit};{" "}
+              {unrenderedSuppressed.length === 0 ? (
+                <>each keeps its row in the ledger below and names itself.</>
+              ) : (
+                <>
+                  {gate.suppressed.length - unrenderedSuppressed.length} of them
+                  keep a row in the ledger below and name themselves, and the
+                  rest are named here:{" "}
+                  {unrenderedSuppressed.join(", ")}.
+                </>
+              )}
+            </>
+          ) : (
+            `Annualised figures stay withheld until this account has ${gate.need} ${gateUnit}.`
+          )}{" "}
           On a handful of sessions they are not imprecise, they are meaningless.
           What actually happened is not gated and is published below: every daily
           return, and the realised drawdown path with its episodes. The ledger
@@ -538,10 +661,23 @@ function BookView({
                 is context, not a comparison.{" "}
                 {granular ? (
                   <>
+                    {/* NAME THE ANCHOR. Two portfolio pages draw a line
+                        labelled identically — "S&P 500 · price, 5-minute" —
+                        that ends on two different numbers, because each is
+                        rebased on the first bar of the book it sits under and
+                        the books start on different days. Unnamed, that reads
+                        as two contradictory measurements of one index. One
+                        clause removes the whole objection. */}
                     The index line here is a 5-minute <em>price</em> path —
-                    dividends are not applied intraday and it is rebased on its
-                    own first published bar, so it will not end where the daily
-                    total-return series in <code>benchmark.csv</code> ends.
+                    dividends are not applied intraday and it is rebased on{" "}
+                    <strong className="font-medium text-fg">
+                      this book&rsquo;s first published bar
+                      {points.length > 0 ? `, ${date(points[0].date)}` : ""}
+                    </strong>
+                    , so it will not end where the daily total-return series in{" "}
+                    <code>benchmark.csv</code> ends — and the same index line on
+                    another portfolio&rsquo;s page is rebased on that
+                    book&rsquo;s own start, not this one.
                   </>
                 ) : (
                   <>
@@ -648,13 +784,53 @@ function BookView({
                 {money(meta.opening_capital, currency, 2)} — a number this
                 book&rsquo;s <code>nav.csv</code> does not carry, so the rebase
                 cannot reproduce it.
+                {/* "The desk states why:" was answered by a NOUN PHRASE — the
+                    published note begins "the equity at the OPEN of the
+                    inception session", which is a thing, not a reason — so the
+                    sentence never landed. The lead-in now frames the note as
+                    the apposition it actually is, and `prose` fixes the ASCII
+                    double hyphens inside it. */}
                 {meta.opening_capital_note
-                  ? ` The desk states why: ${meta.opening_capital_note}.`
+                  ? ` That balance is the desk's own: ${prose(meta.opening_capital_note)}.`
                   : ""}
               </>
             ) : null}{" "}
-            The published figure is the one in the ledger and in the chained
-            record; the curve&rsquo;s shape is unaffected.
+            The published figure is the one in the ledger; the curve&rsquo;s
+            shape is unaffected.
+          </p>
+        )}
+
+        {/* IS THE HEADLINE THE NUMBER IN THE CHAINED RECORD? The page used to
+            assert that it was, in the sentence just above, with nothing on the
+            page able to check. On a book whose final session was corrected
+            after it was chained, it is not: the record carries the figure as
+            published that day, and the ledger carries the corrected one. That
+            is the right treatment — a write-once record is not rewritten
+            because a later correction would look tidier — but it has to be
+            SAID, because a reader who does the check the verify page invites
+            them to do will otherwise find the discrepancy alone.
+
+            Read from the chain's own entry for the last session, so nothing
+            here is a guess about where a record lives, and the block simply
+            does not render when the chain, the record or either figure is
+            missing. */}
+        {snapshotMismatch && (
+          <p className="mt-4 text-[12px] text-fg-faint max-w-[80ch] leading-relaxed">
+            <span className="text-warn-fg">
+              The headline above is not the figure in this book&rsquo;s final
+              chained record.
+            </span>{" "}
+            The record for the {date(bundle.lastSnapshotSession)} session was
+            written and hashed with a cumulative return of{" "}
+            {signedPct(snapshotMismatch.chained, 4)}; the ledger and this
+            page&rsquo;s header publish {signedPct(snapshotMismatch.published, 4)}
+            , which is the corrected figure. The record is deliberately{" "}
+            <strong className="font-medium text-fg">not amended</strong>: it
+            says what was known when it was written, its hash still verifies,
+            and a record that can be rewritten after the fact is not a record.
+            Both numbers are published — the chained one in{" "}
+            <code>snapshots/</code>, the corrected one in{" "}
+            <code>metrics.json</code> — and neither is hidden behind the other.
           </p>
         )}
         {lastSession && (
@@ -670,9 +846,21 @@ function BookView({
             {bookBehind ? (
               <span className="text-warn-fg">
                 This portfolio has published no session since then, while the
-                rest of the record has moved on. The curve stops where the
-                record stops: no value is carried forward and no session is
-                estimated.
+                rest of the record has moved on
+                {summary.record_last_session
+                  ? ` (to ${date(summary.record_last_session)})`
+                  : ""}
+                .{" "}
+                {/* The publisher's OWN staleness verdict, printed where it is
+                    about. The site derived a near-identical judgement from
+                    publish timestamps and never rendered the published field
+                    beside it; when the two agree the reader should see the
+                    declared one, not only our inference from a clock. */}
+                {summary.stale && summary.stale_since
+                  ? `The publisher marks this book stale since ${date(summary.stale_since)}. `
+                  : ""}
+                The curve stops where the record stops: no value is carried
+                forward and no session is estimated.
               </span>
             ) : (
               "Next point at the next close."
@@ -722,10 +910,32 @@ function BookView({
                   <span className="text-fg tnum">
                     {money(e.amount_usd, currency, 2)}
                   </span>
-                  <span className="block mt-1">{e.reason_en}</span>
+                  <span className="block mt-1">{prose(e.reason_en)}</span>
                   <span className="block mt-1 text-fg-faint">
-                    Derived as {e.derivation}.
+                    Derived as {prose(e.derivation)}.
                   </span>
+                  {/* THE TWO THINGS A READER MOST NEEDS WERE INSIDE THE
+                      EVIDENCE AND ON NO PAGE: what the net exclusion actually
+                      is (not just its dollar amount, but WHICH price move it
+                      is and why the account did not participate in it), and
+                      that the broker has since restated its own history as
+                      though nothing was ever missing. Both are published, in
+                      the desk's own words, per event. Rendering them is the
+                      difference between a declared adjustment and one a reader
+                      has to go digging for — and leaving the retraction only
+                      in the JSON is what damages credibility, not the
+                      adjustment itself. Named keys only: this renders the
+                      desk's narrative fields, never a dump of an evidence
+                      object whose shape the site does not control. */}
+                  {NARRATIVE_EVIDENCE.map(([key, label]) => {
+                    const value = e.evidence?.[key];
+                    return typeof value === "string" && value.length > 0 ? (
+                      <span key={key} className="block mt-1 text-fg-faint">
+                        <span className="text-fg-muted">{label}:</span>{" "}
+                        {prose(value)}
+                      </span>
+                    ) : null;
+                  })}
                 </div>
               ))}
               <p className="text-fg-faint">
@@ -757,7 +967,7 @@ function BookView({
                   rendered instead; a caption in this repository cannot go stale
                   against the data if it comes from the data. */}
               {meta?.convention?.calendar ? (
-                <>{meta.convention.calendar}. </>
+                <>{prose(meta.convention.calendar)}. </>
               ) : (
                 <>
                   Every calendar day is a row: a day with no trade is a bar of
@@ -784,11 +994,21 @@ function BookView({
           title="Round trips"
           note={
             <>
+              {/* "NOTHING HERE IS A RATIO THAT NEEDS A DISTRIBUTION" sat
+                  directly above a hit rate of 100% on six observations, which
+                  is exactly such a ratio — and the strongest-looking number on
+                  the page. The sentence was the licence the panel used to
+                  publish it under the same gate that withholds a Sharpe. The
+                  claim is dropped, and the hit rate is shown as the count it
+                  honestly is. */}
               This book&rsquo;s unit of account is the round trip, not the session:
               it executed on {summary.sessions > 0 ? `${meta?.active_sessions ?? "a few"} of ${summary.sessions}` : "a few"}{" "}
               published sessions, so a session-based denominator would measure the
-              calendar rather than the strategy. Everything below is a count or a
-              measured duration; nothing here is a ratio that needs a distribution.
+              calendar rather than the strategy. Most of what follows is a count
+              or a measured duration, publishable on a handful of observations
+              because it describes what happened rather than estimating a
+              distribution; anything that does estimate one is withheld under the
+              same bar as the statistics above.
             </>
           }
         >
@@ -834,6 +1054,8 @@ function BookView({
         <AnalyticsCharts
           analytics={analytics}
           gate={gate ? { have: gate.have, need: gate.need, unit: gateUnit } : null}
+          observations={observations}
+          headline={cumulative}
         />
       </Section>
 
@@ -855,12 +1077,26 @@ function BookView({
         title="Composition and holdings"
         note={
           <>
+            {/* THE CLAIM HAD TO MATCH THE TABLE. "Profit is reported per
+                category so a per-symbol line is not the trade record" reads as
+                a withholding, and the table underneath publishes each
+                position's quantity, its cost basis and its mark — from which a
+                per-symbol open result is one subtraction away. Dropping a
+                column would not have made the claim true either, because cost
+                basis and market value are both load-bearing. So the page states
+                what is actually protected, which is the thing that matters and
+                is genuinely never published: WHICH STRATEGY holds the position.
+                A style is not a strategy, and the positions are visible. */}
             Grouped by the category of strategy holding them — the style is
-            published, the strategies are not. Profit is reported per category
-            for the same reason: a per-symbol line under a named style is the
-            trade record itself. The split is an attributed model that does not
-            sum to the book; account-level equity above is exact and is read from
-            the broker.{" "}
+            published, the strategies are not. That is the whole of what is
+            withheld here, and it is withheld completely: no strategy identity
+            appears in any published file. The positions themselves are not
+            withheld — each row carries its quantity, its cost basis and its
+            mark, so an individual holding&rsquo;s open result is a subtraction
+            a reader can do. P&amp;L is TOTALLED per category rather than per
+            symbol because the category is the unit the attribution model
+            produces, and that split is a model that does not sum to the book;
+            account-level equity above is exact and is read from the broker.{" "}
             <strong className="font-medium text-fg">
               A target weight is the plan, not the position.
             </strong>{" "}
@@ -945,6 +1181,15 @@ function BookView({
           <Line label="Record">
             <span className="tnum">{summary.sessions} chained snapshots</span>
           </Line>
+          {/* THE FEED BEHIND THE FILLS. It is stamped into every snapshot's
+              disclosure block and reaches no other published file — not the
+              index's disclosure list, not meta.json — so it was true, evidenced,
+              and invisible. On a paper book it is the single most material
+              caveat there is: a simulated fill is only as good as the tape it
+              was simulated against. Disclosing it strengthens the record. */}
+          {typeof marketDataFeed === "string" ? (
+            <Line label="Market data">{marketDataFeed}</Line>
+          ) : null}
           <Line label="Strategies">
             <span className="tnum">
               {summary.categories?.reduce((s, c) => s + c.strategies, 0) || "—"}
@@ -963,6 +1208,42 @@ function BookView({
             </Line>
           ) : null}
         </dl>
+
+        {/* WHEN THESE RECORDS JOINED THE CHAIN. A book whose earlier sessions
+            were written in one later batch has a genesis entry dated after its
+            record begins — which, found unaided in the verify table, is the
+            single most damaging inference a sceptic can draw about a hash
+            chain. It costs nothing to pre-empt, because the chain's own
+            Recorded column already says it entry by entry. Stated here, on the
+            book it is about, as well as on the verify page where the restart is
+            declared. Counted from the chain, never asserted. */}
+        {bundle.chain && bundle.chain.backfilled > 0 && (
+          <p className="mt-6 text-[12px] text-fg-faint max-w-[80ch] leading-relaxed">
+            {bundle.chain.backfilled} of this book&rsquo;s{" "}
+            {bundle.chain.records} chained records joined the chain
+            {bundle.chain.recordedOn
+              ? ` on ${date(bundle.chain.recordedOn)}`
+              : " later"}
+            , after the sessions they describe
+            {bundle.chain.backfilled === bundle.chain.records - 1
+              ? "; only the last was recorded on its own day"
+              : ""}
+            . That is published, not inferred: every entry carries the day it
+            was recorded beside the session it covers, and{" "}
+            <a
+              className="text-accent hover:underline"
+              href={`${DATA_REPO_URL}/blob/main/CHAIN.jsonl`}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <code>CHAIN.jsonl</code>
+            </a>{" "}
+            prints both columns. A timestamp proof bounds a record from above
+            only, so a record written in a batch carries a proof for the day it
+            was stamped rather than for its session — which is why the recording
+            date is published rather than left to be assumed zero.
+          </p>
+        )}
       </Section>
     </>
   );

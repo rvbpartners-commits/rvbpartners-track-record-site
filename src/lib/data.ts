@@ -131,6 +131,20 @@ export type BookSummary = {
   /** Declared capital movements, when the index carries them. Read only to
    *  decide whether a page may still describe the fleet as flow-free. */
   capital_events?: { events?: unknown[] } | null;
+  /** The PUBLISHER's own staleness verdict for this book, and the session it
+   *  stopped at. Optional: a payload written before the fields existed reads as
+   *  "not declared stale", which is what every book was then.
+   *
+   *  It is published per book and was rendered on exactly one surface — the
+   *  book's own page — so a reader scanning the selector saw a real-capital
+   *  book's return listed beside six books current to yesterday with nothing to
+   *  say the first had stopped a week earlier. A staleness flag that only
+   *  appears once you are already looking at the stale book is not a flag. */
+  stale?: boolean;
+  stale_since?: string | null;
+  /** The last session ANY book in this record published. Lets a page say what a
+   *  stale book is stale AGAINST without counting anything itself. */
+  record_last_session?: string | null;
 };
 
 /** A book's URL segment.
@@ -309,6 +323,12 @@ export type AnalyticsPayload = {
     return: number | null;
     sessions: number;
     partial: boolean;
+    /** WHY the month is marked partial, in the publisher's own words ("record
+     *  begins mid-month"). This is the actual rule — not the session-count
+     *  threshold a caption in this repository used to describe — so the caption
+     *  renders it instead of restating one. Absent where the publisher emits no
+     *  marker for a book at all, which is itself worth saying. */
+    partial_reason?: string;
     /** Sessions the month could have had on this book's own calendar. Optional:
      *  where it is published the tooltip reads "15 of 31" instead of "15", so
      *  "complete" is checkable rather than implied by a missing asterisk. */
@@ -441,6 +461,15 @@ export type BookMeta = {
   convention?: Record<string, string>;
   /** Sessions the account was funded and flat before it first traded. */
   intraday_pre_trading_sessions?: string[];
+  /** The currency convention of a book with a leg quoted in another currency.
+   *  Its presence is what tells a page that a raw account reading and the
+   *  published curve are NOT on one basis, so the two cannot be divided into
+   *  each other. Absent on every single-currency book. */
+  fx?: {
+    basis?: string;
+    note?: string;
+    quote_currency?: string;
+  } | null;
 };
 
 /** What a book is exposed to, for one that does not hold anything for long.
@@ -492,6 +521,9 @@ export type RoundTrips = {
 };
 
 export type ChainEntry = {
+  /** When the record JOINED the chain — not the session it describes. The two
+   *  differ on every backfilled record, which is the whole reason it is
+   *  published and printed. */
   ts: string;
   book: string;
   session_date: string;
@@ -500,6 +532,37 @@ export type ChainEntry = {
   prev_hash: string;
   hash: string;
 };
+
+/**
+ * The fields this site reads out of a write-once chained snapshot.
+ *
+ * A snapshot carries a great deal more, and nothing else is typed here because
+ * nothing else is rendered. Two things are, and neither is available anywhere
+ * else in the published tree:
+ *
+ * - `cumulative_return`, so a page can check the headline it prints against the
+ *   number in the record it claims that headline is chained into. They are not
+ *   always the same, and the page must not assert that they are.
+ * - `disclosure.market_data_feed`, which names the feed the fills were priced
+ *   against. It is stamped into every snapshot and reaches no human-facing
+ *   surface, because neither `index.json`'s disclosures nor `meta.json` carry
+ *   it.
+ */
+export type SnapshotRecord = {
+  book: string;
+  session_date: string;
+  schema?: string;
+  hash?: string;
+  cumulative_return?: number | null;
+  disclosure?: Record<string, unknown> | null;
+};
+
+/** One chained snapshot, by the path the chain itself gives for it. The path is
+ *  never constructed here: a record the chain does not list is not chained
+ *  evidence, whatever file happens to sit at the address we would have guessed. */
+export async function getSnapshot(file: string): Promise<SnapshotRecord | null> {
+  return getJson<SnapshotRecord>(file);
+}
 
 type Memo = { at: number; body: string | null };
 const memo = new Map<string, Memo>();
@@ -710,8 +773,8 @@ export async function getResearch(): Promise<ResearchSummary | null> {
   return getJson<ResearchSummary>("research.json");
 }
 
-export async function getChain(): Promise<ChainEntry[]> {
-  const text = await getText("CHAIN.jsonl");
+async function readChain(path: string): Promise<ChainEntry[]> {
+  const text = await getText(path);
   if (!text) return [];
   return text
     .trim()
@@ -725,6 +788,80 @@ export async function getChain(): Promise<ChainEntry[]> {
       }
     })
     .filter((e): e is ChainEntry => e !== null);
+}
+
+/** The CURRENT chains — every book, one file. */
+export async function getChain(): Promise<ChainEntry[]> {
+  return readChain("CHAIN.jsonl");
+}
+
+/**
+ * A book's WITHDRAWN chain, where it declares one.
+ *
+ * These snapshots are published too — verbatim, with their own timestamps —
+ * and a page that heads its table "every published snapshot" while counting
+ * only the current chains is off by however many of them there are. The count
+ * comes from the withdrawn chain itself rather than from a sentence here.
+ *
+ * Only ever called for a book whose own `convention.superseded_chain` says it
+ * has one, so an empty result means the file could not be read, and the caller
+ * says less rather than stating a count it does not have.
+ */
+export async function getSupersededChain(book: string): Promise<ChainEntry[]> {
+  return readChain(`books/${book}/superseded/CHAIN.jsonl`);
+}
+
+/**
+ * The market-data feed behind each KIND of account, read from the newest
+ * chained snapshot of one book of that kind.
+ *
+ * Every snapshot stamps `disclosure.market_data_feed` — for the paper books,
+ * the free IEX tier at a few percent of consolidated volume, which is the
+ * single most material caveat on a simulated fill. It appears in no other
+ * published file: not in `index.json`'s disclosure list, not in `meta.json`.
+ * So the page reads it out of the evidence rather than anyone typing the string
+ * into this repository, where it would be a claim instead of a reading.
+ *
+ * Absent kinds are absent, never blank-filled: a book whose snapshots do not
+ * carry the field says nothing about a feed, which is the correct rendering of
+ * a book whose fills were not simulated at all.
+ */
+export async function getFeedByAccountKind(
+  books: BookSummary[],
+): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  if (books.length === 0) return out;
+
+  const kindOfBook = new Map(
+    books.map((b) => [
+      b.book,
+      b.account_kind ?? (b.capital_at_risk ? "real_capital" : "paper"),
+    ]),
+  );
+  const chain = await getChain();
+
+  // The newest chained record per kind. Newest because the feed is a current
+  // fact about the accounts, and the record that says so should be the one the
+  // rest of the page is drawing from.
+  const newest = new Map<string, ChainEntry>();
+  for (const entry of chain) {
+    const kind = kindOfBook.get(entry.book);
+    if (!kind) continue;
+    const held = newest.get(kind);
+    if (!held || entry.ts > held.ts) newest.set(kind, entry);
+  }
+
+  const found = await Promise.all(
+    [...newest].map(async ([kind, entry]) => {
+      const snapshot = await getSnapshot(entry.file);
+      const feed = snapshot?.disclosure?.market_data_feed;
+      return typeof feed === "string" && feed.length > 0
+        ? ([kind, feed] as const)
+        : null;
+    }),
+  );
+  for (const hit of found) if (hit) out.set(hit[0], hit[1]);
+  return out;
 }
 
 /** Cumulative return series derived from published NAV — a rebase, not a metric.

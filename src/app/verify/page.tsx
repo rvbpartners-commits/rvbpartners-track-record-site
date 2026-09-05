@@ -10,8 +10,9 @@ import {
   getChain,
   getIndex,
   getMeta,
+  getSupersededChain,
 } from "@/lib/data";
-import { date, dateTime, shortHash } from "@/lib/format";
+import { date, dateTime, prose, shortHash } from "@/lib/format";
 
 // Rendered per request. A static prerender plus framework caching left the
 // site serving data hours old with no way for traffic to clear it; the data
@@ -38,9 +39,48 @@ export default async function VerifyPage() {
   const metas = index
     ? await Promise.all(index.books.map((b) => getMeta(b.book)))
     : [];
-  const superseded = (index?.books ?? [])
+  const supersededBooks = (index?.books ?? [])
     .map((b, i) => ({ book: b, meta: metas[i] }))
     .filter(({ meta }) => meta?.convention?.superseded_chain);
+
+  // THE WITHDRAWN CHAINS ARE PUBLISHED TOO, and the table below does not list
+  // them — it lists the CURRENT chains. A heading reading "every published
+  // snapshot · N records" over that table is off by however many the withdrawn
+  // chains hold, which is exactly the kind of miscount this page exists to make
+  // impossible. Counted from the withdrawn chain files themselves; a file that
+  // cannot be read contributes nothing and the page says less rather than
+  // guessing.
+  const superseded = await Promise.all(
+    supersededBooks.map(async (entry) => ({
+      ...entry,
+      chain: await getSupersededChain(entry.book.book),
+    })),
+  );
+  const supersededCount = superseded.reduce((n, s) => n + s.chain.length, 0);
+
+  // Which records were written later than the sessions they describe. The chain
+  // publishes it per entry and the table prints the column; these counts let
+  // the page say it in words where the restart is declared, instead of leaving
+  // a reader to notice a genesis entry dated after the record begins.
+  const backfilledFor = (book: string) => {
+    const rows = chain.filter((e) => e.book === book);
+    const late = rows.filter((e) => e.ts.slice(0, 10) !== e.session_date);
+    const days = new Set(late.map((e) => e.ts.slice(0, 10)));
+    return {
+      records: rows.length,
+      late: late.length,
+      onOneDay: days.size === 1 ? [...days][0] : null,
+    };
+  };
+
+  // The verify table names books by their DATA SLUG (`best_cagr`), which is the
+  // one identifier that appears nowhere else on the site — the labels exist
+  // precisely to keep the selection criterion out of the reader's way. The map
+  // between them lives only in index.json, so a reader checking a row against
+  // the portfolio page they came from had to go and find it. Both are printed.
+  const labelOf = new Map(
+    (index?.books ?? []).map((b) => [b.book, b.label] as const),
+  );
 
   return (
     <>
@@ -65,12 +105,24 @@ export default async function VerifyPage() {
           What the proofs do and do not establish
         </h2>
         <div className="mt-4 grid md:grid-cols-2 gap-4">
+          {/* "BY OPEN CODE" WAS AN OVERCLAIM. The metrics module is the firm's
+              and is not published anywhere, so a reader cannot read the code
+              that produced these numbers. What IS true is stronger than a
+              hedge and weaker than the old sentence: the INPUT is published in
+              full, every metric is stated with the convention and the rate it
+              used, and the definitions are standard — so anyone can recompute
+              them from nav.csv with their own code and get the same answers.
+              That is the check that matters, and it does not require trusting
+              ours. */}
           <Note>
             <strong className="font-semibold text-fg">This proves:</strong> no
             published number has been edited in place; no session has been removed
-            from a chain without breaking it; each record existed no later than
-            the block its timestamp is anchored in; and every metric follows from
-            the published equity curve by open code.
+            from a chain without breaking it; and each record existed no later
+            than the block its timestamp is anchored in. It also puts every
+            metric&rsquo;s input in your hands: the equity curve is published in
+            full, and each figure is published with the convention and the
+            risk-free rate it used, so you can recompute any of them yourself
+            from <Code>nav.csv</Code>.
           </Note>
           <Note tone="warn">
             <strong className="font-semibold">This does not prove:</strong> that
@@ -97,18 +149,47 @@ export default async function VerifyPage() {
             Declared chain restarts
           </h2>
           <div className="mt-4 space-y-4 max-w-[80ch]">
-            {superseded.map(({ book, meta }) => (
+            {superseded.map(({ book, meta, chain: withdrawn }) => {
+              const back = backfilledFor(book.book);
+              return (
               <Note key={book.book} tone="warn">
                 <strong className="font-semibold">{book.label}</strong> — this
                 book&rsquo;s chain was restarted, and the table below therefore
                 shows a genesis entry dated after the record begins.{" "}
-                {meta?.convention?.superseded_chain}
+                {/* STATE THE COUNT WHERE THE RESTART IS DECLARED. The raw
+                    Recorded column already says it, entry by entry; saying it
+                    in words costs nothing and pre-empts the single most
+                    damaging inference a sceptic can draw from a batch of
+                    records sharing one recording date. */}
+                {back.late > 0 ? (
+                  <>
+                    <strong className="font-semibold">
+                      {back.late} of this book&rsquo;s {back.records} records
+                      joined the chain
+                      {back.onOneDay ? ` on ${date(back.onOneDay)}` : " later"}
+                      {back.late === back.records - 1
+                        ? "; only the last was recorded on its own day"
+                        : ""}
+                      .
+                    </strong>{" "}
+                    Every one of them carries that recording date in the{" "}
+                    <strong className="font-medium">Recorded</strong> column
+                    below, beside the session it covers.{" "}
+                  </>
+                ) : null}
+                {prose(meta?.convention?.superseded_chain)}
                 {meta?.convention?.superseded_snapshots ? (
                   <>
                     {" "}
-                    {meta.convention.superseded_snapshots}
+                    {prose(meta.convention.superseded_snapshots)}
                   </>
                 ) : null}{" "}
+                {withdrawn.length > 0 ? (
+                  <>
+                    It holds {withdrawn.length} snapshots, none of them counted
+                    in the table below.{" "}
+                  </>
+                ) : null}
                 The withdrawn record is published verbatim, with its own chain and
                 its own timestamps, and verifies independently back to its own
                 genesis:{" "}
@@ -122,7 +203,8 @@ export default async function VerifyPage() {
                 </a>
                 .
               </Note>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -188,9 +270,13 @@ export default async function VerifyPage() {
               <>
                 <Code>nav.csv</Code> is the whole equity curve. Every metric is
                 computed from it by one function in the firm&rsquo;s metrics
-                module, with the risk-free rate echoed in{" "}
-                <Code>metrics.json</Code>. No metric is computed in your browser —
-                this page renders numbers it was handed. The browser does scale
+                module — which is not itself published, so the check available
+                to you is the better one: recompute from the curve. The
+                convention is named and the risk-free rate is echoed in{" "}
+                <Code>metrics.json</Code>, the definitions are the standard ones,
+                and a disagreement is then a fact about the numbers rather than
+                about whose code you trust. No metric is computed in your browser
+                — this page renders numbers it was handed. The browser does scale
                 axes and total a table&rsquo;s own rows, which is drawing, not
                 measuring.
               </>
@@ -222,14 +308,45 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
 
       <section className="mt-14">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
+          {/* "EVERY PUBLISHED SNAPSHOT" WAS NOT EVERY PUBLISHED SNAPSHOT. A
+              withdrawn chain's records are published too — verbatim, with
+              their own timestamps, linked from the block above — and this table
+              deliberately does not list them. The heading now says which set it
+              is counting, and the rest is named underneath rather than left for
+              a reader to find and wonder about. */}
           <h2 className="text-[15px] font-semibold tracking-tight">
-            Every published snapshot
+            Every snapshot in the current chains
           </h2>
           <span className="text-[12px] text-fg-faint">
             {entries.length} records
             {index ? ` · published ${dateTime(index.published_at)}` : ""}
           </span>
         </div>
+
+        {supersededCount > 0 && (
+          <p className="mt-3 text-[12px] text-fg-faint max-w-[80ch]">
+            {supersededCount} further snapshot
+            {supersededCount === 1 ? " is" : "s are"} published in the superseded
+            chain
+            {superseded.length === 1 ? "" : "s"} declared above, listed at{" "}
+            {superseded.map(({ book }, i) => (
+              <span key={book.book}>
+                {i > 0 ? ", " : ""}
+                <a
+                  className="text-accent hover:underline"
+                  href={`${DATA_REPO_URL}/tree/main/books/${book.book}/superseded`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <code>books/{book.book}/superseded/</code>
+                </a>
+              </span>
+            ))}
+            . They are not counted here because they are not part of a current
+            chain — they are kept, unrewritten, so the withdrawn record can be
+            verified as easily as this one.
+          </p>
+        )}
 
         <div className="scroll-x mt-5">
           <table className="w-full sm:min-w-[760px] text-[13px]">
@@ -255,7 +372,18 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                   <td className="hidden sm:table-cell py-2.5 pr-4 tnum text-fg-faint whitespace-nowrap">
                     {date(e.ts)}
                   </td>
-                  <td className="hidden sm:table-cell py-2.5 pr-4 text-fg-muted">{e.book}</td>
+                  {/* The label a reader has actually seen, above the data slug
+                      the file is keyed by. Without the label this column was
+                      the only place on the site where a book is named
+                      `best_cagr`, and the map back lives in index.json. */}
+                  <td className="hidden sm:table-cell py-2.5 pr-4 text-fg-muted">
+                    {labelOf.get(e.book) ?? e.book}
+                    {labelOf.has(e.book) && (
+                      <span className="block text-[11px] text-fg-faint tnum">
+                        {e.book}
+                      </span>
+                    )}
+                  </td>
                   <td className="py-2.5 pr-4 tnum text-fg-muted">
                     {shortHash(e.hash)}
                   </td>
@@ -325,10 +453,39 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             that blocks force-pushes and deletions, requires linear history, and
             requires every commit to be signed, so the append-only history cannot
             be rewritten without leaving a trace. Each publish commit is signed
-            with an SSH key; GitHub shows it as Verified, and{" "}
-            <Code>git log --show-signature</Code> checks it on any clone. Publication runs on the trading box
-            itself — GitHub Actions is not involved in producing this data and
-            holds no broker credential.
+            with an SSH key and GitHub shows it as Verified. Publication runs on
+            the trading box itself — GitHub Actions is not involved in producing
+            this data and holds no broker credential.
+          </p>
+
+          {/* THE COMMAND WE GAVE DOES NOT DO WHAT THE SENTENCE SAID. `git log
+              --show-signature` on a fresh clone reports these commits as made
+              by an UNTRUSTED key, because verifying an SSH signature needs an
+              allowed-signers file naming the key, and no such file is
+              published. A reader who ran the command got a worse impression
+              than the truth, on the page whose entire purpose is to be checked
+              — and was left with GitHub's badge, which is the thing this page
+              exists to avoid depending on. Stated plainly, with the command
+              that will work once the key is published. */}
+          <p className="mt-3 text-[13px] text-fg-muted leading-relaxed">
+            <strong className="font-medium text-fg">
+              A caveat on checking those signatures yourself.
+            </strong>{" "}
+            The signer&rsquo;s public key is not yet published, so{" "}
+            <Code>git log --show-signature</Code> on a clone reports{" "}
+            <em>No principal matched</em> rather than a verified signature: it
+            can see a signature is present but has nothing to check it against.
+            That is a gap in what is published here, not a failed signature.
+            Until an <Code>allowed_signers</Code> file is published beside the
+            data — at which point{" "}
+            <Code>
+              git -c gpg.ssh.allowedSignersFile=allowed_signers log
+              --show-signature
+            </Code>{" "}
+            checks it offline — the commit signatures rest on GitHub&rsquo;s
+            badge. The hash chain and the Bitcoin timestamps do not: those are
+            checkable today, with no key and no cooperation from us, which is
+            why they are the first two checks above rather than the signature.
           </p>
 
           <div className="mt-6 border-t hairline pt-5">
@@ -365,12 +522,20 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                 unoptimized
                 className="rounded-full shrink-0"
               />
+              {/* A HANDLE IS NOT AN ACCOUNTABLE PARTY. The only human named
+                  anywhere on this site was a random-string GitHub account, and
+                  a reader could not tell whether "the operator", "the desk",
+                  "the publisher" and "RVB" were one party or four. The role is
+                  stated here — the operator is the individual, and the
+                  real-capital book runs on that individual's own money, which
+                  is the fact that makes the role worth naming. */}
               <span className="min-w-0">
                 <span className="block text-[13px] font-medium group-hover:underline">
                   @v89ysppdry
                 </span>
                 <span className="block text-[12px] text-fg-muted">
-                  maintains this record
+                  the operator — runs the desk, publishes this record, and owns
+                  the capital in the real-capital book
                 </span>
               </span>
             </a>
