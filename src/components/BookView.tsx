@@ -41,6 +41,9 @@ export type BookBundle = {
    *  knows. */
   variantParentLabel?: string | null;
   variantSize?: string | null;
+  /** The parent's inception. The twins were funded later than the books they
+   *  copy, so the pair differs in measurement window as well as in capital. */
+  variantParentInception?: string | null;
 };
 
 /** How far behind the publish a broker reading may be and still be called
@@ -265,6 +268,20 @@ function BookView({
   // page. « Que detient ce portefeuille » n'a pas de reponse ici : il tient une
   // position 93 minutes en mediane et passe l'essentiel de son temps a plat.
   const exposure = meta?.exposure ?? summary.exposure ?? null;
+  // Whole days between the parent's inception and this book's. Null when
+  // either date is missing or unparseable — an unstated caveat is better than
+  // a wrong number, and the sentence simply does not render.
+  const laterStart = (() => {
+    const a = bundle.variantParentInception;
+    const b = summary.inception;
+    if (!a || !b) return null;
+    const t0 = Date.parse(`${a}T00:00:00Z`);
+    const t1 = Date.parse(`${b}T00:00:00Z`);
+    if (!Number.isFinite(t0) || !Number.isFinite(t1)) return null;
+    const days = Math.round((t1 - t0) / 86_400_000);
+    return days > 0 ? days : null;
+  })();
+
   const accountLabel =
     meta?.account_kind_label ??
     summary.account_kind_label ??
@@ -319,6 +336,20 @@ function BookView({
             <span className="text-fg-muted">{bundle.variantParentLabel}</span> —
             the pair is published to measure capital sensitivity, and both
             books&rsquo; target weights are published in the index.
+            {laterStart !== null && (
+              <>
+                {" "}
+                <span className="text-fg-muted">
+                  It is not a single-variable experiment:
+                </span>{" "}
+                this book was funded {laterStart} day
+                {laterStart === 1 ? "" : "s"} after{" "}
+                {bundle.variantParentLabel}, so it covers a shorter window and
+                any gap between the two mixes account size with a different
+                measurement period. Compare the shapes, not the headline
+                difference.
+              </>
+            )}
           </p>
         )}
 

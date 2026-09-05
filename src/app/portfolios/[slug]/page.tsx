@@ -93,6 +93,9 @@ export default async function Portfolio({
     benchIntraday, detail, daily,
     variantParentLabel: parent?.label ?? null,
     variantSize: parent ? variantSize(summary.book) : null,
+    // The pair does not share a start date, and the difference between them is
+    // read as a capital effect unless the page says otherwise.
+    variantParentInception: parent?.inception ?? null,
   };
 
   // Le selecteur se contente de ce que l'index porte deja : un rendement par

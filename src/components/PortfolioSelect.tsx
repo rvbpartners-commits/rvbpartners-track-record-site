@@ -148,7 +148,12 @@ export function PortfolioSelect({
                     {(isVariant ? size : o.tagline) && (
                       <span className="block text-[11px] text-fg-faint truncate mt-0.5">
                         {isVariant
-                          ? `Same strategies and weights, funded with $${size}`
+                          ? // "Same strategies and weights" invited the reader
+                            // to read the two returns above and below each
+                            // other as a capital effect. The twins were funded
+                            // later than the books they copy, so the pair also
+                            // differs in measurement window.
+                            `Same strategies and weights, funded with $${size} — and started later, so the two returns cover different windows`
                           : o.tagline}
                       </span>
                     )}
