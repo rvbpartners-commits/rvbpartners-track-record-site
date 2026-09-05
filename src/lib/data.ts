@@ -642,8 +642,26 @@ function num(v: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+/** Books withheld from the site while their own data is mid-transition.
+ *
+ *  Not a data-repo edit: the chain, `index.json` and every derived file stay
+ *  exactly as the collecteur/publisher wrote them, so `/verify` and a direct
+ *  data-repo reader see the honest, unfiltered record. This is a presentation
+ *  choice made here, and only here — one list, one place a reader (or a future
+ *  editor of this file) can find every book currently withheld and why.
+ *
+ *  `maker_01`: withheld 2026-09-05. The broker account was converted from
+ *  hedging to netting mode and reset; the published record still ends
+ *  2026-08-27 under the superseded convention while the corrected, netting-
+ *  aware chain waits on the broker market reopening to publish for real. Shown
+ *  again once that chain is live.
+ */
+const WITHHELD_BOOKS = new Set<string>(["maker_01"]);
+
 export async function getIndex(): Promise<IndexPayload | null> {
-  return getJson<IndexPayload>("index.json");
+  const index = await getJson<IndexPayload>("index.json");
+  if (!index) return null;
+  return { ...index, books: index.books.filter((b) => !WITHHELD_BOOKS.has(b.book)) };
 }
 
 export async function getMetrics(book: string): Promise<MetricsPayload | null> {
