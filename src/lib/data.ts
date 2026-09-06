@@ -279,6 +279,20 @@ export type DetailPayload = {
    *  it. Absent on files written before the field existed — the page then says
    *  which cycle staged them rather than dating them a session early. */
   positions_as_of?: string | null;
+  /** Do the published holdings add up to the account they describe?
+   *  `equity - cash` is what the broker says is invested; the category market
+   *  values are what our own position records say is held. The publisher emits
+   *  the comparison so a reader is not left to do it — and a table that does
+   *  not reconcile, shown as though it does, is the failure this whole record
+   *  exists to avoid. */
+  reconciliation?: {
+    comparable: boolean;
+    as_of_nav_session?: string;
+    positions_market_value?: number;
+    account_invested?: number;
+    unreconciled_usd?: number;
+    note?: string;
+  } | null;
   released_under_lag_days: number;
   note: string;
   orders: Record<string, unknown>[];

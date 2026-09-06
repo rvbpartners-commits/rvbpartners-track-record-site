@@ -353,6 +353,22 @@ function BookView({
   // fills were executed rather than simulated has no feed to disclose here.
   const marketDataFeed = bundle.lastSnapshot?.disclosure?.market_data_feed;
 
+  // Material only. A healthy book leaves tens of dollars to rounding and mark
+  // timing; a real divergence is orders of magnitude larger. The bar is a share
+  // of the invested balance, so it means the same thing on a $1M book and a
+  // $100k one.
+  const reconciliationGap = (() => {
+    const r = detail?.reconciliation;
+    if (!r?.comparable) return null;
+    const held = r.positions_market_value;
+    const invested = r.account_invested;
+    const gap = r.unreconciled_usd;
+    if (held == null || invested == null || gap == null) return null;
+    if (!Number.isFinite(invested) || invested <= 0) return null;
+    if (Math.abs(gap) / invested < 0.01) return null;
+    return { held, invested, gap, session: r.as_of_nav_session ?? null };
+  })();
+
   const accountLabel =
     meta?.account_kind_label ??
     summary.account_kind_label ??
@@ -1157,6 +1173,41 @@ function BookView({
           )}
         </div>
         <HoldingsTable groups={detail?.categories ?? []} currency={currency} />
+        {/* DOES THIS TABLE ADD UP TO THE ACCOUNT IT DESCRIBES?
+            The publisher answers that and the page was not asking. A book whose
+            position records disagree with the broker's invested balance shows a
+            complete, internally consistent, WRONG table — which is precisely
+            the shape of thing this record exists to make impossible.
+
+            Only material gaps are surfaced. Rounding and mark timing leave a
+            few tens of dollars on a healthy book; a real divergence is a
+            different order of magnitude, so the bar is a share of the invested
+            balance rather than a flat number that would mean different things
+            on a $1M book and a $100k one. Below the bar there is nothing worth
+            a reader's attention; above it, the number is theirs to see. */}
+        {reconciliationGap && (
+          <p className="mt-4 text-[12px] leading-relaxed text-fg-faint max-w-[80ch]">
+            <span className="text-warn-fg">
+              These holdings do not reconcile with the account.
+            </span>{" "}
+            The categories above total{" "}
+            <span className="tnum">
+              {money(reconciliationGap.held, currency)}
+            </span>{" "}
+            at market, while the broker reports{" "}
+            <span className="tnum">
+              {money(reconciliationGap.invested, currency)}
+            </span>{" "}
+            invested on {date(reconciliationGap.session)} — a difference of{" "}
+            <span className="tnum text-fg">
+              {money(reconciliationGap.gap, currency)}
+            </span>
+            . The NAV and every return on this page come from the broker&rsquo;s
+            own equity and are unaffected; what disagrees is our record of which
+            positions make it up. It is published rather than reconciled away,
+            and it is the desk&rsquo;s to resolve.
+          </p>
+        )}
       </Section>
       )}
 
