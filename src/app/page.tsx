@@ -28,6 +28,9 @@ export default async function Home() {
   // paper book with a different label. Both stay first-class everywhere else.
   const drawn = index ? forOverview(index.books) : [];
   const live = index?.books.filter((b) => b.capital_at_risk) ?? [];
+  // Same source as every list on this page, so a book withheld from the index
+  // rewrites the prose that describes it rather than leaving it dangling.
+  const hasLive = live.length > 0;
   // The capital actually at risk, summed from the published funding of the
   // real-capital books. Null rather than 0 if any of them does not publish one:
   // a partial sum printed as a total is the kind of number this record exists
@@ -155,7 +158,10 @@ export default async function Home() {
             <span className="text-fg-muted">the desk</span> is the system that
             trades, marks and archives every session; and{" "}
             <span className="text-fg-muted">the operator</span> is the individual
-            who runs it and whose own capital the real-capital portfolio trades.
+            who runs it{hasLive
+              ? " and whose own capital the real-capital portfolio trades"
+              : " and whose own capital the firm's real-capital portfolio trades — that book is not shown here at present"}
+            .
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-3">

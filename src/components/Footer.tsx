@@ -5,7 +5,9 @@ import { AccountDisclosure } from "./AccountDisclosure";
 /** The account disclosure sits here at body size and full contrast, first in the
  *  footer. Shrinking or greying it removes it in all but name.
  *
- *  It no longer counts anything. The previous wording read "6 of these
+ *  It no longer counts anything, and it is DERIVED from the books actually
+ *  rendered — withholding one rewrites the sentence rather than leaving it
+ *  claiming something no page can show. The previous wording read "6 of these
  *  portfolios are Alpaca paper-trading accounts ... X trades real capital",
  *  which a reader takes as *only* X — and it became false the day a second
  *  real-capital book arrived. A sentence with arithmetic in it goes stale; one
@@ -13,11 +15,11 @@ import { AccountDisclosure } from "./AccountDisclosure";
  *
  *  It is also hidden on the portfolio pages, where each book states its own
  *  kind in its own header. See `AccountDisclosure`. */
-export function Footer() {
+export function Footer({ hasLive }: { hasLive: boolean }) {
   return (
     <footer className="mt-16 border-t hairline">
       <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8">
-        <AccountDisclosure />
+        <AccountDisclosure hasLive={hasLive} />
         <p className="text-[14px] leading-relaxed text-fg-muted max-w-[68ch] mt-3">
           Past performance is not indicative of future results. Nothing on this
           site is investment advice, an offer, or a solicitation to buy or sell

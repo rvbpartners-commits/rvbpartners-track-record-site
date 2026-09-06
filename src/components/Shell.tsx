@@ -62,7 +62,7 @@ export async function Shell({ children }: { children: ReactNode }) {
       <main className="flex-1 mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8 lg:py-10">
         {children}
       </main>
-      <Footer />
+      <Footer hasLive={hasLive} />
     </div>
   );
 }

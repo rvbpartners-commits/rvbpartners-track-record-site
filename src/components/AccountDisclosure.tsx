@@ -13,24 +13,35 @@ import { usePathname } from "next/navigation";
  * one trades real capital", which read as *only* one, and stopped being true
  * the day a second real-capital book arrived.
  *
- * So the wording no longer counts anything. It states that both kinds exist and
- * sends the reader to the page that knows. A sentence with no arithmetic in it
- * cannot go stale.
+ * So the wording no longer counts anything. It states which kinds are PRESENT
+ * and sends the reader to the page that knows.
+ *
+ * "No arithmetic" was not enough on its own. The sentence claimed both kinds
+ * while the real-capital book was withheld from the site during its convention
+ * restart, so a reader was told to look for something no page could show. What
+ * keeps it true is not the absence of numbers but the fact that it is DERIVED
+ * from the books actually rendered: `hasLive` comes from the same filtered
+ * index every page lists from, so withholding a book rewrites this sentence in
+ * the same breath.
  */
 const PAGES = new Set(["/", "/methodology", "/disclosures", "/verify"]);
 
-export function AccountDisclosure() {
+export function AccountDisclosure({ hasLive }: { hasLive: boolean }) {
   const path = usePathname();
   if (!PAGES.has(path)) return null;
 
   return (
     <p className="text-[14px] leading-relaxed text-fg max-w-[68ch]">
       <span className="font-semibold">
-        Some portfolios on this site are broker-simulated paper accounts; others
-        trade the operator&rsquo;s own real capital.
+        {hasLive
+          ? "Some portfolios on this site are broker-simulated paper accounts; others trade the operator\u2019s own real capital."
+          : "Every portfolio on this site is a broker-simulated paper account. No capital is at risk in any of them."}
       </span>{" "}
-      Each portfolio&rsquo;s page states which it is. No third-party money is
-      managed here, and nothing on this site is an offer or a solicitation.
+      {hasLive
+        ? "Each portfolio\u2019s page states which it is."
+        : "The operator also runs a portfolio on real capital; it is not shown here while its publishing convention is being reset, and its full record stays in the data repository."}{" "}
+      No third-party money is managed here, and nothing on this site is an offer
+      or a solicitation.
     </p>
   );
 }
