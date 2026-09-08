@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getIndex, getResearch } from "@/lib/data";
+import { Curtain } from "./Curtain";
+import { Mark } from "./Mark";
 import { Footer } from "./Footer";
 
 const NAV = [
@@ -59,6 +61,12 @@ export async function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* The title page, home only, and IN NORMAL FLOW above the masthead —
+          see Curtain for why it is not a fixed overlay. It sits outside the
+          measure-capped containers below because it is the one full-bleed
+          element on the site. */}
+      <Curtain runningHead={runningHead} />
+
       <header className="border-b hairline">
         {/* `mx-auto` is what centres the column. A `max-w-*` on its own only
             caps the width — the block stays flush left, which on a wide screen
@@ -67,10 +75,14 @@ export async function Shell({ children }: { children: ReactNode }) {
             token so the masthead, the body and the footer share one edge. */}
         <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12">
           <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 pt-4 pb-3">
+            {/* The mark rides with the name here too. A site whose title page
+                opens on a logo and whose masthead then shows none reads as two
+                different sites. */}
             <Link
               href="/"
-              className="text-[17px] font-semibold tracking-[-0.01em]"
+              className="inline-flex items-baseline gap-2.5 text-[17px] font-semibold tracking-[-0.01em]"
             >
+              <Mark aria-hidden="true" className="h-[13px] w-auto translate-y-[1px]" />
               RVB Partners
             </Link>
             {runningHead && (
