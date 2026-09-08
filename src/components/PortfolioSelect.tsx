@@ -33,7 +33,7 @@ export type PortfolioOption = {
  *  Identical styling for both, deliberately. A red uppercase banner on one of
  *  them is theatre where information is wanted: the reader who needs to know
  *  needs to READ it, not be shouted at, and shouting also implies a warning the
- *  operator's own capital does not warrant. */
+ *  firm's own capital does not warrant. */
 function AccountTag({ live, label }: { live?: boolean; label?: string | null }) {
   return (
     <span className="inline-block border hairline px-1.5 py-px text-[10px] leading-[1.5] align-middle text-fg-faint">

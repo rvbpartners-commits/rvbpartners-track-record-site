@@ -49,25 +49,31 @@ export const metadata: Metadata = {
   // redirecting hostname advertises that hostname as the canonical one.
   metadataBase: new URL(SITE_ORIGIN),
   title: {
-    default: "RVB live track record",
+    default: "RVB Partners — public register",
     template: "%s · RVB",
   },
   // No portfolio count and no publishing cadence in here: both have already
   // changed once (four books became six, daily became every fifteen minutes)
   // and metadata nobody re-reads is exactly where a stale number survives.
+  // "ONE REAL-CAPITAL BOOK" WAS FALSE ON EVERY SHARE. The description claimed
+  // a book this site does not publish, and "live track record" reads as a
+  // record of money at risk when every account shown is broker-simulated.
+  // "Live" survives only where it means continuously updated, and never beside
+  // "track record".
   description:
-    "Independently verifiable live track record for the RVB portfolios — " +
-    "paper accounts and one real-capital book. Every published number is " +
-    "hash-chained, timestamped, and reproducible from open data.",
+    "The public register of RVB Partners: what we trade, how it was tested, " +
+    "and what we refused. Every portfolio shown is a broker-simulated paper " +
+    "account. Each published number is hash-chained, timestamped, and " +
+    "reproducible from open data.",
   // These are paper accounts with a short history. Ranking a page that makes
   // performance claims is not something to chase, so the site is discoverable
   // but not promoted.
   robots: { index: true, follow: true },
   openGraph: {
-    title: "RVB live track record",
+    title: "RVB Partners — public register",
     description:
-      "Live portfolios — paper and real capital — hash-chained and " +
-      "timestamped. Verify every number yourself.",
+      "Broker-simulated paper portfolios, hash-chained and timestamped. " +
+      "Verify every number yourself.",
     type: "website",
   },
   twitter: { card: "summary_large_image" },

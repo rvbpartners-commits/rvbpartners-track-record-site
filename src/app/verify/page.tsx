@@ -522,20 +522,26 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                 unoptimized
                 className="rounded-full shrink-0"
               />
-              {/* A HANDLE IS NOT AN ACCOUNTABLE PARTY. The only human named
-                  anywhere on this site was a random-string GitHub account, and
-                  a reader could not tell whether "the operator", "the desk",
-                  "the publisher" and "RVB" were one party or four. The role is
-                  stated here — the operator is the individual, and the
-                  real-capital book runs on that individual's own money, which
-                  is the fact that makes the role worth naming. */}
+              {/* THE ACCOUNTABLE PARTY IS THE COMPANY. This block used to
+                  define "the operator" as an individual who ran the desk and
+                  owned the capital in a real-capital book — a role no register
+                  records, invented to explain a handle. RVB Partners is a
+                  registered company with named officers (/legal), and it is the
+                  company that publishes this record and answers for it.
+
+                  The handle stays because it is genuinely useful: it is the
+                  account that pushes these commits, so a reader checking the
+                  repository history meets it and should be able to place it. It
+                  is now labelled as what it is — the publishing account — not
+                  as a person standing behind the firm. */}
               <span className="min-w-0">
                 <span className="block text-[13px] font-medium group-hover:underline">
                   @v89ysppdry
                 </span>
                 <span className="block text-[12px] text-fg-muted">
-                  the operator — runs the desk, publishes this record, and owns
-                  the capital in the real-capital book
+                  the account this record is published from. The company behind
+                  it is identified in full on the{" "}
+                  <span className="underline underline-offset-2">legal notice</span>.
                 </span>
               </span>
             </a>

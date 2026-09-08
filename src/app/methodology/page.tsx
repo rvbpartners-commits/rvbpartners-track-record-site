@@ -87,7 +87,7 @@ export default async function MethodologyPage() {
               {realCapital.length === 1
                 ? "One book on this site trades"
                 : "Some books on this site trade"}{" "}
-              the operator&rsquo;s own real capital, on a different venue pair and
+              the firm&rsquo;s own real capital, on a different venue pair and
               a different calendar, and{" "}
               {realCapital.length === 1 ? "its" : "their"} conventions differ from
               the paper desk&rsquo;s in ways that matter — the calendar, the cash

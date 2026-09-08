@@ -138,7 +138,7 @@ export default async function Home() {
               note={
                 `${index.books.length - live.length} paper · ${live.length} real capital` +
                 (realCapitalFunded !== null
-                  ? ` (${money(realCapitalFunded, "USD", 0)}, the operator's own money)`
+                  ? ` (${money(realCapitalFunded, "USD", 0)}, the firm's own money)`
                   : "")
               }
             />
@@ -305,20 +305,23 @@ export default async function Home() {
           </p>
         </div>
 
-        {/* THREE NOUNS, DEFINED ONCE. The pages say "RVB", "the desk" and "the
-            operator", and they are three different things — but a reader
-            meeting them scattered across five pages cannot tell that from a
-            party hedging its own identity. */}
+        {/* TWO NOUNS, DEFINED ONCE. There used to be three, and the third —
+            "the operator", an individual who ran the desk and whose own capital
+            a real-capital book traded — is gone. No register records that role,
+            it was invented to explain a GitHub handle, and it put a person
+            between the reader and the company that actually answers for these
+            claims. RVB Partners is a registered company; its officers are named
+            on the legal notice. */}
         <p className="mt-7 text-[12px] text-fg-faint leading-relaxed max-w-[80ch]">
-          Three words recur on these pages and mean three different things:{" "}
-          <span className="text-fg-muted">RVB</span> is the firm;{" "}
-          <span className="text-fg-muted">the desk</span> is the system that
-          trades, marks and archives every session; and{" "}
-          <span className="text-fg-muted">the operator</span> is the individual
-          who runs it{hasLive
-            ? " and whose own capital the real-capital portfolio trades"
-            : " and whose own capital the firm's real-capital portfolio trades — that book is not shown here at present"}
-          .
+          Two words recur on these pages and mean different things:{" "}
+          <span className="text-fg-muted">RVB Partners</span> is the company,
+          registered in Paris and identified in full on the{" "}
+          <Link href="/legal" className="underline underline-offset-2">
+            legal notice
+          </Link>
+          ; <span className="text-fg-muted">the desk</span> is the system it runs
+          — the software that stages orders, marks every session and archives the
+          result.
         </p>
 
         <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-3">

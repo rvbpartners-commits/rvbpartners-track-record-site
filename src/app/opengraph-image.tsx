@@ -8,20 +8,26 @@ import { getIndex, SITE_HOST } from "@/lib/data";
  * cumulative return in a preview image is a claim made where none of the
  * caveats fit.
  */
-export const alt = "RVB live track record";
+export const alt = "RVB Partners — public register";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OgImage() {
   const index = await getIndex();
   const books = index?.books?.length ?? 0;
+  // THE ACCOUNT KIND IS UNCONDITIONAL. It used to be printed only when a
+  // real-capital book was present in the payload — so with that book absent,
+  // the widest-reach surface on the entire site rendered "6 portfolios ·
+  // hash-chained, timestamped, verifiable from open data" with NO paper
+  // qualification at all. The one place a reader meets this site before
+  // deciding whether to open it was the one place the disclosure was optional.
   const real = index?.books?.some((b) => b.capital_at_risk) ?? false;
   // One string, not a set of conditional children: the image renderer requires
   // an explicit display on any element with more than one child, and a subtitle
   // is a sentence rather than a layout.
   const subtitle = [
     books > 0 ? `${books} portfolios` : null,
-    real ? "paper and real capital" : null,
+    real ? "paper and real capital" : "broker-simulated paper accounts",
     "hash-chained, timestamped, verifiable from open data",
   ]
     .filter(Boolean)
@@ -47,7 +53,7 @@ export default async function OgImage() {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ fontSize: 68, lineHeight: 1.05, letterSpacing: "-0.02em" }}>
-            Live track record
+            Public register
           </div>
           <div style={{ display: "flex", fontSize: 30, color: "#9aa1ab", lineHeight: 1.35, maxWidth: 900 }}>
             {subtitle}
