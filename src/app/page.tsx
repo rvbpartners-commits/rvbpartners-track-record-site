@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Note } from "@/components/Note";
 import {
   OverviewChart,
   OverviewLegend,
   type OverviewSeries,
 } from "@/components/OverviewChart";
+import { Stamp } from "@/components/Stamp";
 import {
   bookSlug,
   CONTACT_EMAIL,
@@ -89,11 +91,95 @@ export default async function Home() {
 
   return (
     <>
-      <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-10 lg:gap-16 items-center pt-2 lg:pt-6">
-        {/* Chart first on a wide screen, second on a phone: the paragraph is
-            what orients a reader, and a chart with no caption above it is
-            decoration until you have been told what it is. */}
-        <div className="order-2 lg:order-1">
+      {/* ─── 1. WHO, BEFORE ANY FIGURE ────────────────────────────────────
+          The page used to open with the chart and a headline about method.
+          A visitor who had never heard of the firm met a rising curve before
+          they met a sentence saying what they were looking at, which is the
+          reading order of a pitch, not of a record. The chart now sits below
+          the fold and this is the first thing on the page.
+
+          NO HEADCOUNT IS CLAIMED HERE. The obvious sentence to write is "a
+          one-person systematic trading firm", and it is not this firm's to
+          write: nothing on this site states how many people RVB is, and the
+          corporate site names three. "In France" is claimed because the
+          disclosures page already states it ("RVB is a French entity") — a
+          fact the register carries, not one invented for a headline. */}
+      <section className="pt-4 lg:pt-10">
+        <h1 className="max-w-[26ch] text-[31px] sm:text-[42px] leading-[1.14] tracking-[-0.014em]">
+          RVB Partners is a systematic trading firm in France.
+        </h1>
+        <p className="mt-5 max-w-[44ch] text-[19px] sm:text-[21px] leading-[1.48] text-fg-muted">
+          This site is the public register of what we trade, how it was tested,
+          and what we refused.
+        </p>
+      </section>
+
+      {/* ─── 2. THE DISQUALIFIER, AHEAD OF THE FIRST NUMBER ───────────────
+          Same component the other pages render in their footer, placed here
+          instead of below. A disclosure a reader reaches only after scrolling
+          past the returns has already failed at its job; this one is read
+          before there is a single figure on the page to qualify. */}
+      <div className="mt-9 border-t hairline pt-6">
+        <AccountDisclosureText hasLive={hasLive} />
+      </div>
+
+      {/* ─── 3. THE STAMP BAND — THIS IS THE FOLD ─────────────────────────
+          Four, never more: past four a band of stamps is a dashboard, and the
+          reader stops reading them. The first one spends the reserved oxide
+          when every account is simulated, because that is the fact which
+          disqualifies every number below it, and it should be the loudest
+          thing on the page rather than the quietest. */}
+      {index && (
+        <div className="mt-9 grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {hasLive ? (
+            <Stamp
+              label="Portfolios"
+              value={String(index.books.length)}
+              note={
+                `${index.books.length - live.length} paper · ${live.length} real capital` +
+                (realCapitalFunded !== null
+                  ? ` (${money(realCapitalFunded, "USD", 0)}, the operator's own money)`
+                  : "")
+              }
+            />
+          ) : (
+            <Stamp
+              label="Paper accounts"
+              value={String(index.books.length)}
+              tone="negative"
+              note="broker-simulated; no capital at risk in any of them"
+            />
+          )}
+          <Stamp
+            label="Chained records"
+            value={String(index.chain.entries)}
+            note="each one hashed and timestamped"
+          />
+          <Stamp
+            label="Longest record"
+            value={String(longestRecord)}
+            note="sessions, on the oldest portfolio"
+          />
+          <Stamp
+            label="Curve resolution"
+            value="5 min"
+            note={
+              hasLive
+                ? "paper books, broker equity; the real-capital book is event-driven"
+                : "broker equity, not interpolation"
+            }
+          />
+        </div>
+      )}
+
+      {/* ─── 4. THE RECORD ────────────────────────────────────────────────
+          The chart, now with a section head above it saying what it is. It
+          was the first thing on the page and carried no label at all. */}
+      <section className="mt-16 lg:mt-24 border-t hairline pt-7">
+        <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+          The record
+        </h2>
+        <div className="mt-6">
           {index ? (
             <>
               <OverviewChart series={series} />
@@ -109,218 +195,154 @@ export default async function Home() {
           )}
         </div>
 
-        <div className="order-1 lg:order-2 max-w-[52ch]">
-          <h1 className="text-[30px] sm:text-[38px] font-semibold tracking-tight leading-[1.12]">
-            Method, and the record it produces.
-          </h1>
+        <p className="mt-7 text-[12px] leading-relaxed text-fg-faint max-w-[80ch]">
+          The lines above are Alpaca paper accounts: fills are simulated and no
+          capital is at risk.{" "}
+          {index && drawn.length < index.books.length && (
+            <>
+              Not drawn here: capital variants, which would repeat a line already
+              on the chart
+              {live.length > 0 && (
+                <>
+                  , and {live.length === 1 ? "a book" : "books"} trading real
+                  capital, which a rebased axis would invite you to compare with
+                  a simulated one
+                </>
+              )}
+              .{" "}
+              {/* "BOTH ARE ON THE PORTFOLIOS PAGE" POINTED AT NOTHING. There is
+                  no portfolios page: the address redirects to whichever book is
+                  published first, and the books this sentence is about are the
+                  ones NOT on that chart — reachable only by opening a collapsed
+                  selector a reader has not been told about. Every excluded book
+                  is named and linked here instead, so the sentence delivers what
+                  it promises without a page that does not exist. */}
+              {undrawn.length > 0 ? (
+                <>
+                  {undrawn.length === 1 ? "It has" : "They each have"} a page of{" "}
+                  {undrawn.length === 1 ? "its" : "their"} own:{" "}
+                  {undrawn.map((b, i) => (
+                    <span key={b.book}>
+                      {i > 0 ? (i === undrawn.length - 1 ? " and " : ", ") : ""}
+                      <Link
+                        href={`/portfolios/${bookSlug(b)}`}
+                        className="underline underline-offset-2"
+                      >
+                        {b.label}
+                      </Link>
+                    </span>
+                  ))}
+                  , and the selector at the top of any portfolio page lists all{" "}
+                  {index.books.length}.{" "}
+                </>
+              ) : null}
+            </>
+          )}
+          Cumulative return since each account was funded, rebased on its own
+          opening equity, so accounts of different sizes are comparable. Each
+          line begins at that account&rsquo;s first traded session; the return is
+          still measured from the capital it was funded with. No benchmark is
+          drawn here; past performance is not indicative of future results.{" "}
+          {withEvents.length > 0 && (
+            <>
+              {withEvents.map(({ summary }, i) => (
+                <span key={summary.book}>
+                  {i > 0 ? (i === withEvents.length - 1 ? " and " : ", ") : ""}
+                  <Link
+                    href={`/portfolios/${bookSlug(summary)}`}
+                    className="underline underline-offset-2"
+                  >
+                    {summary.label}
+                  </Link>
+                </span>
+              ))}
+              {withEvents.length === 1 ? " is" : " are"} drawn with declared
+              capital movements excluded, so{" "}
+              {withEvents.length === 1
+                ? "that line measures"
+                : "those lines measure"}{" "}
+              the return on the capital actually managed rather than the size of
+              the account. Every movement is listed with its date, its amount and
+              its evidence on the portfolio&rsquo;s own page.
+            </>
+          )}
+        </p>
+      </section>
 
-          <div className="mt-6 space-y-4 text-[14.5px] leading-relaxed text-fg-muted">
-            <p>
-              RVB is research-driven end to end. Every strategy is built and
-              tested inside the same framework that later executes it live.
-              There is no separate &ldquo;live&rdquo; version of a strategy, only
-              the one that survived research. What performs well once is not
-              enough; what earns capital is what holds up when tested against
-              everything we know about how results deceive their own authors.
-            </p>
-            <p>
-              That framework applies identical rules from research to execution:
-              one cost structure, one execution delay, one computation for every
-              metric, with no discretion to choose which number gets shown.
-            </p>
-            {/* "AT THE MOMENT THEY HAPPEN" WAS NOT TRUE OF EVERY RECORD. A
-                real-capital book's first fifteen sessions joined the chain on
-                one later day, and the chain publishes that: each entry carries
-                the day it was recorded beside the session it describes, and the
-                verify table prints both columns. The strong claim survives —
-                nothing can be edited or dropped afterwards — and the weak part
-                of it is replaced by the thing that is actually better, which is
-                that the lag is a published number rather than an assumption. */}
-            <p>
-              Sessions are hash-chained as they are marked, each record
-              cryptographically linked to the one before it and stamped with the
-              day it joined the chain — so where a record was written later,
-              the lag is published rather than assumed. Change one number after
-              the fact and the chain breaks; that&rsquo;s what makes the record
-              something you can check rather than something you have to take our
-              word for.
-            </p>
-          </div>
-
-          {/* FOUR NOUNS, DEFINED ONCE. The pages say "RVB", "the desk", "the
-              operator" and "the publisher", and they are four different things
-              — but a reader meeting them scattered across five pages cannot
-              tell that from a party hedging its own identity. One line, where
-              a reader meets the first of them. */}
-          <p className="mt-6 text-[12px] text-fg-faint leading-relaxed">
-            Three words recur on these pages and mean three different things:{" "}
-            <span className="text-fg-muted">RVB</span> is the firm;{" "}
-            <span className="text-fg-muted">the desk</span> is the system that
-            trades, marks and archives every session; and{" "}
-            <span className="text-fg-muted">the operator</span> is the individual
-            who runs it{hasLive
-              ? " and whose own capital the real-capital portfolio trades"
-              : " and whose own capital the firm's real-capital portfolio trades — that book is not shown here at present"}
-            .
+      {/* ─── 5. THE METHOD ───────────────────────────────────────────────── */}
+      <section className="mt-16 lg:mt-24 border-t hairline pt-7">
+        <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+          The method
+        </h2>
+        <div className="mt-6 grid lg:grid-cols-2 gap-x-14 gap-y-6 max-w-[104ch]">
+          <p className="text-[15px] leading-[1.62] text-fg-muted">
+            RVB is research-driven end to end. Every strategy is built and tested
+            inside the same framework that later executes it live. There is no
+            separate &ldquo;live&rdquo; version of a strategy, only the one that
+            survived research. What performs well once is not enough; what earns
+            capital is what holds up when tested against everything we know about
+            how results deceive their own authors. That framework applies
+            identical rules from research to execution: one cost structure, one
+            execution delay, one computation for every metric, with no discretion
+            to choose which number gets shown.
           </p>
-
-          <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-3">
-            <Link
-              href="/portfolios"
-              className="inline-flex items-center gap-2 border hairline px-5 py-2.5 text-[14px] font-medium hover:bg-bg-subtle transition-colors"
-            >
-              Discover our portfolios
-              <span aria-hidden="true">→</span>
-            </Link>
-            <Link
-              href="/verify"
-              className="text-[13.5px] text-fg-muted hover:text-fg transition-colors underline underline-offset-4 decoration-hairline"
-            >
-              Verify it yourself
-            </Link>
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-[13.5px] text-fg-muted hover:text-fg transition-colors underline underline-offset-4 decoration-hairline"
-            >
-              Contact us
-            </a>
-          </div>
+          {/* "AT THE MOMENT THEY HAPPEN" WAS NOT TRUE OF EVERY RECORD. A
+              real-capital book's first fifteen sessions joined the chain on
+              one later day, and the chain publishes that: each entry carries
+              the day it was recorded beside the session it describes, and the
+              verify table prints both columns. The strong claim survives —
+              nothing can be edited or dropped afterwards — and the weak part
+              of it is replaced by the thing that is actually better, which is
+              that the lag is a published number rather than an assumption. */}
+          <p className="text-[15px] leading-[1.62] text-fg-muted">
+            Sessions are hash-chained as they are marked, each record
+            cryptographically linked to the one before it and stamped with the
+            day it joined the chain — so where a record was written later, the
+            lag is published rather than assumed. Change one number after the
+            fact and the chain breaks; that&rsquo;s what makes the record
+            something you can check rather than something you have to take our
+            word for.
+          </p>
         </div>
-      </div>
 
-      {index && (
-        <dl className="mt-14 lg:mt-20 border-t hairline pt-6 grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-5">
-          {/* "LIVE" IS RESERVED FOR REAL CAPITAL ON EVERY SURFACE. Six paper
-              books are live too — they run every session — so the word marked
-              the one distinction it was not making, while the distinction it
-              WAS making (whose money) went unnamed. And the size belongs beside
-              the count: a real-capital book of a few hundred dollars is a very
-              different claim from a real-capital book of a few million, and the
-              figure is published. */}
-          <Stat
-            label="Portfolios"
-            value={String(index.books.length)}
-            note={
-              live.length > 0
-                ? `${index.books.length - live.length} paper · ${live.length} real capital` +
-                  (realCapitalFunded !== null
-                    ? ` (${money(realCapitalFunded, "USD", 0)}, the operator's own money)`
-                    : "")
-                : undefined
-            }
-          />
-          <Stat
-            label="Longest record"
-            value={String(longestRecord)}
-            note="sessions, on the oldest portfolio"
-          />
-          <Stat
-            label="Chained records"
-            value={String(index.chain.entries)}
-            note="each one timestamped"
-          />
-          <Stat
-            label="Curve resolution"
-            value="5 min"
-            note={
-              live.length > 0
-                ? "paper books, broker equity; the real-capital book is event-driven"
-                : "broker equity, not interpolation"
-            }
-          />
-        </dl>
-      )}
+        {/* THREE NOUNS, DEFINED ONCE. The pages say "RVB", "the desk" and "the
+            operator", and they are three different things — but a reader
+            meeting them scattered across five pages cannot tell that from a
+            party hedging its own identity. */}
+        <p className="mt-7 text-[12px] text-fg-faint leading-relaxed max-w-[80ch]">
+          Three words recur on these pages and mean three different things:{" "}
+          <span className="text-fg-muted">RVB</span> is the firm;{" "}
+          <span className="text-fg-muted">the desk</span> is the system that
+          trades, marks and archives every session; and{" "}
+          <span className="text-fg-muted">the operator</span> is the individual
+          who runs it{hasLive
+            ? " and whose own capital the real-capital portfolio trades"
+            : " and whose own capital the firm's real-capital portfolio trades — that book is not shown here at present"}
+          .
+        </p>
 
-      <p className="mt-8 text-[12px] text-fg-faint max-w-[80ch]">
-        The lines above are Alpaca paper accounts: fills are simulated and no
-        capital is at risk.{" "}
-        {index && drawn.length < index.books.length && (
-          <>
-            Not drawn here: capital variants, which would repeat a line already on
-            the chart
-            {live.length > 0 && (
-              <>
-                , and {live.length === 1 ? "a book" : "books"} trading real
-                capital, which a rebased axis would invite you to compare with a
-                simulated one
-              </>
-            )}
-            .{" "}
-            {/* "BOTH ARE ON THE PORTFOLIOS PAGE" POINTED AT NOTHING. There is
-                no portfolios page: the address redirects to whichever book is
-                published first, and the books this sentence is about are the
-                ones NOT on that chart — reachable only by opening a collapsed
-                selector a reader has not been told about. Every excluded book
-                is named and linked here instead, so the sentence delivers what
-                it promises without a page that does not exist. */}
-            {undrawn.length > 0 ? (
-              <>
-                {undrawn.length === 1 ? "It has" : "They each have"} a page of{" "}
-                {undrawn.length === 1 ? "its" : "their"} own:{" "}
-                {undrawn.map((b, i) => (
-                  <span key={b.book}>
-                    {i > 0 ? (i === undrawn.length - 1 ? " and " : ", ") : ""}
-                    <Link
-                      href={`/portfolios/${bookSlug(b)}`}
-                      className="underline underline-offset-2"
-                    >
-                      {b.label}
-                    </Link>
-                  </span>
-                ))}
-                , and the selector at the top of any portfolio page lists all{" "}
-                {index.books.length}.{" "}
-              </>
-            ) : null}
-          </>
-        )}
-        Cumulative return since each account was funded, rebased on its own
-        opening equity, so accounts of different sizes are comparable. Each line
-        begins at that account&rsquo;s first traded session; the return is still
-        measured from the capital it was funded with. No benchmark is drawn here;
-        past performance is not indicative of future results.{" "}
-        {withEvents.length > 0 && (
-          <>
-            {withEvents.map(({ summary }, i) => (
-              <span key={summary.book}>
-                {i > 0 ? (i === withEvents.length - 1 ? " and " : ", ") : ""}
-                <Link
-                  href={`/portfolios/${bookSlug(summary)}`}
-                  className="underline underline-offset-2"
-                >
-                  {summary.label}
-                </Link>
-              </span>
-            ))}
-            {withEvents.length === 1 ? " is" : " are"} drawn with declared
-            capital movements excluded, so{" "}
-            {withEvents.length === 1
-              ? "that line measures"
-              : "those lines measure"}{" "}
-            the return on the capital actually managed rather than the size of
-            the account. Every movement is listed with its date, its amount and
-            its evidence on the portfolio&rsquo;s own page.
-          </>
-        )}
-      </p>
+        <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-3">
+          <Link
+            href="/portfolios"
+            className="inline-flex items-center gap-2 border hairline px-5 py-2.5 font-figure text-[11px] uppercase tracking-[0.14em] hover:bg-bg-subtle transition-colors"
+          >
+            The portfolios
+            <span aria-hidden="true">→</span>
+          </Link>
+          <Link
+            href="/verify"
+            className="font-figure text-[11px] uppercase tracking-[0.14em] text-fg-muted hover:text-fg transition-colors underline underline-offset-4 decoration-hairline"
+          >
+            Verify it yourself
+          </Link>
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="font-figure text-[11px] uppercase tracking-[0.14em] text-fg-muted hover:text-fg transition-colors underline underline-offset-4 decoration-hairline"
+          >
+            Contact
+          </a>
+        </div>
+      </section>
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  note,
-}: {
-  label: string;
-  value: string;
-  note?: string;
-}) {
-  return (
-    <div>
-      <dt className="text-[11.5px] text-fg-faint">{label}</dt>
-      <dd className="mt-1 text-[19px] tnum tracking-tight">{value}</dd>
-      {note && <div className="text-[11.5px] text-fg-faint mt-0.5">{note}</div>}
-    </div>
   );
 }

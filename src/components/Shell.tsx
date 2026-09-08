@@ -15,7 +15,18 @@ const NAV = [
   { href: "/disclosures", label: "Disclosures" },
 ];
 
-/** A ruled page, not a set of panels. Nothing is set in capitals. */
+/** A ruled page, not a set of panels.
+ *
+ * The masthead is a RUNNING HEAD and a CONTENTS row, in that order, which is
+ * how a document identifies itself: what this is, how current it is, how big
+ * it is — then where to go. It was one line with the firm's name, five links
+ * and a tagline, all set in the same face at the same weight, which is a
+ * navigation bar and tells a reader nothing about what they have opened.
+ *
+ * The contents row is set in the mono, in capitals. That is not styling: the
+ * whole page runs on one rule — the serif is the firm talking, the mono is
+ * something read off a file — and an index of the register is the second kind.
+ */
 export async function Shell({ children }: { children: ReactNode }) {
   // The masthead tagline described every book here as paper. It is read from the
   // payload for the same reason the footer disclosure is: a standing claim about
@@ -23,6 +34,28 @@ export async function Shell({ children }: { children: ReactNode }) {
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
   const hasLive = (index?.books ?? []).some((b) => b.capital_at_risk);
   const nav = NAV.filter((item) => !item.needsResearch || research !== null);
+
+  // HOW CURRENT THE RECORD IS, read off the books rather than off the clock.
+  // `published_at` is when the publisher last RAN, which is not the same claim
+  // and is the more flattering one: a publisher that runs nightly reports today
+  // even when the newest session it carries is a week old. The latest session
+  // any book actually has is the honest answer, and it is the one a reader can
+  // check against the chain.
+  const currentTo = (index?.books ?? [])
+    .map((b) => b.last_session)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+
+  const runningHead = index
+    ? [
+        hasLive ? "Public record" : "Public record · paper",
+        currentTo ? `current to ${currentTo}` : null,
+        `${index.chain.entries} chained entries`,
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : null;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -32,30 +65,38 @@ export async function Shell({ children }: { children: ReactNode }) {
             leaves the whole site pinned to one edge. Every container that caps
             its width at MEASURE below does both, and they all use the same
             token so the masthead, the body and the footer share one edge. */}
-        <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-3 sm:py-4 flex flex-wrap items-baseline gap-x-8 gap-y-2">
-          <Link href="/" className="text-[15px] font-semibold tracking-tight">
-            RVB
-          </Link>
-          {/* On a phone the four links wrap onto a second row and the masthead
+        <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12">
+          <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 pt-4 pb-3">
+            <Link
+              href="/"
+              className="text-[17px] font-semibold tracking-[-0.01em]"
+            >
+              RVB Partners
+            </Link>
+            {runningHead && (
+              <span className="ml-auto font-figure text-[10px] uppercase tracking-[0.15em] text-fg-faint">
+                {runningHead}
+              </span>
+            )}
+          </div>
+
+          {/* On a phone the links wrap onto a second row and the masthead
               doubles in height. Below `sm` they scroll sideways on one line
               instead; `-mx-5 px-5` lets the row bleed to the screen edge so the
               last link is visibly cut off rather than looking like the end. */}
-          <nav className="order-3 sm:order-none w-full sm:w-auto -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x">
-            <div className="flex gap-6 text-[13px] min-w-max py-1 sm:py-0">
+          <nav className="border-t hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x">
+            <div className="flex gap-7 min-w-max py-2.5">
               {nav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-fg-muted hover:text-fg transition-colors"
+                  className="font-figure text-[10.5px] uppercase tracking-[0.15em] text-fg-faint hover:text-fg transition-colors"
                 >
                   {item.label}
                 </Link>
               ))}
             </div>
           </nav>
-          <span className="ml-auto text-[12px] text-fg-faint">
-            {hasLive ? "Live record · paper and real capital" : "Live paper-trading record"}
-          </span>
         </div>
       </header>
 

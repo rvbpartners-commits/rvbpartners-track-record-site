@@ -24,12 +24,23 @@ import { usePathname } from "next/navigation";
  * index every page lists from, so withholding a book rewrites this sentence in
  * the same breath.
  */
-const PAGES = new Set(["/", "/methodology", "/disclosures", "/verify"]);
+/* "/" IS ABSENT ON PURPOSE. The home page renders the same sentence ABOVE its
+ * first figure rather than under the footer — a disqualifier a reader reaches
+ * after scrolling past the returns has already failed at its job. It is the
+ * same component, so the two placements cannot drift apart; only the position
+ * differs. */
+const PAGES = new Set(["/methodology", "/disclosures", "/verify"]);
 
 export function AccountDisclosure({ hasLive }: { hasLive: boolean }) {
   const path = usePathname();
   if (!PAGES.has(path)) return null;
+  return <AccountDisclosureText hasLive={hasLive} />;
+}
 
+/** The sentence itself, with no pathname gate, so a page can place it where it
+ *  belongs in its own reading order. Deriving it once is what keeps the claim
+ *  honest: withholding a book rewrites every copy of it in the same breath. */
+export function AccountDisclosureText({ hasLive }: { hasLive: boolean }) {
   return (
     <p className="text-[14px] leading-relaxed text-fg max-w-[68ch]">
       <span className="font-semibold">
