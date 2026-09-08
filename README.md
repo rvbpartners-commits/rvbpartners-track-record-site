@@ -1,6 +1,6 @@
 # RVB — track record site
 
-The public site at **[trackrecord.rvbpartners.fr](https://trackrecord.rvbpartners.fr)**.
+The public site at **[rvbpartners.fr](https://rvbpartners.fr)**.
 It renders the
 [track-record data repository](https://github.com/rvbpartners-commits/rvbpartners-track-record-data)
 and does nothing else.
