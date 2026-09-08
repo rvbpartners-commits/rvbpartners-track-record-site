@@ -682,10 +682,49 @@ function num(v: string | undefined): number | null {
  */
 const WITHHELD_BOOKS = new Set<string>(["maker_01"]);
 
+/** The account kind a book is published under. `account_kind` where the payload
+ *  states it; otherwise derived, which is what every book predating the field
+ *  resolves to. */
+function accountKind(b: BookSummary): string {
+  return b.account_kind ?? (b.capital_at_risk ? "real_capital" : "paper");
+}
+
 export async function getIndex(): Promise<IndexPayload | null> {
   const index = await getJson<IndexPayload>("index.json");
   if (!index) return null;
-  return { ...index, books: index.books.filter((b) => !WITHHELD_BOOKS.has(b.book)) };
+
+  const books = index.books.filter((b) => !WITHHELD_BOOKS.has(b.book));
+
+  // WITHHOLDING A BOOK MUST WITHHOLD ITS DISCLOSURES TOO, and for a long time
+  // it did not. Filtering `books` alone left `disclosures` untouched, so
+  // /disclosures went on rendering an item scoped to `real_capital` — headed
+  // "Real capital — the operator's own money, no third-party funds" and opening
+  // "One book in this record is not a paper account" — for a book no page on
+  // the site showed. Every other surface said every portfolio here is
+  // broker-simulated. The one page a reader opens *specifically* to find the
+  // caveats was the one page contradicting all of them.
+  //
+  // A disclosure is scoped by `applies_to`: "all", or an account kind. So the
+  // rule is exactly the rule for books — publish an item only if something it
+  // applies to is actually published. It is derived from the filtered list, so
+  // it cannot drift from what is on screen: restore a book and its disclosure
+  // returns with it, in the same breath.
+  //
+  // NOT a data-repo edit. index.json still carries the item, /verify still
+  // hashes the unfiltered payload, and a direct reader of the data repository
+  // still sees the whole thing. This is presentation, in the one place that
+  // makes presentation decisions.
+  // FAILS OPEN, DELIBERATELY. `applies_to` is optional, and an item that does
+  // not say what it is scoped to is KEPT. Hiding a caveat because its metadata
+  // is incomplete is the one direction this filter must never fail in — the
+  // /disclosures page already flags an unscoped item loudly, which is the
+  // correct treatment, and it cannot flag what it never receives.
+  const kinds = new Set(books.map(accountKind));
+  const disclosures = (index.disclosures ?? []).filter(
+    (d) => !d.applies_to || d.applies_to === "all" || kinds.has(d.applies_to),
+  );
+
+  return { ...index, books, disclosures };
 }
 
 export async function getMetrics(book: string): Promise<MetricsPayload | null> {
