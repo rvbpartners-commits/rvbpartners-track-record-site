@@ -27,6 +27,13 @@ export default async function MethodologyPage() {
   // newest chained record of each. Empty if it cannot be read, and the
   // paragraph that uses it simply does not render.
   const feeds = await getFeedByAccountKind(index?.books ?? []);
+  // The feed for the PAPER accounts specifically, read by key rather than by
+  // iterating the map. The costs section below describes one kind of account
+  // and names the data its fills were priced against; a loop there would
+  // silently widen a sentence that is only true of that kind. Absent when no
+  // paper record carries the field, and the sentence then does not render —
+  // this page never states a feed it could not read.
+  const paperFeed = feeds.get("paper") ?? null;
   const minSessions = index?.min_sessions_for_annualised ?? 60;
   // `?? null`, never `?? 1`. A failed fetch used to invent a one-day lag policy
   // and print it as fact; an unknown lag is an unknown lag and the paragraph

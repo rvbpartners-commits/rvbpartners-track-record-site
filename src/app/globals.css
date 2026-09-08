@@ -207,3 +207,21 @@ a {
 html[data-entered] [data-curtain] {
   display: none;
 }
+
+/* A LINK MUST BE VISIBLE AS A LINK WITHOUT HOVERING.
+   `text-accent` alone is a colour distinction, and inside a muted paragraph it
+   is a weak one: the gold (#b8975c) and the muted body (#a9a294) are close in
+   lightness, so a reader scanning the page — or one who cannot separate those
+   two hues at all — sees no link. Every accent link used `hover:underline`,
+   which is an affordance you have to already have found.
+   The underline is therefore permanent and quiet, and firms up on hover. This
+   is the one place the site accepts a decoration it could have lived without,
+   because the alternative is a link nobody can see. */
+a.text-accent {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  text-underline-offset: 3px;
+}
+a.text-accent:hover {
+  text-decoration-color: var(--accent);
+}

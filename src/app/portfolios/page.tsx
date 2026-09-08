@@ -3,13 +3,22 @@ import Link from "next/link";
 import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Note } from "@/components/Note";
 import {
+  OverviewChart,
+  OverviewLegend,
+  type OverviewSeries,
+} from "@/components/OverviewChart";
+import {
   type BookCategory,
   type BookSummary,
   bookSlug,
   getIndex,
+  getIntraday,
+  getMeta,
+  getNav,
   SITE_ORIGIN,
 } from "@/lib/data";
 import { NO_VALUE, date, direction, money, prose, signedPct } from "@/lib/format";
+import { forOverview } from "@/lib/overview";
 import { orderWithVariants, parentOf } from "@/lib/variants";
 
 /**
@@ -115,6 +124,64 @@ export default async function Portfolios() {
   // the same filtered index this table lists from, so a book withheld from the
   // site cannot leave the prose describing an account no page can show.
   const hasLive = books.some((b) => b.capital_at_risk);
+
+  // ── THE OVERVIEW CURVE ────────────────────────────────────────────────────
+  // `forOverview` is the one place that decides what may share a rebased axis:
+  // capital variants are excluded because they would repeat a line already
+  // drawn. Reused rather than re-derived — the rule belongs in one file.
+  const drawn = index ? forOverview(index.books) : [];
+  const drawnSeries = await Promise.all(
+    drawn.map(async (summary) => {
+      // `meta` for the live adjustment factor and the declared capital
+      // movements: today's session has no NAV row until the desk marks after
+      // the close, so an event declared today reaches this chart through
+      // nothing else.
+      const [nav, intraday, meta] = await Promise.all([
+        getNav(summary.book),
+        getIntraday(summary.book),
+        getMeta(summary.book),
+      ]);
+      return { summary, nav, intraday, meta };
+    }),
+  );
+  const series: OverviewSeries[] = drawnSeries.map(
+    ({ summary, nav, intraday, meta }) => ({
+      book: summary.book,
+      label: summary.label,
+      nav,
+      intraday,
+      liveFactor: meta?.capital_events?.live_factor ?? 1,
+    }),
+  );
+
+  // WHICH ACCOUNTS ARE NOT ON THE CHART, counted rather than asserted, so the
+  // note disappears by itself on the day every book is drawn.
+  const drawnIds = new Set(drawn.map((b) => b.book));
+  const undrawn = books.filter((b) => !drawnIds.has(b.book));
+  const undrawnNote = undrawn.length
+    ? `Capital variants are not drawn: each one repeats a line already on the chart at a different size. ${
+        undrawn.length === 1 ? "It is" : "They are"
+      } listed in the table below and ${
+        undrawn.length === 1 ? "has its own page" : "each has its own page"
+      }.`
+    : "";
+
+  // A LINE ON THIS CHART CAN HAVE AN EXCLUSION IN IT. Where a drawn book has
+  // declared capital movements its curve measures the capital actually managed
+  // and leaves those movements out — the correct treatment, and invisible
+  // unless the chart says so. Counted from the books actually drawn.
+  const withEvents = drawnSeries.filter(
+    ({ meta }) => (meta?.capital_events?.events?.length ?? 0) > 0,
+  );
+  const capitalNote = withEvents.length
+    ? `${withEvents
+        .map(({ summary }) => summary.label)
+        .join(", ")} ${
+        withEvents.length === 1 ? "is" : "are"
+      } drawn with declared capital movements excluded, so ${
+        withEvents.length === 1 ? "that line measures" : "those lines measure"
+      } the return on the capital actually managed rather than the size of the account. Every movement is listed with its date, its amount and its evidence on the portfolio\u2019s own page.`
+    : "";
 
   // The parent of each row, preferring the publisher's own statement of the
   // relationship over the name-suffix inference. Same order of preference as a
@@ -222,20 +289,71 @@ export default async function Portfolios() {
         </div>
       )}
 
-      {/* ─── RESERVED: THE OVERVIEW CHART ─────────────────────────────────
-          DELIBERATELY EMPTY, AND NOT MINE TO FILL. The multi-line overview of
-          every book currently lives on the home page (`src/app/page.tsx`, "The
-          record") and is being moved here in a separate step by whoever owns
-          that file. Nothing about it is duplicated here in the meantime.
+      {/* ─── THE RECORD ──────────────────────────────────────────────────
+          Moved here from the home page. It sits BELOW the account statement
+          above and deliberately so: a curve a reader meets before the sentence
+          saying the accounts are simulated is a figure that has escaped its own
+          disqualifier. And it belongs on this page rather than the front one —
+          a rising line on the apex domain makes the site's opening job "show
+          the returns", which is the reading order of a pitch. */}
+      {loaded && index && series.length > 0 && (
+        <Section title="The record" gloss="Every drawn account, rebased on its own opening equity">
+          <OverviewChart series={series} />
+          <div className="mt-4">
+            <OverviewLegend series={series} />
+          </div>
 
-          It belongs at this point in the reading order for two reasons: it is
-          the picture of the same rows the table below sets in text, and it
-          must sit BELOW the account statement above — a curve a reader meets
-          before the sentence saying the accounts are simulated is a figure that
-          has escaped its own disqualifier.
-
-          Nothing renders here today. A placeholder that draws an empty frame, a
-          caption or a "coming soon" is a promise the record has not made. */}
+          {/* THE FIVE QUALIFICATIONS, BROKEN OUT. They used to run together in
+              a single 12px paragraph under the chart on the home page, which is
+              where a caveat goes to be skipped. Each is now its own ruled note
+              at a size a reader can actually read. */}
+          <div className="mt-8 grid gap-px border hairline bg-hairline sm:grid-cols-2">
+            {[
+              [
+                "Simulated fills",
+                "Every line is a broker-simulated paper account. No capital is at risk in any of them.",
+              ],
+              [
+                "Not every account is drawn",
+                undrawnNote,
+              ],
+              [
+                "Rebased, not comparable in size",
+                "Cumulative return since each account was funded, rebased on its own opening equity, so accounts funded with different capital can share an axis. Each line begins at that account\u2019s first traded session.",
+              ],
+              [
+                "No benchmark is drawn here",
+                "There is no index on this chart. A benchmark appears on a portfolio\u2019s own page, named, against that book\u2019s own dates. Past performance is not indicative of future results.",
+              ],
+              [
+                "Declared capital movements",
+                capitalNote,
+              ],
+            ]
+              .filter(([, body]) => Boolean(body))
+              // An odd number of notes leaves a hole in a two-column grid, and
+              // an empty ruled cell reads as a note that failed to load. The
+              // last one spans the row instead.
+              .map(([head, body], i, all) => (
+                <div
+                  key={head as string}
+                  className={`bg-bg p-4 ${
+                    i === all.length - 1 && all.length % 2 === 1
+                      ? "sm:col-span-2"
+                      : ""
+                  }`}
+                >
+                  <div className="font-figure text-[10px] uppercase tracking-[0.14em] text-fg-faint">
+                    {head}
+                  </div>
+                  <p className="mt-2 text-[12.5px] leading-relaxed text-fg-muted">
+                    {body}
+                  </p>
+                </div>
+              ))}
+          </div>
+        </Section>
+      )}
 
       {/* ─── THE INDEX ────────────────────────────────────────────────────── */}
       <Section title="The accounts" gloss="One row per portfolio">

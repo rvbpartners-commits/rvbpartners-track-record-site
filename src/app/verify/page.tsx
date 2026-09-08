@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { Note } from "@/components/Note";
 import {
   DATA_BASE,
+  DATA_REPO,
   DATA_REPO_URL,
   MAINTAINER_AVATAR,
   MAINTAINER_URL,
@@ -26,9 +28,51 @@ export const metadata: Metadata = {
     "OpenTimestamps proof — so a stranger can re-derive every number.",
 };
 
-export default async function VerifyPage() {
-  const [index, chain] = await Promise.all([getIndex(), getChain()]);
+/** How many chain records one page of the register shows.
+ *
+ *  The table was unpaginated and unfilterable: it rendered every entry in the
+ *  current chains, which is 120 rows today and grows by one per book per
+ *  session. That is not a table anybody reads — it is a wall that the reader
+ *  scrolls past, and until this change the runnable proof was underneath it.
+ *  A screenful at a time, newest first, with the whole file one link away. */
+const PAGE_SIZE = 30;
+
+/** The directory `git clone` creates, derived rather than typed.
+ *
+ *  The snippet below tells a reader to `cd` into it. Written out as a literal
+ *  it was a second copy of the repository name — and the site's own address has
+ *  already moved once, which is exactly how a copy goes stale while the thing
+ *  it copies does not. One source, one string. */
+const CLONE_DIR = DATA_REPO.split("/")[1];
+
+/** A search param, as a single value. A repeated key (`?book=a&book=b`) arrives
+ *  as an array; the first is taken rather than the pair being joined into a
+ *  string that matches no book. */
+function one(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function VerifyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const [index, chain, params] = await Promise.all([
+    getIndex(),
+    getChain(),
+    searchParams,
+  ]);
   const entries = [...chain].reverse();
+
+  // The verify table names books by their DATA SLUG (`best_cagr`), which is the
+  // one identifier that appears nowhere else on the site — the labels exist
+  // precisely to keep the selection criterion out of the reader's way. The map
+  // between them lives only in index.json, so a reader checking a row against
+  // the portfolio page they came from had to go and find it. Both are printed.
+  const labelOf = new Map(
+    (index?.books ?? []).map((b) => [b.book, b.label] as const),
+  );
+  const labelFor = (book: string) => labelOf.get(book) ?? book;
 
   // A restarted chain is DATA, not prose: a book whose published conventions
   // name a superseded chain has had its earlier record withdrawn and replaced,
@@ -36,12 +80,26 @@ export default async function VerifyPage() {
   // out by name. Read from each book's own meta rather than inferred from a
   // genesis date — a book that simply started later also has a late genesis,
   // and guessing from that would flag every capital twin.
-  const metas = index
-    ? await Promise.all(index.books.map((b) => getMeta(b.book)))
-    : [];
-  const supersededBooks = (index?.books ?? [])
-    .map((b, i) => ({ book: b, meta: metas[i] }))
-    .filter(({ meta }) => meta?.convention?.superseded_chain);
+  //
+  // THE CANDIDATE LIST IS THE RECORD, NOT THE SHOP WINDOW. This used to iterate
+  // `index.books`, which the data layer has already filtered — a book withheld
+  // from the site is dropped there before this page ever sees it. That made a
+  // published CORRECTION disappear as a side effect of withholding a RESULT,
+  // which are not the same decision and must not share a switch: a chain
+  // restart is the one thing on this page a reader most needs told, and the
+  // withdrawn record stays published in the data repository either way.
+  // Unioning in every book the chain itself evidences means a book still
+  // present in the current chains keeps its declared restart on this page even
+  // when it is withheld elsewhere. It does NOT close the hole for a book that
+  // has no current-chain rows at all — that needs the unfiltered index, which
+  // only lib/data.ts can hand over. Reported, not worked around here.
+  const candidates = [
+    ...new Set([
+      ...(index?.books ?? []).map((b) => b.book),
+      ...chain.map((e) => e.book),
+    ]),
+  ];
+  const metas = await Promise.all(candidates.map((b) => getMeta(b)));
 
   // THE WITHDRAWN CHAINS ARE PUBLISHED TOO, and the table below does not list
   // them — it lists the CURRENT chains. A heading reading "every published
@@ -51,10 +109,13 @@ export default async function VerifyPage() {
   // cannot be read contributes nothing and the page says less rather than
   // guessing.
   const superseded = await Promise.all(
-    supersededBooks.map(async (entry) => ({
-      ...entry,
-      chain: await getSupersededChain(entry.book.book),
-    })),
+    candidates
+      .map((book, i) => ({ book, meta: metas[i] }))
+      .filter(({ meta }) => meta?.convention?.superseded_chain)
+      .map(async (entry) => ({
+        ...entry,
+        chain: await getSupersededChain(entry.book),
+      })),
   );
   const supersededCount = superseded.reduce((n, s) => n + s.chain.length, 0);
 
@@ -73,14 +134,57 @@ export default async function VerifyPage() {
     };
   };
 
-  // The verify table names books by their DATA SLUG (`best_cagr`), which is the
-  // one identifier that appears nowhere else on the site — the labels exist
-  // precisely to keep the selection criterion out of the reader's way. The map
-  // between them lives only in index.json, so a reader checking a row against
-  // the portfolio page they came from had to go and find it. Both are printed.
-  const labelOf = new Map(
-    (index?.books ?? []).map((b) => [b.book, b.label] as const),
-  );
+  // ─── THE REGISTER'S FILTER AND PAGE, FROM THE URL ──────────────────────
+  // Search params rather than client state, deliberately: the table is the
+  // evidence, and evidence that only exists once JavaScript has run is worse
+  // evidence. Every control below is a link, the server renders the right rows
+  // on the first response, and a filtered view is a URL somebody can cite.
+  //
+  // The book list comes from the CHAIN, not from the index: the table renders
+  // chain rows, so a book with rows here but no entry in the published index
+  // must still be filterable rather than silently unreachable.
+  const booksInChain = [...new Set(chain.map((e) => e.book))];
+  const countOf = (book: string) => chain.filter((e) => e.book === book).length;
+  const ordered = [
+    ...(index?.books ?? []).map((b) => b.book).filter((b) => booksInChain.includes(b)),
+    ...booksInChain.filter((b) => !labelOf.has(b)).sort(),
+  ];
+
+  const askedBook = one(params.book);
+  // An unrecognised `?book=` shows everything and SAYS so. Silently ignoring it
+  // would hand a reader a complete table under a caption implying it was
+  // narrowed — the one failure mode a filter on a register must not have.
+  const selectedBook =
+    askedBook && booksInChain.includes(askedBook) ? askedBook : null;
+  const unknownBook = askedBook && !selectedBook ? askedBook : null;
+
+  const filtered = selectedBook
+    ? entries.filter((e) => e.book === selectedBook)
+    : entries;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const askedPage = Number.parseInt(one(params.page) ?? "", 10);
+  // Clamped, never trusted. `?page=900` is a page that does not exist, and an
+  // empty table under a "records 27001–27030" caption reads as a record with
+  // holes in it rather than as a bad URL.
+  const page = Number.isFinite(askedPage)
+    ? Math.min(Math.max(askedPage, 1), pageCount)
+    : 1;
+  const start = (page - 1) * PAGE_SIZE;
+  const shown = filtered.slice(start, start + PAGE_SIZE);
+
+  /** A link back into this same table. `#snapshots` because the controls sit
+   *  beside the table and a reader who pages should land on rows, not on the
+   *  top of the page. `page=1` and the empty book are omitted so the unfiltered
+   *  view has exactly one address. */
+  const href = (next: { book?: string | null; page?: number }) => {
+    const book = next.book === undefined ? selectedBook : next.book;
+    const target = next.page ?? 1;
+    const query = new URLSearchParams();
+    if (book) query.set("book", book);
+    if (target > 1) query.set("page", String(target));
+    const q = query.toString();
+    return `/verify${q ? `?${q}` : ""}#snapshots`;
+  };
 
   return (
     <>
@@ -140,6 +244,50 @@ export default async function VerifyPage() {
         </div>
       </section>
 
+      {/* ─── THE RUNNABLE PROOF, AT THE TOP ─────────────────────────────────
+          This block used to sit at the foot of the four checks, underneath a
+          120-row table. It is the only thing on the page that settles the
+          question without us — everything else is the firm describing its own
+          evidence — and it was the thing a reader was least likely to reach.
+          Ordering is an argument: the check comes before the description of the
+          check. The four checks below now read as the commentary they are. */}
+      <section className="mt-12">
+        <h2 className="text-[15px] font-semibold tracking-tight">
+          Check it yourself, on a clone
+        </h2>
+        <p className="mt-3 text-[13px] text-fg-muted leading-relaxed max-w-[80ch]">
+          Two commands, before anything else on this page. The first takes a
+          copy of the whole published record. The second re-hashes every file
+          the chain lists, compares each hash with the chain&rsquo;s own record
+          of it, and follows each book&rsquo;s <Code>prev_hash</Code> back to
+          that book&rsquo;s genesis. It needs <Code>git</Code> and{" "}
+          <Code>python</Code>, nothing from this site, and no cooperation from
+          us.
+        </p>
+        <pre className="scroll-x mt-4 bg-bg-subtle border hairline p-3 sm:p-4 text-[11px] sm:text-[12px] leading-relaxed">
+          <code>{`git clone ${DATA_REPO_URL}.git
+cd ${CLONE_DIR}
+python -c "
+import json,hashlib,pathlib
+prev={}
+for line in open('CHAIN.jsonl',encoding='utf-8'):
+    e=json.loads(line); p=pathlib.Path(e['file']); raw=p.read_bytes()
+    assert hashlib.sha256(raw).hexdigest()==e['sha256'], p
+    rec=json.loads(raw.decode())
+    assert rec['prev_hash']==prev.get(e['book'],'0'*64), p
+    prev[e['book']]=rec['hash']
+print('chain ok:', {k:v[:12] for k,v in prev.items()})
+"`}</code>
+        </pre>
+        <p className="mt-3 text-[13px] text-fg-muted leading-relaxed max-w-[80ch]">
+          That is checks 1 and 2 below, end to end. It deliberately does not run
+          the other two, because neither is ours to run for you: a timestamp is
+          checked with <Code>ots verify &lt;file&gt;.ots</Code>, and the fourth
+          check is a recomputation from <Code>nav.csv</Code> in whatever code you
+          trust.
+        </p>
+      </section>
+
       {/* Declared restarts. Rendered from the books' own published conventions,
           so a future restart cannot go unlisted by anyone forgetting to edit
           this page. */}
@@ -150,12 +298,12 @@ export default async function VerifyPage() {
           </h2>
           <div className="mt-4 space-y-4 max-w-[80ch]">
             {superseded.map(({ book, meta, chain: withdrawn }) => {
-              const back = backfilledFor(book.book);
+              const back = backfilledFor(book);
               return (
-              <Note key={book.book} tone="warn">
-                <strong className="font-semibold">{book.label}</strong> — this
-                book&rsquo;s chain was restarted, and the table below therefore
-                shows a genesis entry dated after the record begins.{" "}
+              <Note key={book} tone="warn">
+                <strong className="font-semibold">{labelFor(book)}</strong> —
+                this book&rsquo;s chain was restarted, and the table below
+                therefore shows a genesis entry dated after the record begins.{" "}
                 {/* STATE THE COUNT WHERE THE RESTART IS DECLARED. The raw
                     Recorded column already says it, entry by entry; saying it
                     in words costs nothing and pre-empts the single most
@@ -195,11 +343,11 @@ export default async function VerifyPage() {
                 genesis:{" "}
                 <a
                   className="underline underline-offset-2"
-                  href={`${DATA_REPO_URL}/tree/main/books/${book.book}/superseded`}
+                  href={`${DATA_REPO_URL}/tree/main/books/${book}/superseded`}
                   target="_blank"
                   rel="noreferrer noopener"
                 >
-                  books/{book.book}/superseded/
+                  books/{book}/superseded/
                 </a>
                 .
               </Note>
@@ -283,37 +431,21 @@ export default async function VerifyPage() {
             }
           />
         </ol>
-
-        <div className="mt-8">
-          <p className="text-[13px] text-fg-muted mb-2">
-            Checks 1 and 2, end to end, on a clone:
-          </p>
-          <pre className="scroll-x bg-bg-subtle border hairline p-3 sm:p-4 text-[11px] sm:text-[12px] leading-relaxed">
-            <code>{`git clone ${DATA_REPO_URL}.git
-cd rvbpartners-track-record-data
-python -c "
-import json,hashlib,pathlib
-prev={}
-for line in open('CHAIN.jsonl',encoding='utf-8'):
-    e=json.loads(line); p=pathlib.Path(e['file']); raw=p.read_bytes()
-    assert hashlib.sha256(raw).hexdigest()==e['sha256'], p
-    rec=json.loads(raw.decode())
-    assert rec['prev_hash']==prev.get(e['book'],'0'*64), p
-    prev[e['book']]=rec['hash']
-print('chain ok:', {k:v[:12] for k,v in prev.items()})
-"`}</code>
-          </pre>
-        </div>
       </section>
 
-      <section className="mt-14">
+      <section id="snapshots" className="mt-14 scroll-mt-8">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           {/* "EVERY PUBLISHED SNAPSHOT" WAS NOT EVERY PUBLISHED SNAPSHOT. A
               withdrawn chain's records are published too — verbatim, with
               their own timestamps, linked from the block above — and this table
               deliberately does not list them. The heading now says which set it
               is counting, and the rest is named underneath rather than left for
-              a reader to find and wonder about. */}
+              a reader to find and wonder about.
+
+              The count stays the count of the WHOLE current chains, never the
+              count of the filtered page: the heading is a claim about the
+              record, and a filter is a claim about the reader. What is on
+              screen is stated separately, under the table. */}
           <h2 className="text-[15px] font-semibold tracking-tight">
             Every snapshot in the current chains
           </h2>
@@ -330,21 +462,56 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             chain
             {superseded.length === 1 ? "" : "s"} declared above, listed at{" "}
             {superseded.map(({ book }, i) => (
-              <span key={book.book}>
+              <span key={book}>
                 {i > 0 ? ", " : ""}
                 <a
                   className="text-accent hover:underline"
-                  href={`${DATA_REPO_URL}/tree/main/books/${book.book}/superseded`}
+                  href={`${DATA_REPO_URL}/tree/main/books/${book}/superseded`}
                   target="_blank"
                   rel="noreferrer noopener"
                 >
-                  <code>books/{book.book}/superseded/</code>
+                  <code>books/{book}/superseded/</code>
                 </a>
               </span>
             ))}
             . They are not counted here because they are not part of a current
             chain — they are kept, unrewritten, so the withdrawn record can be
             verified as easily as this one.
+          </p>
+        )}
+
+        {/* THE FILTER IS A ROW OF LINKS, NOT A SELECT. No JavaScript is involved
+            in narrowing this table: each entry is an href the server answers
+            with the rows themselves, so the view is citable, back-buttonable and
+            works with scripting off — which is the only posture that makes sense
+            on the page whose argument is that you need nothing from us. */}
+        {booksInChain.length > 1 && (
+          <nav
+            aria-label="Filter snapshots by portfolio"
+            className="mt-5 flex flex-wrap items-baseline gap-x-5 gap-y-2 text-[12px]"
+          >
+            <span className="text-fg-faint">Book</span>
+            <FilterLink href={href({ book: null })} active={selectedBook === null}>
+              All <span className="tnum text-fg-faint">{entries.length}</span>
+            </FilterLink>
+            {ordered.map((book) => (
+              <FilterLink
+                key={book}
+                href={href({ book })}
+                active={selectedBook === book}
+              >
+                {labelFor(book)}{" "}
+                <span className="tnum text-fg-faint">{countOf(book)}</span>
+              </FilterLink>
+            ))}
+          </nav>
+        )}
+
+        {unknownBook && (
+          <p className="mt-3 text-[12px] text-fg-faint max-w-[80ch]">
+            No book in the current chains is keyed{" "}
+            <code className="tnum">{unknownBook}</code>, so every record is
+            shown.
           </p>
         )}
 
@@ -364,7 +531,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               </tr>
             </thead>
             <tbody>
-              {entries.map((e) => (
+              {shown.map((e) => (
                 <tr key={`${e.book}:${e.session_date}`} className="border-t hairline">
                   <td className="py-2.5 pr-4 tnum whitespace-nowrap">
                     {date(e.session_date)}
@@ -377,7 +544,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                       the only place on the site where a book is named
                       `best_cagr`, and the map back lives in index.json. */}
                   <td className="hidden sm:table-cell py-2.5 pr-4 text-fg-muted">
-                    {labelOf.get(e.book) ?? e.book}
+                    {labelFor(e.book)}
                     {labelOf.has(e.book) && (
                       <span className="block text-[11px] text-fg-faint tnum">
                         {e.book}
@@ -425,6 +592,68 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             </tbody>
           </table>
         </div>
+
+        {/* WHAT IS ON SCREEN, COUNTED, beside what exists. A paginated register
+            that does not say which slice you are looking at is a register you
+            cannot cite, and the reader's next question — "where is the rest?" —
+            is answered with the file rather than with more pages. */}
+        {filtered.length > 0 && (
+          <div className="mt-5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 text-[12px]">
+            <span className="text-fg-faint">
+              Records{" "}
+              <span className="tnum text-fg-muted">
+                {start + 1}&ndash;{start + shown.length}
+              </span>{" "}
+              of <span className="tnum text-fg-muted">{filtered.length}</span>
+              {selectedBook ? ` for ${labelFor(selectedBook)}` : ""}
+              {" · "}
+              the complete list is{" "}
+              <a
+                className="text-accent hover:underline"
+                href={`${DATA_REPO_URL}/blob/main/${index?.chain?.file ?? "CHAIN.jsonl"}`}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                <code>{index?.chain?.file ?? "CHAIN.jsonl"}</code>
+              </a>
+              , one line per record.
+            </span>
+
+            {pageCount > 1 && (
+              <nav
+                aria-label="Snapshot register pages"
+                className="flex items-baseline gap-4"
+              >
+                {page > 1 ? (
+                  <Link
+                    className="text-accent hover:underline"
+                    href={href({ page: page - 1 })}
+                    rel="prev"
+                  >
+                    ← Newer
+                  </Link>
+                ) : (
+                  <span className="text-fg-faint">← Newer</span>
+                )}
+                <span className="text-fg-faint">
+                  Page <span className="tnum">{page}</span> of{" "}
+                  <span className="tnum">{pageCount}</span>
+                </span>
+                {page < pageCount ? (
+                  <Link
+                    className="text-accent hover:underline"
+                    href={href({ page: page + 1 })}
+                    rel="next"
+                  >
+                    Older →
+                  </Link>
+                ) : (
+                  <span className="text-fg-faint">Older →</span>
+                )}
+              </nav>
+            )}
+          </div>
+        )}
 
         {entries.length === 0 && (
           <p className="mt-4 text-[13px] text-fg-muted">
@@ -506,8 +735,6 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               </a>
               . A track record nobody can question is not one worth publishing.
             </p>
-            {/* The avatar makes the maintainer a person rather than a handle,
-                which is the point of putting a contact here at all. */}
             <a
               href={MAINTAINER_URL}
               target="_blank"
@@ -562,6 +789,36 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         </div>
       </section>
     </>
+  );
+}
+
+/** One book in the filter row.
+ *
+ *  The selected entry stays a link rather than becoming inert text: clicking it
+ *  from page 3 of a filtered view is how a reader gets back to the top of that
+ *  book, and an `aria-current` says which one is showing without relying on the
+ *  colour to carry it. */
+function FilterLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "true" : undefined}
+      className={
+        active
+          ? "text-fg border-b border-accent pb-0.5"
+          : "text-accent hover:underline"
+      }
+    >
+      {children}
+    </Link>
   );
 }
 
