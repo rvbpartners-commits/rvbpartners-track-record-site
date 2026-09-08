@@ -65,7 +65,7 @@ export async function Shell({ children }: { children: ReactNode }) {
           see Curtain for why it is not a fixed overlay. It sits outside the
           measure-capped containers below because it is the one full-bleed
           element on the site. */}
-      <Curtain runningHead={runningHead} />
+      <Curtain />
 
       <header className="border-b hairline">
         {/* `mx-auto` is what centres the column. A `max-w-*` on its own only

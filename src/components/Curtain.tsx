@@ -33,7 +33,7 @@ import { Mark } from "./Mark";
  * Home only. `usePathname` is the same gate `AccountDisclosure` uses; the
  * hooks above it run unconditionally, so the early return is safe.
  */
-export function Curtain({ runningHead }: { runningHead: string | null }) {
+export function Curtain() {
   const path = usePathname();
   const inner = useRef<HTMLDivElement>(null);
 
@@ -93,19 +93,6 @@ export function Curtain({ runningHead }: { runningHead: string | null }) {
         <p className="mt-9 text-center text-[30px] sm:text-[44px] font-semibold leading-none tracking-[-0.015em]">
           RVB Partners
         </p>
-
-        {runningHead && (
-          <>
-            <div
-              aria-hidden="true"
-              className="mt-8 h-px w-[132px]"
-              style={{ background: "var(--hairline)" }}
-            />
-            <p className="mt-5 max-w-[92vw] text-center font-figure text-[10px] uppercase leading-relaxed tracking-[0.15em] text-fg-faint">
-              {runningHead}
-            </p>
-          </>
-        )}
 
         {/* The affordance. Without it a visitor can meet a full screen with no
             visible control and no indication there is anything under it. */}
