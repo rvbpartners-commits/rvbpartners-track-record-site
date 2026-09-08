@@ -23,28 +23,39 @@
 
 :root {
   color-scheme: dark;
-  --bg: #0d0f12;
-  --bg-subtle: #121519;
-  --bg-raised: #15181d;
-  --fg: #eef1f5;
-  --fg-muted: #a2abba;
+  --bg: #0c0d0e;
+  --bg-subtle: #111110;
+  --bg-raised: #161614;
+  --fg: #e9e4da;
+  --fg-muted: #a9a294;
   /* Lifted from #6f7889 (2.9:1 on the page ground, below AA) to a
      compliant value: this token carries the captions and the withheld
      markers, i.e. exactly the text a reader must not have to squint at. */
-  --fg-faint: #8b939f;
-  --hairline: #23272e;
-  --up: #3ddc97;
-  --up-soft: #123026;
-  --down: #ff7a6e;
-  --down-soft: #2e1613;
-  --accent: #9dc0f5;
-  --bench: #616b7c;
+  --fg-faint: #8e897f;
+  --hairline: #232320;
+  --up: #8fb397;
+  --up-soft: #16201a;
+  --down: #c98a7c;
+  --down-soft: #241816;
+  /* THE FIRM'S OWN LINE, and the links. Antique gold — the colour a ledger's
+     rules and gilt edges are printed in. Deliberately NOT the reserved oxide
+     below: a link is not a negative fact, and red links read as errors. 6.9:1
+     on the ground. */
+  --accent: #b8975c;
+  /* THE ONE SATURATED COLOUR, AND IT IS RESERVED. Oxide marks a NEGATIVE fact
+     and nothing else: PAPER, WITHHELD, REFUSED, EXCLUDED, SUPERSEDED. It is
+     never a link, never a heading, never a chart line, never decoration. The
+     moment it appears somewhere neutral it stops meaning anything, and the
+     stamps that carry the site's honesty go quiet with it. 5.2:1 on the
+     ground, so it is legible as small caps type and not only as a rule. */
+  --oxide: #d4623f;
+  --bench: #6b665d;
   /* No amber. A withheld statistic is not a warning, it is an absence, and the
      page carries one accent colour only — the portfolio line. Notices are set
      apart by ground and weight, never by hue. */
-  --warn-bg: #16181c;
-  --warn-fg: #c7cdd8;
-  --warn-line: #292d35;
+  --warn-bg: #141311;
+  --warn-fg: #cfc7b8;
+  --warn-line: #2b2924;
   /* One colour per PORTFOLIO on the overview chart, where no single line is "the"
      portfolio and grey is free (that chart carries no benchmark). Deliberately
      NOT --up/--down: those two mean the sign of a return everywhere else, and a
@@ -56,13 +67,15 @@
 
      These are the LIFTED values. The versions used against a white ground were
      far too dark to read here, and four lines have to stay separable at 1.4px. */
-  --s1: #9dc0f5;
-  --s2: #e0b072;
-  --s3: #d49ac0;
-  --s4: #6fc4d4;
+  --s1: #c9c2b4;
+  --s2: #c8956a;
+  --s3: #a58fa0;
+  --s4: #7fa39c;
 }
 
 @theme inline {
+  --font-prose: var(--font-prose);
+  --font-figure: var(--font-figure);
   --color-bg: var(--bg);
   --color-bg-subtle: var(--bg-subtle);
   --color-bg-raised: var(--bg-raised);
@@ -75,6 +88,7 @@
   --color-down: var(--down);
   --color-down-soft: var(--down-soft);
   --color-accent: var(--accent);
+  --color-oxide: var(--oxide);
   --color-bench: var(--bench);
   --color-warn-bg: var(--warn-bg);
   --color-warn-fg: var(--warn-fg);
@@ -92,9 +106,12 @@ html {
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  /* Prose is the serif. Anything that is a MEASUREMENT opts into the mono via
+     .tnum or an explicit font-figure class — the two faces are the grammar,
+     not decoration. */
+  font-family: var(--font-prose), Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.68;
   -webkit-font-smoothing: antialiased;
   /* The page itself must never scroll sideways; wide content scrolls inside
      its own container instead. */
@@ -107,6 +124,12 @@ table, th, td, pre, code, .hairline { border-radius: 0; }
 
 /* Tabular figures everywhere a number sits in a column, so digits line up and
    a changing value does not make the row jitter. */
+/* A number is set in the face that measurement is set in. This is the single
+   rule that makes the page read as a register rather than a brochure. */
+.tnum, table, th, td, code, pre, .mono {
+  font-family: var(--font-figure), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";

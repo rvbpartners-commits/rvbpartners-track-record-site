@@ -1,7 +1,38 @@
 import type { Metadata } from "next";
+import { IBM_Plex_Mono, Spectral } from "next/font/google";
 import "./globals.css";
 import { SITE_ORIGIN } from "@/lib/data";
 import { Shell } from "@/components/Shell";
+
+/* TWO FAMILIES, AND THE SPLIT IS THE WHOLE LOOK.
+ *
+ * The site had no typeface at all — `ui-sans-serif, system-ui` renders in
+ * whatever the visitor's operating system supplies, so the same page arrived
+ * as SF Pro on a Mac and Segoe on Windows. That is not restraint, it is an
+ * unmade decision, and it is why careful writing still read as generic.
+ *
+ * Serif means the firm is talking. Mono means this came out of a file you can
+ * download: every figure, date, hash, ticker, table cell and axis tick. The
+ * day a digit appears in the serif, the register stops reading as a record and
+ * starts reading as an opinion about one.
+ *
+ * Self-hosted at build by next/font, so the CSP never sees a font request and
+ * there is no layout shift while a webfont loads.
+ */
+const spectral = Spectral({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-prose",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-figure",
+});
 
 export const metadata: Metadata = {
   // Pinned, not inferred. Without it Next resolves canonical and social URLs
@@ -37,7 +68,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${spectral.variable} ${plexMono.variable}`}>
       <body>
         <Shell>{children}</Shell>
       </body>
