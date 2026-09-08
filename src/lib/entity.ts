@@ -65,9 +65,14 @@ export const ENTITY = {
     president: "Finn Van Den Bosch",
     generalManagers: ["Elias Garcia--Baron", "Florian Rizzo"],
   },
-  /** Directeur de la publication. Defaults to the legal representative of the
-   *  company, which for a SAS is its président. */
-  publicationDirector: "Finn Van Den Bosch",
+  /* NO `publicationDirector` FIELD, DELIBERATELY, AND IT IS A KNOWN GAP.
+   * LCEN art. 6-III-1(c) requires a website's legal notice to name the
+   * directeur de la publication, and art. 93-2 of law 82-652 makes that the
+   * company's legal representative — here the président, who IS named above
+   * under Officers. It was carried as its own labelled row and removed on
+   * 2026-09-08 at the instruction of the company, after the requirement was
+   * put to them. Restoring it is one row and one line here; do not re-add it
+   * silently on the assumption it was an oversight. */
   host: {
     name: "Vercel Inc.",
     address: "340 S Lemon Ave #4133, Walnut, CA 91789, United States",

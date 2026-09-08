@@ -9,53 +9,57 @@ import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
  * commercial identifiers). The site had none, which is the one gap on it that
  * was not a matter of taste.
  *
- * THE ROUTE IS FRENCH AND THE HEADINGS ARE FRENCH; the explanations are in
- * English like the rest of the site. That is not indecision. A French reader
- * and a French authority both look for the words "mentions légales", and the
- * identifiers themselves — société par actions simplifiée, RCS, capital social
- * — are terms of art that do not survive translation: "simplified joint-stock
- * company" is not a legal form anyone can look up. So the legal furniture keeps
- * its own language and the prose keeps the site's, with English glosses beside
- * the terms that need them.
+ * ENGLISH, LIKE THE REST OF THE SITE. Nothing in French law requires this page
+ * to be in French: loi Toubon governs the presentation of goods and services
+ * offered to consumers, and this company offers neither — its registered
+ * purpose is trading its own account.
+ *
+ * But the REGISTERED WORDING still has to be recoverable, because the whole
+ * value of these identifiers is that a reader can check them against the
+ * register and find the same words. "Simplified joint-stock company with
+ * variable capital" is a translation, not a legal form; nobody can look it up.
+ * So each translated value carries the filed French beneath it, marked "as
+ * registered". English to read, French to verify.
  *
  * Every identifier comes from `lib/entity.ts`, which is transcribed from the
  * Kbis. See that file for what was deliberately left out.
  */
 export const metadata: Metadata = {
-  title: "Mentions légales",
+  title: "Legal notice",
   description:
     "Legal notice for RVB Partners — company identification, publication director, hosting, and the terms on which this site is published.",
-  alternates: { canonical: `${SITE_ORIGIN}/mentions-legales` },
+  alternates: { canonical: `${SITE_ORIGIN}/legal` },
 };
 
-export default function MentionsLegales() {
+export default function LegalNotice() {
   return (
     <div className="pt-2 lg:pt-6">
       <h1 className="text-[30px] sm:text-[38px] leading-[1.16] tracking-[-0.012em]">
-        Mentions légales
+        Legal notice
       </h1>
       <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
-        Published under article 6-III of the French law n° 2004-575 of 21 June
-        2004 (LCEN) and article R. 123-237 of the code de commerce. Every
-        identifier below is transcribed from the company&rsquo;s{" "}
-        <em>extrait Kbis</em> and can be checked against the register.
+        The <em>mentions légales</em> required of a French company publishing a
+        website, under article 6-III of law n° 2004-575 of 21 June 2004 (LCEN)
+        and article R. 123-237 of the code de commerce. Every identifier below
+        is transcribed from the company&rsquo;s <em>extrait Kbis</em> and can be
+        checked against the register, where it appears in French.
       </p>
 
       {/* ─── ÉDITEUR ──────────────────────────────────────────────────── */}
-      <Section title="Éditeur du site" gloss="Publisher">
+      <Section title="The company" gloss="Publisher of this site">
         <Rows
           rows={[
-            ["Dénomination sociale", ENTITY.name],
-            ["Sigle", ENTITY.short],
+            ["Company name", ENTITY.name],
+            ["Short name", ENTITY.short],
             [
-              "Forme juridique",
+              "Legal form",
               <span key="forme">
-                {ENTITY.legalForm}
-                <Gloss>{ENTITY.legalFormEn}</Gloss>
+                {ENTITY.legalFormEn}
+                <Gloss>as registered: {ENTITY.legalForm}</Gloss>
               </span>,
             ],
             [
-              "Capital social",
+              "Share capital",
               <span key="capital">
                 {ENTITY.capital}
                 <Gloss>
@@ -63,24 +67,24 @@ export default function MentionsLegales() {
                 </Gloss>
               </span>,
             ],
-            ["Siège social", REGISTERED_ADDRESS],
+            ["Registered office", REGISTERED_ADDRESS],
             [
-              "Immatriculation",
+              "Registration",
               <span key="rcs">
                 {ENTITY.rcs.number} R.C.S. {ENTITY.rcs.registry}
                 <Gloss>
-                  registered {ENTITY.rcs.registeredOn} · n° de gestion{" "}
+                  entered on the register {ENTITY.rcs.registeredOn} · file no.{" "}
                   {ENTITY.rcs.managementNumber}
                 </Gloss>
               </span>,
             ],
             ["SIREN", ENTITY.rcs.siren],
-            ["Identifiant européen (EUID)", ENTITY.rcs.euid],
+            ["European identifier (EUID)", ENTITY.rcs.euid],
             [
-              "Activités principales",
+              "Registered activity",
               <span key="purpose">
-                {ENTITY.purpose}
-                <Gloss>{ENTITY.purposeEn}</Gloss>
+                {ENTITY.purposeEn}
+                <Gloss>as registered: {ENTITY.purpose}</Gloss>
               </span>,
             ],
             [
@@ -108,20 +112,13 @@ export default function MentionsLegales() {
       </Section>
 
       {/* ─── DIRECTION ────────────────────────────────────────────────── */}
-      <Section title="Direction" gloss="Officers and publication director">
+      <Section title="Officers" gloss="Who runs the company">
         <Rows
           rows={[
-            ["Président", ENTITY.officers.president],
+            ["President", ENTITY.officers.president],
             [
-              "Directeurs généraux",
+              "General managers",
               ENTITY.officers.generalManagers.join(" · "),
-            ],
-            [
-              "Directeur de la publication",
-              <span key="dirpub">
-                {ENTITY.publicationDirector}
-                <Gloss>as legal representative of the company</Gloss>
-              </span>,
             ],
           ]}
         />
@@ -134,23 +131,24 @@ export default function MentionsLegales() {
           The register also records each officer&rsquo;s date and place of birth
           and their nationality. Those are not reproduced here: no rule requires
           them on a website, and they identify private individuals without
-          serving any reader of this one.
+          serving any reader of this one. The register itself withholds their
+          home addresses on the same basis.
         </p>
       </Section>
 
       {/* ─── HÉBERGEUR ────────────────────────────────────────────────── */}
-      <Section title="Hébergeur" gloss="Host">
+      <Section title="Hosting" gloss="Where this site is served from">
         <Rows
           rows={[
             [
-              "Hébergeur du site",
+              "This site",
               <span key="host">
                 {ENTITY.host.name}
                 <Gloss>{ENTITY.host.address}</Gloss>
               </span>,
             ],
             [
-              "Données publiées",
+              "The published record",
               <span key="data-host">
                 GitHub, Inc.
                 <Gloss>
@@ -171,7 +169,7 @@ export default function MentionsLegales() {
       </Section>
 
       {/* ─── WHAT THIS SITE IS ────────────────────────────────────────── */}
-      <Section title="Objet du site" gloss="What this site is, and is not">
+      <Section title="Purpose" gloss="What this site is, and is not">
         <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
           {/* THE REGISTERED PURPOSE IS THE EVIDENCE FOR THE DISCLAIMER. Every
               other page asserts "no third-party money is managed here" in the
@@ -209,7 +207,7 @@ export default function MentionsLegales() {
       </Section>
 
       {/* ─── PROPRIÉTÉ INTELLECTUELLE ─────────────────────────────────── */}
-      <Section title="Propriété intellectuelle" gloss="Intellectual property">
+      <Section title="Intellectual property" gloss="What is owned, and what is open">
         <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
           <p>
             The name {ENTITY.name}, the {ENTITY.short} mark and the editorial
@@ -240,7 +238,7 @@ export default function MentionsLegales() {
       </Section>
 
       {/* ─── DONNÉES / COOKIES ────────────────────────────────────────── */}
-      <Section title="Données personnelles et cookies" gloss="Privacy">
+      <Section title="Personal data and cookies" gloss="Privacy">
         <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
           {/* WRITTEN FROM WHAT THE SITE ACTUALLY DOES, not from a template. If
               this ever stops being true — an analytics script, an embed, a

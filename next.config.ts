@@ -12,6 +12,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  /* The legal notice was published at /mentions-legales for a few hours before
+     the site settled on English throughout. That address is already in the
+     wild, and a legal notice is exactly the page a reader must not meet a 404
+     at. Permanent, so it is also the answer for anything that indexed it. */
+  async redirects() {
+    return [
+      { source: "/mentions-legales", destination: "/legal", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

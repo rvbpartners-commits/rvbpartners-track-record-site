@@ -32,11 +32,8 @@ export function Footer({ hasLive }: { hasLive: boolean }) {
           </Link>
           {/* Legally required of a French company publishing a website (LCEN
               art. 6-III). The footer is where a reader looks for it. */}
-          <Link
-            href="/mentions-legales"
-            className="hover:text-fg transition-colors"
-          >
-            Mentions légales
+          <Link href="/legal" className="hover:text-fg transition-colors">
+            Legal notice
           </Link>
           <Link href="/methodology" className="hover:text-fg transition-colors">
             Methodology
