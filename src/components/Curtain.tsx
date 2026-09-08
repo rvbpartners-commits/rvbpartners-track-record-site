@@ -72,6 +72,26 @@ const useBeforePaint =
 /** How long scrolling must be quiet before the panel is removed (ms). */
 const SETTLE_MS = 140;
 
+/** Per-tab, cleared when the browser session ends. See layout.tsx for why this
+ *  is sessionStorage and not a cookie. */
+const ENTERED_KEY = "rvb.entered";
+
+/** Storage access THROWS rather than returning null when a browser is set to
+ *  block site data, so every touch of it is guarded. Failing to remember is
+ *  fine — the visitor simply meets the title page again. */
+function rememberEntered() {
+  try {
+    sessionStorage.setItem(ENTERED_KEY, "1");
+  } catch {
+    /* private mode, or site data blocked */
+  }
+  document.documentElement.dataset.entered = "1";
+}
+
+function hasEntered() {
+  return document.documentElement.dataset.entered === "1";
+}
+
 export function Curtain() {
   const path = usePathname();
   const home = path === "/";
@@ -88,11 +108,24 @@ export function Curtain() {
     const el = section.current;
     if (!el) return;
     restoreTo.current = Math.max(0, window.scrollY - el.offsetHeight);
+    rememberEntered();
     setEntered(true);
   }, []);
 
   useEffect(() => {
     if (!home || entered) return;
+    // ALREADY THROUGH, in this session. Bind nothing and change nothing: the
+    // <head> script has stamped <html> and the CSS rule gives the panel
+    // `display: none`, so it is already out of the layout, out of the
+    // accessibility tree, and painting nothing.
+    //
+    // It stays MOUNTED on purpose. Unmounting it would mean setting state
+    // during an effect purely to remove an element that is already invisible,
+    // and it would make the client's DOM differ from the server's for no gain.
+    // Leaving it be also avoids touching the scroll position, which would yank
+    // a reader who arrived by Back button at a remembered offset.
+    if (hasEntered()) return;
+
     const el = section.current;
     const panel = inner.current;
     if (!el || !panel) return;
@@ -151,6 +184,7 @@ export function Curtain() {
   return (
     <section
       ref={section}
+      data-curtain=""
       aria-label="RVB Partners"
       className="relative h-[100svh] min-h-[520px] w-full"
     >

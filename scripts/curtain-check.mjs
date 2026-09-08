@@ -108,6 +108,50 @@ check(
   )}; shift ${Math.round(docPosBefore - docPosAfter)} vs panel ${h}`,
 );
 
+// 5. THE CROSSING IS REMEMBERED FOR THE SESSION. A reload must not put the
+//    title page back — and must not FLASH it either, which is why the answer
+//    is stamped by a blocking script in <head> rather than by an effect.
+check(
+  "the crossing was recorded",
+  (await evaluate("sessionStorage.getItem('rvb.entered')")) === "1",
+);
+
+await send("Page.navigate", { url: URL_UNDER_TEST });
+await sleep(3000);
+check(
+  "<html> is stamped before paint on reload",
+  (await evaluate("document.documentElement.dataset.entered")) === "1",
+);
+check(
+  "the panel takes no space after reload",
+  (await evaluate(`${q} ? ${q}.offsetHeight : -1`)) === 0,
+  "display:none, so no layout and no paint",
+);
+check(
+  "reload lands on the register, at the top",
+  (await evaluate("window.scrollY")) === 0 &&
+    (await evaluate(
+      `document.querySelector('h1').getBoundingClientRect().top`,
+    )) < 400,
+);
+// The markup must be IDENTICAL to the server's — that is what makes this a
+// CSS decision rather than a hydration mismatch to recover from.
+check(
+  "the panel is still in the DOM, not removed",
+  (await evaluate(`${q} !== null`)) === true,
+  "identical markup server and client",
+);
+
+// 6. A FRESH SESSION STILL MEETS THE FRONT DOOR.
+await evaluate("sessionStorage.clear()");
+await send("Page.navigate", { url: URL_UNDER_TEST });
+await sleep(3000);
+check(
+  "a new session sees the title page again",
+  (await evaluate(`${q} ? ${q}.offsetHeight : 0`)) > 400,
+  `height ${await evaluate(`${q} ? ${q}.offsetHeight : 0`)}`,
+);
+
 ws.close();
 const failed = results.filter((r) => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);

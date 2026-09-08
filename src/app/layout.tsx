@@ -78,6 +78,40 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${spectral.variable} ${plexMono.variable}`}>
+      <head>
+        {/* HAS THIS VISITOR ALREADY COME THROUGH THE FRONT DOOR? Answered
+            BEFORE THE FIRST PAINT, which is the only reason this is an inline
+            script rather than a `useEffect`.
+            
+            The title page is server-rendered on every request — it has to be,
+            or a reader with no JavaScript never sees it. So on a reload, a
+            visitor who has already entered would get the panel painted, then
+            hydration would run, then React would remove it: a flash of the
+            splash screen followed by the page jumping up a full viewport. On a
+            slow connection that is not a flash, it is a second.
+            
+            A blocking script in <head> settles it before anything is drawn.
+            The markup is identical either way — only a CSS rule changes — so
+            there is no hydration mismatch to recover from.
+            
+            sessionStorage, NOT a cookie. A cookie would be sent to the server
+            on every request, which would let this be decided during rendering
+            and is in that sense the tidier engineering; but it would also make
+            a French financial site with no consent banner start setting
+            cookies, and skipping a splash screen is not a strictly-necessary
+            purpose. This never leaves the browser.
+            
+            try/catch because storage access THROWS, it does not return null,
+            when a browser is set to block site data. An exception here would
+            be uncaught at the top of the document. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(sessionStorage.getItem('rvb.entered')==='1')" +
+              "document.documentElement.dataset.entered='1'}catch(e){}",
+          }}
+        />
+      </head>
       <body>
         <Shell>{children}</Shell>
       </body>

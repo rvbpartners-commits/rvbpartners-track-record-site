@@ -198,3 +198,12 @@ a {
     background-color: var(--fg-faint);
   }
 }
+
+/* Set by the blocking script in <head> (see layout.tsx) for a visitor who has
+   already crossed the threshold in this browsing session. The panel is still
+   in the markup — identical HTML for everyone, so nothing to reconcile at
+   hydration — it simply never occupies space or paints. React unmounts it a
+   moment later; this rule is only what covers the interval before that. */
+html[data-entered] [data-curtain] {
+  display: none;
+}
