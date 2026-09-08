@@ -16,9 +16,13 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Methodology",
+  // The description lists the page's sections, so a section added to the page
+  // is added here too — a summary that names five of six is the kind of drift
+  // nothing on the page itself would ever show.
   description:
     "How every published number is produced: sources, return convention, " +
-    "metric definitions, benchmark, and the biases that are known but unmeasured.",
+    "metric definitions, benchmark, what the fills cost, and the biases that " +
+    "are known but unmeasured.",
 };
 
 export default async function MethodologyPage() {
@@ -316,6 +320,117 @@ export default async function MethodologyPage() {
             benchmark file carries no index column is drawn without one, legend
             included. Each book&rsquo;s own methodology note, published in the data
             repository, states the conventions that are specific to it.
+          </p>
+        </Section>
+
+        {/* "WHAT DID THE FILLS COST" HAD NO ANSWER ON THIS PAGE, and it is one
+            of the first questions anyone competent asks of a track record. It
+            sits here, after the sections that describe how a number is made and
+            before the section that lists what those numbers do not establish,
+            because it describes the instrument rather than qualifying it — and
+            the qualification that follows from it is the feed paragraph that
+            opens the next section.
+
+            THE SECTION EXISTS TO KEEP TWO THINGS APART. A broker's paper
+            simulator produced the fills behind the paper accounts' figures; a
+            cost model in the research charged the strategies that were selected.
+            Written together they read as one costed result, which would be the
+            most flattering false claim available to this page. They are
+            separated by paragraph, and the last one names the seam.
+
+            NOTHING ABOUT THE PAPER SIDE IS INFERRED. The published order and
+            fill records carry no commission, fee or financing field, and no
+            file this site reads states a commission schedule — so the honest
+            content is that it is not published. A plausible number written here
+            would be indistinguishable, to a reader, from a measured one. */}
+        <Section title="Costs and fills">
+          <p>
+            <strong className="font-medium">
+              A paper fill is a real order and a simulated execution.
+            </strong>{" "}
+            The account is a real broker account quoting live market prices and
+            the desk sends it real orders. What does not happen is the last
+            step: rather than carrying the order to a venue and matching it
+            against another participant, the broker fills it from its own paper
+            simulator. Each released session publishes the orders as they were
+            submitted — symbol, side, quantity, filled quantity, filled average
+            price, submission time, status — and the fills as they came back:
+            symbol, quantity, price, timestamp.
+          </p>
+          {paperFeed && (
+            <p>
+              One cost-bearing fact those records do carry is the market data
+              each fill was priced against: <Em>{paperFeed}</Em>. It is stamped
+              into every published record for these accounts, and what a thin
+              feed does to a simulated fill is the first item under the limits
+              below.
+            </p>
+          )}
+          <p>
+            <strong className="font-medium">
+              What the fills cost is not in the published record.
+            </strong>{" "}
+            No order or fill record carries a commission, a fee or a financing
+            line, and no published file states the schedule these accounts trade
+            on or the rule the simulator uses to price a fill. What can be said
+            is where any such charge would already be: book equity is the
+            broker&rsquo;s own account equity, so whatever the paper engine
+            charged is inside the published curve already, and whatever it did
+            not charge is missing from that curve in exactly the same way.
+            Nothing here should be read as a claim that these fills were free.
+          </p>
+          <Note>
+            Two open items, stated as open rather than filled in: the commission
+            schedule these paper accounts trade on, and the rule the
+            broker&rsquo;s simulator uses to decide a fill price. Neither
+            appears in any file this site reads, so neither is stated on it.
+          </Note>
+          <p>
+            <strong className="font-medium">
+              The research charged a cost model, which is a different thing.
+            </strong>{" "}
+            Every strategy is measured by one accounting engine that turns
+            target weights into returns, and each charge falls on the weight
+            actually held — the weight decided one bar earlier, and including
+            the first move from flat into the book, which is the trade a naive
+            accounting forgets. There are four charges: a commission in basis
+            points of turnover; a half-spread crossed on every unit of that
+            turnover; borrow accrued each bar on the short leg alone, at an
+            annual rate; and square-root market impact against average daily
+            volume. The commission is declared per strategy, and one presented
+            as a result with no commission declared — and no written exemption —
+            is refused by our own gate. Impact is the exception to the rest: it
+            is opt-in and needs a volume panel to compute, no strategy in the
+            catalogue supplies one, and so no impact cost was charged anywhere
+            in the research.
+          </p>
+          <p>
+            <strong className="font-medium">
+              Spread and borrow are set by asset class, not by one number.
+            </strong>{" "}
+            Left unset they resolve per instrument: US equities and ETFs at{" "}
+            <Em>2.5 bp</Em> of half-spread and <Em>50 bp</Em> a year of borrow,
+            crypto at <Em>8 bp</Em> and <Em>300 bp</Em>, spot FX majors at{" "}
+            <Em>1 bp</Em> and no borrow line at all — financing there sits in
+            the swap points rather than in a rate. The figures are provisional,
+            they are one table, and a strategy may override any of them. Two
+            limits of it are worth stating. An instrument the table does not
+            name is charged no spread and no borrow, which is a fact about the
+            table rather than about the instrument. And the single flat number
+            this replaced is the setting under which an illiquid name looks
+            investable, which is the reason the table exists.
+          </p>
+          <p>
+            <strong className="font-medium">
+              Two instruments, and a reader should know which is which.
+            </strong>{" "}
+            The research figures are what that cost model produced; the figures
+            published for these accounts are what a broker&rsquo;s simulator
+            produced. No backtested return series is published on this site —
+            every curve and every figure here is computed from an account&rsquo;s
+            own published record — and the cost model is part of how a strategy
+            was measured and chosen, never a statement of what an account was
+            charged.
           </p>
         </Section>
 
