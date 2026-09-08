@@ -18,20 +18,29 @@ import { Shell } from "@/components/Shell";
  *
  * Self-hosted at build by next/font, so the CSP never sees a font request and
  * there is no layout shift while a webfont loads.
+ *
+ * The variables next/font emits are named for the TYPEFACE (--font-spectral,
+ * --font-plex); globals.css maps them onto the ROLE names (--font-prose,
+ * --font-figure) in its @theme block. The two layers must not share a name:
+ * both declarations land on <html> at equal specificity, so `--font-prose:
+ * var(--font-prose)` resolves to itself, and a self-referential custom
+ * property is invalid at computed-value time — which silently invalidates
+ * every `font-family` that reads it and drops the page back to the system
+ * stack. The fonts download, the class lands, and nothing uses them.
  */
 const spectral = Spectral({
   subsets: ["latin"],
   weight: ["400", "600"],
   style: ["normal", "italic"],
   display: "swap",
-  variable: "--font-prose",
+  variable: "--font-spectral",
 });
 
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
-  variable: "--font-figure",
+  variable: "--font-plex",
 });
 
 export const metadata: Metadata = {

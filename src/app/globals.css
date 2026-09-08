@@ -74,8 +74,9 @@
 }
 
 @theme inline {
-  --font-prose: var(--font-prose);
-  --font-figure: var(--font-figure);
+  /* ROLE name <- TYPEFACE name. Never the same identifier: see layout.tsx. */
+  --font-prose: var(--font-spectral);
+  --font-figure: var(--font-plex);
   --color-bg: var(--bg);
   --color-bg-subtle: var(--bg-subtle);
   --color-bg-raised: var(--bg-raised);
