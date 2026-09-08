@@ -27,6 +27,12 @@ export function Footer({ hasLive }: { hasLive: boolean }) {
         </p>
 
         <div className="mt-8 pt-6 border-t hairline grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-2.5 sm:gap-y-2 text-[13px] text-fg-muted">
+          <Link href="/firm" className="hover:text-fg transition-colors">
+            The firm
+          </Link>
+          <Link href="/refused" className="hover:text-fg transition-colors">
+            Refused
+          </Link>
           <Link href="/disclosures" className="hover:text-fg transition-colors">
             Disclosures
           </Link>

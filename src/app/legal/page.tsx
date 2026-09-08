@@ -27,7 +27,7 @@ import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
 export const metadata: Metadata = {
   title: "Legal notice",
   description:
-    "Legal notice for RVB Partners — company identification, publication director, hosting, and the terms on which this site is published.",
+    "Legal notice for RVB Partners — company identification, officers, hosting, and the terms on which this site is published.",
   alternates: { canonical: `${SITE_ORIGIN}/legal` },
 };
 

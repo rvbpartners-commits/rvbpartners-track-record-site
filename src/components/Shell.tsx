@@ -3,16 +3,25 @@ import type { ReactNode } from "react";
 import { getIndex, getResearch } from "@/lib/data";
 import { Curtain } from "./Curtain";
 import { Mark } from "./Mark";
+import { NavLinks } from "./NavLinks";
 import { Footer } from "./Footer";
 
 const NAV = [
+  // ORDER IS THE ARGUMENT: identity, then what is traded, then the denominator
+  // that makes those figures readable, then what was thrown away, then how to
+  // check any of it, then the reference, then the standing caveats.
+  { href: "/firm", label: "The firm" },
   { href: "/portfolios", label: "Portfolios" },
-  { href: "/verify", label: "Verify" },
   // Listed only while the research summary is actually published. The link led
   // to a page that read "the research summary has not been published yet" for
   // as long as the file was absent, and a primary navigation item with nothing
   // behind it is a promise the record cannot keep.
   { href: "/research", label: "Research", needsResearch: true },
+  // Gated on the same payload: every figure on /refused comes from research.json,
+  // so without it the page has nothing to count and the promise in the site's
+  // own opening sentence — "what we refused" — would lead somewhere empty.
+  { href: "/refused", label: "Refused", needsResearch: true },
+  { href: "/verify", label: "Verify" },
   { href: "/methodology", label: "Methodology" },
   { href: "/disclosures", label: "Disclosures" },
 ];
@@ -35,7 +44,8 @@ export async function Shell({ children }: { children: ReactNode }) {
   // what the accounts ARE cannot be a constant once one of them changes.
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
   const hasLive = (index?.books ?? []).some((b) => b.capital_at_risk);
-  const nav = NAV.filter((item) => !item.needsResearch || research !== null);
+  const nav = NAV.filter((item) => !item.needsResearch || research !== null)
+    .map(({ href, label }) => ({ href, label }));
 
   // HOW CURRENT THE RECORD IS, read off the books rather than off the clock.
   // `published_at` is when the publisher last RAN, which is not the same claim
@@ -97,17 +107,7 @@ export async function Shell({ children }: { children: ReactNode }) {
               instead; `-mx-5 px-5` lets the row bleed to the screen edge so the
               last link is visibly cut off rather than looking like the end. */}
           <nav className="border-t hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x">
-            <div className="flex gap-7 min-w-max py-2.5">
-              {nav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="font-figure text-[10.5px] uppercase tracking-[0.15em] text-fg-faint hover:text-fg transition-colors"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
+            <NavLinks items={nav} />
           </nav>
         </div>
       </header>

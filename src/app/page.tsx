@@ -110,7 +110,11 @@ export default async function Home() {
         </h1>
         <p className="mt-5 max-w-[44ch] text-[19px] sm:text-[21px] leading-[1.48] text-fg-muted">
           This site is the public register of what we trade, how it was tested,
-          and what we refused.
+          and what we{" "}
+          <Link href="/refused" className="underline underline-offset-4 decoration-hairline hover:decoration-current">
+            refused
+          </Link>
+          .
         </p>
       </section>
 
@@ -138,7 +142,7 @@ export default async function Home() {
               note={
                 `${index.books.length - live.length} paper · ${live.length} real capital` +
                 (realCapitalFunded !== null
-                  ? ` (${money(realCapitalFunded, "USD", 0)}, the firm's own money)`
+                  ? ` (${money(realCapitalFunded, "USD", 0)} funded)`
                   : "")
               }
             />
@@ -163,9 +167,15 @@ export default async function Home() {
           <Stamp
             label="Curve resolution"
             value="5 min"
+            /* Was "paper books, broker equity; the real-capital book is
+               event-driven" on the hasLive branch. Dead today, and prose about
+               a book the site does not publish — but it would have rendered
+               itself the moment one reached the payload. The derived branch is
+               what makes the sentence honest; the sentence still has to be one
+               the firm is willing to publish. */
             note={
               hasLive
-                ? "paper books, broker equity; the real-capital book is event-driven"
+                ? "broker equity; books marked on their own calendars"
                 : "broker equity, not interpolation"
             }
           />
@@ -210,13 +220,12 @@ export default async function Home() {
                 </>
               )}
               .{" "}
-              {/* "BOTH ARE ON THE PORTFOLIOS PAGE" POINTED AT NOTHING. There is
-                  no portfolios page: the address redirects to whichever book is
-                  published first, and the books this sentence is about are the
-                  ones NOT on that chart — reachable only by opening a collapsed
-                  selector a reader has not been told about. Every excluded book
-                  is named and linked here instead, so the sentence delivers what
-                  it promises without a page that does not exist. */}
+              {/* This used to say "both are on the portfolios page" while that
+                  address was a redirect into one book's dossier — a pointer at
+                  nothing. /portfolios is now a real index of every book, so the
+                  naming and linking here is belt-and-braces rather than the only
+                  route to them, and it stays for readers who never leave this
+                  page. */}
               {undrawn.length > 0 ? (
                 <>
                   {undrawn.length === 1 ? "It has" : "They each have"} a page of{" "}
