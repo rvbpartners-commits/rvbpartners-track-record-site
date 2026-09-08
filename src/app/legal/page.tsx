@@ -122,18 +122,6 @@ export default function LegalNotice() {
             ],
           ]}
         />
-        {/* The Kbis records each officer's date and place of birth and their
-            nationality. The registry requires that OF THE REGISTRY. Nothing
-            requires it on a website, and it is personal data about three named
-            individuals published to no purpose — the same judgment the Kbis
-            itself makes about their home addresses (art. R. 123-54-1). */}
-        <p className="mt-5 max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
-          The register also records each officer&rsquo;s date and place of birth
-          and their nationality. Those are not reproduced here: no rule requires
-          them on a website, and they identify private individuals without
-          serving any reader of this one. The register itself withholds their
-          home addresses on the same basis.
-        </p>
       </Section>
 
       {/* ─── HÉBERGEUR ────────────────────────────────────────────────── */}

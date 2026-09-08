@@ -140,10 +140,7 @@ export default async function FirmPage() {
             and nothing on it is an invitation to invest.
           </p>
           <p>
-            That is the company saying so, which is worth little. Here is a
-            third party&rsquo;s record of the same thing — the corporate purpose
-            filed at the register, in the words it was filed in:
-          </p>
+            The corporate purpose filed at the register, in the words it was filed in:</p>
         </div>
 
         <figure className="mt-6 max-w-[72ch] border-l hairline pl-5">
@@ -209,8 +206,7 @@ export default async function FirmPage() {
                     nothing and forecloses the inference. */}
                 <Gloss>
                   a domiciliation address provided by {ENTITY.domiciliation.name}{" "}
-                  (RCS {ENTITY.domiciliation.rcs}) — the company&rsquo;s legal
-                  address, not a place of business open to the public
+                  (RCS {ENTITY.domiciliation.rcs})
                 </Gloss>
               </span>,
             ],
@@ -278,12 +274,6 @@ export default async function FirmPage() {
             ],
           ]}
         />
-        <p className="mt-5 max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
-          The register also records each officer&rsquo;s date and place of birth
-          and their nationality. Neither this page nor the legal notice
-          reproduces those: no rule requires them on a website, and the register
-          itself withholds their home addresses on the same basis.
-        </p>
       </Section>
 
       {/* ─── 6. VOCABULARY ─────────────────────────────────────────────────

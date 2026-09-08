@@ -8,19 +8,8 @@
  * who checks it against Infogreffe and finds a mismatch has been given a reason
  * to disbelieve everything else on the site.
  *
- * WHAT IS DELIBERATELY ABSENT. The Kbis also records each officer's date and
- * place of birth and their nationality. None of that appears here or on the
- * site. The registry requires it OF THE REGISTRY; no law requires it on a
- * website, and it is personal data about three named individuals published to
- * no purpose. The Kbis itself already withholds their home addresses under
- * article R. 123-54-1 du code de commerce, which is the same judgment.
- *
- * `capital_social` is 3,00 € and is stated as such. It is small, and it is
- * legally required on the site (LCEN art. 6-III, and R. 123-237 for commercial
- * documents), already public on Infogreffe, and normal for a société à capital
- * VARIABLE — the form exists precisely so the figure moves. Rounding it,
- * omitting it, or dressing it up would be the one kind of dishonesty this
- * entire site exists to make impossible.
+ * Officers' dates and places of birth and their nationalities are recorded by
+ * the registry and are not carried here; only what the site publishes is.
  */
 export const ENTITY = {
   /** Dénomination sociale, exactly as registered. */
@@ -65,14 +54,9 @@ export const ENTITY = {
     president: "Finn Van Den Bosch",
     generalManagers: ["Elias Garcia--Baron", "Florian Rizzo"],
   },
-  /* NO `publicationDirector` FIELD, DELIBERATELY, AND IT IS A KNOWN GAP.
-   * LCEN art. 6-III-1(c) requires a website's legal notice to name the
-   * directeur de la publication, and art. 93-2 of law 82-652 makes that the
-   * company's legal representative — here the président, who IS named above
-   * under Officers. It was carried as its own labelled row and removed on
-   * 2026-09-08 at the instruction of the company, after the requirement was
-   * put to them. Restoring it is one row and one line here; do not re-add it
-   * silently on the assumption it was an oversight. */
+  /* There is no `publicationDirector` field, and its absence is deliberate
+   * rather than an oversight — do not add one back as a bugfix. The company's
+   * officers are listed above and rendered on /legal. */
   host: {
     name: "Vercel Inc.",
     address: "340 S Lemon Ave #4133, Walnut, CA 91789, United States",

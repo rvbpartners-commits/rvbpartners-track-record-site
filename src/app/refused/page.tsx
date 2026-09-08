@@ -190,10 +190,10 @@ export default async function RefusedPage() {
       </h1>
       <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
         Most of what we tested did not work. This page is the count — the
-        strategies that failed, the numbers we will not print yet, and the
-        things this record cannot prove about itself. It carries no performance
-        figure. Everything on it is published in the same files as the returns,
-        and is regenerated from the catalogue rather than typed.
+        strategies that failed, the figures the record suppresses, and the
+        limits of what it can prove about itself. It carries no performance
+        figure, and every number on it is regenerated from the published
+        catalogue.
       </p>
 
       {/* ─── 1. THE SHAPE OF THE BOOK ─────────────────────────────────────
@@ -548,13 +548,12 @@ export default async function RefusedPage() {
 
       {/* ─── 6. NUMBERS WE WILL NOT PRINT YET ─────────────────────────────── */}
       <Section
-        title="Numbers we will not print yet"
-        gloss="Withheld, and named as withheld"
+        title="Withheld"
+        gloss="Figures the record suppresses, and the rule for each"
       >
         <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
-          Three kinds of figure are missing from the portfolio pages on purpose.
-          A gap that is named is a gap a reader can price; a number published
-          before it means anything is not.
+          Three kinds of figure are suppressed on the portfolio pages, each
+          under a standing rule, until the rule is satisfied.
         </p>
 
         {/* The per-portfolio counters below are read from the published index
@@ -564,8 +563,7 @@ export default async function RefusedPage() {
         {!index && (
           <Note tone="warn" className="mt-6">
             The published index could not be loaded, so the per-portfolio
-            counters behind these rules are not shown. The rules below are the
-            standing ones; the figures are not being guessed at.
+            counters behind these rules are not shown.
           </Note>
         )}
 
@@ -679,12 +677,10 @@ export default async function RefusedPage() {
                   <>The share of winning sessions is not published.</>
                 )}{" "}
                 The two counts behind it are published on every portfolio — the
-                winning sessions and the losing ones, side by side — because
-                those are statements of what happened. The ratio is not, because
-                over this many sessions it is a small count wearing a percent
-                sign. Both numbers are there if you want to form it yourself.
-                What we will not do is print it as though it were a property of
-                the strategy rather than of the handful of sessions behind it.
+                winning sessions and the losing ones, side by side. Over this
+                many sessions the ratio between them is a small count wearing a
+                percent sign, so it is not printed; both numbers are there to
+                form it from.
               </p>
             }
           />
