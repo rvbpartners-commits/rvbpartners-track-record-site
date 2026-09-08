@@ -30,6 +30,14 @@ export function Footer({ hasLive }: { hasLive: boolean }) {
           <Link href="/disclosures" className="hover:text-fg transition-colors">
             Disclosures
           </Link>
+          {/* Legally required of a French company publishing a website (LCEN
+              art. 6-III). The footer is where a reader looks for it. */}
+          <Link
+            href="/mentions-legales"
+            className="hover:text-fg transition-colors"
+          >
+            Mentions légales
+          </Link>
           <Link href="/methodology" className="hover:text-fg transition-colors">
             Methodology
           </Link>
