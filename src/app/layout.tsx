@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SITE_ORIGIN } from "@/lib/data";
 import { Shell } from "@/components/Shell";
 
 export const metadata: Metadata = {
+  // Pinned, not inferred. Without it Next resolves canonical and social URLs
+  // against whichever host served the request, so a link shared from a
+  // redirecting hostname advertises that hostname as the canonical one.
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: "RVB live track record",
     template: "%s · RVB",

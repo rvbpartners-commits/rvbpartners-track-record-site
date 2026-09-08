@@ -16,6 +16,16 @@
  */
 
 export const DATA_REPO = "rvbpartners-commits/rvbpartners-track-record-data";
+/** The site's own canonical address.
+ *
+ *  Named once because it has moved once: the record lived at
+ *  `trackrecord.rvbpartners.fr` until the firm's apex took over, and the
+ *  hostname was baked into the share card, where nobody looks until someone
+ *  pastes a link into a chat and it advertises an address that redirects.
+ */
+export const SITE_HOST = "rvbpartners.fr";
+export const SITE_ORIGIN = `https://${SITE_HOST}`;
+
 export const DATA_BASE = `https://raw.githubusercontent.com/${DATA_REPO}/main`;
 export const DATA_REPO_URL = `https://github.com/${DATA_REPO}`;
 export const SITE_REPO_URL =
