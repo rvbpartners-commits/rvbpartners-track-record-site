@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getIndex, getResearch } from "@/lib/data";
-import { Curtain } from "./Curtain";
 import { Mark } from "./Mark";
 import { NavLinks } from "./NavLinks";
 import { Footer } from "./Footer";
@@ -71,11 +70,6 @@ export async function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* The title page, home only, and IN NORMAL FLOW above the masthead —
-          see Curtain for why it is not a fixed overlay. It sits outside the
-          measure-capped containers below because it is the one full-bleed
-          element on the site. */}
-      <Curtain />
 
       <header className="border-b hairline">
         {/* `mx-auto` is what centres the column. A `max-w-*` on its own only

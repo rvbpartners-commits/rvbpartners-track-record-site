@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Note } from "@/components/Note";
-import { Stamp } from "@/components/Stamp";
+import { Hero } from "@/components/Hero";
 import { CONTACT_EMAIL, getIndex, getResearch } from "@/lib/data";
 import { ENTITY } from "@/lib/entity";
 import { NO_VALUE, date } from "@/lib/format";
@@ -55,7 +55,6 @@ export default async function Home() {
   const tested = research?.search?.strategies_researched ?? null;
   const backtests = research?.search?.recorded_trials ?? null;
   const presented = research?.catalogue?.presented_folders ?? null;
-  const funnel = tested !== null && backtests !== null && presented !== null;
 
   const longestRecord = books.reduce((n, b) => Math.max(n, b.sessions), 0);
   const currentTo = books
@@ -63,6 +62,20 @@ export default async function Home() {
     .filter(Boolean)
     .sort()
     .at(-1);
+
+  // FOUR COUNTS, NEVER A RETURN, EACH READ FROM THE PAYLOAD. The fourth is the
+  // account kind, which is the fact that qualifies the other three.
+  const heroStats = [
+    tested !== null ? { label: "Strategies researched", value: int(tested) } : null,
+    backtests !== null ? { label: "Recorded backtests", value: int(backtests) } : null,
+    presented !== null ? { label: "Presented as an edge", value: int(presented) } : null,
+    books.length > 0
+      ? {
+          label: hasLive ? "Portfolios" : "Paper accounts",
+          value: String(books.length),
+        }
+      : null,
+  ].filter((s): s is { label: string; value: string } => s !== null);
 
   const rejected: [number | undefined, string][] = [
     [
@@ -84,119 +97,12 @@ export default async function Home() {
 
   return (
     <>
-      {/* ─── 1. WHO ───────────────────────────────────────────────────────── */}
-      <section className="pt-4 lg:pt-10">
-        <h1 className="max-w-[26ch] text-[31px] sm:text-[42px] leading-[1.14] tracking-[-0.014em]">
-          RVB Partners is a systematic trading firm in France.
-        </h1>
-        <p className="mt-5 max-w-[44ch] text-[19px] sm:text-[21px] leading-[1.48] text-fg-muted">
-          This site is the public register of what we trade, how it was tested,
-          and what we{" "}
-          <Link
-            href="/refused"
-            className="underline underline-offset-4 decoration-hairline hover:decoration-current"
-          >
-            refused
-          </Link>
-          .
-        </p>
-      </section>
-
-      {/* ─── 2. THE REGISTERED PURPOSE ────────────────────────────────────
-          The only claim on this page a reader can check against a third party.
-          Everything else here is the firm describing itself. */}
-      <p className="mt-8 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
-        The company trades its own capital and no one else&rsquo;s. Its
-        registered corporate purpose, as filed, is{" "}
-        <span className="text-fg">{ENTITY.purposeEn.replace(/\.$/, "")}</span> —{" "}
-        <Link href="/firm" className="text-accent hover:underline">
-          the register&rsquo;s record of it
-        </Link>
-        , not ours.
-      </p>
-
-      {/* ─── 3. WHAT WE DID ───────────────────────────────────────────────
-          The most legible thing this firm owns, and it was buried. A reader
-          takes the shape of the whole operation off three numbers, none of
-          which is a return. */}
-      {funnel && (
-        <p className="mt-6 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
-          We have researched{" "}
-          <span className="tnum text-fg">{int(tested)}</span> trading strategies
-          and run <span className="tnum text-fg">{int(backtests)}</span> recorded
-          backtests against them. After correcting for how much was searched —
-          because searching enough makes something look significant —{" "}
-          <span className="tnum text-fg">{int(presented)}</span> are presented
-          anywhere on this site as an edge, and the portfolios hold a subset of
-          those.{" "}
-          <Link href="/research" className="text-accent hover:underline">
-            How that correction works
-          </Link>
-          .
-        </p>
-      )}
-
-      {/* ─── 4. WHAT A PAPER ACCOUNT IS ───────────────────────────────────
-          One plain sentence, at first use, NOT a link to a glossary. Without
-          it the paragraph below — and half of this site — is unreadable to
-          anyone who has not traded. */}
-      <p className="mt-6 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
-        <span className="text-fg">A paper account</span> is a real broker
-        account trading live market prices with simulated money: the orders and
-        the fills are the broker&rsquo;s, the money is not.
-      </p>
-
-      {/* ─── 5. THE DISQUALIFIER, STILL AHEAD OF EVERY FIGURE ─────────────
-          The same component the other pages render, so the two cannot drift. */}
-      <div className="mt-8 border-t hairline pt-6">
-        <AccountDisclosureText hasLive={hasLive} />
-      </div>
-
-      {/* ─── 6. THE STAMP BAND — THIS IS THE FOLD ─────────────────────────
-          Four, never more: past four a band of stamps is a dashboard and stops
-          being read. Counts only, never returns.
-
-          It used to read Portfolios · Longest record · Chained records · Curve
-          resolution. Three of those four are internal vocabulary, "longest
-          record 21 sessions" makes the work look three weeks old rather than
-          three years deep, and "curve resolution 5 min" is an engineering
-          detail promoted to a headline. These four state what the firm does. */}
-      {index && (
-        <div className="mt-9 grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {funnel && (
-            <>
-              <Stamp
-                label="Strategies researched"
-                value={int(tested)}
-                note="each built and tested inside the framework that later trades it"
-              />
-              <Stamp
-                label="Recorded backtests"
-                value={int(backtests)}
-                note="the denominator every published figure is corrected against"
-              />
-              <Stamp
-                label="Presented as an edge"
-                value={int(presented)}
-                note="what survives that correction, across the whole catalogue"
-              />
-            </>
-          )}
-          {/* THE ONE STAMP IN OXIDE — not because it matters most, but because
-              it is the fact that DISQUALIFIES every figure near it, and it
-              should be the loudest thing here rather than the quietest. */}
-          <Stamp
-            label={hasLive ? "Portfolios" : "Paper accounts"}
-            value={String(books.length)}
-            tone={hasLive ? "neutral" : "negative"}
-            note={
-              hasLive
-                ? "each portfolio's page states which kind it is"
-                : "broker-simulated; no capital at risk in any of them"
-            }
-          />
-        </div>
-      )}
+      {/* ─── THE HERO ──────────────────────────────────────────────────
+          The mark, the claim, the counts and two ways in — one band, which
+          is the shape this kind of site opens with. It supersedes both the
+          old title page and the stamp band: the stamps said the same four
+          things in the same order, one screen further down. */}
+      <Hero stats={heroStats} />
 
       {!index && (
         <div className="mt-9">
@@ -206,6 +112,31 @@ export default async function Home() {
           </Note>
         </div>
       )}
+
+      {/* ─── WHAT A PAPER ACCOUNT IS, AND THE DISQUALIFIER ────────────────
+          Immediately under the hero, before any other figure on the page. The
+          plain definition comes first because without it the sentence after
+          it — and half this site — is unreadable to anyone who has not
+          traded. */}
+      <section className="mt-14 lg:mt-20 max-w-[68ch]">
+        <p className="text-[16px] leading-[1.6] text-fg-muted">
+          <span className="text-fg font-medium">A paper account</span> is a real
+          broker account trading live market prices with simulated money: the
+          orders and the fills are the broker&rsquo;s, the money is not.
+        </p>
+        <div className="mt-7 border-t hairline pt-6">
+          <AccountDisclosureText hasLive={hasLive} />
+        </div>
+        <p className="mt-6 text-[15px] leading-[1.6] text-fg-muted">
+          The company&rsquo;s registered corporate purpose, as filed, is{" "}
+          <span className="text-fg">{ENTITY.purposeEn.replace(/\.$/, "")}</span>{" "}
+          —{" "}
+          <Link href="/firm" className="text-accent hover:underline">
+            the register&rsquo;s record of it
+          </Link>
+          , not ours.
+        </p>
+      </section>
 
       {/* ─── 7. HOW THIS WORKS ────────────────────────────────────────────
           Three plain steps, each ending at the page that evidences it. This
