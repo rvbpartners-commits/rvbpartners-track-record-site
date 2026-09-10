@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Spectral } from "next/font/google";
+import { IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { SITE_ORIGIN } from "@/lib/data";
 import { Shell } from "@/components/Shell";
@@ -11,15 +11,20 @@ import { Shell } from "@/components/Shell";
  * as SF Pro on a Mac and Segoe on Windows. That is not restraint, it is an
  * unmade decision, and it is why careful writing still read as generic.
  *
- * Serif means the firm is talking. Mono means this came out of a file you can
- * download: every figure, date, hash, ticker, table cell and axis tick. The
- * day a digit appears in the serif, the register stops reading as a record and
- * starts reading as an opinion about one.
+ * ONE SANS, ONE MONO. The prose face is Inter — the institutional register the
+ * firm asked for, and the same family the corporate site used, so the two are
+ * finally speaking in one voice.
+ *
+ * The split that matters survives the change: mono carries anything MEASURED —
+ * every figure, date, hash, ticker, table cell and axis tick — and the prose
+ * face carries everything the firm says. That is what keeps a page of numbers
+ * reading as a record rather than as a claim about one, and it is the half of
+ * the old serif/mono grammar worth keeping.
  *
  * Self-hosted at build by next/font, so the CSP never sees a font request and
  * there is no layout shift while a webfont loads.
  *
- * The variables next/font emits are named for the TYPEFACE (--font-spectral,
+ * The variables next/font emits are named for the TYPEFACE (--font-sans,
  * --font-plex); globals.css maps them onto the ROLE names (--font-prose,
  * --font-figure) in its @theme block. The two layers must not share a name:
  * both declarations land on <html> at equal specificity, so `--font-prose:
@@ -28,12 +33,11 @@ import { Shell } from "@/components/Shell";
  * every `font-family` that reads it and drops the page back to the system
  * stack. The fonts download, the class lands, and nothing uses them.
  */
-const spectral = Spectral({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "600"],
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-spectral",
+  variable: "--font-sans",
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -83,7 +87,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${spectral.variable} ${plexMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${plexMono.variable}`}>
       <head>
         {/* HAS THIS VISITOR ALREADY COME THROUGH THE FRONT DOOR? Answered
             BEFORE THE FIRST PAINT, which is the only reason this is an inline

@@ -22,60 +22,66 @@
  */
 
 :root {
-  color-scheme: dark;
-  --bg: #0c0d0e;
-  --bg-subtle: #111110;
-  --bg-raised: #161614;
-  --fg: #e9e4da;
-  --fg-muted: #a9a294;
-  /* Lifted from #6f7889 (2.9:1 on the page ground, below AA) to a
-     compliant value: this token carries the captions and the withheld
-     markers, i.e. exactly the text a reader must not have to squint at. */
-  --fg-faint: #8e897f;
-  --hairline: #232320;
-  --up: #8fb397;
-  --up-soft: #16201a;
-  --down: #c98a7c;
-  --down-soft: #241816;
-  /* THE FIRM'S OWN LINE, and the links. Antique gold — the colour a ledger's
-     rules and gilt edges are printed in. Deliberately NOT the reserved oxide
-     below: a link is not a negative fact, and red links read as errors. 6.9:1
-     on the ground. */
-  --accent: #b8975c;
-  /* THE ONE SATURATED COLOUR, AND IT IS RESERVED. Oxide marks a NEGATIVE fact
-     and nothing else: PAPER, WITHHELD, REFUSED, EXCLUDED, SUPERSEDED. It is
-     never a link, never a heading, never a chart line, never decoration. The
-     moment it appears somewhere neutral it stops meaning anything, and the
-     stamps that carry the site's honesty go quiet with it. 5.2:1 on the
-     ground, so it is legible as small caps type and not only as a rule. */
-  --oxide: #d4623f;
-  --bench: #6b665d;
-  /* No amber. A withheld statistic is not a warning, it is an absence, and the
-     page carries one accent colour only — the portfolio line. Notices are set
-     apart by ground and weight, never by hue. */
-  --warn-bg: #141311;
-  --warn-fg: #cfc7b8;
-  --warn-line: #2b2924;
-  /* One colour per PORTFOLIO on the overview chart, where no single line is "the"
-     portfolio and grey is free (that chart carries no benchmark). Deliberately
-     NOT --up/--down: those two mean the sign of a return everywhere else, and a
-     portfolio drawn in green would read as a portfolio that is up. Muted on
-     purpose — four saturated lines on one plot is a chart nobody can read.
-     A capital variant does NOT get its own entry: it borrows its parent's colour
-     at a lower opacity (src/lib/variants.ts), because it is the same portfolio
-     at a different size and a distinct hue would deny that.
+  /* INSTITUTIONAL, ON WHITE. The palette moved off the dark register at the
+     firm's direction — the reference was an asset manager's site, and that look
+     is white ground, near-black type, a strict grey scale and one accent used
+     sparingly. Every value below is sampled from or derived from the brand
+     mark's three greys (#8c8c8c / #5c5c5c / #333333), so the page and the logo
+     are finally in the same palette rather than two.
 
-     These are the LIFTED values. The versions used against a white ground were
-     far too dark to read here, and four lines have to stay separable at 1.4px. */
-  --s1: #c9c2b4;
-  --s2: #c8956a;
-  --s3: #a58fa0;
-  --s4: #7fa39c;
+     The grammar the dark version established is kept, because it is what stops
+     the page reading as a brochure: mono for anything measured, one reserved
+     colour for negative facts, no rounded corners, no shadows, every edge a
+     rule or nothing. */
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-subtle: #f6f6f5;
+  --bg-raised: #f0f0ef;
+  --fg: #0a0a0a;
+  --fg-muted: #4a4a48;
+  /* 4.6:1 on white — this token carries captions and withheld markers, which
+     is exactly the text a reader must not have to squint at. */
+  --fg-faint: #757471;
+  --hairline: #e2e1de;
+  /* Returns keep their sign in colour, but muted: a saturated green on white
+     is a dashboard, and four saturated lines on one plot is a chart nobody can
+     read. Both clear 4.5:1 on the ground. */
+  --up: #1f6b45;
+  --up-soft: #eef5f0;
+  --down: #a8382a;
+  --down-soft: #fbeeec;
+  /* Links and the firm's own line on a chart. Near-black rather than a hue:
+     the reference palette is strictly monochrome, and a coloured link would be
+     the first thing on the page that is decoration. Legibility comes from the
+     permanent underline, not from hue. */
+  --accent: #1a1a1a;
+  /* THE ONE SATURATED COLOUR, AND IT IS RESERVED. Oxide marks a NEGATIVE fact
+     and nothing else: PAPER, WITHHELD, REFUSED, EXCLUDED. Never a link, never
+     a heading, never a chart line, never decoration — the moment it appears
+     somewhere neutral it stops meaning anything and the stamps carrying this
+     site's honesty go quiet with it. 5.1:1 on white. */
+  --oxide: #b03a1e;
+  --bench: #9a9995;
+  --warn-bg: #f7f6f3;
+  --warn-fg: #3a3936;
+  --warn-line: #dedcd6;
+  /* One colour per PORTFOLIO on the overview chart, where no line is "the"
+     portfolio. Deliberately NOT --up/--down: those mean the sign of a return
+     everywhere else, and a portfolio drawn in green would read as one that is
+     up. Four values from the mark's own grey scale plus two restrained hues,
+     all dark enough to separate on white at 1.4px.
+     A capital variant does NOT get an entry: it borrows its parent's colour at
+     lower opacity (src/lib/variants.ts), because it is the same portfolio at a
+     different size and a distinct hue would deny that. */
+  --s1: #1a1a1a;
+  --s2: #7a6a4f;
+  --s3: #5c5c5c;
+  --s4: #3f5a63;
 }
 
 @theme inline {
   /* ROLE name <- TYPEFACE name. Never the same identifier: see layout.tsx. */
-  --font-prose: var(--font-spectral);
+  --font-prose: var(--font-sans);
   --font-figure: var(--font-plex);
   --color-bg: var(--bg);
   --color-bg-subtle: var(--bg-subtle);
@@ -110,9 +116,11 @@ body {
   /* Prose is the serif. Anything that is a MEASUREMENT opts into the mono via
      .tnum or an explicit font-figure class — the two faces are the grammar,
      not decoration. */
-  font-family: var(--font-prose), Georgia, "Times New Roman", serif;
-  font-size: 17px;
-  line-height: 1.68;
+  font-family: var(--font-prose), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16.5px;
+  line-height: 1.6;
+  letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
   /* The page itself must never scroll sideways; wide content scrolls inside
      its own container instead. */
