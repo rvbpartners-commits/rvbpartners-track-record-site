@@ -81,15 +81,15 @@ const CONTENTS: { href: string; gloss: string }[] = [
 export default function NotFound() {
   return (
     <div className="pt-2 lg:pt-6">
-      <h1 className="max-w-[26ch] text-[30px] sm:text-[38px] leading-[1.16] tracking-[-0.012em]">
+      <h1 className="max-w-[26ch] text-title sm:text-title">
         This address is not part of the register.
       </h1>
-      <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
+      <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         Nothing is published at it. Either it was never one of ours — a typo, or
         an address assembled by hand — or it named a page this site no longer
         shows.
       </p>
-      <p className="mt-4 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
+      <p className="mt-4 max-w-[68ch] text-body text-fg-muted">
         Which of the two it is can be settled without asking us, and that is the
         point of keeping the record the way we do: each session is written once,
         hashed, and chained to the session before it, in a public repository this
@@ -107,12 +107,12 @@ export default function NotFound() {
         <dl className="grid gap-y-4 sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)] sm:gap-x-10">
           {CONTENTS.map(({ href, gloss }) => (
             <div key={href} className="contents">
-              <dt className="font-figure text-[13.5px] leading-snug sm:pt-px">
+              <dt className="font-figure text-small leading-snug sm:pt-px">
                 <Link href={href} className="text-accent hover:underline">
                   {href}
                 </Link>
               </dt>
-              <dd className="text-[14px] leading-snug text-fg-muted -mt-2.5 sm:mt-0">
+              <dd className="text-body leading-snug text-fg-muted -mt-2.5 sm:mt-0">
                 {gloss}
               </dd>
             </div>
@@ -127,7 +127,7 @@ export default function NotFound() {
           are reachable independently. The address is set in the mono because it
           is an address, not a phrase. */}
       <Section title="The record itself" gloss="Readable without this site">
-        <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+        <p className="max-w-[72ch] text-body text-fg-muted">
           Every figure, series and snapshot this site draws from is served from a
           public repository. You can read it directly, and check it, without
           going through any page here:
@@ -135,14 +135,14 @@ export default function NotFound() {
         <p className="mt-4">
           <a
             href={DATA_REPO_URL}
-            className="font-figure text-[13.5px] text-accent hover:underline break-all"
+            className="font-figure text-small text-accent hover:underline break-all"
             rel="noreferrer noopener"
             target="_blank"
           >
             {DATA_REPO_URL}
           </a>
         </p>
-        <p className="mt-5 max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
+        <p className="mt-5 max-w-[72ch] text-small leading-relaxed text-fg-faint">
           The checks that run on a clone of it — and what each one proves — are
           set out under{" "}
           <Link href="/verify" className="text-accent hover:underline">
@@ -171,7 +171,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
           {gloss}

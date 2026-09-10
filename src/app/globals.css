@@ -79,6 +79,59 @@
   --s4: #3f5a63;
 }
 
+/* ── THE TYPE SCALE ───────────────────────────────────────────────────────
+   EIGHT SIZES. The site had TWENTY-SIX distinct arbitrary sizes across 303
+   uses, nine of them between 9px and 13px — 9, 9.5, 10, 10.5, 11, 11.5, 12,
+   12.5, 13. No reader can tell those apart, so they were not a hierarchy; they
+   were noise, and scattered arbitrary values are the clearest signal that a
+   page was assembled rather than designed.
+
+   Every size on the site now comes from this scale. A step exists only where a
+   reader can see the difference and the difference means something:
+
+     display   the hero, and nowhere else
+     title     a page's h1
+     heading   a section that is genuinely a heading
+     subhead   a lead paragraph, or an item title inside a list
+     body      running prose
+     small     table cells, captions, secondary text
+     caption   the quietest readable text — notes, qualifications
+     label     mono uppercase eyebrows and section marks ONLY
+
+   Line height travels with the size, so a size can never be used at the wrong
+   leading, which is the other half of the same discipline. */
+@theme {
+  --text-display: clamp(2.5rem, 1.6rem + 3.6vw, 4rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.032em;
+
+  --text-title: 2.125rem;
+  --text-title--line-height: 1.14;
+  --text-title--letter-spacing: -0.022em;
+
+  --text-heading: 1.375rem;
+  --text-heading--line-height: 1.25;
+  --text-heading--letter-spacing: -0.016em;
+
+  --text-subhead: 1.0625rem;
+  --text-subhead--line-height: 1.5;
+  --text-subhead--letter-spacing: -0.011em;
+
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.62;
+  --text-body--letter-spacing: -0.006em;
+
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.5;
+
+  --text-caption: 0.71875rem;
+  --text-caption--line-height: 1.5;
+
+  --text-label: 0.65625rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.15em;
+}
+
 @theme inline {
   /* ROLE name <- TYPEFACE name. Never the same identifier: see layout.tsx. */
   --font-prose: var(--font-sans);

@@ -395,10 +395,10 @@ function BookView({
     <>
       {/* Identity row — the account header of a ledger page. */}
       <header className="mt-8 border-b hairline pb-6">
-        <h1 className="text-[26px] sm:text-[30px] font-semibold tracking-tight leading-tight">
+        <h1 className="text-heading sm:text-title font-semibold tracking-tight leading-tight">
           {summary.label}
         </h1>
-        <p className="mt-1.5 text-[14px] text-fg-muted">{summary.tagline_en}</p>
+        <p className="mt-1.5 text-body text-fg-muted">{summary.tagline_en}</p>
         {/* Le badge est une DONNEE du book, jamais une phrase en dur : celle qui
             enumerait « 6 comptes papier et 1 reel » est devenue fausse le jour
             ou un second book en capital reel est arrive.
@@ -409,7 +409,7 @@ function BookView({
             besoin de savoir a besoin de le LIRE, et crier sous-entend en plus un
             avertissement que le capital propre de l'operateur ne justifie pas.
             Seul le texte differe. */}
-        <p className="mt-3 inline-block border hairline px-1.5 py-px text-[11px] leading-[1.6] text-fg-faint">
+        <p className="mt-3 inline-block border hairline px-1.5 py-px text-caption leading-[1.6] text-fg-faint">
           {accountLabel}
         </p>
         {/* A capital twin is not a fifth portfolio, and the relationship was
@@ -417,7 +417,7 @@ function BookView({
             suffix. Stated here, so a reader landing on the twin's own page
             knows what they are looking at. */}
         {bundle.variantParentLabel && (
-          <p className="mt-2 text-[12px] text-fg-faint">
+          <p className="mt-2 text-small text-fg-faint">
             Capital variant
             {bundle.variantSize ? ` (${bundle.variantSize})` : ""} of{" "}
             <span className="text-fg-muted">{bundle.variantParentLabel}</span> —
@@ -521,7 +521,7 @@ function BookView({
             is not chained evidence; `marked: false` says it is not an
             after-close mark. Neither reached the reader. */}
         {rawLive && (
-          <p className="mt-5 text-[11.5px] text-fg-faint max-w-[80ch] leading-relaxed">
+          <p className="mt-5 text-caption text-fg-faint max-w-[80ch] leading-relaxed">
             {live ? (
               <>
                 Latest broker reading, {marketTime(rawLive.at, zone)}
@@ -784,7 +784,7 @@ function BookView({
             Nothing here invents the missing base; the two published figures are
             named, and the ledger's is the one that counts. */}
         {chartMismatch && (
-          <p className="mt-4 text-[12px] text-fg-faint max-w-[80ch] leading-relaxed">
+          <p className="mt-4 text-small text-fg-faint max-w-[80ch] leading-relaxed">
             <span className="text-warn-fg">
               This curve does not end on the published cumulative return.
             </span>{" "}
@@ -831,7 +831,7 @@ function BookView({
             does not render when the chain, the record or either figure is
             missing. */}
         {snapshotMismatch && (
-          <p className="mt-4 text-[12px] text-fg-faint max-w-[80ch] leading-relaxed">
+          <p className="mt-4 text-small text-fg-faint max-w-[80ch] leading-relaxed">
             <span className="text-warn-fg">
               The headline above is not the figure in this book&rsquo;s final
               chained record.
@@ -850,7 +850,7 @@ function BookView({
           </p>
         )}
         {lastSession && (
-          <p className="mt-4 text-[12.5px] text-fg-muted">
+          <p className="mt-4 text-small text-fg-muted">
             Last point: session of{" "}
             <span className="text-fg">{date(lastSession)}</span>
             {sessionClose ? ` (close ${sessionClose.label})` : ""}.{" "}
@@ -882,13 +882,13 @@ function BookView({
               "Next point at the next close."
             )}
             {sessionClose ? (
-              <span className="block text-[11.5px] text-fg-faint mt-1">
+              <span className="block text-caption text-fg-faint mt-1">
                 {sessionClose.note}. Nothing intraday and provisional is drawn
                 here: this record publishes what is settled.
               </span>
             ) : null}
             {openAtLast ? (
-              <span className="block text-[11.5px] text-fg-faint mt-1">
+              <span className="block text-caption text-fg-faint mt-1">
                 The book carried an open position past this close
                 {openAtLast.tickets === 1
                   ? " (1 unmatched ticket"
@@ -914,7 +914,7 @@ function BookView({
             away, in full. Native <details>: no state, and it opens with
             JavaScript off. */}
         {capitalEvents.length ? (
-          <details className="mt-4 text-[12px] text-fg-muted max-w-[80ch]">
+          <details className="mt-4 text-small text-fg-muted max-w-[80ch]">
             <summary className="cursor-pointer text-fg-faint hover:text-fg">
               {capitalEvents.length} capital movement
               {capitalEvents.length === 1 ? "" : "s"} excluded from the return
@@ -1048,7 +1048,7 @@ function BookView({
         }
       >
         {metrics === null ? (
-          <p className="text-[13px] text-fg-muted max-w-[80ch]">
+          <p className="text-small text-fg-muted max-w-[80ch]">
             The statistics ledger could not be loaded from the data repository.
             Nothing is shown here rather than a partial ledger with no way to
             tell a withheld figure from an absent one.
@@ -1125,9 +1125,9 @@ function BookView({
       >
         {summary.categories?.length > 0 && (
           <div className="scroll-x mb-9">
-            <table className="w-full sm:min-w-[420px] max-w-[600px] text-[13px]">
+            <table className="w-full sm:min-w-[420px] max-w-[600px] text-small">
               <thead>
-                <tr className="text-[11.5px] text-fg-faint">
+                <tr className="text-caption text-fg-faint">
                   <th className="text-left font-normal pb-2">Category</th>
                   <th className="text-right font-normal pb-2">Strategies</th>
                   <th className="text-right font-normal pb-2">Target weight</th>
@@ -1138,7 +1138,7 @@ function BookView({
                   <tr key={c.category} className="border-t hairline">
                     <td className="py-2">
                       {c.label}
-                      <span className="ml-2 text-[10.5px] text-fg-faint">
+                      <span className="ml-2 text-label text-fg-faint">
                         {c.code}
                       </span>
                     </td>
@@ -1154,7 +1154,7 @@ function BookView({
         )}
 
         <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
-          <h3 className="text-[13px] font-semibold tracking-tight">
+          <h3 className="text-small font-semibold tracking-tight">
             Open positions
           </h3>
           {/* A DETAIL FILE IS KEYED BY THE CYCLE, NOT BY THE DAY IT WAS HELD.
@@ -1165,7 +1165,7 @@ function BookView({
               it; without it the label says which cycle staged them instead of
               asserting a date the file does not carry. */}
           {detail && (
-            <span className="text-[12px] text-fg-faint">
+            <span className="text-small text-fg-faint">
               {detail.positions_as_of
                 ? `as at ${date(detail.positions_as_of)}`
                 : `from the cycle staged ${date(detail.session_date)}, held from the following open`}
@@ -1186,7 +1186,7 @@ function BookView({
             on a $1M book and a $100k one. Below the bar there is nothing worth
             a reader's attention; above it, the number is theirs to see. */}
         {reconciliationGap && (
-          <p className="mt-4 text-[12px] leading-relaxed text-fg-faint max-w-[80ch]">
+          <p className="mt-4 text-small leading-relaxed text-fg-faint max-w-[80ch]">
             <span className="text-warn-fg">
               These holdings do not reconcile with the account.
             </span>{" "}
@@ -1212,7 +1212,7 @@ function BookView({
       )}
 
       <Section title="Account">
-        <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-[13px]">
+        <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-small">
           <Line label="Type">{accountLabel}</Line>
           <Line label="Reference">
             <span className="tnum">
@@ -1269,7 +1269,7 @@ function BookView({
             book it is about, as well as on the verify page where the restart is
             declared. Counted from the chain, never asserted. */}
         {bundle.chain && bundle.chain.backfilled > 0 && (
-          <p className="mt-6 text-[12px] text-fg-faint max-w-[80ch] leading-relaxed">
+          <p className="mt-6 text-small text-fg-faint max-w-[80ch] leading-relaxed">
             {bundle.chain.backfilled} of this book&rsquo;s{" "}
             {bundle.chain.records} chained records joined the chain
             {bundle.chain.recordedOn
@@ -1321,9 +1321,9 @@ function Field({
           : "";
   return (
     <div>
-      <dt className="text-[11.5px] text-fg-faint">{label}</dt>
-      <dd className={`mt-1 text-[19px] tnum tracking-tight ${colour}`}>{value}</dd>
-      {note && <div className="text-[11.5px] text-fg-faint mt-0.5">{note}</div>}
+      <dt className="text-caption text-fg-faint">{label}</dt>
+      <dd className={`mt-1 text-subhead tnum tracking-tight ${colour}`}>{value}</dd>
+      {note && <div className="text-caption text-fg-faint mt-0.5">{note}</div>}
     </div>
   );
 }

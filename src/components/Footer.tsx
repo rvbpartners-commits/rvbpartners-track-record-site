@@ -20,13 +20,13 @@ export function Footer({ hasLive }: { hasLive: boolean }) {
     <footer className="mt-16 border-t hairline">
       <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8">
         <AccountDisclosure hasLive={hasLive} />
-        <p className="text-[14px] leading-relaxed text-fg-muted max-w-[68ch] mt-3">
+        <p className="text-body leading-relaxed text-fg-muted max-w-[68ch] mt-3">
           Past performance is not indicative of future results. Nothing on this
           site is investment advice, an offer, or a solicitation to buy or sell
           any financial instrument.
         </p>
 
-        <div className="mt-8 pt-6 border-t hairline grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-2.5 sm:gap-y-2 text-[13px] text-fg-muted">
+        <div className="mt-8 pt-6 border-t hairline grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-2.5 sm:gap-y-2 text-small text-fg-muted">
           <Link href="/firm" className="hover:text-fg transition-colors">
             The firm
           </Link>

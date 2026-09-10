@@ -185,10 +185,10 @@ export default async function RefusedPage() {
 
   return (
     <div className="pt-2 lg:pt-6">
-      <h1 className="text-[30px] sm:text-[38px] leading-[1.16] tracking-[-0.012em]">
+      <h1 className="text-title sm:text-title">
         Refused
       </h1>
-      <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
+      <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         Most of what we tested did not work. This page is the count — the
         strategies that failed, the figures the record suppresses, and the
         limits of what it can prove about itself. It carries no performance
@@ -201,7 +201,7 @@ export default async function RefusedPage() {
       <Section title="The shape of the book" gloss="Every folder, by how it was graded">
         {byTier ? (
           <>
-            <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+            <p className="max-w-[72ch] text-body text-fg-muted">
               A strategy is filed under the verdict it earned, and the verdict
               is part of the path on disk. Nothing is deleted when it fails: the
               code, the returns and the report card stay exactly where they
@@ -211,9 +211,9 @@ export default async function RefusedPage() {
             </p>
 
             <div className="scroll-x mt-7">
-              <table className="w-full sm:min-w-[620px] text-[13px]">
+              <table className="w-full sm:min-w-[620px] text-small">
                 <thead>
-                  <tr className="text-left text-[11px] text-fg-faint">
+                  <tr className="text-left text-caption text-fg-faint">
                     <th className="pb-2 pr-6 font-normal">Tier</th>
                     {verdictCols.map((v) => (
                       <th key={v} className="pb-2 pr-6 font-normal text-right">
@@ -233,7 +233,7 @@ export default async function RefusedPage() {
                             {TIER_LABEL[key] ?? tier}
                           </span>
                           {TIER_GLOSS[key] && (
-                            <span className="mt-0.5 block font-[family-name:var(--font-prose)] text-[12px] leading-snug text-fg-faint">
+                            <span className="mt-0.5 block font-[family-name:var(--font-prose)] text-small leading-snug text-fg-faint">
                               {TIER_GLOSS[key]}
                             </span>
                           )}
@@ -277,7 +277,7 @@ export default async function RefusedPage() {
                 page that printed the folder total under the word "strategies"
                 would roughly double the book, on the one page whose subject is
                 how carefully the firm counts. */}
-            <p className="mt-5 max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
+            <p className="mt-5 max-w-[72ch] text-small leading-relaxed text-fg-faint">
               <span className="tnum text-fg-muted">{count(folderTotal)}</span>{" "}
               folders in all. That is not a count of
               strategies: one strategy owns a folder in more than one tier at
@@ -297,7 +297,7 @@ export default async function RefusedPage() {
             </p>
 
             {presented !== undefined && (
-              <p className="mt-3 max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
+              <p className="mt-3 max-w-[72ch] text-small leading-relaxed text-fg-faint">
                 <span className="tnum text-fg">{count(presented)}</span> of those
                 folders are presented as an edge anywhere on this site
                 {presentedReconciles
@@ -322,7 +322,7 @@ export default async function RefusedPage() {
       >
         {d ? (
           <>
-            <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+            <p className="max-w-[72ch] text-body text-fg-muted">
               A strategy that clears a significance bar on its own has cleared a
               bar that was set for one test. It was not one test. Every headline
               is therefore re-derived against the whole book&rsquo;s effective
@@ -366,7 +366,7 @@ export default async function RefusedPage() {
             </div>
 
             {d.note && (
-              <p className="mt-7 max-w-[72ch] text-[13px] leading-relaxed text-fg-faint">
+              <p className="mt-7 max-w-[72ch] text-small leading-relaxed text-fg-faint">
                 {prose(d.note)}
               </p>
             )}
@@ -397,7 +397,7 @@ export default async function RefusedPage() {
               tone="negative"
               note="deflated against a figure that has not had the cash rate taken out of it"
             />
-            <div className="max-w-[68ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+            <div className="max-w-[68ch] space-y-4 text-body text-fg-muted">
               <p>
                 Our headline Sharpe is excess of the risk-free rate: the return
                 on cash is subtracted before the ratio is taken, because
@@ -432,7 +432,7 @@ export default async function RefusedPage() {
               label="Archived as not an edge"
               note="Broken by construction, not merely unprofitable."
             />
-            <div className="max-w-[68ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+            <div className="max-w-[68ch] space-y-4 text-body text-fg-muted">
               <p>
                 A strategy is archived when it fails on its own terms rather
                 than on its returns: the code does not implement the thesis its
@@ -465,7 +465,7 @@ export default async function RefusedPage() {
           title="Our own known violations"
           gloss="Where the catalogue fails our own checks"
         >
-          <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+          <p className="max-w-[72ch] text-body text-fg-muted">
             A set of automated checks blocks our build. Where the catalogue
             still violates one, the offending strategies are grandfathered in a
             dated list that may only ever shrink — never a loosened rule, and
@@ -474,9 +474,9 @@ export default async function RefusedPage() {
           </p>
 
           <div className="scroll-x mt-7">
-            <table className="w-full sm:min-w-[620px] text-[13px]">
+            <table className="w-full sm:min-w-[620px] text-small">
               <thead>
-                <tr className="text-left text-[11px] text-fg-faint">
+                <tr className="text-left text-caption text-fg-faint">
                   <th className="pb-2 pr-6 font-normal">Check</th>
                   <th className="pb-2 pr-6 font-normal">Known violations</th>
                   <th className="pb-2 font-normal">Dated</th>
@@ -529,7 +529,7 @@ export default async function RefusedPage() {
                             paraphrasing it here would put this repository's
                             wording on the desk's finding. */}
                         {note && (
-                          <span className="mt-1.5 block max-w-[52ch] font-[family-name:var(--font-prose)] text-[12px] leading-snug text-fg-faint">
+                          <span className="mt-1.5 block max-w-[52ch] font-[family-name:var(--font-prose)] text-small leading-snug text-fg-faint">
                             {prose(note)}
                           </span>
                         )}
@@ -551,7 +551,7 @@ export default async function RefusedPage() {
         title="Withheld"
         gloss="Figures the record suppresses, and the rule for each"
       >
-        <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+        <p className="max-w-[72ch] text-body text-fg-muted">
           Three kinds of figure are suppressed on the portfolio pages, each
           under a standing rule, until the rule is satisfied.
         </p>
@@ -606,12 +606,12 @@ export default async function RefusedPage() {
                         prettified label ("value at risk, 95%") would be this
                         repository translating the desk's vocabulary into
                         something a reader cannot grep the published data for. */}
-                    <p className="mt-4 text-[12.5px] text-fg-faint">
+                    <p className="mt-4 text-small text-fg-faint">
                       {count(suppressed.length)} statistics are withheld across
                       the portfolios, written here exactly as their metrics files
                       write them:
                     </p>
-                    <p className="mt-2 font-figure text-[12px] leading-relaxed text-fg-muted">
+                    <p className="mt-2 font-figure text-small leading-relaxed text-fg-muted">
                       {suppressed.join(" · ")}
                     </p>
                   </>
@@ -623,9 +623,9 @@ export default async function RefusedPage() {
                     does not do. This column is the gate's own numerator. */}
                 {metrics.some((m) => m?.insufficient_history) && (
                   <div className="scroll-x mt-5">
-                    <table className="w-full sm:min-w-[420px] text-[13px]">
+                    <table className="w-full sm:min-w-[420px] text-small">
                       <thead>
-                        <tr className="text-left text-[11px] text-fg-faint">
+                        <tr className="text-left text-caption text-fg-faint">
                           <th className="pb-2 pr-6 font-normal">Portfolio</th>
                           <th className="pb-2 pr-6 font-normal text-right">
                             Marked sessions
@@ -640,7 +640,7 @@ export default async function RefusedPage() {
                           const gate = metrics[i]?.insufficient_history;
                           return (
                             <tr key={b.book} className="border-t hairline">
-                              <td className="py-2 pr-6 font-figure text-[12px] text-fg-muted">
+                              <td className="py-2 pr-6 font-figure text-small text-fg-muted">
                                 {b.label}
                               </td>
                               <td className="py-2 pr-6 tnum text-right text-fg">
@@ -667,7 +667,7 @@ export default async function RefusedPage() {
               <p>
                 {suppressed.includes("win_rate") ? (
                   <>
-                    <span className="font-figure text-[13px] text-fg-muted">
+                    <span className="font-figure text-small text-fg-muted">
                       win_rate
                     </span>{" "}
                     is on that same suppressed list, and it is suppressed for
@@ -703,7 +703,7 @@ export default async function RefusedPage() {
                   <p className="mt-3">{prose(strategyIdentity.body_en)}</p>
                 )}
                 {research?.note && (
-                  <p className="mt-3 text-[12.5px] text-fg-faint">
+                  <p className="mt-3 text-small text-fg-faint">
                     {prose(research.note)}
                   </p>
                 )}
@@ -722,7 +722,7 @@ export default async function RefusedPage() {
         title="Proofs we cannot offer"
         gloss="What the checks do not establish"
       >
-        <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+        <p className="max-w-[72ch] text-body text-fg-muted">
           Four checks on the{" "}
           <Link href="/verify" className="text-accent hover:underline">
             verify
@@ -733,7 +733,7 @@ export default async function RefusedPage() {
           input. Here is what none of that establishes.
         </p>
 
-        <ul className="mt-7 space-y-5 max-w-[74ch] text-[14px] leading-[1.6] text-fg-muted">
+        <ul className="mt-7 space-y-5 max-w-[74ch] text-body text-fg-muted">
           <Cannot title="That the trading was skilful">
             A chain proves a number was not edited afterwards. It says nothing
             whatever about whether the number was any good, and a short record
@@ -786,7 +786,7 @@ export default async function RefusedPage() {
 
       {/* ─── PROVENANCE ───────────────────────────────────────────────────── */}
       <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-        <p className="max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
+        <p className="max-w-[72ch] text-small leading-relaxed text-fg-faint">
           The catalogue figures on this page come from{" "}
           <a
             className="text-accent hover:underline"
@@ -838,7 +838,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         {gloss && (
           <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
@@ -865,12 +865,12 @@ function Figure({
 }) {
   return (
     <div className="border-t hairline pt-4">
-      <div className="font-figure tnum text-[24px] leading-none tracking-tight text-fg">
+      <div className="font-figure tnum text-heading leading-none tracking-tight text-fg">
         {value}
       </div>
-      <div className="mt-2.5 text-[13px] font-medium leading-snug">{label}</div>
+      <div className="mt-2.5 text-small font-medium leading-snug">{label}</div>
       {note && (
-        <div className="mt-1.5 text-[12px] leading-relaxed text-fg-faint">
+        <div className="mt-1.5 text-small leading-relaxed text-fg-faint">
           {note}
         </div>
       )}
@@ -889,12 +889,12 @@ function Item({
 }) {
   return (
     <li className="flex gap-5">
-      <span className="shrink-0 w-5 pt-1 font-figure tnum text-[12px] text-fg-faint">
+      <span className="shrink-0 w-5 pt-1 font-figure tnum text-small text-fg-faint">
         {n}
       </span>
       <div className="min-w-0 max-w-[72ch]">
-        <h3 className="text-[15px] font-medium leading-snug text-fg">{title}</h3>
-        <div className="mt-2 text-[14px] leading-[1.6] text-fg-muted">
+        <h3 className="text-body font-medium leading-snug text-fg">{title}</h3>
+        <div className="mt-2 text-body text-fg-muted">
           {body}
         </div>
       </div>

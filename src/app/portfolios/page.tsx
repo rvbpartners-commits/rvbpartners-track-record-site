@@ -228,10 +228,10 @@ export default async function Portfolios() {
 
   return (
     <div className="pt-2 lg:pt-6">
-      <h1 className="text-[30px] sm:text-[38px] leading-[1.16] tracking-[-0.012em]">
+      <h1 className="text-title sm:text-title">
         Portfolios
       </h1>
-      <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
+      <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         Every portfolio RVB Partners publishes, what kind of account each one
         is, and how they differ from one another. Each has its own page, where
         the curve, the holdings and the chained evidence for it live.
@@ -244,7 +244,7 @@ export default async function Portfolios() {
           knowing what was being returned. It carries no figure, so it is safe
           above the account statement below. */}
       <Section title="What a portfolio is here" gloss="Before the figures">
-        <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           <p>
             A portfolio here — the record calls it a{" "}
             <span className="text-fg">book</span> — is a fixed roster of
@@ -343,10 +343,10 @@ export default async function Portfolios() {
                       : ""
                   }`}
                 >
-                  <div className="font-figure text-[10px] uppercase tracking-[0.14em] text-fg-faint">
+                  <div className="font-figure text-label uppercase tracking-[0.14em] text-fg-faint">
                     {head}
                   </div>
-                  <p className="mt-2 text-[12.5px] leading-relaxed text-fg-muted">
+                  <p className="mt-2 text-small leading-relaxed text-fg-muted">
                     {body}
                   </p>
                 </div>
@@ -360,7 +360,7 @@ export default async function Portfolios() {
         {loaded && index ? (
           <>
             <div className="scroll-x">
-              <table className="w-full text-[13px]">
+              <table className="w-full text-small">
                 <thead>
                   <tr className="text-left text-fg-faint">
                     <Th>Portfolio</Th>
@@ -404,7 +404,7 @@ export default async function Portfolios() {
                           <div className={parent ? "pl-5" : ""}>
                             <Link
                               href={`/portfolios/${bookSlug(b)}`}
-                              className="text-[13.5px] text-accent hover:underline"
+                              className="text-small text-accent hover:underline"
                             >
                               {parent && (
                                 <span
@@ -420,7 +420,7 @@ export default async function Portfolios() {
                               /* Set in the prose face on purpose: everything
                                  inside a table is mono by default, and these
                                  are sentences, not measurements. */
-                              <div className="mt-1 max-w-[40ch] font-[family-name:var(--font-prose)] text-[12.5px] leading-snug text-fg-faint">
+                              <div className="mt-1 max-w-[40ch] font-[family-name:var(--font-prose)] text-small leading-snug text-fg-faint">
                                 {notes.join(" · ")}
                               </div>
                             )}
@@ -441,7 +441,7 @@ export default async function Portfolios() {
                         <td className="py-3 pr-6 text-right">
                           <span className="tnum">{int(roster)}</span>
                           {cats.length > 0 && (
-                            <div className="mt-1 text-[11px] leading-snug text-fg-faint">
+                            <div className="mt-1 text-caption leading-snug text-fg-faint">
                               {cats
                                 .map((c) => `${c.code} ${int(c.strategies)}`)
                                 .join(" · ")}
@@ -458,7 +458,7 @@ export default async function Portfolios() {
                               today, so this renders nothing — and does not have
                               to be remembered on the day one is. */}
                           {b.stale && (
-                            <div className="mt-1 text-[10.5px] tnum text-fg-faint">
+                            <div className="mt-1 text-label tnum text-fg-faint">
                               as of {date(b.stale_since)}
                             </div>
                           )}
@@ -470,7 +470,7 @@ export default async function Portfolios() {
               </table>
             </div>
 
-            <div className="mt-6 max-w-[80ch] space-y-2 text-[12px] leading-relaxed text-fg-faint">
+            <div className="mt-6 max-w-[80ch] space-y-2 text-small leading-relaxed text-fg-faint">
               <p>
                 <span className="text-fg-muted">Return</span> is cumulative
                 since the account was funded, as published by the desk — not
@@ -513,7 +513,7 @@ export default async function Portfolios() {
           title="How these were chosen"
           gloss="What each book was selected for"
         >
-          <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+          <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
             <p>
               Each book carries a one-line description, published with the
               record and printed against its name above. That line is not
@@ -546,7 +546,7 @@ export default async function Portfolios() {
           gloss={twins.length === 1 ? "One pair" : `${twins.length} pairs`}
         >
           <div className="scroll-x">
-            <table className="w-full text-[13px]">
+            <table className="w-full text-small">
               <thead>
                 <tr className="text-left text-fg-faint">
                   <Th>Pair</Th>
@@ -564,7 +564,7 @@ export default async function Portfolios() {
             </table>
           </div>
 
-          <div className="mt-6 max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+          <div className="mt-6 max-w-[72ch] space-y-4 text-body text-fg-muted">
             <p>
               A twin is not another portfolio. It is one of the books above run
               at a smaller size, so that the pair measures capital sensitivity
@@ -594,7 +594,7 @@ export default async function Portfolios() {
 
       {/* ─── WHAT THIS PAGE IS NOT ────────────────────────────────────────── */}
       <Section title="What this page is not" gloss="The limits of the list">
-        <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           <p>
             <span className="text-fg">It is not a ranking.</span> The rows
             follow the order the record publishes them in, with each capital
@@ -708,7 +708,7 @@ function KindBadge({ book }: { book: BookSummary }) {
     book.account_kind_label ??
     (book.capital_at_risk ? "Capital at risk" : "Paper (broker-simulated)");
   return (
-    <span className="inline-block border hairline px-1.5 py-px align-middle text-[10px] leading-[1.5] text-fg-faint">
+    <span className="inline-block border hairline px-1.5 py-px align-middle text-label leading-[1.5] text-fg-faint">
       {label}
     </span>
   );
@@ -725,7 +725,7 @@ function Th({
 }) {
   return (
     <th
-      className={`pb-3 font-figure text-[10px] font-medium uppercase tracking-[0.14em] ${
+      className={`pb-3 font-figure text-label font-medium uppercase tracking-[0.14em] ${
         align === "right" ? "pr-6 text-right last:pr-0" : "pr-6"
       }`}
     >
@@ -747,7 +747,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         {gloss && (
           <span className="ml-3 normal-case tracking-normal text-fg-faint/70">

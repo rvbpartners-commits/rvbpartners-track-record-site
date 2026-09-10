@@ -57,7 +57,7 @@ export function DailyPnlChart({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center text-[13px] text-fg-faint h-[200px]">
+      <div className="flex items-center justify-center text-small text-fg-faint h-[200px]">
         No daily series published for this book.
       </div>
     );
@@ -79,7 +79,7 @@ export function DailyPnlChart({
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-[13px] font-semibold tracking-tight mb-3">
+        <h3 className="text-small font-semibold tracking-tight mb-3">
           Daily result{" "}
           <span className="font-normal text-fg-faint">({currency})</span>
         </h3>
@@ -126,10 +126,10 @@ export function DailyPnlChart({
 
       <div>
         <div className="flex items-baseline justify-between gap-4 mb-3">
-          <h3 className="text-[13px] font-semibold tracking-tight">
+          <h3 className="text-small font-semibold tracking-tight">
             Cumulative result
           </h3>
-          <div className="flex items-center gap-1 text-[11.5px]">
+          <div className="flex items-center gap-1 text-caption">
             <Toggle active={mode === "usd"} onClick={() => setMode("usd")}>
               {currency}
             </Toggle>
@@ -275,11 +275,11 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[4px] border hairline bg-bg px-3 py-2 text-[12px] shadow-sm">
+    <div className="rounded-[4px] border hairline bg-bg px-3 py-2 text-small shadow-sm">
       {/* Through the shared formatter. The raw ISO key printed here gave one
           chart three date formats — "2026-08-27" in the tooltip, "27/08" on the
           axis, "27 Aug 2026" everywhere else on the page. */}
-      <div className="text-fg-faint text-[11px]">{fmtDate(date)}</div>
+      <div className="text-fg-faint text-caption">{fmtDate(date)}</div>
       <div className="mt-0.5">{children}</div>
     </div>
   );

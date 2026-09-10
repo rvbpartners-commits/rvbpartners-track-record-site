@@ -36,7 +36,7 @@ export type PortfolioOption = {
  *  firm's own capital does not warrant. */
 function AccountTag({ live, label }: { live?: boolean; label?: string | null }) {
   return (
-    <span className="inline-block border hairline px-1.5 py-px text-[10px] leading-[1.5] align-middle text-fg-faint">
+    <span className="inline-block border hairline px-1.5 py-px text-label leading-[1.5] align-middle text-fg-faint">
       {label ?? (live ? "Real capital (live test)" : "Paper (broker-simulated)")}
     </span>
   );
@@ -88,10 +88,10 @@ export function PortfolioSelect({
         className="flex items-center gap-3 border hairline px-4 py-2.5 hover:bg-bg-subtle transition-colors w-full sm:w-auto sm:min-w-[240px]"
       >
         <span className="text-left">
-          <span className="block text-[14px] font-medium leading-tight">
+          <span className="block text-body font-medium leading-tight">
             {current.label}
           </span>
-          <span className="block text-[11px] text-fg-faint leading-tight mt-0.5">
+          <span className="block text-caption text-fg-faint leading-tight mt-0.5">
             Portfolio ·{" "}
             {current.kindLabel ??
               (current.capitalAtRisk
@@ -99,7 +99,7 @@ export function PortfolioSelect({
                 : "Paper (broker-simulated)")}
           </span>
         </span>
-        <span className="ml-auto text-fg-faint text-[10px]">
+        <span className="ml-auto text-fg-faint text-label">
           {open ? "▲" : "▼"}
         </span>
       </button>
@@ -136,7 +136,7 @@ export function PortfolioSelect({
                   } ${selected ? "bg-bg-subtle" : "hover:bg-bg-subtle"}`}
                 >
                   <span className="min-w-0">
-                    <span className="block text-[13px] font-medium truncate">
+                    <span className="block text-small font-medium truncate">
                       {/* A rule tying the row to the one above: this is not a
                           separate portfolio, it is the same one at another size. */}
                       {isVariant && (
@@ -150,7 +150,7 @@ export function PortfolioSelect({
                       </span>
                     </span>
                     {(isVariant ? size : o.tagline) && (
-                      <span className="block text-[11px] text-fg-faint truncate mt-0.5">
+                      <span className="block text-caption text-fg-faint truncate mt-0.5">
                         {isVariant
                           ? // "Same strategies and weights" invited the reader
                             // to read the two returns above and below each
@@ -168,11 +168,11 @@ export function PortfolioSelect({
                       the date goes directly under the number rather than being
                       left to the page a reader has not opened yet. */}
                   <span className="ml-auto text-right shrink-0">
-                    <span className={`block text-[13px] font-medium tnum ${colour}`}>
+                    <span className={`block text-small font-medium tnum ${colour}`}>
                       {signedPct(o.cumulative)}
                     </span>
                     {o.staleSince !== null && o.staleSince !== undefined && (
-                      <span className="block text-[10.5px] text-fg-faint tnum mt-0.5">
+                      <span className="block text-label text-fg-faint tnum mt-0.5">
                         as of {date(o.staleSince)}
                       </span>
                     )}

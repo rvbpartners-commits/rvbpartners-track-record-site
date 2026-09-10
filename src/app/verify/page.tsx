@@ -189,10 +189,10 @@ export default async function VerifyPage({
   return (
     <>
       <header>
-        <h1 className="text-[28px] sm:text-[34px] font-semibold tracking-tight leading-tight">
+        <h1 className="text-heading sm:text-title font-semibold tracking-tight leading-tight">
           Verify this record
         </h1>
-        <p className="mt-2 text-[14px] text-fg-muted max-w-[72ch] leading-relaxed">
+        <p className="mt-2 text-body text-fg-muted max-w-[72ch] leading-relaxed">
           Every marked number on this site comes from a file in a public
           repository. Each file hashes its own content, carries the hash of the
           previous session, and has a third-party timestamp bounding when it
@@ -205,7 +205,7 @@ export default async function VerifyPage({
       </header>
 
       <section className="mt-12">
-        <h2 className="text-[15px] font-semibold tracking-tight">
+        <h2 className="text-body font-semibold tracking-tight">
           What the proofs do and do not establish
         </h2>
         <div className="mt-4 grid md:grid-cols-2 gap-4">
@@ -252,10 +252,10 @@ export default async function VerifyPage({
           Ordering is an argument: the check comes before the description of the
           check. The four checks below now read as the commentary they are. */}
       <section className="mt-12">
-        <h2 className="text-[15px] font-semibold tracking-tight">
+        <h2 className="text-body font-semibold tracking-tight">
           Check it yourself, on a clone
         </h2>
-        <p className="mt-3 text-[13px] text-fg-muted leading-relaxed max-w-[80ch]">
+        <p className="mt-3 text-small text-fg-muted leading-relaxed max-w-[80ch]">
           Two commands, before anything else on this page. The first takes a
           copy of the whole published record. The second re-hashes every file
           the chain lists, compares each hash with the chain&rsquo;s own record
@@ -264,7 +264,7 @@ export default async function VerifyPage({
           <Code>python</Code>, nothing from this site, and no cooperation from
           us.
         </p>
-        <pre className="scroll-x mt-4 bg-bg-subtle border hairline p-3 sm:p-4 text-[11px] sm:text-[12px] leading-relaxed">
+        <pre className="scroll-x mt-4 bg-bg-subtle border hairline p-3 sm:p-4 text-caption sm:text-small leading-relaxed">
           <code>{`git clone ${DATA_REPO_URL}.git
 cd ${CLONE_DIR}
 python -c "
@@ -279,7 +279,7 @@ for line in open('CHAIN.jsonl',encoding='utf-8'):
 print('chain ok:', {k:v[:12] for k,v in prev.items()})
 "`}</code>
         </pre>
-        <p className="mt-3 text-[13px] text-fg-muted leading-relaxed max-w-[80ch]">
+        <p className="mt-3 text-small text-fg-muted leading-relaxed max-w-[80ch]">
           That is checks 1 and 2 below, end to end. It deliberately does not run
           the other two, because neither is ours to run for you: a timestamp is
           checked with <Code>ots verify &lt;file&gt;.ots</Code>, and the fourth
@@ -293,7 +293,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
           this page. */}
       {superseded.length > 0 && (
         <section className="mt-12">
-          <h2 className="text-[15px] font-semibold tracking-tight">
+          <h2 className="text-body font-semibold tracking-tight">
             Declared chain restarts
           </h2>
           <div className="mt-4 space-y-4 max-w-[80ch]">
@@ -358,10 +358,10 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
       )}
 
       <section className="mt-12">
-        <h2 className="text-[15px] font-semibold tracking-tight">
+        <h2 className="text-body font-semibold tracking-tight">
           The four checks
         </h2>
-        <ol className="mt-5 space-y-5 sm:space-y-6 text-[13px] leading-relaxed max-w-[80ch]">
+        <ol className="mt-5 space-y-5 sm:space-y-6 text-small leading-relaxed max-w-[80ch]">
           <Check
             n={1}
             title="Each record hashes its own content"
@@ -446,17 +446,17 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               count of the filtered page: the heading is a claim about the
               record, and a filter is a claim about the reader. What is on
               screen is stated separately, under the table. */}
-          <h2 className="text-[15px] font-semibold tracking-tight">
+          <h2 className="text-body font-semibold tracking-tight">
             Every snapshot in the current chains
           </h2>
-          <span className="text-[12px] text-fg-faint">
+          <span className="text-small text-fg-faint">
             {entries.length} records
             {index ? ` · published ${dateTime(index.published_at)}` : ""}
           </span>
         </div>
 
         {supersededCount > 0 && (
-          <p className="mt-3 text-[12px] text-fg-faint max-w-[80ch]">
+          <p className="mt-3 text-small text-fg-faint max-w-[80ch]">
             {supersededCount} further snapshot
             {supersededCount === 1 ? " is" : "s are"} published in the superseded
             chain
@@ -488,7 +488,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         {booksInChain.length > 1 && (
           <nav
             aria-label="Filter snapshots by portfolio"
-            className="mt-5 flex flex-wrap items-baseline gap-x-5 gap-y-2 text-[12px]"
+            className="mt-5 flex flex-wrap items-baseline gap-x-5 gap-y-2 text-small"
           >
             <span className="text-fg-faint">Book</span>
             <FilterLink href={href({ book: null })} active={selectedBook === null}>
@@ -508,7 +508,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         )}
 
         {unknownBook && (
-          <p className="mt-3 text-[12px] text-fg-faint max-w-[80ch]">
+          <p className="mt-3 text-small text-fg-faint max-w-[80ch]">
             No book in the current chains is keyed{" "}
             <code className="tnum">{unknownBook}</code>, so every record is
             shown.
@@ -516,9 +516,9 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         )}
 
         <div className="scroll-x mt-5">
-          <table className="w-full sm:min-w-[760px] text-[13px]">
+          <table className="w-full sm:min-w-[760px] text-small">
             <thead>
-              <tr className="text-[11px] text-fg-faint">
+              <tr className="text-caption text-fg-faint">
                 <th className="text-left font-normal pb-3">Session</th>
                 {/* When the record entered the chain. A backfilled record shows
                     a date well after its session, which is the one thing an
@@ -546,7 +546,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                   <td className="hidden sm:table-cell py-2.5 pr-4 text-fg-muted">
                     {labelFor(e.book)}
                     {labelOf.has(e.book) && (
-                      <span className="block text-[11px] text-fg-faint tnum">
+                      <span className="block text-caption text-fg-faint tnum">
                         {e.book}
                       </span>
                     )}
@@ -598,7 +598,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             cannot cite, and the reader's next question — "where is the rest?" —
             is answered with the file rather than with more pages. */}
         {filtered.length > 0 && (
-          <div className="mt-5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 text-[12px]">
+          <div className="mt-5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 text-small">
             <span className="text-fg-faint">
               Records{" "}
               <span className="tnum text-fg-muted">
@@ -656,18 +656,18 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         )}
 
         {entries.length === 0 && (
-          <p className="mt-4 text-[13px] text-fg-muted">
+          <p className="mt-4 text-small text-fg-muted">
             No records published yet.
           </p>
         )}
       </section>
 
       <section className="mt-14 grid lg:grid-cols-[190px_1fr] gap-x-10 gap-y-4 border-t hairline pt-8">
-        <h2 className="text-[14px] font-semibold tracking-tight">
+        <h2 className="text-body font-semibold tracking-tight">
           Where everything lives
         </h2>
         <div className="max-w-[74ch]">
-          <p className="text-[13px] text-fg-muted leading-relaxed">
+          <p className="text-small text-fg-muted leading-relaxed">
             The data is in{" "}
             <a className="text-accent hover:underline" href={DATA_REPO_URL}
                target="_blank" rel="noreferrer noopener">
@@ -696,7 +696,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               — and was left with GitHub's badge, which is the thing this page
               exists to avoid depending on. Stated plainly, with the command
               that will work once the key is published. */}
-          <p className="mt-3 text-[13px] text-fg-muted leading-relaxed">
+          <p className="mt-3 text-small text-fg-muted leading-relaxed">
             <strong className="font-medium text-fg">
               A caveat on checking those signatures yourself.
             </strong>{" "}
@@ -718,10 +718,10 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
           </p>
 
           <div className="mt-6 border-t hairline pt-5">
-            <h3 className="text-[13px] font-semibold tracking-tight">
+            <h3 className="text-small font-semibold tracking-tight">
               Found something wrong?
             </h3>
-            <p className="mt-2 text-[13px] text-fg-muted leading-relaxed">
+            <p className="mt-2 text-small text-fg-muted leading-relaxed">
               If a check fails, a number does not reconcile, or something here is
               unclear, please say so. Open an issue on either repository and tag{" "}
               <a className="text-accent hover:underline" href={MAINTAINER_URL}
@@ -762,10 +762,10 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                   is now labelled as what it is — the publishing account — not
                   as a person standing behind the firm. */}
               <span className="min-w-0">
-                <span className="block text-[13px] font-medium group-hover:underline">
+                <span className="block text-small font-medium group-hover:underline">
                   @v89ysppdry
                 </span>
-                <span className="block text-[12px] text-fg-muted">
+                <span className="block text-small text-fg-muted">
                   the account this record is published from. The company behind
                   it is identified in full on the{" "}
                   <span className="underline underline-offset-2">legal notice</span>.
@@ -773,7 +773,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               </span>
             </a>
 
-            <div className="mt-5 flex flex-col sm:flex-row sm:flex-wrap gap-x-5 gap-y-2 text-[13px]">
+            <div className="mt-5 flex flex-col sm:flex-row sm:flex-wrap gap-x-5 gap-y-2 text-small">
               <a className="text-accent hover:underline"
                  href={`${DATA_REPO_URL}/issues/new`}
                  target="_blank" rel="noreferrer noopener">
@@ -833,7 +833,7 @@ function Check({
 }) {
   return (
     <li className="flex gap-4">
-      <span className="shrink-0 text-[12px] tnum text-fg-faint pt-0.5 w-4">
+      <span className="shrink-0 text-small tnum text-fg-faint pt-0.5 w-4">
         {n}
       </span>
       <div>
@@ -846,7 +846,7 @@ function Check({
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="bg-bg-subtle px-1.5 py-0.5 text-[12px] tnum">
+    <code className="bg-bg-subtle px-1.5 py-0.5 text-small tnum">
       {children}
     </code>
   );

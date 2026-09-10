@@ -24,7 +24,7 @@ export function ExposureSection({ exposure }: { exposure: Exposure }) {
 
   return (
     <>
-      <p className="text-[13px] text-fg-muted mb-6">{prose(exposure.structure)}.</p>
+      <p className="text-small text-fg-muted mb-6">{prose(exposure.structure)}.</p>
 
       <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-5">
         <Stat
@@ -49,19 +49,19 @@ export function ExposureSection({ exposure }: { exposure: Exposure }) {
       </dl>
 
       <div className="mt-9">
-        <h3 className="text-[13px] font-semibold tracking-tight mb-3">
+        <h3 className="text-small font-semibold tracking-tight mb-3">
           Positions carried past a close
         </h3>
         {carried.length === 0 ? (
-          <p className="text-[13px] text-fg-muted">
+          <p className="text-small text-fg-muted">
             None. Every published session ended with no open exposure on either
             venue.
           </p>
         ) : (
           <div className="scroll-x">
-            <table className="w-full sm:min-w-[420px] max-w-[560px] text-[13px]">
+            <table className="w-full sm:min-w-[420px] max-w-[560px] text-small">
               <thead>
-                <tr className="text-[11.5px] text-fg-faint">
+                <tr className="text-caption text-fg-faint">
                   <th className="text-left font-normal pb-2">Session</th>
                   <th className="text-right font-normal pb-2">Unmatched tickets</th>
                   <th className="text-right font-normal pb-2">Net volume</th>
@@ -84,7 +84,7 @@ export function ExposureSection({ exposure }: { exposure: Exposure }) {
             </table>
           </div>
         )}
-        <p className="mt-4 text-[12.5px] leading-relaxed text-fg-muted max-w-[72ch]">
+        <p className="mt-4 text-small leading-relaxed text-fg-muted max-w-[72ch]">
           {prose(exposure.note)}. A position still open at a close carries the only
           market risk in the book and none of the published profit: it is
           disclosed here and marked nowhere, and its result appears on the
@@ -109,9 +109,9 @@ function Stat({
 }) {
   return (
     <div>
-      <dt className="text-[11.5px] text-fg-faint">{label}</dt>
-      <dd className="mt-1 text-[17px] tnum tracking-tight">{value}</dd>
-      {note && <div className="text-[11.5px] text-fg-faint mt-0.5">{note}</div>}
+      <dt className="text-caption text-fg-faint">{label}</dt>
+      <dd className="mt-1 text-subhead tnum tracking-tight">{value}</dd>
+      {note && <div className="text-caption text-fg-faint mt-0.5">{note}</div>}
     </div>
   );
 }

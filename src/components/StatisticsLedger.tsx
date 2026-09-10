@@ -232,7 +232,7 @@ export function StatisticsLedger({
 function Block({ title, rows }: { title: string; rows: Row[] }) {
   return (
     <section>
-      <h3 className="text-[13px] font-semibold tracking-tight border-b hairline pb-2">
+      <h3 className="text-small font-semibold tracking-tight border-b hairline pb-2">
         {title}
       </h3>
       <dl>
@@ -241,18 +241,18 @@ function Block({ title, rows }: { title: string; rows: Row[] }) {
             key={r.label}
             className="flex items-baseline gap-4 border-b hairline py-2.5"
           >
-            <dt className="text-[13px] text-fg-muted">
+            <dt className="text-small text-fg-muted">
               {r.label}
               {r.note && (
-                <span className="text-fg-faint text-[11.5px]"> · {r.note}</span>
+                <span className="text-fg-faint text-caption"> · {r.note}</span>
               )}
             </dt>
             <dd className="ml-auto text-right shrink-0">
               {r.withheld ? (
-                <span className="text-[12px] text-fg-faint">{r.withheld}</span>
+                <span className="text-small text-fg-faint">{r.withheld}</span>
               ) : (
                 <span
-                  className={`text-[13.5px] tnum ${
+                  className={`text-small tnum ${
                     r.sign === undefined || r.sign === null
                       ? ""
                       : r.sign > 0

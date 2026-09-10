@@ -40,11 +40,11 @@ export function Hero({
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12 pt-16 pb-14 lg:pt-24 lg:pb-16">
         <Mark aria-hidden="true" className="h-[38px] w-auto sm:h-[46px]" />
 
-        <h1 className="mt-10 max-w-[19ch] text-[38px] font-semibold leading-[1.06] tracking-[-0.03em] sm:text-[54px] lg:text-[64px]">
+        <h1 className="mt-10 max-w-[19ch] text-display font-semibold">
           Systematic strategies, tested against how results deceive.
         </h1>
 
-        <p className="mt-7 max-w-[58ch] text-[17px] leading-[1.55] text-[#b9b4ab] sm:text-[19px]">
+        <p className="mt-7 max-w-[58ch] text-subhead text-[#b9b4ab]">
           RVB Partners is a systematic trading firm in France. It trades its own
           capital and no one else&rsquo;s. This site is the public register of
           what we trade, how it was tested, and what we refused.
@@ -62,7 +62,7 @@ export function Hero({
           <Link
             href="/portfolios"
             style={{ background: "#f2f0ec", color: "#0c0d0e" }}
-            className="inline-flex items-center gap-2.5 px-6 py-3.5 text-[13px] font-medium transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2.5 px-6 py-3.5 text-small font-medium transition-opacity hover:opacity-90"
           >
             See the record
             <span aria-hidden="true">→</span>
@@ -70,7 +70,7 @@ export function Hero({
           <Link
             href="/verify"
             style={{ borderColor: "#3a3a37", color: "#f2f0ec" }}
-            className="inline-flex items-center gap-2.5 border px-6 py-3.5 text-[13px] font-medium transition-colors hover:bg-white/5"
+            className="inline-flex items-center gap-2.5 border px-6 py-3.5 text-small font-medium transition-colors hover:bg-white/5"
           >
             Verify it yourself
           </Link>
@@ -85,10 +85,10 @@ export function Hero({
           <dl className="mt-14 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-[#2a2a27] pt-9 lg:mt-16 lg:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label}>
-                <dt className="font-figure text-[10px] uppercase tracking-[0.15em] text-[#8b8781]">
+                <dt className="font-figure text-label uppercase tracking-[0.15em] text-[#8b8781]">
                   {s.label}
                 </dt>
-                <dd className="mt-2.5 font-figure tnum text-[26px] leading-none sm:text-[30px]">
+                <dd className="mt-2.5 font-figure tnum text-heading leading-none sm:text-title">
                   {s.value}
                 </dd>
               </div>

@@ -93,10 +93,10 @@ export default async function DisclosuresPage() {
   return (
     <>
       <header>
-        <h1 className="text-[28px] sm:text-[34px] font-semibold tracking-tight leading-tight">
+        <h1 className="text-heading sm:text-title font-semibold tracking-tight leading-tight">
           Disclosures
         </h1>
-        <p className="mt-2 text-[14px] text-fg-muted max-w-[72ch] leading-relaxed">
+        <p className="mt-2 text-body text-fg-muted max-w-[72ch] leading-relaxed">
           These are not boilerplate. Each one is a specific limitation of this
           track record. Every published record in the{" "}
           <a
@@ -172,15 +172,15 @@ export default async function DisclosuresPage() {
           return (
             <section key={d.id} className="border-t hairline pt-6">
               <div
-                className={`text-[11px] ${sev.className}`}
+                className={`text-caption ${sev.className}`}
               >
                 {sev.label}
               </div>
-              <h2 className="mt-2 text-[18px] font-semibold tracking-tight leading-snug">
+              <h2 className="mt-2 text-subhead font-semibold tracking-tight leading-snug">
                 {d.title_en}
               </h2>
               <div
-                className={`mt-1.5 text-[12px] ${
+                className={`mt-1.5 text-small ${
                   audience.warn ? "text-warn-fg" : "text-fg-faint"
                 }`}
               >
@@ -190,14 +190,14 @@ export default async function DisclosuresPage() {
                   well, but this site is not bilingual: a translation printed
                   under every paragraph doubles the length of the page a reader
                   has to get through to reach the caveat that matters. */}
-              <p className="mt-3 text-[14px] leading-relaxed">{d.body_en}</p>
+              <p className="mt-3 text-body leading-relaxed">{d.body_en}</p>
               {/* The published body says fills are "simulated by the broker's
                   paper engine against its market data" and stops there. WHICH
                   market data is the whole question, and every record answers it.
                   Added beneath rather than woven in, because the body above is
                   republished verbatim and must stay that way. */}
               {d.applies_to && feeds.has(d.applies_to) && (
-                <p className="mt-3 text-[13px] leading-relaxed text-fg-muted">
+                <p className="mt-3 text-small leading-relaxed text-fg-muted">
                   <strong className="font-medium text-fg">
                     The market data behind those fills:
                   </strong>{" "}
@@ -209,7 +209,7 @@ export default async function DisclosuresPage() {
                 </p>
               )}
               {audience.warn && DENIES_RISK.test(d.body_en) && (
-                <p className="mt-3 text-[13px] leading-relaxed text-warn-fg">
+                <p className="mt-3 text-small leading-relaxed text-warn-fg">
                   This statement is published with no audience and is not true of
                   every portfolio in this record. It does not apply to{" "}
                   {realCapital.map((b, i) => (
@@ -236,7 +236,7 @@ export default async function DisclosuresPage() {
                   so the correction is printed beneath it rather than left for a
                   reader to discover. */}
               {CLAIMS_ATTRIBUTION_CLOSES.test(d.body_en) && (
-                <p className="mt-3 text-[13px] leading-relaxed text-warn-fg">
+                <p className="mt-3 text-small leading-relaxed text-warn-fg">
                   Correction: the attribution does <em>not</em> sum to the book.
                   The published per-category contributions are weighted
                   per-strategy returns and, added up for a session, they differ
@@ -261,17 +261,17 @@ export default async function DisclosuresPage() {
         })}
 
         {disclosures.length === 0 && (
-          <p className="text-[14px] text-fg-muted">
+          <p className="text-body text-fg-muted">
             Disclosures could not be loaded from the data repository.
           </p>
         )}
       </div>
 
       <section className="mt-16 border-t hairline pt-6 max-w-[80ch]">
-        <h2 className="text-[15px] font-semibold tracking-tight">
+        <h2 className="text-body font-semibold tracking-tight">
           Regulatory status
         </h2>
-        <p className="mt-3 text-[14px] leading-relaxed text-fg-muted">
+        <p className="mt-3 text-body leading-relaxed text-fg-muted">
           RVB is a French entity. Publicly presenting performance may
           engage AMF and EU marketing rules even where the accounts are simulated
           and no service is offered. No regulatory assessment has been obtained

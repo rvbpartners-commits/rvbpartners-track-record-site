@@ -103,13 +103,13 @@ function OverviewTooltip({
   if (!active || !payload?.length) return null;
   return (
     <div className="border hairline bg-bg-raised px-3 py-2">
-      <div className="text-[11px] text-fg-faint mb-1.5">
+      <div className="text-caption text-fg-faint mb-1.5">
         {label ? fmtDay(label) : ""}
       </div>
       {payload.map((entry) => (
         <div
           key={entry.name}
-          className="flex items-center gap-3 text-[12px] tnum leading-5"
+          className="flex items-center gap-3 text-small tnum leading-5"
         >
           <span
             className="inline-block h-[2px] w-3"
@@ -162,7 +162,7 @@ export function OverviewChart({ series }: { series: OverviewSeries[] }) {
 
   if (rows.length === 0) {
     return (
-      <div className="flex items-center justify-center text-[13px] text-fg-faint h-[260px] lg:h-[380px]">
+      <div className="flex items-center justify-center text-small text-fg-faint h-[260px] lg:h-[380px]">
         No published sessions yet.
       </div>
     );
@@ -221,7 +221,7 @@ export function OverviewLegend({ series }: { series: OverviewSeries[] }) {
   const ordered = orderWithVariants(series, (s) => s.book);
   const books = ordered.map((s) => s.book);
   return (
-    <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[11.5px] sm:text-[12px] text-fg-muted">
+    <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-caption sm:text-small text-fg-muted">
       {ordered.map((s) => {
         const size = variantSize(s.book);
         return (

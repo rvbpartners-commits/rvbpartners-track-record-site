@@ -51,10 +51,10 @@ export default async function MethodologyPage() {
   return (
     <>
       <header>
-        <h1 className="text-[28px] sm:text-[34px] font-semibold tracking-tight leading-tight">
+        <h1 className="text-heading sm:text-title font-semibold tracking-tight leading-tight">
           Methodology
         </h1>
-        <p className="mt-2 text-[14px] text-fg-muted max-w-[72ch] leading-relaxed">
+        <p className="mt-2 text-body text-fg-muted max-w-[72ch] leading-relaxed">
           How every number here is produced. The full version, kept beside the
           data, is in{" "}
           <a
@@ -69,7 +69,7 @@ export default async function MethodologyPage() {
         </p>
       </header>
 
-      <div className="mt-12 space-y-12 max-w-[80ch] text-[14px] leading-relaxed">
+      <div className="mt-12 space-y-12 max-w-[80ch] text-body leading-relaxed">
         <Section title="Where the numbers come from">
           <p>
             Each Alpaca paper account runs a fixed daily cycle: after the close
@@ -538,7 +538,7 @@ function Section({
 }) {
   return (
     <section className="border-t hairline pt-6">
-      <h2 className="text-[18px] font-semibold tracking-tight">{title}</h2>
+      <h2 className="text-subhead font-semibold tracking-tight">{title}</h2>
       <div className="mt-3 space-y-3">{children}</div>
     </section>
   );

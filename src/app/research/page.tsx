@@ -222,7 +222,7 @@ export default async function ResearchPage() {
             correction is a second, softer correction. The tile above it says
             only how the families are built; this says why the number matters. */}
         {s.note && (
-          <p className="mt-8 max-w-[72ch] border-t hairline pt-5 text-[14.5px] leading-[1.62] text-fg-muted">
+          <p className="mt-8 max-w-[72ch] border-t hairline pt-5 text-body text-fg-muted">
             {prose(s.note)}
           </p>
         )}
@@ -230,7 +230,7 @@ export default async function ResearchPage() {
 
       {/* ─── 4. WHAT SURVIVES THE CORRECTION ──────────────────────────────*/}
       <Section title="What survives the correction" gloss="the bar">
-        <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+        <p className="max-w-[72ch] text-body text-fg-muted">
           Search enough strategies and some will look significant by chance
           alone. Every headline is therefore re-derived against the whole
           book&rsquo;s effective number of trials, not against its own small
@@ -260,7 +260,7 @@ export default async function ResearchPage() {
             count, which is the opposite of the shape most such sentences
             assume. Ours must not quietly assume it either. */}
         {d.note && (
-          <p className="mt-7 max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+          <p className="mt-7 max-w-[72ch] text-body text-fg-muted">
             {prose(d.note)}
           </p>
         )}
@@ -292,7 +292,7 @@ export default async function ResearchPage() {
                 note="held to a bar that does not subtract the return on cash"
               />
             </div>
-            <p className="mt-4 text-[12.5px] leading-relaxed text-fg-faint">
+            <p className="mt-4 text-small leading-relaxed text-fg-faint">
               Every headline is meant to be re-derived <em>excess</em> of the
               risk-free rate — interest on cash is not alpha. For{" "}
               {int(d.gross_sharpe_fallback_rows)} of the rows entering the
@@ -314,7 +314,7 @@ export default async function ResearchPage() {
               nothing in the published payload supports — `gate_debt` lists only
               the checks with outstanding debt, so deriving a number from it
               would be a different, smaller number wearing the same words. */}
-          <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+          <p className="max-w-[72ch] text-body text-fg-muted">
             A set of checks blocks our build. Where the catalogue still violates
             one, the offending strategies are grandfathered in a dated list that
             may only ever shrink — never a loosened rule. The checks that
@@ -323,9 +323,9 @@ export default async function ResearchPage() {
             third clock named at the top of this page.
           </p>
           <div className="mt-6 scroll-x">
-            <table className="w-full text-[13px]">
+            <table className="w-full text-small">
               <thead>
-                <tr className="text-left text-[11px] text-fg-faint">
+                <tr className="text-left text-caption text-fg-faint">
                   <th className="pb-2 pr-6 font-medium">Check</th>
                   {/* NOT "known violations". Most rows publish a single count
                       and that count is the debt — but the causality row
@@ -357,7 +357,7 @@ export default async function ResearchPage() {
                             difference between a count a reader can use and one
                             they will misread as a clean bill. */}
                         {note && (
-                          <span className="mt-1 block max-w-[46ch] font-[family-name:var(--font-prose)] text-[11.5px] leading-snug text-fg-faint">
+                          <span className="mt-1 block max-w-[46ch] font-[family-name:var(--font-prose)] text-caption leading-snug text-fg-faint">
                             {prose(note)}
                           </span>
                         )}
@@ -387,7 +387,7 @@ export default async function ResearchPage() {
 
       {/* ─── 6. THE OTHER END OF THE SAME CATALOGUE ───────────────────────*/}
       <Section title="What was refused" gloss="the same catalogue, from the other end">
-        <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+        <p className="max-w-[72ch] text-body text-fg-muted">
           This page counts the search. The same catalogue read from the other
           end — everything it holds that is not presented as an edge — is set
           out under{" "}
@@ -401,7 +401,7 @@ export default async function ResearchPage() {
 
       {/* ─── 7. PROVENANCE ────────────────────────────────────────────────*/}
       <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-        <p className="max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
+        <p className="max-w-[72ch] text-small leading-relaxed text-fg-faint">
           Every figure above is a field of{" "}
           <a
             className="text-accent hover:underline"
@@ -437,10 +437,10 @@ export default async function ResearchPage() {
 function Masthead() {
   return (
     <>
-      <h1 className="text-[30px] sm:text-[38px] leading-[1.16] tracking-[-0.012em]">
+      <h1 className="text-title sm:text-title">
         Research
       </h1>
-      <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
+      <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         A track record shows what was kept. This page shows how much was
         searched to produce it, and against what bar the survivors were judged
         — the denominator that makes every other figure on this site readable.
@@ -466,7 +466,7 @@ function WhatThisIsNot({
 }) {
   return (
     <Section title="What this page is not" gloss="read this first">
-      <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+      <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
         <p>
           <span className="text-fg">
             There is no performance figure on this page.
@@ -486,7 +486,7 @@ function WhatThisIsNot({
           claiming "the data names no strategy" is worth less than the data
           saying so in its own header, where anyone can check that it does. */}
       {note && (
-        <p className="mt-5 max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
+        <p className="mt-5 max-w-[72ch] text-small leading-relaxed text-fg-faint">
           The file behind this page says so itself: &ldquo;{prose(note)}&rdquo;
         </p>
       )}
@@ -520,7 +520,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
           {gloss}
@@ -543,10 +543,10 @@ function Figure({
 }) {
   return (
     <div className="border-t hairline pt-4">
-      <div className="text-[26px] tnum leading-none tracking-tight">{value}</div>
-      <div className="mt-2 text-[13px] font-medium">{label}</div>
+      <div className="text-heading tnum leading-none tracking-tight">{value}</div>
+      <div className="mt-2 text-small font-medium">{label}</div>
       {note && (
-        <div className="mt-1.5 text-[12px] leading-relaxed text-fg-faint">
+        <div className="mt-1.5 text-small leading-relaxed text-fg-faint">
           {note}
         </div>
       )}
@@ -569,12 +569,12 @@ function Clocks({
           key={i}
           className="border-t hairline py-4 sm:flex sm:items-baseline sm:gap-8"
         >
-          <div className="font-figure tnum text-[13px] text-fg sm:w-[190px] sm:shrink-0">
+          <div className="font-figure tnum text-small text-fg sm:w-[190px] sm:shrink-0">
             {row.value}
           </div>
           <div className="mt-1.5 sm:mt-0">
-            <div className="text-[14px] leading-snug text-fg">{row.label}</div>
-            <div className="mt-1.5 max-w-[64ch] text-[12.5px] leading-relaxed text-fg-faint">
+            <div className="text-body leading-snug text-fg">{row.label}</div>
+            <div className="mt-1.5 max-w-[64ch] text-small leading-relaxed text-fg-faint">
               {row.note}
             </div>
           </div>

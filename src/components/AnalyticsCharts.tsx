@@ -49,7 +49,7 @@ export function AnalyticsCharts({
   // indistinguishable from a book that has no analytics to show. Say so.
   if (!analytics) {
     return (
-      <p className="mt-10 text-[13px] text-fg-muted max-w-[80ch]">
+      <p className="mt-10 text-small text-fg-muted max-w-[80ch]">
         The analytics series could not be loaded from the data repository. The
         charts are not drawn rather than drawn from a partial payload.
       </p>
@@ -78,7 +78,7 @@ export function AnalyticsCharts({
   return (
     <>
       {countsDiffer && (
-        <p className="mt-8 text-[12px] text-fg-faint max-w-[80ch] leading-relaxed">
+        <p className="mt-8 text-small text-fg-faint max-w-[80ch] leading-relaxed">
           These panels are drawn from{" "}
           <code>analytics.json</code>, which publishes {drawnObs} daily
           {" "}
@@ -148,14 +148,14 @@ function Plot({
   return (
     <figure className="m-0">
       <figcaption>
-        <h3 className="text-[13px] font-semibold tracking-tight">{title}</h3>
+        <h3 className="text-small font-semibold tracking-tight">{title}</h3>
         {note && (
-          <p className="mt-1 text-[11.5px] text-fg-muted leading-relaxed">{note}</p>
+          <p className="mt-1 text-caption text-fg-muted leading-relaxed">{note}</p>
         )}
       </figcaption>
       <div className="mt-3">
         {held || empty ? (
-          <div className="flex items-center justify-center border hairline text-[12px] text-fg-faint h-[150px] sm:h-[176px] px-4 text-center">
+          <div className="flex items-center justify-center border hairline text-small text-fg-faint h-[150px] sm:h-[176px] px-4 text-center">
             {held ?? "not enough sessions yet"}
           </div>
         ) : (
@@ -193,8 +193,8 @@ function TinyTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="border hairline bg-bg-raised px-2.5 py-1.5 text-[12px]">
-      <div className="text-fg-faint text-[11px]">{label ? fmtDay(label) : ""}</div>
+    <div className="border hairline bg-bg-raised px-2.5 py-1.5 text-small">
+      <div className="text-fg-faint text-caption">{label ? fmtDay(label) : ""}</div>
       <div className="tnum font-medium">{format(payload[0]?.value)}</div>
     </div>
   );
@@ -338,8 +338,8 @@ function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
               cursor={{ fill: "var(--bg-subtle)" }}
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
-                  <div className="border hairline bg-bg-raised px-2.5 py-1.5 text-[12px]">
-                    <div className="text-fg-faint text-[11px]">from {label}</div>
+                  <div className="border hairline bg-bg-raised px-2.5 py-1.5 text-small">
+                    <div className="text-fg-faint text-caption">from {label}</div>
                     <div className="tnum font-medium">
                       {payload[0].value} session
                       {payload[0].value === 1 ? "" : "s"}
@@ -383,7 +383,7 @@ function Quantiles({ analytics }: { analytics: AnalyticsPayload }) {
       <div className="space-y-4 pt-1">
         {rows.map((r) => (
           <div key={r.horizon}>
-            <div className="flex items-baseline justify-between text-[11.5px] mb-1.5">
+            <div className="flex items-baseline justify-between text-caption mb-1.5">
               <span className="text-fg-muted">
                 {r.horizon}
                 <span className="text-fg-faint">
@@ -486,7 +486,7 @@ function MonthlyHeatmap({ analytics }: { analytics: AnalyticsPayload }) {
       empty={rows.length === 0}
     >
       <div className="scroll-x">
-        <table className="w-full min-w-[540px] text-[11.5px]">
+        <table className="w-full min-w-[540px] text-caption">
           <thead>
             <tr className="text-fg-faint">
               <th className="text-left font-normal pb-1.5">Year</th>
@@ -548,9 +548,9 @@ function DrawdownEpisodes({ analytics }: { analytics: AnalyticsPayload }) {
       empty={rows.length === 0}
     >
       <div className="scroll-x">
-        <table className="w-full sm:min-w-[540px] text-[13px]">
+        <table className="w-full sm:min-w-[540px] text-small">
           <thead>
-            <tr className="text-[11.5px] text-fg-faint">
+            <tr className="text-caption text-fg-faint">
               <th className="text-left font-normal pb-2">Started</th>
               <th className="text-left font-normal pb-2">Trough</th>
               <th className="text-left font-normal pb-2">Recovered</th>

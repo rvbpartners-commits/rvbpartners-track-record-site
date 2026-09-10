@@ -84,13 +84,13 @@ export async function Shell({ children }: { children: ReactNode }) {
                 different sites. */}
             <Link
               href="/"
-              className="inline-flex items-baseline gap-2.5 text-[17px] font-semibold tracking-[-0.01em]"
+              className="inline-flex items-baseline gap-2.5 text-subhead font-semibold"
             >
               <Mark aria-hidden="true" className="h-[13px] w-auto translate-y-[1px]" />
               RVB Partners
             </Link>
             {runningHead && (
-              <span className="ml-auto font-figure text-[10px] uppercase tracking-[0.15em] text-fg-faint">
+              <span className="ml-auto font-figure text-label uppercase tracking-[0.15em] text-fg-faint">
                 {runningHead}
               </span>
             )}

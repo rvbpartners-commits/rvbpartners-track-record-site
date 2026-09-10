@@ -60,7 +60,7 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
         />
       </dl>
 
-      <dl className="mt-8 grid sm:grid-cols-2 gap-x-14 gap-y-3 text-[13px]">
+      <dl className="mt-8 grid sm:grid-cols-2 gap-x-14 gap-y-3 text-small">
         <Row label="Net result, all round trips">
           <span className={`tnum ${colour(rt.net_total_usd)}`}>
             {money(rt.net_total_usd)}
@@ -85,7 +85,7 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
         </Row>
       </dl>
 
-      <p className="mt-6 text-[12.5px] leading-relaxed text-fg-muted max-w-[72ch]">
+      <p className="mt-6 text-small leading-relaxed text-fg-muted max-w-[72ch]">
         Each round trip is the <strong className="font-medium text-fg">sum of
         both legs</strong>. The hedge account runs in hedging mode, so its half
         only appears when a ticket settles — or never, while the ticket stays
@@ -98,14 +98,14 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
           ungated, because they are statements of what happened. Naming a
           withheld figure that the reader can see two panels below is the kind
           of small contradiction that costs a record its credit. */}
-      <p className="mt-3 text-[12.5px] leading-relaxed text-fg-muted max-w-[72ch]">
+      <p className="mt-3 text-small leading-relaxed text-fg-muted max-w-[72ch]">
         Sharpe, volatility and every other annualised figure stay withheld below{" "}
         {rt.round_trips_needed_for_annualising} round trips. On {rt.round_trips}{" "}
         they would not be imprecise, they would be meaningless. The realised
         series — every daily result, and the drawdown path — are not annualised
         estimates and are published in full.
       </p>
-      <p className="mt-3 text-[12.5px] leading-relaxed text-fg-muted max-w-[72ch]">
+      <p className="mt-3 text-small leading-relaxed text-fg-muted max-w-[72ch]">
         The net result above covers the closed round trips only. It is not the
         same population as the cumulative result charted for this book, which is
         the whole combined P&amp;L on every published day; the two are different
@@ -140,11 +140,11 @@ function Stat({
 }) {
   return (
     <div>
-      <dt className="text-[11.5px] text-fg-faint">{label}</dt>
-      <dd className={`mt-1 text-[17px] tnum tracking-tight ${colour(sign ?? null)}`}>
+      <dt className="text-caption text-fg-faint">{label}</dt>
+      <dd className={`mt-1 text-subhead tnum tracking-tight ${colour(sign ?? null)}`}>
         {value}
       </dd>
-      {note && <div className="text-[11.5px] text-fg-faint mt-0.5">{note}</div>}
+      {note && <div className="text-caption text-fg-faint mt-0.5">{note}</div>}
     </div>
   );
 }

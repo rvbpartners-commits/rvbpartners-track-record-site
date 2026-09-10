@@ -34,10 +34,10 @@ export const metadata: Metadata = {
 export default function LegalNotice() {
   return (
     <div className="pt-2 lg:pt-6">
-      <h1 className="text-[30px] sm:text-[38px] leading-[1.16] tracking-[-0.012em]">
+      <h1 className="text-title sm:text-title">
         Legal notice
       </h1>
-      <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
+      <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         The <em>mentions légales</em> required of a French company publishing a
         website, under article 6-III of law n° 2004-575 of 21 June 2004 (LCEN)
         and article R. 123-237 of the code de commerce. Every identifier below
@@ -103,7 +103,7 @@ export default function LegalNotice() {
             invites a reader to picture an office at 47 rue Vivienne. The
             domiciliataire is itself a registered company and is named on the
             Kbis, so naming it here costs nothing and forecloses the inference. */}
-        <p className="mt-5 max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
+        <p className="mt-5 max-w-[72ch] text-small leading-relaxed text-fg-faint">
           The registered office is a domiciliation address provided by{" "}
           {ENTITY.domiciliation.name} (RCS {ENTITY.domiciliation.rcs}). It is
           the company&rsquo;s legal address; it is not a place of business open
@@ -158,7 +158,7 @@ export default function LegalNotice() {
 
       {/* ─── WHAT THIS SITE IS ────────────────────────────────────────── */}
       <Section title="Purpose" gloss="What this site is, and is not">
-        <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           {/* THE REGISTERED PURPOSE IS THE EVIDENCE FOR THE DISCLAIMER. Every
               other page asserts "no third-party money is managed here" in the
               firm's own voice. Here it is a third party's record of it. */}
@@ -196,7 +196,7 @@ export default function LegalNotice() {
 
       {/* ─── PROPRIÉTÉ INTELLECTUELLE ─────────────────────────────────── */}
       <Section title="Intellectual property" gloss="What is owned, and what is open">
-        <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           <p>
             The name {ENTITY.name}, the {ENTITY.short} mark and the editorial
             content of this site belong to the company. The published record
@@ -227,7 +227,7 @@ export default function LegalNotice() {
 
       {/* ─── DONNÉES / COOKIES ────────────────────────────────────────── */}
       <Section title="Personal data and cookies" gloss="Privacy">
-        <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           {/* WRITTEN FROM WHAT THE SITE ACTUALLY DOES, not from a template. If
               this ever stops being true — an analytics script, an embed, a
               cookie — this paragraph is the thing that has to change first. */}
@@ -269,7 +269,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
           {gloss}
@@ -287,10 +287,10 @@ function Rows({ rows }: { rows: [string, React.ReactNode][] }) {
     <dl className="grid gap-y-4 sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)] sm:gap-x-10">
       {rows.map(([label, value]) => (
         <div key={label} className="contents">
-          <dt className="text-[13px] leading-snug text-fg-faint sm:pt-px">
+          <dt className="text-small leading-snug text-fg-faint sm:pt-px">
             {label}
           </dt>
-          <dd className="font-figure text-[13.5px] leading-snug text-fg -mt-2.5 sm:mt-0">
+          <dd className="font-figure text-small leading-snug text-fg -mt-2.5 sm:mt-0">
             {value}
           </dd>
         </div>
@@ -301,7 +301,7 @@ function Rows({ rows }: { rows: [string, React.ReactNode][] }) {
 
 function Gloss({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mt-1.5 block font-[family-name:var(--font-prose)] text-[12.5px] leading-snug text-fg-faint">
+    <span className="mt-1.5 block font-[family-name:var(--font-prose)] text-small leading-snug text-fg-faint">
       {children}
     </span>
   );

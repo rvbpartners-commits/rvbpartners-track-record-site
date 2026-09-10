@@ -159,7 +159,7 @@ export default async function Portfolio({
           nothing for five days was borrowing the whole repository's publish
           timestamp and printing it under its own numbers. The site-wide chain
           count keeps its own label so the two cannot be read as one fact. */}
-      <p className="mt-14 text-[12px] text-fg-faint">
+      <p className="mt-14 text-small text-fg-faint">
         This portfolio&rsquo;s data published{" "}
         {dateTime(meta?.published_at ?? metrics?.published_at ?? null)}
         {metrics?.as_of ? ` · statistics as of ${metrics.as_of}` : ""} ·{" "}

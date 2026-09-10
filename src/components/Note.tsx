@@ -23,7 +23,7 @@ export function Note({
       : "bg-bg-subtle text-fg-muted hairline";
   return (
     <div
-      className={`border px-4 py-3.5 text-[13px] leading-relaxed max-w-[80ch] ${styles} ${className}`}
+      className={`border px-4 py-3.5 text-small leading-relaxed max-w-[80ch] ${styles} ${className}`}
     >
       {children}
     </div>

@@ -31,7 +31,7 @@ export function HoldingsTable({
 
   if (groups.length === 0) {
     return (
-      <p className="text-[13px] text-fg-muted">
+      <p className="text-small text-fg-muted">
         No positions have been published for this session.
       </p>
     );
@@ -51,9 +51,9 @@ export function HoldingsTable({
 
   return (
     <div className="scroll-x">
-      <table className="w-full sm:min-w-[640px] text-[13px]">
+      <table className="w-full sm:min-w-[640px] text-small">
         <thead>
-          <tr className="text-[11px] text-fg-faint">
+          <tr className="text-caption text-fg-faint">
             <th className="text-left font-normal pb-3">Category</th>
             <th className="text-right font-normal pb-3">Positions</th>
             <th className="text-right font-normal pb-3">Cost basis</th>
@@ -82,7 +82,7 @@ export function HoldingsTable({
                       className="flex items-center gap-2.5 text-left"
                     >
                       <span
-                        className="text-fg-faint text-[9px] w-2.5 inline-block transition-transform"
+                        className="text-fg-faint text-label w-2.5 inline-block transition-transform"
                         style={{
                           transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
                         }}
@@ -90,11 +90,11 @@ export function HoldingsTable({
                         ▶
                       </span>
                       <span className="font-medium">{g.label}</span>
-                      <span className="text-[10px] tracking-[0.08em] text-fg-faint border hairline px-1.5 py-0.5">
+                      <span className="text-label tracking-[0.08em] text-fg-faint border hairline px-1.5 py-0.5">
                         {g.code}
                       </span>
                       {g.partial && (
-                        <span className="text-[11px] text-fg-faint">partial</span>
+                        <span className="text-caption text-fg-faint">partial</span>
                       )}
                     </button>
                   </td>
@@ -140,7 +140,7 @@ export function HoldingsTable({
                       </td>
                       <td className="py-2 text-right tnum text-fg-muted whitespace-nowrap">
                         {money(p.cost_basis, currency, 0)}
-                        <span className="block text-[11px] text-fg-faint">
+                        <span className="block text-caption text-fg-faint">
                           @ {money(p.avg_price, currency)}
                         </span>
                       </td>
@@ -178,7 +178,7 @@ export function HoldingsTable({
       </table>
 
       {anyShort && (
-        <p className="mt-3 text-[12px] text-fg-faint">
+        <p className="mt-3 text-small text-fg-faint">
           Cost basis is signed and the total nets longs against shorts, so it is
           not the size of the portfolio. Account equity, above, is the exact
           figure and is read from the broker.
@@ -186,7 +186,7 @@ export function HoldingsTable({
       )}
 
       {suppressedPct > 0 && (
-        <p className="mt-3 text-[12px] text-fg-faint">
+        <p className="mt-3 text-small text-fg-faint">
           {suppressedPct === 1
             ? "One category publishes an open-P&L percentage whose sign contradicts its own dollar figure — it is taken over a signed net cost basis — so the percentage is not shown for it."
             : `${suppressedPct} categories publish an open-P&L percentage whose sign contradicts their own dollar figure — it is taken over a signed net cost basis — so the percentage is not shown for them.`}{" "}
@@ -196,7 +196,7 @@ export function HoldingsTable({
       )}
 
       {anyPartial && (
-        <p className="mt-3 text-[12px] text-fg-faint">
+        <p className="mt-3 text-small text-fg-faint">
           &ldquo;Partial&rdquo; means at least one holding in that category had no
           mark for this session. It is counted in cost basis but excluded from
           market value and P&amp;L rather than valued at a borrowed price.

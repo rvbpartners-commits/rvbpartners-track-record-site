@@ -22,9 +22,9 @@ export function Section({
       }`}
     >
       <div className="contents lg:block">
-        <h2 className="text-[14px] font-semibold tracking-tight">{title}</h2>
+        <h2 className="text-body font-semibold tracking-tight">{title}</h2>
         {note && (
-          <div className="order-last lg:order-none mt-4 lg:mt-2 text-[11.5px] text-fg-muted leading-relaxed">
+          <div className="order-last lg:order-none mt-4 lg:mt-2 text-caption text-fg-muted leading-relaxed">
             {note}
           </div>
         )}

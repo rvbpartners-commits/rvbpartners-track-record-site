@@ -33,7 +33,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`font-figure text-[10.5px] uppercase tracking-[0.15em] transition-colors ${
+            className={`font-figure text-label uppercase tracking-[0.15em] transition-colors ${
               active ? "text-fg" : "text-fg-faint hover:text-fg"
             }`}
           >

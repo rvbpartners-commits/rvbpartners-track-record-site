@@ -118,36 +118,43 @@ export default async function Home() {
           plain definition comes first because without it the sentence after
           it — and half this site — is unreadable to anyone who has not
           traded. */}
-      <section className="mt-14 lg:mt-20 max-w-[68ch]">
-        <p className="text-[16px] leading-[1.6] text-fg-muted">
-          <span className="text-fg font-medium">A paper account</span> is a real
-          broker account trading live market prices with simulated money: the
-          orders and the fills are the broker&rsquo;s, the money is not.
-        </p>
-        <div className="mt-7 border-t hairline pt-6">
+      {/* WHAT A PAPER ACCOUNT IS, THEN THE DISQUALIFIER, THEN THE EVIDENCE.
+          Two columns on a wide screen. Set as one 68ch ribbon it left half the
+          canvas empty, which is the layout of a document rather than of a
+          firm's front page — and it pushed everything below the fold for no
+          gain in readability. */}
+      <section className="mt-16 grid gap-x-16 gap-y-8 border-b hairline pb-14 lg:mt-24 lg:grid-cols-2 lg:pb-20">
+        <div>
+          <p className="text-subhead text-fg">
+            A paper account is a real broker account trading live market prices
+            with simulated money: the orders and the fills are the
+            broker&rsquo;s, the money is not.
+          </p>
+          <p className="mt-6 text-body text-fg-muted">
+            The company&rsquo;s registered corporate purpose, as filed, is{" "}
+            <span className="text-fg">
+              {ENTITY.purposeEn.replace(/\.$/, "")}
+            </span>{" "}
+            —{" "}
+            <Link href="/firm" className="text-accent hover:underline">
+              the register&rsquo;s record of it
+            </Link>
+            , not ours.
+          </p>
+        </div>
+        <div className="lg:border-l hairline lg:pl-16">
           <AccountDisclosureText hasLive={hasLive} />
         </div>
-        <p className="mt-6 text-[15px] leading-[1.6] text-fg-muted">
-          The company&rsquo;s registered corporate purpose, as filed, is{" "}
-          <span className="text-fg">{ENTITY.purposeEn.replace(/\.$/, "")}</span>{" "}
-          —{" "}
-          <Link href="/firm" className="text-accent hover:underline">
-            the register&rsquo;s record of it
-          </Link>
-          , not ours.
-        </p>
       </section>
 
-      {/* ─── 7. HOW THIS WORKS ────────────────────────────────────────────
-          Three plain steps, each ending at the page that evidences it. This
-          replaces a paragraph of assertive prose about method — the one
-          genuinely marketing passage the site had left — with sentences that
-          hand off instead of claiming. */}
-      <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-        <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+      {/* HOW THIS WORKS — three across, full width. It was a vertical list in
+          a narrow column, which is a table of contents pretending to be a
+          section. Three columns is the shape the content already had. */}
+      <section className="mt-16 lg:mt-24">
+        <h2 className="font-figure text-label font-medium uppercase text-fg-faint">
           How this works
         </h2>
-        <ol className="mt-6 max-w-[72ch] space-y-6">
+        <ol className="mt-9 grid gap-x-12 gap-y-12 md:grid-cols-3">
           {[
             {
               n: "01",
@@ -171,22 +178,18 @@ export default async function Home() {
               cta: "Check it without asking us",
             },
           ].map((s) => (
-            <li key={s.n} className="grid grid-cols-[34px_minmax(0,1fr)] gap-x-4">
-              <span className="font-figure text-[11px] text-fg-faint pt-[6px]">
-                {s.n}
-              </span>
-              <div>
-                <span className="text-[16px] font-semibold">{s.head}</span>
-                <p className="mt-1 text-[14.5px] leading-[1.6] text-fg-muted">
-                  {s.body}
-                </p>
-                <Link
-                  href={s.href}
-                  className="mt-2 inline-block font-figure text-[10.5px] uppercase tracking-[0.14em] text-accent hover:underline"
-                >
-                  {s.cta} →
-                </Link>
-              </div>
+            <li key={s.n} className="border-t hairline pt-5">
+              <span className="font-figure text-label text-fg-faint">{s.n}</span>
+              <h3 className="mt-3 text-subhead font-semibold text-fg">
+                {s.head}
+              </h3>
+              <p className="mt-2.5 text-body text-fg-muted">{s.body}</p>
+              <Link
+                href={s.href}
+                className="mt-4 inline-block font-figure text-label uppercase text-accent hover:underline"
+              >
+                {s.cta} &rarr;
+              </Link>
             </li>
           ))}
         </ol>
@@ -197,10 +200,10 @@ export default async function Home() {
           the front page this is a fact about the work, not a confession. */}
       {shownRejected.length > 0 && (
         <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-          <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+          <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
             What we rejected
           </h2>
-          <p className="mt-6 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
+          <p className="mt-6 max-w-[68ch] text-body text-fg-muted">
             Nothing is deleted when it fails. The code, the returns and the
             report card stay exactly where they were, auditable, and stop being
             presented as a result — which is what makes the count publishable at
@@ -213,10 +216,10 @@ export default async function Home() {
           <dl className="mt-7 grid gap-x-10 gap-y-6 sm:grid-cols-3 max-w-[76ch]">
             {shownRejected.map(([value, label]) => (
               <div key={label}>
-                <dt className="font-figure tnum text-[26px] leading-none text-fg">
+                <dt className="font-figure tnum text-heading leading-none text-fg">
                   {int(value)}
                 </dt>
-                <dd className="mt-2.5 text-[12.5px] leading-snug text-fg-faint">
+                <dd className="mt-2.5 text-small leading-snug text-fg-faint">
                   {label}
                 </dd>
               </div>
@@ -230,7 +233,7 @@ export default async function Home() {
           this far should choose where to go from what they want to know,
           rather than from a noun. */}
       <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-        <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+        <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
           Contents
         </h2>
         <ul className="mt-5 max-w-[80ch]">
@@ -248,10 +251,10 @@ export default async function Home() {
                 href={href}
                 className="group grid gap-x-6 gap-y-1 py-3.5 sm:grid-cols-[minmax(0,150px)_minmax(0,1fr)]"
               >
-                <span className="font-figure text-[10.5px] uppercase tracking-[0.15em] text-fg-faint transition-colors group-hover:text-fg">
+                <span className="font-figure text-label uppercase tracking-[0.15em] text-fg-faint transition-colors group-hover:text-fg">
                   {label}
                 </span>
-                <span className="text-[14.5px] leading-snug text-fg-muted transition-colors group-hover:text-fg">
+                <span className="text-body leading-snug text-fg-muted transition-colors group-hover:text-fg">
                   {question}
                 </span>
               </Link>
@@ -267,7 +270,7 @@ export default async function Home() {
           front page do not read as scrupulousness; they read as a site that is
           out of date. */}
       <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-        <p className="max-w-[76ch] text-[12.5px] leading-relaxed text-fg-faint">
+        <p className="max-w-[76ch] text-small leading-relaxed text-fg-faint">
           {currentTo && (
             <>
               This record is current to{" "}

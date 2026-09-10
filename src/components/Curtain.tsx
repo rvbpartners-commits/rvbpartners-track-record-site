@@ -199,7 +199,7 @@ export function Curtain() {
             no top-level heading as far as a screen reader's outline or a
             crawler is concerned. The section's aria-label carries the name for
             assistive technology; this element is the typography. */}
-        <p className="mt-9 text-center text-[30px] sm:text-[44px] font-semibold leading-none tracking-[-0.015em]">
+        <p className="mt-9 text-center text-title sm:text-display font-semibold leading-none">
           RVB Partners
         </p>
 
@@ -207,7 +207,7 @@ export function Curtain() {
             visible control and no indication there is anything under it. */}
         <span
           aria-hidden="true"
-          className="absolute bottom-9 flex flex-col items-center gap-2.5 font-figure text-[9.5px] uppercase tracking-[0.2em] text-fg-faint"
+          className="absolute bottom-9 flex flex-col items-center gap-2.5 font-figure text-label uppercase tracking-[0.2em] text-fg-faint"
         >
           Scroll
           <span className="curtain-cue h-7 w-px" />

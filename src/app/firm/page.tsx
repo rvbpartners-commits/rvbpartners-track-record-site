@@ -70,10 +70,10 @@ export default async function FirmPage() {
           has answered it once too often, and a reader then has to decide which
           one is the careful version. "In France" is the only geography claimed,
           and it is claimed because the register carries it. */}
-      <h1 className="max-w-[24ch] text-[30px] sm:text-[38px] leading-[1.16] tracking-[-0.012em]">
+      <h1 className="max-w-[24ch] text-title sm:text-title">
         RVB Partners is a systematic trading firm in France.
       </h1>
-      <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.62] text-fg-muted">
+      <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         This site is the public register of what we trade, how it was tested,
         and what we refused. This page is the short account of the company
         publishing it — what it does, what it does not do, and the identifiers
@@ -83,7 +83,7 @@ export default async function FirmPage() {
 
       {/* ─── 2. WHAT THE COMPANY DOES ─────────────────────────────────────── */}
       <Section title="What the company does" gloss="In one paragraph">
-        <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           <p>
             RVB Partners researches systematic trading strategies and trades
             them on its own accounts. Research and execution are not two
@@ -130,7 +130,7 @@ export default async function FirmPage() {
         title="What it does not do"
         gloss="And the register’s record of it"
       >
-        <div className="max-w-[72ch] space-y-4 text-[14.5px] leading-[1.62] text-fg-muted">
+        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           <p>
             <span className="text-fg">
               The company manages no third-party money and is not authorised to.
@@ -144,17 +144,17 @@ export default async function FirmPage() {
         </div>
 
         <figure className="mt-6 max-w-[72ch] border-l hairline pl-5">
-          <blockquote className="font-figure text-[14px] leading-[1.55] text-fg">
+          <blockquote className="font-figure text-body text-fg">
             {ENTITY.purpose}
           </blockquote>
-          <figcaption className="mt-3 text-[12.5px] leading-relaxed text-fg-faint">
+          <figcaption className="mt-3 text-small leading-relaxed text-fg-faint">
             In English: {ENTITY.purposeEn} Registered corporate purpose of{" "}
             {ENTITY.name}, {ENTITY.rcs.number} R.C.S. {ENTITY.rcs.registry},
             entered on the register {date(ENTITY.rcs.registeredOn)}.
           </figcaption>
         </figure>
 
-        <p className="mt-5 max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+        <p className="mt-5 max-w-[72ch] text-body text-fg-muted">
           <em>En compte propre</em> — for its own account — is the whole of the
           registered activity. The conditions attached to every figure published
           here are set out under{" "}
@@ -234,7 +234,7 @@ export default async function FirmPage() {
             ["Financial year ends", ENTITY.fiscalYearEnd],
           ]}
         />
-        <p className="mt-6 max-w-[72ch] text-[12.5px] leading-relaxed text-fg-faint">
+        <p className="mt-6 max-w-[72ch] text-small leading-relaxed text-fg-faint">
           Every value above is transcribed from the company&rsquo;s{" "}
           <em>extrait Kbis</em> and appears in French on the register, where it
           can be checked. The full notice — hosting, intellectual property,
@@ -459,7 +459,7 @@ export default async function FirmPage() {
           about how quickly anyone replies — a promise this page cannot keep
           would be the only unverifiable claim on it. */}
       <Section title="How to reach us" gloss="One address">
-        <p className="max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+        <p className="max-w-[72ch] text-body text-fg-muted">
           Anything about this record — a figure that does not reconcile, a check
           that fails, a passage that is unclear — goes to{" "}
           <a
@@ -491,7 +491,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-[10.5px] font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
           {gloss}
@@ -509,10 +509,10 @@ function Rows({ rows }: { rows: [string, React.ReactNode][] }) {
     <dl className="grid gap-y-4 sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)] sm:gap-x-10">
       {rows.map(([label, value]) => (
         <div key={label} className="contents">
-          <dt className="text-[13px] leading-snug text-fg-faint sm:pt-px">
+          <dt className="text-small leading-snug text-fg-faint sm:pt-px">
             {label}
           </dt>
-          <dd className="font-figure text-[13.5px] leading-snug text-fg -mt-2.5 sm:mt-0">
+          <dd className="font-figure text-small leading-snug text-fg -mt-2.5 sm:mt-0">
             {value}
           </dd>
         </div>
@@ -526,7 +526,7 @@ function Rows({ rows }: { rows: [string, React.ReactNode][] }) {
  *  distinction visible without a label. */
 function Gloss({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mt-1.5 block font-[family-name:var(--font-prose)] text-[12.5px] leading-snug text-fg-faint">
+    <span className="mt-1.5 block font-[family-name:var(--font-prose)] text-small leading-snug text-fg-faint">
       {children}
     </span>
   );
@@ -552,12 +552,12 @@ function Term({
       <dt id={id} className="scroll-mt-8">
         <a
           href={`#${id}`}
-          className="font-figure text-[13px] font-medium text-fg hover:text-accent transition-colors"
+          className="font-figure text-small font-medium text-fg hover:text-accent transition-colors"
         >
           {term}
         </a>
       </dt>
-      <dd className="mt-2 max-w-[72ch] text-[14.5px] leading-[1.62] text-fg-muted">
+      <dd className="mt-2 max-w-[72ch] text-body text-fg-muted">
         {children}
       </dd>
     </div>
@@ -577,12 +577,12 @@ function Step({
 }) {
   return (
     <li className="sm:grid sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-x-10">
-      <span className="font-figure text-[11.5px] uppercase tracking-[0.12em] text-fg-faint">
+      <span className="font-figure text-caption uppercase tracking-[0.12em] text-fg-faint">
         <span className="tnum">{n}</span>
         <span className="mx-2">·</span>
         {name}
       </span>
-      <p className="mt-1.5 sm:mt-0 text-[14.5px] leading-[1.62] text-fg-muted">
+      <p className="mt-1.5 sm:mt-0 text-body text-fg-muted">
         {children}
       </p>
     </li>
