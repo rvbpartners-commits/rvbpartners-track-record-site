@@ -332,9 +332,17 @@ code, pre, .mono {
   background: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
-a {
-  color: inherit;
-}
+/* `a { color: inherit }` USED TO SIT HERE, AND IT BROKE EVERY COLOUR UTILITY
+   ON EVERY LINK ON THE SITE.
+   Tailwind's own preflight already sets exactly this, inside `@layer base`.
+   The copy here was written outside any layer — and unlayered CSS beats
+   layered CSS in the cascade, whatever the specificity. So a bare type
+   selector at 0,0,1 was overriding `.text-[#f2f0ec]` at 0,1,0, and an anchor
+   given a colour class rendered in whatever its parent's colour was.
+   That is why the hero's two buttons carry inline `style` attributes: the
+   comment there blames Tailwind's class ORDER, which was the wrong diagnosis
+   of this exact bug. Removing the duplicate restores colour utilities on
+   anchors and changes nothing else, because preflight still does the job. */
 
 @media (prefers-reduced-motion: reduce) {
   *,
