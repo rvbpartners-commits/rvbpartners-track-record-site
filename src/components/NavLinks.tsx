@@ -17,8 +17,17 @@ export type NavItem = { href: string; label: string };
  * ONE TYPEFACE, AND A RULE INSTEAD OF THE MONO. The row was set in the figure
  * face at `text-label` — 10.5px — which made it the smallest thing on the site
  * and gave the masthead only two of the scale's eight steps. The face is now
- * the prose one at `text-caption`, at the firm's direction: one typeface
- * throughout, so the chrome stops looking like two.
+ * the prose one, at the firm's direction: one typeface throughout, so the
+ * chrome stops looking like two.
+ *
+ * AND THE CAPITALS ARE GONE. Setting seven navigation items in tracked capitals
+ * is a decision about volume, not about rank: it made the one row a reader uses
+ * to move around the site shout, and it cost the labels their word shapes,
+ * which is what the eye actually recognises when it is looking for "Portfolios"
+ * rather than reading it. The published labels are written in sentence case, so
+ * the row prints them as written and goes up to `text-small` — lowercase does
+ * not need the letter-spacing that made capitals legible, and 13px reads better
+ * than 11.5px without it.
  *
  * Dropping the mono costs the row its distinctiveness, so the mark of place is
  * no longer colour alone. The current item carries a 2px rule sitting exactly
@@ -44,7 +53,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`relative text-caption font-medium uppercase tracking-[0.12em] transition-colors ${
+            className={`relative text-small font-medium transition-colors ${
               active
                 ? "text-fg after:absolute after:inset-x-0 after:-bottom-[10px] after:h-[2px] after:bg-fg"
                 : "text-fg-faint hover:text-fg"
