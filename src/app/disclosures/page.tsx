@@ -150,9 +150,9 @@ export default async function DisclosuresPage() {
       <header>
         <h1 className="text-heading sm:text-title font-semibold">Disclosures</h1>
         {/* Outside every Section, so this one keeps a width of its own — set
-            from `--measure` rather than a hand-written `ch` cap, so the page
+            from the grid rather than a hand-written `ch` cap, so the page
             header and the prose below it are one width and not two. */}
-        <p className="mt-2 max-w-[var(--measure)] text-body text-fg-muted">
+        <p className="mt-2 text-body text-fg-muted">
           These are not boilerplate. Each one is a specific limitation of this
           track record. Every published record in the{" "}
           <a
@@ -175,7 +175,7 @@ export default async function DisclosuresPage() {
           page's job is to make it visible rather than to render a blanket claim
           under a heading a reader trusts. */}
       {mixedKinds && unscoped.length > 0 && (
-        <div className="mt-8 max-w-[var(--measure)]">
+        <div className="mt-8">
           <Note tone="warn">
             <strong className="font-semibold">
               {unscoped.length === 1
@@ -390,7 +390,7 @@ export default async function DisclosuresPage() {
       })}
 
       {disclosures.length === 0 && (
-        <p className="mt-12 max-w-[var(--measure)] text-body text-fg-muted">
+        <p className="mt-12 text-body text-fg-muted">
           Disclosures could not be loaded from the data repository.
         </p>
       )}

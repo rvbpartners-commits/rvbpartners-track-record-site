@@ -158,7 +158,7 @@ export default async function FirmPage() {
           The two caps here are the ones that survive: this header sits ABOVE
           the first section, outside the grid that owns the measure, so there is
           no track to inherit a width from. Everything inside a section below
-          takes its width from `--measure`. */}
+          takes its width from the grid. */}
       <h1 className="max-w-[24ch] text-title sm:text-title">
         RVB Partners is a systematic trading firm in France.
       </h1>

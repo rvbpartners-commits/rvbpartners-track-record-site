@@ -267,7 +267,7 @@ export default async function Portfolios() {
           reader who came to open a portfolio has not come to read. Across from
           the lede it is the first thing on the page that is not prose, on the
           side of the column that was empty. */}
-      <div className="grid gap-x-11 gap-y-6 lg:grid-cols-[minmax(0,var(--measure))_minmax(2.75rem,1fr)_minmax(0,var(--margin))]">
+      <div className="grid gap-x-11 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,var(--margin))]">
         <div>
           <h1 className="text-title">Portfolios</h1>
           <p className="mt-5 text-body text-fg-muted">

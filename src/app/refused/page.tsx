@@ -284,7 +284,7 @@ export default async function RefusedPage() {
           that owns the measure. It is the one place on this page that still
           states a width, and it states the grid's own. */}
       <h1 className="text-title">Refused</h1>
-      <p className="mt-5 max-w-[var(--measure)] text-body text-fg-muted">
+      <p className="mt-5 text-body text-fg-muted">
         Most of what we tested did not work. This page is the count: the
         strategies that failed, the figures the record suppresses, and the
         limits of what it can prove about itself. It carries no performance
@@ -937,7 +937,7 @@ export default async function RefusedPage() {
       {/* ─── PROVENANCE ─────────────────────────────────────────────────────
           Outside the section grid, so it keeps a width of its own: the grid's. */}
       <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-        <p className="max-w-[var(--measure)] text-small leading-relaxed text-fg-faint">
+        <p className="text-small leading-relaxed text-fg-faint">
           The catalogue figures on this page come from{" "}
           <a
             className="text-accent hover:underline"

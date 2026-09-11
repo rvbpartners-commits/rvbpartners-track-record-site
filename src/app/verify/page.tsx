@@ -243,7 +243,7 @@ export default async function VerifyPage({
           <h1 className="text-heading sm:text-title font-semibold tracking-tight leading-tight">
             Verify this record
           </h1>
-          <p className="mt-3 text-body text-fg-muted leading-relaxed max-w-[var(--measure)]">
+          <p className="mt-3 text-body text-fg-muted leading-relaxed">
             Every marked number on this site comes from a file in a public
             repository. Each file hashes its own content, carries the hash of the
             previous session, and has a third-party timestamp bounding when it

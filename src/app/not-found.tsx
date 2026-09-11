@@ -103,18 +103,18 @@ export default function NotFound() {
   return (
     <div className="pt-2 lg:pt-6">
       {/* Outside every Section, so the header keeps a width of its own, set
-          from `--measure` rather than a hand-written `ch` cap: the opening
+          from the grid rather than from a hand-written cap: the opening
           statement and the prose below it are then one width and not two. */}
       <header>
-        <h1 className="max-w-[var(--measure)] text-title">
+        <h1 className="text-title">
           This address is not part of the register.
         </h1>
-        <p className="mt-5 max-w-[var(--measure)] text-body text-fg-muted">
+        <p className="mt-5 text-body text-fg-muted">
           Nothing is published at it. Either it named a page this site no longer
           shows, or it was never one of ours (a typo, or an address assembled by
           hand).
         </p>
-        <p className="mt-4 max-w-[var(--measure)] text-body text-fg-muted">
+        <p className="mt-4 text-body text-fg-muted">
           Which of the two it is can be settled without asking us, and that is the
           point of keeping the record the way we do: each session is written once,
           hashed, and chained to the session before it, in a public repository this

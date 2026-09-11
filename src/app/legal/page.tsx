@@ -76,7 +76,7 @@ export default function LegalNotice() {
       {/* The one width cap left on this page. This paragraph sits ABOVE the
           first section, outside the grid that owns the measure, so there is no
           track for it to take a width from. Everything below is inside a
-          section and inherits `--measure`. */}
+          section and inherits its width. */}
       <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         The <em>mentions légales</em> required of a French company publishing a
         website, under article 6-III of law n° 2004-575 of 21 June 2004 (LCEN)

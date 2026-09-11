@@ -204,17 +204,19 @@ export default async function Home() {
       {/* ─── 8. WHAT WE REJECTED ──────────────────────────────────────────
           Three figures and one link. The full account is a page of its own; on
           the front page this is a fact about the work, not a confession. */}
-      {/* THE COUNTS MOVE UP BESIDE THE PROSE. They sat underneath it in a
-          three-column row capped at 76ch, so the paragraph stopped at the
-          middle of the page and the figures stopped there too, one under the
-          other. The sentence says what was thrown away; the figures say how
-          much. They belong on one line of sight, at the two edges. */}
+      {/* THE FIGURES GO UNDER THE SENTENCE, and the sentence runs the width of
+          the page. Putting the three counts in the margin beside the prose was
+          the wrong answer to the right complaint: it narrowed the paragraph to
+          make room for them, so the text stopped in the middle of the page
+          again and the figures were squeezed into a column. The sentence says
+          what was thrown away, then the counts say how much. In that order,
+          both full width. */}
       {shownRejected.length > 0 && (
-        <section className="section-grid mt-16 border-t hairline pt-7 lg:mt-24">
-          <h2 className="section-head text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+        <section className="mt-16 border-t hairline pt-7 lg:mt-24">
+          <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
             What we rejected
           </h2>
-          <p className="text-body text-fg-muted">
+          <p className="mt-6 text-body text-fg-muted">
             Nothing is deleted when it fails. The code, the returns and the
             report card stay exactly where they were, auditable, and stop being
             presented as a result. That is what makes the count publishable at
@@ -224,13 +226,13 @@ export default async function Home() {
             </Link>
             .
           </p>
-          <dl className="section-margin mt-8 border-t hairline lg:mt-0">
+          <dl className="mt-8 grid gap-x-12 gap-y-8 border-t hairline pt-6 sm:grid-cols-3">
             {shownRejected.map(([value, label]) => (
-              <div key={label} className="border-b hairline py-2.5">
-                <dt className="tnum text-small leading-snug text-fg">
+              <div key={label}>
+                <dt className="tnum text-heading leading-none text-fg">
                   {int(value)}
                 </dt>
-                <dd className="mt-0.5 text-caption leading-snug text-fg-muted">
+                <dd className="mt-2.5 text-small leading-snug text-fg-muted">
                   {label}
                 </dd>
               </div>
@@ -278,7 +280,7 @@ export default async function Home() {
           front page do not read as scrupulousness; they read as a site that is
           out of date. */}
       <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-        <p className="max-w-[var(--measure)] text-small leading-relaxed text-fg-muted">
+        <p className="text-small leading-relaxed text-fg-muted">
           {currentTo && (
             <>
               This record is current to{" "}

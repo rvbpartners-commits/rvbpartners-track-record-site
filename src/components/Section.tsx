@@ -23,31 +23,28 @@ import type { ReactNode } from "react";
  *
  * THE TWO TRACKS UNDER THE HEAD:
  *
- *   MEASURE  `--measure`, 33rem. Running prose, and nothing else. The cap is
- *            owned by the GRID rather than restated per element, which is what
- *            retired 58 of the 92 hand-written `max-w-[Nch]` classes the site
- *            carried in fourteen different values. The remaining 34 are in
- *            components that do not sit in a Section at all — BookView, Note,
- *            the charts, the footer, the home page — and they are the next
- *            thing to move, not an exception to the rule. `ch` was never the right unit for this: it is
- *            the width of a ZERO, so `max-w-[72ch]` renders about 96 characters
- *            in Inter, and because `ch` scales with the element's own font-size
- *            the caps did not even order the way they read — `80ch` at
- *            `text-small` was NARROWER than `72ch` at `text-body`. That is why
- *            the right edge of this site is ragged rather than a line.
+ *   CONTENT  `1fr`. It starts at the left edge and runs to the margin, or to
+ *            the right edge when there is no margin. NOTHING IS RESERVED, so
+ *            nothing is left over: that is the whole rule, and it is the third
+ *            attempt at it. The first left an empty column on the right, the
+ *            second an empty rail on the left, the third an empty gutter down
+ *            the centre. A line of body copy therefore runs wider than the 65
+ *            to 75 characters typography would ask for, which is the trade the
+ *            firm asked for twice.
+ *
+ *            This is what retired the 92 hand-written `max-w-[Nch]` caps the
+ *            site carried in fourteen different values. `ch` was never the
+ *            right unit: it is the width of a ZERO, so `max-w-[72ch]` renders
+ *            about 96 characters in Inter, and because `ch` scales with the
+ *            element's own font-size the caps did not even order the way they
+ *            read — `80ch` at `text-small` was NARROWER than `72ch` at
+ *            `text-body`.
  *   MARGIN   20rem, pinned to the RIGHT edge. Figures read from the payload, a
  *            schematic, a marginal note. This is the column that was white.
  *
  * The gutter between them is elastic, so the prose keeps its measure at the
  * left edge and the margin keeps its width at the right edge, and the space a
  * wider screen adds falls between the two rather than after both.
- *
- * `fill` IS FOR A CHART THAT STILL WANTS ITS ANNOTATION. A book page's curve is
- * the product, and capping it at a reading measure drew a 528px chart with a
- * 296px note beside it inside a 1180px column: the one figure a reader came for,
- * squeezed to fit a rule written for sentences. A filled section gives the
- * content every pixel the note does not need, and the note keeps a real column
- * rather than a sliver.
  *
  * `wide` IS FOR CONTENT THAT IS NOT PROSE. A chart, a seven-column table or a
  * glossary has no business being capped at a reading measure: 33rem is the
@@ -81,7 +78,6 @@ export function Section({
   children,
   first = false,
   wide = false,
-  fill = false,
 }: {
   /** Anchor target, for in-page links. */
   id?: string;
@@ -101,9 +97,6 @@ export function Section({
   /** Content spans the measure AND the margin. For wide tables and glossaries:
    *  things that are not sentences and must not be measured like one. */
   wide?: boolean;
-  /** Content takes every pixel the margin does not need. For a chart that still
-   *  has a note to carry. Ignored when `wide` is set. */
-  fill?: boolean;
 }) {
   // `note || aside`, NOT `|| gloss`: the gloss is rendered in the RAIL, so
   // counting it here rendered an empty div in the third track and called the
@@ -114,7 +107,7 @@ export function Section({
       id={id}
       className={[
         "section-grid",
-        fill && !wide ? "section-grid--fill" : "",
+        hasMargin || wide ? "" : "section-grid--full",
         "scroll-mt-8",
         first
           ? "mt-8 lg:mt-10"

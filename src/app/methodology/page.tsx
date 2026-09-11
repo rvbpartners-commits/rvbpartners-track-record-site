@@ -112,11 +112,11 @@ export default async function MethodologyPage() {
         </h1>
         {/* The lede sits above the first Section, outside the grid, so it is
             the one line of prose here that has to state its own width. It
-            states the grid's: `--measure`, the same 33rem every paragraph
+            states the grid's, the same width every paragraph
             below it is set to. The `72ch` it used to carry ran about 680px,
             ending some 150px to the right of everything under it, which is the
             ragged right edge the measure track exists to retire. */}
-        <p className="mt-2 text-body text-fg-muted max-w-[var(--measure)] leading-relaxed">
+        <p className="mt-2 text-body text-fg-muted leading-relaxed">
           How every number here is produced. The full version, kept beside the
           data, is in{" "}
           <a

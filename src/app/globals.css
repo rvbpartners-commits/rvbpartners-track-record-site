@@ -92,30 +92,9 @@
   --ink: #0c0d0e;
   --ink-fg: #f2f0ec;
 
-  /* ── THE MEASURE, AND THE COLUMNS AROUND IT ─────────────────────────────
-     ONE WIDTH, OWNED BY A GRID. The site carried 92 hand-written
-     `max-w-[Nch]` classes in FOURTEEN distinct values (43 at 72ch, 21 at 80ch,
-     12 at 68ch, plus 76/74/64/62/58/52/46/40/26/24/19), inside a design system
-     whose own type-scale comment forbids exactly this kind of scattered
-     arbitrary value.
-
-     They did not mean what they said. `ch` is the advance width of a ZERO,
-     which in Inter is 0.63em against an average character's 0.475em, so
-     `max-w-[72ch]` renders about 96 characters — well past the ~75 where a
-     line stops being comfortable. Worse, `ch` resolves against the ELEMENT'S
-     OWN font-size, so the caps did not even order the way they read:
-     `max-w-[80ch]` on `text-small` is 656px while `max-w-[72ch]` on
-     `text-body` is 681px. That is why the right edge of every document page is
-     ragged instead of a line.
-
-     33rem is 528px, about 74 rendered characters at `--text-body`. It is a rem
-     so it means one width everywhere regardless of the size set on the
-     element, and it lives on a grid track so no component has to restate it. */
-  --measure: 33rem;
   --margin: 20rem;
   /* THE COLUMN. 1180px read as a narrow strip centred in a wide screen, which
-     is its own kind of empty right-hand side. 1280 gives the three tracks room
-     without letting any line of prose past `--measure`. */
+     is its own kind of empty right-hand side. */
   --column: 1280px;
   --warn-bg: #f7f6f3;
   --warn-fg: #3a3936;
@@ -280,19 +259,24 @@ code, pre, .mono {
 }
 
 /* ── THE SECTION GRID ──────────────────────────────────────────────────────
-   A full-width head, then the content at the LEFT edge and the margin at the
-   RIGHT edge with an elastic gutter between them. See src/components/Section.tsx.
+   A full-width head, then the content, then a 20rem margin at the right edge.
+   TWO TRACKS AND NO GUTTER BETWEEN THEM. See src/components/Section.tsx.
 
-   THERE IS NO LEFT RAIL. The first version put each section's name in a 172px
-   column down the left side. It named the part, which was the job, and it also
-   gave every section on the site a permanent empty strip at the left margin —
-   beside a chart, three words over 600px of nothing, with the chart squeezed
-   into the middle to pay for it. The name sits above its content now.
+   THE GUTTER WAS THE HOLE. The previous version made the middle track elastic
+   — content at `--measure`, an expanding gap, then the margin pinned right —
+   on the theory that prose should keep a reading measure while both edges
+   stayed occupied. What that actually drew was a column of white down the
+   centre of every page on the site, several hundred pixels wide, between the
+   paragraph and the note about it. Two attempts at "the text stops in the
+   middle of the page" had produced an empty right column, then an empty left
+   rail, then an empty centre.
 
-   The gutter is the flexible track, so prose keeps `--measure` at the left
-   edge and the margin keeps its width at the right edge: what a wider screen
-   adds falls BETWEEN the two rather than after both, which is what left the
-   right-hand side of this site empty in the first place. */
+   The content track is `1fr` now: it starts at the left edge and runs to the
+   margin, and when there is no margin it runs to the right edge. Nothing is
+   reserved, so nothing is left over. A line of body copy gets wider than the
+   65 to 75 characters typography would ask for, and that is the trade the
+   firm asked for twice: a document that fills its column, not one that
+   floats in the middle of a screen. */
 .section-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -305,10 +289,8 @@ code, pre, .mono {
 
 @media (min-width: 1024px) {
   .section-grid {
-    grid-template-columns:
-      minmax(0, var(--measure))
-      minmax(2.75rem, 1fr)
-      minmax(0, var(--margin));
+    grid-template-columns: minmax(0, 1fr) minmax(0, var(--margin));
+    column-gap: 2.75rem;
     row-gap: 0;
   }
 
@@ -317,28 +299,24 @@ code, pre, .mono {
     margin-bottom: 1.5rem;
   }
 
-  /* The margin is the third track; the gutter between is left empty. */
   .section-margin {
-    grid-column: 3;
+    grid-column: 2;
   }
 
-  /* CONTENT THAT IS NOT A SENTENCE TAKES THE WHOLE WIDTH. `--measure` is the
-     width at which a line of PROSE stops being comfortable; it is not a width a
-     chart or a seven-column table has any reason to obey. */
-  .section-wide {
+  /* Content that is not prose, and content with nothing beside it, take the
+     whole width. Reserving a margin track for a section that has nothing to
+     put in it is how the hole gets back in. */
+  .section-wide,
+  .section-grid--full > .section-measure {
     grid-column: 1 / -1;
   }
 
-  /* A CHART TAKES WHAT THE MARGIN DOES NOT NEED. */
-  .section-grid--fill {
-    grid-template-columns:
-      minmax(0, 1fr)
-      2.75rem
-      minmax(0, var(--margin));
+  .section-grid--full {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-/* Prose inside the measure track. Set here rather than on each element so a
+/* Prose inside the content track. Set here rather than on each element so a
    page cannot reintroduce a local width cap without it being obvious. */
 .section-measure > * + * {
   margin-top: 1rem;
