@@ -1250,10 +1250,17 @@ function BookView({
               and the second is a fact, printed here as a missing value. The
               list's presence decides whether there is anything to say; the
               total is then printed whatever it comes to. */}
-          <Line label="Strategies">
+          {/* NAMED AS A SUM. Every other value in this list is a published
+              scalar; this one is added up here, from a table that sits in the
+              PREVIOUS section, so under a bare label it reads as a published
+              field. /portfolios prints the same total and names it a sum twice.
+              Grouped, like every other count on the site. */}
+          <Line label="Strategies, summed">
             <span className="tnum">
               {summary.categories && summary.categories.length > 0
-                ? summary.categories.reduce((s, c) => s + c.strategies, 0)
+                ? summary.categories
+                    .reduce((s, c) => s + c.strategies, 0)
+                    .toLocaleString("en-US")
                 : NO_VALUE}
             </span>
           </Line>

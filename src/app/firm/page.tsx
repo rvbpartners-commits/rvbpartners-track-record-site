@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { GatedLink } from "@/components/GatedLink";
 import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Note } from "@/components/Note";
-import { CONTACT_EMAIL, SITE_ORIGIN, getIndex, getResearch} from "@/lib/data";
+import { Section } from "@/components/Section";
+import {
+  CONTACT_EMAIL,
+  SITE_ORIGIN,
+  getIndex,
+  getResearch,
+  type BookSummary,
+} from "@/lib/data";
 import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
-import { date } from "@/lib/format";
+import { NO_VALUE, date } from "@/lib/format";
 
 /**
  * WHO IS PUBLISHING THIS RECORD, AND WHAT CAN A STRANGER CHECK?
@@ -36,8 +44,20 @@ import { date } from "@/lib/format";
  * inventing an org chart, on the one site whose entire premise is that nothing
  * on it is invented.
  *
- * The only LIVE figure on the page is the annualised-statistics threshold, read
- * from the published index rather than typed here. See the `gated` entry.
+ * WHAT IS IN THE MARGIN. The page used to spend two payloads on one number (the
+ * annualised threshold) and print prose across half a column, so the section
+ * that argued "here is the claim, here is somebody else's record of it" was
+ * itself unevidenced on the page. Every margin below now carries the record:
+ * published counts beside the account of what the company does, the register's
+ * own identifiers beside the filed purpose, the portfolios currently
+ * withholding their annualised statistics beside the rule that withholds them,
+ * and the count evidencing each step beside the five-step pipeline.
+ *
+ * NOTHING IN THIS FILE COMPUTES A METRIC. Every figure in a margin is either a
+ * field read straight out of the published payload or a SELECTION over published
+ * fields — the newest session, the books whose `annualised_gated` is true. There
+ * is no division, no average and no ratio anywhere on the page, and an absent
+ * field renders as an absence rather than as a zero.
  */
 export const dynamic = "force-dynamic";
 
@@ -51,22 +71,80 @@ export const metadata: Metadata = {
 };
 
 export default async function FirmPage() {
-  // `getResearch` is read for one reason: two sentences below link to
-  // /research, and that route is not rendered when the summary is absent.
-  // Both fetches are memoised for 60s and three other routes already take
+  // `getResearch` is read for two reasons: two sentences below link to
+  // /research, and that route is not rendered when the summary is absent; and
+  // the first two steps of the pipeline are evidenced by counts that live in
+  // it. Both fetches are memoised for 60s and three other routes already take
   // them, so this costs nothing.
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
   const hasResearch = research !== null;
+  const books = index?.books ?? [];
   // Derived, never asserted — the same expression the masthead and the footer
   // use, so a book withheld from the index rewrites this page's account
   // sentence in the same breath as theirs. Today every published book is paper
   // and this is `false`; the branch stays because it is what keeps the sentence
   // true on the day that changes.
-  const hasLive = (index?.books ?? []).some((b) => b.capital_at_risk);
+  const hasLive = books.some((b) => b.capital_at_risk);
   // `?? null`, never `?? 60`. A failed fetch must not let this page state a
   // threshold as fact; the `gated` definition below drops the number and keeps
   // the definition instead.
   const minSessions = index?.min_sessions_for_annualised ?? null;
+
+  // HOW CURRENT THE RECORD IS, selected and never computed: the newest
+  // `last_session` any book published, which is the same expression the
+  // masthead uses. NOT `published_at`, which is when the publisher last ran and
+  // is the more flattering of the two claims.
+  const currentTo =
+    books
+      .map((b) => b.last_session)
+      .filter(Boolean)
+      .sort()
+      .at(-1) ?? null;
+
+  // The books withholding their annualised statistics right now: a filter over
+  // a published boolean, printed as a list of NAMES. No count of them is
+  // rendered anywhere — "n of m" is an aggregation, and this page does not make
+  // one.
+  const gatedBooks = books.filter((b) => b.annualised_gated);
+
+  // WHAT EVIDENCES EACH STEP OF THE PIPELINE. One published figure per step,
+  // read from the file the step's own sentence links to, so the schematic
+  // cannot claim a step the record does not carry. A payload that did not load
+  // leaves its rows as an absence: `int` and `date` both print the dash, and
+  // step 3 is written out longhand because `books.length` on a failed fetch is
+  // a zero that would read as "no portfolios".
+  const stepEvidence = [
+    {
+      n: 1,
+      name: "Research",
+      value: int(research?.search?.recorded_trials),
+      label: "recorded backtests, every one in the ledger",
+    },
+    {
+      n: 2,
+      name: "Catalogue",
+      value: int(research?.deflation?.survive_book_level),
+      label: "survive the book-level correction",
+    },
+    {
+      n: 3,
+      name: "Portfolios",
+      value: index ? int(books.length) : NO_VALUE,
+      label: "published portfolios, each with its own account",
+    },
+    {
+      n: 4,
+      name: "The desk",
+      value: date(currentTo),
+      label: "the newest session marked",
+    },
+    {
+      n: 5,
+      name: "The published record",
+      value: int(index?.chain?.entries),
+      label: "records in the hash chain",
+    },
+  ];
 
   return (
     <div className="pt-2 lg:pt-6">
@@ -75,7 +153,12 @@ export default async function FirmPage() {
           that answers "who is this" in two different formulations on two pages
           has answered it once too often, and a reader then has to decide which
           one is the careful version. "In France" is the only geography claimed,
-          and it is claimed because the register carries it. */}
+          and it is claimed because the register carries it.
+
+          The two caps here are the ones that survive: this header sits ABOVE
+          the first section, outside the grid that owns the measure, so there is
+          no track to inherit a width from. Everything inside a section below
+          takes its width from `--measure`. */}
       <h1 className="max-w-[24ch] text-title sm:text-title">
         RVB Partners is a systematic trading firm in France.
       </h1>
@@ -87,27 +170,56 @@ export default async function FirmPage() {
         against our word.
       </p>
 
-      {/* ─── 2. WHAT THE COMPANY DOES ─────────────────────────────────────── */}
-      <Section title="What the company does" gloss="In one paragraph">
-        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
-          <p>
-            RVB Partners researches systematic trading strategies and trades
-            them on its own accounts. Research and execution are not two
-            systems: a strategy is tested by the same framework that later
-            places its orders, under one cost structure, one execution delay and
-            one computation for every metric, so the rules a result was measured
-            under do not change on its way to an account. What that produces is
-            published here, session by session, as it is marked.
-          </p>
-        </div>
+      {/* ─── 2. WHAT THE COMPANY DOES ───────────────────────────────────────
+          The margin carries what the paragraph is an account OF: how many
+          portfolios are published, how many records are in the chain, how far
+          the record runs. Selections over published fields, not metrics. */}
+      <Section
+        first
+        title="What the company does"
+        gloss="In one paragraph"
+        note={
+          index ? (
+            <>
+              Read from the published index. Every figure on this site is
+              computed by the desk before it is published, never derived here.
+            </>
+          ) : undefined
+        }
+        aside={
+          index ? (
+            <MarginList
+              rows={[
+                { label: "Portfolios published", value: int(books.length) },
+                { label: "Chained records", value: int(index.chain?.entries) },
+                { label: "Newest marked session", value: date(currentTo) },
+                { label: "Index published", value: date(index.published_at) },
+              ]}
+            />
+          ) : undefined
+        }
+      >
+        <p className="text-body text-fg-muted">
+          RVB Partners researches systematic trading strategies and trades them
+          on its own accounts. Research and execution are not two systems: a
+          strategy is tested by the same framework that later places its orders,
+          under one cost structure, one execution delay and one computation for
+          every metric, so the rules a result was measured under do not change
+          on its way to an account. What that produces is published here,
+          session by session, as it is marked.
+        </p>
         {/* THE SAME COMPONENT THE FOOTER RENDERS ON THE OTHER PAGES, not a copy
             of its sentence. The footer's copy is gated to
             /methodology, /disclosures and /verify, so on this route the
             disqualifier appears only if the page places it — and it belongs
             here, in the paragraph that says what the company trades on, not
             underneath it. Rendering the component rather than retyping the
-            sentence is what stops the two from drifting apart. */}
-        <div className="mt-6 border-t hairline pt-5">
+            sentence is what stops the two from drifting apart.
+
+            The spacing above the rule is the grid's, not this block's: inside
+            the measure track `* + *` owns the rhythm, and an `mt-` here would
+            be one more local override of a decision made once. */}
+        <div className="border-t hairline pt-5">
           {index ? (
             <AccountDisclosureText hasLive={hasLive} />
           ) : (
@@ -128,28 +240,68 @@ export default async function FirmPage() {
           consult without us. It is printed in the language it was filed in for
           the same reason the legal notice does it: a translation cannot be
           looked up, and "purchase and sale of all financial products for its
-          own account" is not what the register will show a reader who checks. */}
+          own account" is not what the register will show a reader who checks.
+
+          THE MARGIN IS THE SAME ARGUMENT MADE VISUAL: the claim runs down the
+          measure, the register's own identifiers sit beside it, and they are
+          the four strings a reader would type into Infogreffe to read the
+          filing. They keep the mono, because a registered identifier is a
+          literal — it is compared character by character, and that is the one
+          job the second typeface still has. */}
       {/* The apostrophe is a literal ’ and not an entity: this is a string
           PROP, not JSX text, and an entity in a prop is a coin-flip on the
           toolchain that decodes it. */}
       <Section
         title="What it does not do"
         gloss="And the register’s record of it"
+        note={
+          <>
+            The three negatives are ours. The quoted purpose is the
+            register&rsquo;s record of the same thing, and these are the four
+            strings you would search on to read that filing yourself.
+          </>
+        }
+        aside={
+          <MarginList
+            rows={[
+              {
+                label: "Registry",
+                value: `R.C.S. ${ENTITY.rcs.registry}`,
+                literal: true,
+              },
+              {
+                label: "Register number",
+                value: ENTITY.rcs.number,
+                literal: true,
+              },
+              {
+                label: "File no.",
+                value: ENTITY.rcs.managementNumber,
+                literal: true,
+              },
+              {
+                label: "European identifier",
+                value: ENTITY.rcs.euid,
+                literal: true,
+              },
+            ]}
+          />
+        }
       >
-        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
-          <p>
-            <span className="text-fg">
-              The company manages no third-party money and is not authorised to.
-            </span>{" "}
-            It sells nothing. Nothing on this site is investment advice, an
-            offer, or a solicitation to buy or sell any financial instrument,
-            and nothing on it is an invitation to invest.
-          </p>
-          <p>
-            The corporate purpose filed at the register, in the words it was filed in:</p>
-        </div>
+        <p className="text-body text-fg-muted">
+          <span className="text-fg">
+            The company manages no third-party money and is not authorised to.
+          </span>{" "}
+          It sells nothing. Nothing on this site is investment advice, an offer,
+          or a solicitation to buy or sell any financial instrument, and nothing
+          on it is an invitation to invest.
+        </p>
+        <p className="text-body text-fg-muted">
+          The corporate purpose filed at the register, in the words it was filed
+          in:
+        </p>
 
-        <figure className="mt-6 max-w-[72ch] border-l hairline pl-5">
+        <figure className="border-l hairline pl-5">
           {/* `lang="fr"`: the document is `lang="en"` and this is the Kbis
               wording verbatim. Without it a screen reader pronounces a French
               legal formula with English phonetics, which is the one sentence on
@@ -165,7 +317,7 @@ export default async function FirmPage() {
           </figcaption>
         </figure>
 
-        <p className="mt-5 max-w-[72ch] text-body text-fg-muted">
+        <p className="text-body text-fg-muted">
           <em>En compte propre</em> (for its own account) is the whole of the
           registered activity. The conditions attached to every figure published
           here are set out under{" "}
@@ -184,79 +336,107 @@ export default async function FirmPage() {
           THE SHORT FORM, not a second legal notice. Everything here is
           transcribed from the Kbis by way of lib/entity.ts — hosting,
           intellectual property, cookies and the officers' registry data stay on
-          /legal, which is linked beneath. The registered activity is
+          /legal, which is linked from the margin. The registered activity is
           deliberately NOT repeated as a row: it is the evidence in the section
-          above, and evidence that appears twice reads as a template. */}
-      <Section title="The register entry" gloss="The short form">
+          above, and evidence that appears twice reads as a template.
+
+          The caveat that used to close this section is now the marginal note.
+          It is an annotation on the rows rather than a continuation of them,
+          and that is exactly the distinction the third track exists to draw. */}
+      <Section
+        title="The register entry"
+        gloss="The short form"
+        note={
+          <>
+            Every value in this section is transcribed from the company&rsquo;s{" "}
+            <em>extrait Kbis</em> and appears in French on the register, where
+            it can be checked. The full notice is at{" "}
+            <Link href="/legal" className="text-accent hover:underline">
+              legal
+            </Link>
+            : hosting, intellectual property, personal data and the terms this
+            site is published on.
+          </>
+        }
+      >
         <Rows
           rows={[
-            [
-              "Legal form",
-              <span key="form">
-                {ENTITY.legalFormEn}
-                <Gloss>
-                  as registered: <span lang="fr">{ENTITY.legalForm}</span>
-                </Gloss>
-              </span>,
-            ],
-            [
-              "Share capital",
-              <span key="capital">
-                {ENTITY.capital}
-                <Gloss>
-                  variable, minimum {ENTITY.capitalMinimum}: the form exists so
-                  the figure can move
-                </Gloss>
-              </span>,
-            ],
-            [
-              "Registered office",
-              <span key="office">
-                {REGISTERED_ADDRESS}
-                {/* SAYING "DOMICILIATION" IS THE HONEST PART. Printed bare, this
-                    address invites a reader to picture an office; the
-                    domiciliataire is named on the Kbis, so naming it here costs
-                    nothing and forecloses the inference. */}
-                <Gloss>
-                  a domiciliation address provided by {ENTITY.domiciliation.name}{" "}
-                  (RCS {ENTITY.domiciliation.rcs})
-                </Gloss>
-              </span>,
-            ],
-            [
-              "Registration",
-              <span key="rcs">
-                {ENTITY.rcs.number} R.C.S. {ENTITY.rcs.registry}
-                <Gloss>file no. {ENTITY.rcs.managementNumber}</Gloss>
-              </span>,
-            ],
-            ["SIREN", ENTITY.rcs.siren],
-            ["European identifier (EUID)", ENTITY.rcs.euid],
-            ["Entered on the register", date(ENTITY.rcs.registeredOn)],
-            [
-              "Activity began",
-              <span key="activity">
-                {date(ENTITY.activityStarted)}
-                {/* The declared start of activity precedes the registration
-                    date by three days. That is what the Kbis says, and it is
-                    printed as filed rather than tidied into agreement — the one
-                    kind of correction this site is not allowed to make. */}
-                <Gloss>as declared on the register</Gloss>
-              </span>,
-            ],
-            ["Financial year ends", ENTITY.fiscalYearEnd],
+            {
+              label: "Legal form",
+              value: (
+                <>
+                  {ENTITY.legalFormEn}
+                  <Gloss>
+                    as registered: <span lang="fr">{ENTITY.legalForm}</span>
+                  </Gloss>
+                </>
+              ),
+            },
+            {
+              label: "Share capital",
+              value: (
+                <>
+                  <span className="tnum">{ENTITY.capital}</span>
+                  <Gloss>
+                    variable, minimum {ENTITY.capitalMinimum}: the form exists
+                    so the figure can move
+                  </Gloss>
+                </>
+              ),
+            },
+            {
+              label: "Registered office",
+              value: (
+                <>
+                  {REGISTERED_ADDRESS}
+                  {/* SAYING "DOMICILIATION" IS THE HONEST PART. Printed bare,
+                      this address invites a reader to picture an office; the
+                      domiciliataire is named on the Kbis, so naming it here
+                      costs nothing and forecloses the inference. */}
+                  <Gloss>
+                    a domiciliation address provided by{" "}
+                    {ENTITY.domiciliation.name} (RCS {ENTITY.domiciliation.rcs})
+                  </Gloss>
+                </>
+              ),
+            },
+            {
+              label: "Registration",
+              value: (
+                <>
+                  {ENTITY.rcs.number} R.C.S. {ENTITY.rcs.registry}
+                  <Gloss>file no. {ENTITY.rcs.managementNumber}</Gloss>
+                </>
+              ),
+              literal: true,
+            },
+            { label: "SIREN", value: ENTITY.rcs.siren, literal: true },
+            {
+              label: "European identifier (EUID)",
+              value: ENTITY.rcs.euid,
+              literal: true,
+            },
+            {
+              label: "Entered on the register",
+              value: <span className="tnum">{date(ENTITY.rcs.registeredOn)}</span>,
+            },
+            {
+              label: "Activity began",
+              value: (
+                <>
+                  <span className="tnum">{date(ENTITY.activityStarted)}</span>
+                  {/* The declared start of activity precedes the registration
+                      date by three days. That is what the Kbis says, and it is
+                      printed as filed rather than tidied into agreement — the
+                      one kind of correction this site is not allowed to
+                      make. */}
+                  <Gloss>as declared on the register</Gloss>
+                </>
+              ),
+            },
+            { label: "Financial year ends", value: ENTITY.fiscalYearEnd },
           ]}
         />
-        <p className="mt-6 max-w-[72ch] text-small leading-relaxed text-fg-faint">
-          Every value above is transcribed from the company&rsquo;s{" "}
-          <em>extrait Kbis</em> and appears in French on the register, where it
-          can be checked. The full notice is at{" "}
-          <Link href="/legal" className="text-accent hover:underline">
-            legal
-          </Link>
-          : hosting, intellectual property, personal data and the terms this
-          site is published on.
-        </p>
       </Section>
 
       {/* ─── 5. OFFICERS ───────────────────────────────────────────────────
@@ -271,20 +451,32 @@ export default async function FirmPage() {
           is a French double-barrelled surname, not a dash that survived an
           ASCII round-trip: `prose()` from lib/format would turn those two
           hyphens into an em dash and silently misspell a named individual. */}
-      <Section title="Officers" gloss="As entered on the register">
+      <Section
+        title="Officers"
+        gloss="As entered on the register"
+        note={
+          <>
+            The register records these names under these titles. This site adds
+            nothing to them: no roles, no responsibilities, no biographies, no
+            headcount.
+          </>
+        }
+      >
         <Rows
           rows={[
-            ["President", ENTITY.officers.president],
-            [
-              "General managers",
-              <span key="gm">
-                {ENTITY.officers.generalManagers.map((name) => (
-                  <span key={name} className="block">
-                    {name}
-                  </span>
-                ))}
-              </span>,
-            ],
+            { label: "President", value: ENTITY.officers.president },
+            {
+              label: "General managers",
+              value: (
+                <>
+                  {ENTITY.officers.generalManagers.map((name) => (
+                    <span key={name} className="block">
+                      {name}
+                    </span>
+                  ))}
+                </>
+              ),
+            },
           ]}
         />
       </Section>
@@ -298,8 +490,32 @@ export default async function FirmPage() {
 
           Every definition is a description of something this site actually
           does, drawn from the published data or from the methodology page. None
-          of them is a term of art borrowed to sound rigorous. */}
-      <Section title="Vocabulary" gloss="Eight terms, defined once">
+          of them is a term of art borrowed to sound rigorous.
+
+          ONE OF THE EIGHT IS A RULE THAT IS IN FORCE RIGHT NOW, and the margin
+          says on whom. `gated` defines a withholding; the list beside it names
+          the portfolios currently withheld under it, each marked in the
+          reserved oxide. It is a filter over a published boolean and it prints
+          no count, because a count of them against the fleet is an aggregation
+          this page is not allowed to make. */}
+      <Section
+        title="Vocabulary"
+        gloss="Eight terms, defined once"
+        note={
+          index && books.length > 0 ? (
+            <>
+              The rule under <em>gated</em>, applied: the portfolios whose
+              annualised figures are withheld in the index as it stands now.
+              Their pages print a dash where those figures would be.
+            </>
+          ) : undefined
+        }
+        aside={
+          index && books.length > 0 ? (
+            <GatedBooks books={gatedBooks} />
+          ) : undefined
+        }
+      >
         <dl className="space-y-7">
           <Term id="rvb-partners" term="RVB Partners">
             The company. It is registered in Paris under the identifiers above,
@@ -401,19 +617,36 @@ export default async function FirmPage() {
       {/* ─── 7. HOW THE WORK IS ORGANISED ──────────────────────────────────
           Five steps, and every one of them ends at a page that evidences it. A
           process diagram nobody can check is an organisation chart; the links
-          are what make this a claim with a receipt attached. The step numbers
-          are set in the mono because they are an index, not prose. */}
+          are what make this a claim with a receipt attached.
+
+          THE MARGIN PUTS THE RECEIPT BESIDE THE CLAIM. One published figure per
+          step, read from the same file the step's own sentence links to, so the
+          schematic can be checked without leaving the page and cannot outrun
+          what the record carries. Where a payload did not load its row is a
+          dash, which is the honest reading of a step whose evidence is not
+          available right now. */}
       <Section
         title="How the work is organised"
         gloss="And where each step is evidenced"
+        note={
+          index || research ? (
+            <>
+              One published figure per step, read from the file that step&rsquo;s
+              own sentence links to.
+            </>
+          ) : undefined
+        }
+        aside={
+          index || research ? <StepEvidence rows={stepEvidence} /> : undefined
+        }
       >
-        <ol className="max-w-[76ch] space-y-5">
+        <ol className="space-y-5">
           <Step n={1} name="Research">
             Every strategy is built and tested inside the framework that will
             later execute it, and every backtest, sweep and grid cell is written
             to an append-only ledger, because a result means nothing without the
-            number of things that were tried to find it. Those counts are published
-            under{" "}
+            number of things that were tried to find it. Those counts are
+            published under{" "}
             <GatedLink href="/research" available={hasResearch}>
               research
             </GatedLink>
@@ -470,9 +703,10 @@ export default async function FirmPage() {
       {/* ─── 8. CONTACT ────────────────────────────────────────────────────
           One address and one sentence. No form, no dropdown, no undertaking
           about how quickly anyone replies — a promise this page cannot keep
-          would be the only unverifiable claim on it. */}
+          would be the only unverifiable claim on it. The margin holds the
+          gloss and nothing else, which is what an empty third track is for. */}
       <Section title="How to reach us" gloss="One address">
-        <p className="max-w-[72ch] text-body text-fg-muted">
+        <p className="text-body text-fg-muted">
           Anything about this record (a figure that does not reconcile, a check
           that fails, a passage that is unclear) goes to{" "}
           <a
@@ -488,45 +722,44 @@ export default async function FirmPage() {
   );
 }
 
-/** A ruled section head, in the mono: the serif is the firm talking, and an
- *  index of a register is not the firm talking. Same shape as the legal
- *  notice's, restated here rather than imported — that file's helpers are
- *  private to it, and a shared component would couple two pages that only
- *  happen to look alike. */
-function Section({
-  title,
-  gloss,
-  children,
-}: {
-  title: string;
-  gloss: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
-        {title}
-        <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
-          {gloss}
-        </span>
-      </h2>
-      <div className="mt-6">{children}</div>
-    </section>
-  );
+/** Counts, grouped. Never `?? 0`: an absent count is an absence, and the dash
+ *  is how this site writes one. Same treatment /research and the home page give
+ *  the same numbers. */
+function int(n: number | null | undefined): string {
+  return n === null || n === undefined ? NO_VALUE : n.toLocaleString("en-US");
 }
 
-/** A definition list, not a table: these are identifiers, and the mono face is
- *  what marks a value as something transcribed rather than something claimed. */
-function Rows({ rows }: { rows: [string, React.ReactNode][] }) {
+/** One row of the margin: what the figure is, and the figure.
+ *
+ *  `literal` is the only typographic switch on the page. A REGISTERED
+ *  IDENTIFIER is a string a reader retypes into a register and compares
+ *  character by character, so it keeps the mono, where 0 stays apart from O. A
+ *  count or a date is a FIGURE: it is set in the page's one typeface with
+ *  tabular digits, so a column of them lines up without a second face on the
+ *  page. */
+type MarginRow = { label: string; value: ReactNode; literal?: boolean };
+
+/** THE THIRD TRACK, RULED.
+ *
+ *  A hairline per row and nothing else: no box, no fill, no corner. The label
+ *  is the quiet half and the figure is the loud one, which is the opposite of
+ *  how these facts read when they were sentences in a paragraph. */
+function MarginList({ rows }: { rows: MarginRow[] }) {
   return (
-    <dl className="grid gap-y-4 sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)] sm:gap-x-10">
-      {rows.map(([label, value]) => (
-        <div key={label} className="contents">
-          <dt className="text-small leading-snug text-fg-faint sm:pt-px">
-            {label}
+    <dl className="border-t hairline">
+      {rows.map((row) => (
+        <div key={row.label} className="border-b hairline py-2.5">
+          <dt className="text-label font-semibold uppercase tracking-[0.16em] text-fg-faint">
+            {row.label}
           </dt>
-          <dd className="font-figure text-small leading-snug text-fg -mt-2.5 sm:mt-0">
-            {value}
+          <dd
+            className={
+              row.literal
+                ? "mt-1.5 font-figure text-small leading-snug text-fg"
+                : "mt-1.5 tnum text-subhead leading-none text-fg"
+            }
+          >
+            {row.value}
           </dd>
         </div>
       ))}
@@ -534,10 +767,119 @@ function Rows({ rows }: { rows: [string, React.ReactNode][] }) {
   );
 }
 
-/** The second line under a transcribed value, set back in the serif: the value
- *  is the record, the gloss is us explaining it, and the two faces keep that
- *  distinction visible without a label. */
-function Gloss({ children }: { children: React.ReactNode }) {
+/** THE WITHHOLDING RULE, APPLIED, in the margin beside the rule itself.
+ *
+ *  A list of names and a stamp, never a count: how many books are gated out of
+ *  how many is an aggregation, and it is also the least useful form of the
+ *  fact. What a reader wants to know is WHICH portfolio is withholding, and how
+ *  much history it has, both of which are published fields.
+ *
+ *  The oxide is spent here exactly as the palette reserves it — on a fact that
+ *  disqualifies figures near it — and on nothing else in this file. */
+function GatedBooks({ books }: { books: BookSummary[] }) {
+  return (
+    <div>
+      <h3 className="text-label font-semibold uppercase tracking-[0.16em] text-fg-faint">
+        Annualised statistics withheld
+      </h3>
+      {books.length === 0 ? (
+        <p className="mt-3 border-t hairline pt-3 text-caption leading-relaxed text-fg-muted">
+          No portfolio is withholding its annualised statistics.
+        </p>
+      ) : (
+        <ul className="mt-3 border-t hairline">
+          {books.map((b) => (
+            <li key={b.book} className="border-b hairline py-2.5">
+              <span className="block text-small leading-snug text-fg">
+                {b.label}
+              </span>
+              <span className="mt-1.5 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                <span className="text-label font-semibold uppercase tracking-[0.16em] text-oxide">
+                  Withheld
+                </span>
+                <span className="text-caption leading-snug text-fg-faint">
+                  <span className="tnum">{int(b.sessions)}</span> marked
+                  sessions
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** THE PIPELINE'S RECEIPTS, one per step, ruled into a column.
+ *
+ *  The numbers repeat the order of the steps beside them rather than an order
+ *  of their own, so the column is read as an index of the list and not as a
+ *  ranking. */
+function StepEvidence({
+  rows,
+}: {
+  rows: { n: number; name: string; value: string; label: string }[];
+}) {
+  return (
+    <div className="border-t hairline">
+      {rows.map((row) => (
+        <div key={row.n} className="border-b hairline py-3">
+          <div className="text-label font-semibold uppercase tracking-[0.16em] text-fg-faint">
+            <span className="tnum">{row.n}</span>
+            <span className="mx-1.5">·</span>
+            {row.name}
+          </div>
+          <div className="mt-2 tnum text-subhead leading-none text-fg">
+            {row.value}
+          </div>
+          <div className="mt-1.5 text-caption leading-snug text-fg-faint">
+            {row.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** A definition list, not a table: these are the register's own rows.
+ *
+ *  `literal` marks the values that are REGISTERED IDENTIFIERS — the RCS number,
+ *  the SIREN, the EUID. Those keep the mono, because they are strings a reader
+ *  compares character by character against a register. Everything else here is
+ *  prose or a date and is set in the page's one typeface: the blanket mono this
+ *  list used to carry put "simplified joint-stock company with variable
+ *  capital" in a monospace, which says nothing about the value and puts a
+ *  second face on half the page. */
+function Rows({
+  rows,
+}: {
+  rows: { label: string; value: ReactNode; literal?: boolean }[];
+}) {
+  return (
+    <dl className="grid gap-y-4 sm:grid-cols-[minmax(0,150px)_minmax(0,1fr)] sm:gap-x-8">
+      {rows.map((row) => (
+        <div key={row.label} className="contents">
+          <dt className="text-small leading-snug text-fg-faint sm:pt-px">
+            {row.label}
+          </dt>
+          <dd
+            className={`text-small leading-snug text-fg -mt-2.5 sm:mt-0 ${
+              row.literal ? "font-figure" : ""
+            }`}
+          >
+            {row.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/** The second line under a transcribed value: the value is the record, the
+ *  gloss is us explaining it. On a literal row it also drops back out of the
+ *  mono, so an identifier stays visibly an identifier and the sentence about it
+ *  does not. */
+function Gloss({ children }: { children: ReactNode }) {
   return (
     <span className="mt-1.5 block font-[family-name:var(--font-prose)] text-small leading-snug text-fg-faint">
       {children}
@@ -558,7 +900,7 @@ function Term({
 }: {
   id: string;
   term: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div>
@@ -570,15 +912,18 @@ function Term({
           {term}
         </a>
       </dt>
-      <dd className="mt-2 max-w-[72ch] text-body text-fg-muted">
-        {children}
-      </dd>
+      <dd className="mt-2 text-body text-fg-muted">{children}</dd>
     </div>
   );
 }
 
-/** One step of the pipeline. The index is set in the mono and the name beside
- *  it, so the left column reads as a contents list rather than as a bullet. */
+/** One step of the pipeline: an index, a name, and what the step is.
+ *
+ *  The name sits ABOVE its paragraph rather than in a 180px column beside it.
+ *  That column was invented when the prose had the whole page to spread across;
+ *  inside the measure it left the sentence about 300px wide, which is a
+ *  newspaper column with none of a newspaper's reasons. The rail now says what
+ *  the section is, so the step does not have to. */
 function Step({
   n,
   name,
@@ -586,18 +931,16 @@ function Step({
 }: {
   n: number;
   name: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <li className="sm:grid sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-x-10">
+    <li>
       <span className="text-caption uppercase tracking-[0.12em] text-fg-faint">
         <span className="tnum">{n}</span>
         <span className="mx-2">·</span>
         {name}
       </span>
-      <p className="mt-1.5 sm:mt-0 text-body text-fg-muted">
-        {children}
-      </p>
+      <p className="mt-1.5 text-body text-fg-muted">{children}</p>
     </li>
   );
 }

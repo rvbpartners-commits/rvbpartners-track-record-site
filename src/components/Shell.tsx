@@ -126,9 +126,24 @@ export async function Shell({ children }: { children: ReactNode }) {
                     <span className="text-fg">{date(currentTo)}</span>
                   </>
                 )}
-                {" · "}
-                <span className="text-fg">{index.chain.entries}</span>
-                {" chained entries"}
+                {/* `chain?.entries`, not `chain.entries`. getIndex validates
+                    nothing past `index.books`, so the declared shape of `chain`
+                    is a claim about the publisher rather than a guarantee about
+                    the bytes — and this runs in the masthead of every page, so
+                    an index published with `chain: {}` would throw inside render
+                    and take the whole site down rather than one route.
+                    /firm, /verify and /methodology all read it defensively; this
+                    was the one call site that did not. Grouped like every other
+                    six-figure count on the site. */}
+                {typeof index.chain?.entries === "number" && (
+                  <>
+                    {" · "}
+                    <span className="text-fg">
+                      {index.chain.entries.toLocaleString("en-US")}
+                    </span>
+                    {" chained entries"}
+                  </>
+                )}
               </p>
             )}
           </div>

@@ -19,8 +19,11 @@ import type { ReactNode } from "react";
  *            it is for. A reader scanning a long page reads only this column.
  *   MEASURE  `--measure`, 33rem. Running prose, and nothing else. The cap is
  *            owned by the GRID rather than restated per element, which is what
- *            retires the 92 hand-written `max-w-[Nch]` classes in fourteen
- *            different values. `ch` was never the right unit for this: it is
+ *            retired 58 of the 92 hand-written `max-w-[Nch]` classes the site
+ *            carried in fourteen different values. The remaining 34 are in
+ *            components that do not sit in a Section at all — BookView, Note,
+ *            the charts, the footer, the home page — and they are the next
+ *            thing to move, not an exception to the rule. `ch` was never the right unit for this: it is
  *            the width of a ZERO, so `max-w-[72ch]` renders about 96 characters
  *            in Inter, and because `ch` scales with the element's own font-size
  *            the caps did not even order the way they read — `80ch` at

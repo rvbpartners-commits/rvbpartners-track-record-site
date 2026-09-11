@@ -16,7 +16,7 @@ import {
   getNav,
   getSnapshot,
 } from "@/lib/data";
-import { dateTime } from "@/lib/format";
+import { date, dateTime } from "@/lib/format";
 import { parentOf, variantSize } from "@/lib/variants";
 
 // Rendered per request. A static prerender plus framework caching left the
@@ -159,12 +159,23 @@ export default async function Portfolio({
           nothing for five days was borrowing the whole repository's publish
           timestamp and printing it under its own numbers. The site-wide chain
           count keeps its own label so the two cannot be read as one fact. */}
-      <p className="mt-14 text-small text-fg-faint">
+      {/* THREE THINGS WERE WRONG WITH THIS LINE.
+          `metrics.as_of` printed as a raw ISO string one expression after
+          `published_at` went through the formatter, so the sentence read
+          "published 09 Sep 2026, 21:14 UTC · statistics as of 2026-09-09".
+          `index.chain.entries` dereferenced past a single optional level, which
+          /firm, /verify, /methodology and the masthead all refuse to do with
+          the same field. And the whole line sat at `text-fg-faint` — 4.67:1 —
+          while carrying this site's load-bearing claim, that every metric is
+          computed by the desk and not in your browser. */}
+      <p className="mt-14 text-small text-fg-muted">
         This portfolio&rsquo;s data published{" "}
         {dateTime(meta?.published_at ?? metrics?.published_at ?? null)}
-        {metrics?.as_of ? ` · statistics as of ${metrics.as_of}` : ""} ·{" "}
-        {index.chain.entries} chained records across all portfolios · every
-        metric computed by the desk, not the browser.
+        {metrics?.as_of ? ` · statistics as of ${date(metrics.as_of)}` : ""}
+        {typeof index.chain?.entries === "number"
+          ? ` · ${index.chain.entries.toLocaleString("en-US")} chained records across all portfolios`
+          : ""}{" "}
+        · every metric computed by the desk, not the browser.
       </p>
     </>
   );

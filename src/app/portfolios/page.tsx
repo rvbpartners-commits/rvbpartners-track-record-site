@@ -3,6 +3,7 @@ import Link from "next/link";
 import { GatedLink } from "@/components/GatedLink";
 import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Note } from "@/components/Note";
+import { Section } from "@/components/Section";
 import {
   OverviewChart,
   OverviewLegend,
@@ -41,6 +42,23 @@ import { orderWithVariants, parentOf } from "@/lib/variants";
  * Everything printed here comes out of `index.json` — one fetch, no per-book
  * files. A list of six rows that opens six dossiers to draw itself is a list
  * that will be silently wrong the day one of those files is late.
+ *
+ * ON THE GRID. This page was the last one carrying a private `Section` of its
+ * own: a rule, a head, and a gloss set inline at `text-fg-faint/70` (#9e9e9c,
+ * 2.68:1 on white — a failing contrast on the only words naming each part of
+ * the page). It now uses the shared primitive (src/components/Section.tsx):
+ * rail, measure, margin. The gloss moved into the rail at a colour a reader can
+ * see, the hand-written `max-w-[Nch]` caps on the prose went with it because
+ * the grid owns the measure, and the two margins this page had the data for
+ * all along are filled: the published taglines beside the section that is about
+ * them, and the published session counts beside the section that says why no
+ * annualised figure appears.
+ *
+ * THE REGISTER ITSELF IS THE ONE THING THAT DOES NOT FIT THE MEASURE. Seven
+ * columns do not reflow, so the table sits below its section head at the full
+ * width of the page rather than scrolling sideways inside 33rem. What moves
+ * into the measure above it is the column glossary, which is the right order
+ * anyway on a page that puts a qualifier ahead of the figure it qualifies.
  */
 export const dynamic = "force-dynamic";
 
@@ -306,7 +324,7 @@ export default async function Portfolios() {
           knowing what was being returned. It carries no figure, so it is safe
           above the account statement below. */}
       <Section title="What a portfolio is here" gloss="Before the figures">
-        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
+        <div className="space-y-4 text-body text-fg-muted">
           <p>
             A portfolio here is a fixed roster of strategies held at target
             weights and traded on one broker account by the desk. The record
@@ -359,200 +377,111 @@ export default async function Portfolios() {
           a rising line on the apex domain makes the site's opening job "show
           the returns", which is the reading order of a pitch. */}
       {loaded && index && series.length > 0 && (
-        <Section title="The record" gloss="Every drawn account, rebased on its own opening equity">
-          <OverviewChart series={series} />
-          <div className="mt-4">
-            <OverviewLegend series={series} />
-          </div>
+        <Section title="The record" gloss="Every drawn account, rebased">
+          {/* ONE CHILD OF THE MEASURE, deliberately. The grid sets the rhythm
+              between the parts of a section at 1rem; the chart, its legend and
+              the qualifications are one part, and their own spacing is set
+              inside this wrapper. */}
+          <div>
+            <OverviewChart series={series} />
+            <div className="mt-4">
+              <OverviewLegend series={series} />
+            </div>
 
-          {/* THE FIVE QUALIFICATIONS, BROKEN OUT. They used to run together in
-              a single 12px paragraph under the chart on the home page, which is
-              where a caveat goes to be skipped. Each is now its own ruled note
-              at a size a reader can actually read. */}
-          <div className="mt-8 grid gap-px border hairline bg-hairline sm:grid-cols-2">
-            {[
-              [
-                "Simulated fills",
-                "Every line is a broker-simulated paper account. No capital is at risk in any of them.",
-              ],
-              [
-                "Not every account is drawn",
-                undrawnNote,
-              ],
-              [
-                "Rebased, not comparable in size",
-                "Cumulative return since each account was funded, rebased on its own opening equity, so accounts funded with different capital can share an axis. Each line begins at that account\u2019s first traded session.",
-              ],
-              [
-                "No benchmark is drawn here",
-                "There is no index on this chart. A benchmark appears on a portfolio\u2019s own page, named, against that book\u2019s own dates. Past performance is not indicative of future results.",
-              ],
-              [
-                "Declared capital movements",
-                capitalNote,
-              ],
-            ]
-              .filter(([, body]) => Boolean(body))
-              // An odd number of notes leaves a hole in a two-column grid, and
-              // an empty ruled cell reads as a note that failed to load. The
-              // last one spans the row instead.
-              .map(([head, body], i, all) => (
-                <div
-                  key={head as string}
-                  className={`bg-bg p-4 ${
-                    i === all.length - 1 && all.length % 2 === 1
-                      ? "sm:col-span-2"
-                      : ""
-                  }`}
-                >
-                  <div className="text-label uppercase tracking-[0.14em] text-fg-faint">
-                    {head}
+            {/* THE FIVE QUALIFICATIONS, BROKEN OUT. They used to run together
+                in a single 12px paragraph under the chart on the home page,
+                which is where a caveat goes to be skipped. Each is now its own
+                ruled note at a size a reader can actually read.
+
+                ONE COLUMN INSIDE THE MEASURE. Two columns of a 33rem track are
+                two columns of about 250px, which is where a four-sentence
+                caveat becomes a ladder. The pair survives from `sm` to `lg`,
+                where the section is still the full width of the page. */}
+            <div className="mt-8 grid gap-px border hairline bg-hairline sm:grid-cols-2 lg:grid-cols-1">
+              {[
+                [
+                  "Simulated fills",
+                  "Every line is a broker-simulated paper account. No capital is at risk in any of them.",
+                ],
+                [
+                  "Not every account is drawn",
+                  undrawnNote,
+                ],
+                [
+                  "Rebased, not comparable in size",
+                  "Cumulative return since each account was funded, rebased on its own opening equity, so accounts funded with different capital can share an axis. Each line begins at that account\u2019s first traded session.",
+                ],
+                [
+                  "No benchmark is drawn here",
+                  "There is no index on this chart. A benchmark appears on a portfolio\u2019s own page, named, against that book\u2019s own dates. Past performance is not indicative of future results.",
+                ],
+                [
+                  "Declared capital movements",
+                  capitalNote,
+                ],
+              ]
+                .filter(([, body]) => Boolean(body))
+                // An odd number of notes leaves a hole in a two-column grid, and
+                // an empty ruled cell reads as a note that failed to load. The
+                // last one spans the row instead.
+                .map(([head, body], i, all) => (
+                  <div
+                    key={head as string}
+                    className={`bg-bg p-4 ${
+                      i === all.length - 1 && all.length % 2 === 1
+                        ? "sm:col-span-2 lg:col-span-1"
+                        : ""
+                    }`}
+                  >
+                    <div className="text-label uppercase tracking-[0.14em] text-fg-faint">
+                      {head}
+                    </div>
+                    <p className="mt-2 text-small leading-relaxed text-fg-muted">
+                      {body}
+                    </p>
                   </div>
-                  <p className="mt-2 text-small leading-relaxed text-fg-muted">
-                    {body}
-                  </p>
-                </div>
-              ))}
+                ))}
+            </div>
           </div>
         </Section>
       )}
 
-      {/* ─── THE INDEX ────────────────────────────────────────────────────── */}
-      <Section id="accounts" title="The accounts" gloss="One row per portfolio">
+      {/* ─── THE INDEX ──────────────────────────────────────────────────────
+          THE COLUMN GLOSSARY MOVED ABOVE THE TABLE, and the table out of the
+          measure. Seven columns do not reflow: inside a 33rem track the
+          register this page exists for would meet every reader as a sideways
+          scrollbar. It sits under its own section head at the full width of the
+          page instead, and what takes its place in the measure is the paragraph
+          saying what each column is. That is the order this page argues for
+          everywhere else — the sentence that qualifies a figure is worth
+          nothing once the figure has been read. */}
+      <Section
+        id="accounts"
+        title="The accounts"
+        gloss="One row per portfolio"
+        note="Nothing in the table below is annualised and nothing in it is ranked. Every figure is published as it stands, except the strategy count, which is the sum of the book’s own per-category counts and is named as one."
+      >
         {loaded && index ? (
-          <>
-            <div className="scroll-x">
-              <table className="w-full text-small">
-                <thead>
-                  <tr className="text-left text-fg-faint">
-                    <Th>Portfolio</Th>
-                    <Th>Account</Th>
-                    <Th align="right">Funded with</Th>
-                    <Th align="right">Opened</Th>
-                    <Th align="right">Sessions</Th>
-                    <Th align="right">Strategies</Th>
-                    <Th align="right">Return</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {books.map((b) => {
-                    const parent = parentOfRow(b);
-                    const roster = rosterSize(b);
-                    const cats = b.categories ?? [];
-                    // `direction` treats a withheld return as its own case
-                    // rather than as flat, which is why the colour is taken
-                    // from it instead of from `>= 0`.
-                    const dir = direction(b.cumulative_return);
-                    const colour =
-                      dir === "up"
-                        ? "text-up"
-                        : dir === "down"
-                          ? "text-down"
-                          : "text-fg-faint";
-                    // The tagline is the book's own words, and the twin marker
-                    // is this page's. Both under the label, so the row reads as
-                    // one thing rather than as two columns of small print.
-                    const notes = [
-                      parent ? `Capital twin of ${parent.label}` : null,
-                      b.tagline_en ? prose(b.tagline_en) : null,
-                    ].filter((n): n is string => n !== null);
-
-                    return (
-                      <tr key={b.book} className="border-t hairline align-top">
-                        <td className="py-3 pr-6">
-                          {/* Indented and tied to the row above with a rule:
-                              a twin is not another portfolio, it is one of the
-                              books above at a different size. */}
-                          <div className={parent ? "pl-5" : ""}>
-                            <Link
-                              href={`/portfolios/${bookSlug(b)}`}
-                              className="text-small text-accent hover:underline"
-                            >
-                              {parent && (
-                                <span
-                                  aria-hidden="true"
-                                  className="mr-1.5 text-fg-faint"
-                                >
-                                  └
-                                </span>
-                              )}
-                              {b.label}
-                            </Link>
-                            {notes.length > 0 && (
-                              /* Set in the prose face on purpose: everything
-                                 inside a table is mono by default, and these
-                                 are sentences, not measurements. */
-                              <div className="mt-1 max-w-[40ch] font-[family-name:var(--font-prose)] text-small leading-snug text-fg-faint">
-                                {notes.join(" · ")}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3 pr-6 whitespace-nowrap">
-                          <KindBadge book={b} />
-                        </td>
-                        <td className="py-3 pr-6 text-right tnum whitespace-nowrap">
-                          {money(b.initial_capital, "USD", 0)}
-                        </td>
-                        <td className="py-3 pr-6 text-right tnum whitespace-nowrap">
-                          {date(b.inception)}
-                        </td>
-                        <td className="py-3 pr-6 text-right tnum">
-                          {int(b.sessions)}
-                        </td>
-                        <td className="py-3 pr-6 text-right">
-                          <span className="tnum">{int(roster)}</span>
-                          {cats.length > 0 && (
-                            <div className="mt-1 text-caption leading-snug text-fg-faint">
-                              {cats
-                                .map((c) => `${c.code} ${int(c.strategies)}`)
-                                .join(" · ")}
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-3 text-right whitespace-nowrap">
-                          <span className={`tnum ${colour}`}>
-                            {signedPct(b.cumulative_return)}
-                          </span>
-                          {/* A RETURN LISTED BESIDE CURRENT ONES IS A CLAIM
-                              ABOUT TODAY. The publisher marks a book stale and
-                              names the session it stopped at; no book is stale
-                              today, so this renders nothing — and does not have
-                              to be remembered on the day one is. */}
-                          {b.stale && (
-                            <div className="mt-1 text-label tnum text-fg-faint">
-                              as of {date(b.stale_since)}
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-6 max-w-[80ch] space-y-2 text-small leading-relaxed text-fg-faint">
-              <p>
-                <span className="text-fg-muted">Return</span> is cumulative
-                since the account was funded, as published by the desk. It is
-                not annualised, and covers a different window for each book.{" "}
-                <span className="text-fg-muted">Funded with</span> is the
-                capital the account was opened with, which on a simulated
-                account is simulated capital.{" "}
-                <span className="text-fg-muted">Sessions</span> is the count of
-                sessions published for that book, each one marked after its own
-                close.
-              </p>
-              <p>
-                <span className="text-fg-muted">Strategies</span> is the sum of
-                the per-category counts the record publishes for the book; the
-                categories are listed beneath it. Holdings are published by
-                category and no strategy is named anywhere in this record.
-                That is why this column is a count and never a list.
-              </p>
-            </div>
-          </>
+          <div className="space-y-2 text-small leading-relaxed text-fg-faint">
+            <p>
+              <span className="text-fg-muted">Return</span> is cumulative since
+              the account was funded, as published by the desk. It is not
+              annualised, and covers a different window for each book.{" "}
+              <span className="text-fg-muted">Funded with</span> is the capital
+              the account was opened with, which on a simulated account is
+              simulated capital.{" "}
+              <span className="text-fg-muted">Sessions</span> is the count of
+              sessions published for that book, each one marked after its own
+              close.
+            </p>
+            <p>
+              <span className="text-fg-muted">Strategies</span> is the sum of
+              the per-category counts the record publishes for the book; the
+              categories are listed beneath it. Holdings are published by
+              category and no strategy is named anywhere in this record. That is
+              why this column is a count and never a list.
+            </p>
+          </div>
         ) : (
           <Note tone="warn">
             The published index could not be read, so no portfolio is listed
@@ -560,6 +489,122 @@ export default async function Portfolios() {
           </Note>
         )}
       </Section>
+
+      {/* THE REGISTER, at the width of the page rather than of the measure. */}
+      {loaded && index && (
+        <div className="mt-7">
+          <div className="scroll-x">
+            <table className="w-full text-small">
+              <thead>
+                <tr className="text-left text-fg-faint">
+                  <Th>Portfolio</Th>
+                  <Th>Account</Th>
+                  <Th align="right">Funded with</Th>
+                  <Th align="right">Opened</Th>
+                  <Th align="right">Sessions</Th>
+                  <Th align="right">Strategies</Th>
+                  <Th align="right">Return</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {books.map((b) => {
+                  const parent = parentOfRow(b);
+                  const roster = rosterSize(b);
+                  const cats = b.categories ?? [];
+                  // `direction` treats a withheld return as its own case
+                  // rather than as flat, which is why the colour is taken
+                  // from it instead of from `>= 0`.
+                  const dir = direction(b.cumulative_return);
+                  const colour =
+                    dir === "up"
+                      ? "text-up"
+                      : dir === "down"
+                        ? "text-down"
+                        : "text-fg-faint";
+                  // The tagline is the book's own words, and the twin marker
+                  // is this page's. Both under the label, so the row reads as
+                  // one thing rather than as two columns of small print.
+                  const notes = [
+                    parent ? `Capital twin of ${parent.label}` : null,
+                    b.tagline_en ? prose(b.tagline_en) : null,
+                  ].filter((n): n is string => n !== null);
+
+                  return (
+                    <tr key={b.book} className="border-t hairline align-top">
+                      <td className="py-3 pr-6">
+                        {/* Indented and tied to the row above with a rule:
+                            a twin is not another portfolio, it is one of the
+                            books above at a different size. */}
+                        <div className={parent ? "pl-5" : ""}>
+                          <Link
+                            href={`/portfolios/${bookSlug(b)}`}
+                            className="text-small text-accent hover:underline"
+                          >
+                            {parent && (
+                              <span
+                                aria-hidden="true"
+                                className="mr-1.5 text-fg-faint"
+                              >
+                                └
+                              </span>
+                            )}
+                            {b.label}
+                          </Link>
+                          {notes.length > 0 && (
+                            /* Set in the prose face on purpose: everything
+                               inside a table is mono by default, and these
+                               are sentences, not measurements. */
+                            <div className="mt-1 max-w-[40ch] font-[family-name:var(--font-prose)] text-small leading-snug text-fg-faint">
+                              {notes.join(" · ")}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 pr-6 whitespace-nowrap">
+                        <KindBadge book={b} />
+                      </td>
+                      <td className="py-3 pr-6 text-right tnum whitespace-nowrap">
+                        {money(b.initial_capital, "USD", 0)}
+                      </td>
+                      <td className="py-3 pr-6 text-right tnum whitespace-nowrap">
+                        {date(b.inception)}
+                      </td>
+                      <td className="py-3 pr-6 text-right tnum">
+                        {int(b.sessions)}
+                      </td>
+                      <td className="py-3 pr-6 text-right">
+                        <span className="tnum">{int(roster)}</span>
+                        {cats.length > 0 && (
+                          <div className="mt-1 text-caption leading-snug text-fg-faint">
+                            {cats
+                              .map((c) => `${c.code} ${int(c.strategies)}`)
+                              .join(" · ")}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 text-right whitespace-nowrap">
+                        <span className={`tnum ${colour}`}>
+                          {signedPct(b.cumulative_return)}
+                        </span>
+                        {/* A RETURN LISTED BESIDE CURRENT ONES IS A CLAIM
+                            ABOUT TODAY. The publisher marks a book stale and
+                            names the session it stopped at; no book is stale
+                            today, so this renders nothing — and does not have
+                            to be remembered on the day one is. */}
+                        {b.stale && (
+                          <div className="mt-1 text-label tnum text-fg-faint">
+                            as of {date(b.stale_since)}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* ─── HOW THESE WERE CHOSEN ────────────────────────────────────────
           The selection objective is NOT withheld: every book publishes it in
@@ -570,12 +615,30 @@ export default async function Portfolios() {
       {/* Guarded on the index, because its first sentence points AT the table:
           "printed against its name above" is a promise, and with no rows above
           it there is nothing to point at. */}
+      {/* THE SECTION IS ABOUT THE TAGLINES AND SHOWED NONE OF THEM. They are
+          published per book, the table above prints them in a row of small
+          print, and the section arguing that the criterion is published rather
+          than withheld left the reader to take that on trust. The margin lists
+          them verbatim, read off the payload: a book that publishes no line
+          gets the absence marker, because "no line published" and "a blank
+          line" are not the same fact. */}
       {loaded && (
         <Section
           title="How these were chosen"
           gloss="What each book was selected for"
+          aside={
+            <MarginList label="The published line">
+              {books.map((b) => (
+                <MarginPair
+                  key={b.book}
+                  label={b.label}
+                  value={prose(b.tagline_en) || NO_VALUE}
+                />
+              ))}
+            </MarginList>
+          }
         >
-          <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
+          <div className="space-y-4 text-body text-fg-muted">
             <p>
               Each book carries a one-line description, published with the
               record and printed against its name above. That line is not
@@ -607,8 +670,12 @@ export default async function Portfolios() {
           title="The capital twins"
           gloss={twins.length === 1 ? "One pair" : `${twins.length} pairs`}
         >
+          {/* Three columns fit the measure; a minimum width keeps them from
+              crushing into each other on a phone, where the section is the
+              full width of the screen and this table is the only wide thing
+              in it. */}
           <div className="scroll-x">
-            <table className="w-full text-small">
+            <table className="w-full min-w-[22rem] text-small">
               <thead>
                 <tr className="text-left text-fg-faint">
                   <Th>Pair</Th>
@@ -626,7 +693,7 @@ export default async function Portfolios() {
             </table>
           </div>
 
-          <div className="mt-6 max-w-[72ch] space-y-4 text-body text-fg-muted">
+          <div className="space-y-4 text-body text-fg-muted">
             <p>
               A twin is not another portfolio. It is one of the books above run
               at a smaller size, so that the pair measures capital sensitivity
@@ -655,9 +722,48 @@ export default async function Portfolios() {
         </Section>
       )}
 
-      {/* ─── WHAT THIS PAGE IS NOT ────────────────────────────────────────── */}
-      <Section title="What this page is not" gloss="The limits of the list">
-        <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
+      {/* ─── WHAT THIS PAGE IS NOT ──────────────────────────────────────────
+          THE MARGIN CARRIES THE TWO PUBLISHED FIGURES THE PARAGRAPH IS ABOUT:
+          the bar the record holds every annualised statistic behind, and what
+          each book has marked so far. Both are fields of the index, printed as
+          published and set against one another as a reader can read them. No
+          shortfall is subtracted and no fraction of the bar is worked out here:
+          that would be this page deciding how close a book is to a gate the
+          record alone is entitled to open. The eyebrow carries the oxide,
+          because a withheld statistic is a negative fact; the counts stay in
+          the page's own ink, because a number drawn in a warning colour reads
+          as a warning rather than as a number. */}
+      <Section
+        title="What this page is not"
+        gloss="The limits of the list"
+        aside={
+          allGated && index ? (
+            <div>
+              <p className="text-label font-semibold uppercase tracking-[0.16em] text-oxide">
+                Annualised: withheld
+              </p>
+              <p className="mt-2 text-caption leading-snug text-fg-muted">
+                The record publishes no annualised figure for a book under{" "}
+                <span className="tnum text-fg">
+                  {int(index.min_sessions_for_annualised)}
+                </span>{" "}
+                marked sessions. Marked so far, per book:
+              </p>
+              <dl className="mt-3 border-t hairline">
+                {books.map((b) => (
+                  <MarginPair
+                    key={b.book}
+                    label={b.label}
+                    value={int(b.sessions)}
+                    figure
+                  />
+                ))}
+              </dl>
+            </div>
+          ) : undefined
+        }
+      >
+        <div className="space-y-4 text-body text-fg-muted">
           <p>
             <span className="text-fg">It is not a ranking.</span> The rows
             follow the order the record publishes them in, with each capital
@@ -699,6 +805,70 @@ export default async function Portfolios() {
           </p>
         </div>
       </Section>
+    </div>
+  );
+}
+
+/**
+ * A LIST OF PUBLISHED PAIRS IN THE MARGIN, and nothing else.
+ *
+ * Every value that reaches it is a string already read out of the payload and
+ * formatted. It cannot divide, it cannot total, and it has no tone: the margin
+ * is where a page is most tempted to produce the ratio the prose refused to
+ * state, so the component that fills it is not able to.
+ */
+function MarginList({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <p className="text-label uppercase tracking-[0.14em] text-fg-faint">
+        {label}
+      </p>
+      <dl className="mt-2 border-t hairline">{children}</dl>
+    </div>
+  );
+}
+
+/**
+ * One pair, the name ABOVE its value.
+ *
+ * NOT A TWO-COLUMN ROW. At the `lg` breakpoint itself the margin track is about
+ * 140px wide, and a `justify-between` row there fits a book’s name beside its
+ * figure only by breaking one of the two across three lines. Stacked, both
+ * survive the narrow track and read identically at full width.
+ *
+ * `figure` asks for tabular digits, which is the site’s treatment for a
+ * quantity: the prose face with its figures lined up, never the mono, which is
+ * reserved for strings a reader would retype character by character.
+ */
+function MarginPair({
+  label,
+  value,
+  figure = false,
+}: {
+  label: string;
+  /** Already formatted. A missing value arrives as the absence marker and is
+   *  never turned into a zero here. */
+  value: string;
+  figure?: boolean;
+}) {
+  return (
+    <div className="border-b hairline py-2 last:border-b-0">
+      <dt className="min-w-0 break-words text-caption leading-snug text-fg-faint">
+        {label}
+      </dt>
+      <dd
+        className={`mt-1 min-w-0 break-words text-small leading-snug text-fg${
+          figure ? " tnum" : ""
+        }`}
+      >
+        {value}
+      </dd>
     </div>
   );
 }
@@ -794,35 +964,5 @@ function Th({
     >
       {children}
     </th>
-  );
-}
-
-/** Section rule + head, matching the legal notice: the house pattern is a
- *  hairline, a small-caps mono head and a gloss saying what the section is for. */
-function Section({
-  id,
-  title,
-  gloss,
-  children,
-}: {
-  /** Anchor target. `scroll-mt` keeps the heading clear of the viewport edge
-   *  when the jump from the header lands on it. */
-  id?: string;
-  title: string;
-  gloss?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section id={id} className="mt-12 scroll-mt-8 border-t hairline pt-6 lg:mt-16">
-      <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
-        {title}
-        {gloss && (
-          <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
-            {gloss}
-          </span>
-        )}
-      </h2>
-      <div className="mt-6">{children}</div>
-    </section>
   );
 }

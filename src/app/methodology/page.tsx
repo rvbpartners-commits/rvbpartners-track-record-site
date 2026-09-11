@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Note } from "@/components/Note";
+import { Section } from "@/components/Section";
+import { Stamp } from "@/components/Stamp";
 import {
   DATA_REPO_URL,
   REPO_URL,
@@ -8,6 +10,7 @@ import {
   getFeedByAccountKind,
   getIndex,
 } from "@/lib/data";
+import { NO_VALUE } from "@/lib/format";
 
 // Rendered per request. A static prerender plus framework caching left the
 // site serving data hours old with no way for traffic to clear it; the data
@@ -24,6 +27,27 @@ export const metadata: Metadata = {
     "metric definitions, benchmark, what the fills cost, and the biases that " +
     "are known but unmeasured.",
 };
+
+/**
+ * THE RESEARCH COST MODEL'S DEFAULTS, as a table rather than as the twelve-line
+ * sentence they were buried in. A reader asking "what was an illiquid name
+ * charged?" was made to parse five figures out of running prose, which is the
+ * one shape a comparison cannot be read in.
+ *
+ * The figures are the model's own declared defaults, retyped from nowhere but
+ * the paragraph they used to sit in. Nothing here is derived from anything
+ * else: no figure in this table is computed from another, and the site
+ * publishes no strategy-level cost total that these would have to add up to.
+ *
+ * Spot FX carries NO borrow line at all, which is a stated fact about the model
+ * and not a missing reading, so it is the word "None" rather than the absence
+ * marker — the two would be indistinguishable in a column otherwise.
+ */
+const COST_DEFAULTS: { cls: string; spread: string; borrow: string }[] = [
+  { cls: "US equities and ETFs", spread: "2.5 bp", borrow: "50 bp" },
+  { cls: "Crypto", spread: "8 bp", borrow: "300 bp" },
+  { cls: "Spot FX majors", spread: "1 bp", borrow: "None" },
+];
 
 export default async function MethodologyPage() {
   const index = await getIndex();
@@ -52,6 +76,33 @@ export default async function MethodologyPage() {
   // to sit here counted "four Alpaca paper accounts" and was wrong by three
   // books and one account kind; nothing on this page counts anything now.
   const realCapital = (index?.books ?? []).filter((b) => b.capital_at_risk);
+  // The chain header as published: a count the publisher wrote, read out and
+  // printed, never a length measured here. Absent with the index unread, and
+  // the margin figure then does not render at all rather than showing a zero.
+  const chain = index?.chain ?? null;
+  // READ THE FIELD, NOT THE TYPE. `getIndex` validates nothing past
+  // `index.books`, so the declared shape of `chain` is a claim about the
+  // publisher rather than a guarantee about the bytes: an index publishing
+  // `chain: {}` — or a `file` with no `entries` — used to throw inside render
+  // and take the whole page down, and a missing `file` printed the string
+  // "undefined". Same defensive read as /firm and /verify give the same two
+  // fields. A Stamp carries a real number by contract, so a count that is not
+  // a number is no stamp at all rather than a stamp with a dash in it.
+  const chainEntries =
+    typeof chain?.entries === "number" && Number.isFinite(chain.entries)
+      ? chain.entries
+      : null;
+  const chainFile = typeof chain?.file === "string" ? chain.file : null;
+
+  // The release rule for order and fill detail, as one published value. The
+  // three states stay apart: an unread index is the absence marker, a published
+  // zero is a stated policy of no lag, and a positive lag is a floor in days.
+  const detailRelease =
+    lag === null
+      ? NO_VALUE
+      : lag === 0
+        ? "No lag"
+        : `${lag} ${lag === 1 ? "day" : "days"}`;
 
   return (
     <>
@@ -59,7 +110,13 @@ export default async function MethodologyPage() {
         <h1 className="text-heading sm:text-title font-semibold tracking-tight leading-tight">
           Methodology
         </h1>
-        <p className="mt-2 text-body text-fg-muted max-w-[72ch] leading-relaxed">
+        {/* The lede sits above the first Section, outside the grid, so it is
+            the one line of prose here that has to state its own width. It
+            states the grid's: `--measure`, the same 33rem every paragraph
+            below it is set to. The `72ch` it used to carry ran about 680px,
+            ending some 150px to the right of everything under it, which is the
+            ragged right edge the measure track exists to retire. */}
+        <p className="mt-2 text-body text-fg-muted max-w-[var(--measure)] leading-relaxed">
           How every number here is produced. The full version, kept beside the
           data, is in{" "}
           <a
@@ -74,16 +131,65 @@ export default async function MethodologyPage() {
         </p>
       </header>
 
-      <div className="mt-12 space-y-12 max-w-[80ch] text-body leading-relaxed">
-        <Section title="Where the numbers come from">
+      {/* No `max-w` and no `space-y`. The blanket `max-w-[80ch]` that used to
+          wrap this whole body stopped the page 428px short of the column it
+          was given — on the page whose own subject is that a stated width
+          should be read from one place — and every section's rule ended in
+          mid-air with it. The grid owns the measure now, and each Section owns
+          the space above itself. */}
+      <div className="text-body">
+        <Section
+          first
+          id="sources"
+          title="Where the numbers come from"
+          gloss="The daily cycle, and who writes the public files."
+          aside={
+            <>
+              <MarginBlock label="What each step writes">
+                <StepColumn
+                  steps={[
+                    "The order plan, netted from that close’s signals",
+                    "The orders as they were submitted",
+                    "The fills as they came back, the marked positions, the equity snapshot",
+                    "That session’s record, hashed into the chain",
+                    "The public repository, written from the archive alone",
+                  ]}
+                />
+              </MarginBlock>
+              {chainEntries !== null && (
+                <div className="mt-6">
+                  <Stamp
+                    label="Records in the chain"
+                    value={chainEntries.toLocaleString("en-US")}
+                    note={chainFile ? `Published in ${chainFile}` : undefined}
+                  />
+                </div>
+              )}
+            </>
+          }
+        >
+          <p>Each Alpaca paper account runs a fixed daily cycle:</p>
+          <ol>
+            {[
+              "After the close, the desk computes signals and nets them into an order plan.",
+              "At the next open it submits that plan.",
+              "After that close it sweeps late fills, marks positions and snapshots account equity.",
+              "It then archives the session with an internal hash chain.",
+              "A separate publisher reads that archive and writes the public repository. That publisher never reads the live database.",
+            ].map((step, i) => (
+              <li
+                key={step}
+                className={
+                  i > 0 ? "mt-2.5 flex gap-3 border-t hairline pt-2.5" : "flex gap-3"
+                }
+              >
+                <span className="tnum w-3 shrink-0 text-fg-faint">{i + 1}</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
           <p>
-            Each Alpaca paper account runs a fixed daily cycle: after the close
-            the desk computes signals and nets them into an order plan; at the
-            next open it submits that plan; after that close it sweeps late fills,
-            marks positions and snapshots account equity; then it archives
-            everything with an internal hash chain. A separate publisher reads
-            that archive and writes the public repository. That publisher
-            never reads the live database. Which portfolios exist, and how many, is published in{" "}
+            Which portfolios exist, and how many, is published in{" "}
             <a
               className="text-accent hover:underline"
               href={`${REPO_URL}/blob/main/index.json`}
@@ -145,7 +251,35 @@ export default async function MethodologyPage() {
           </p>
         </Section>
 
-        <Section title="Returns">
+        <Section
+          id="returns"
+          title="Returns"
+          gloss="How a daily return is defined."
+          note="Both conventions are time-weighted, reached two different ways. Each book publishes which one it uses."
+          aside={
+            <MarginBlock label="What a book’s nav.csv carries">
+              <MarginRows
+                rows={[
+                  {
+                    k: "Broker equity, flow adjusted",
+                    v: (
+                      <>
+                        <Em>equity</Em>, <Em>flow</Em>, <Em>adj_factor</Em>,{" "}
+                        <Em>equity_adj</Em>. The last is the index every
+                        published metric is computed on and every curve is drawn
+                        from.
+                      </>
+                    ),
+                  },
+                  {
+                    k: "Unitised",
+                    v: "No flow columns at all. A deposit buys units at that day’s price, so it moves the balance and never the price.",
+                  },
+                ]}
+              />
+            </MarginBlock>
+          }
+        >
           <p>
             Daily return is <Em>NAV today ÷ (NAV yesterday + flow today) − 1</Em>,
             where <Em>flow</Em> is any declared external capital movement on that
@@ -168,20 +302,16 @@ export default async function MethodologyPage() {
             On the paper desk this is carried in four columns of each
             book&rsquo;s <Em>nav.csv</Em>: <Em>equity</Em> exactly as the broker
             reported it, <Em>flow</Em>, <Em>adj_factor</Em>, and{" "}
-            <Em>equity_adj</Em>. That last column is the flow-adjusted index
-            every published metric is computed on and every curve is drawn from.
-            A book that has never had a movement has <Em>adj_factor</Em> of 1
-            and the two equity columns are identical. A book that reconstructs its own curve
-            rather than reading a broker&rsquo;s equity does it by{" "}
-            <strong className="font-medium">unitisation</strong> instead: a
-            deposit buys units at that day&rsquo;s price, so it moves the
-            balance and never the price, and its <Em>nav.csv</Em> carries no
-            flow columns because the flow never entered the return in the first
-            place. Both are time-weighted, and each book&rsquo;s published
-            convention says which it uses. Where a book has had a movement, its
-            own page lists every event with its date, its amount, how it was
-            derived and the evidence for it, and the full evidence sits inside
-            the write-once snapshot for that session.
+            <Em>equity_adj</Em>. A book that has never had a movement has{" "}
+            <Em>adj_factor</Em> of 1 and the two equity columns are identical. A
+            book that reconstructs its own curve rather than reading a
+            broker&rsquo;s equity does it by{" "}
+            <strong className="font-medium">unitisation</strong> instead, and its{" "}
+            <Em>nav.csv</Em> carries no flow columns because the flow never
+            entered the return in the first place. Where a book has had a
+            movement, its own page lists every event with its date, its amount,
+            how it was derived and the evidence for it, and the full evidence
+            sits inside the write-once snapshot for that session.
           </p>
           <p>
             <strong className="font-medium">The curve starts at funded capital.</strong>{" "}
@@ -203,7 +333,65 @@ export default async function MethodologyPage() {
           </Note>
         </Section>
 
-        <Section title="Metrics">
+        <Section
+          id="metrics"
+          title="Metrics"
+          gloss="Who computes them, and what is withheld."
+          aside={
+            <>
+              {/* THE PAGE EVIDENCES ITS OWN CLAIM. The gate was described in
+                  prose and its threshold read from the payload two lines apart;
+                  printed as a figure it is the same reading, in the form a
+                  reader can check against a book's page. */}
+              {minSessions === null ? (
+                <div className="border hairline px-4 py-3.5">
+                  <div className="text-label font-semibold uppercase tracking-[0.16em] text-fg-faint">
+                    Annualised gate
+                  </div>
+                  <div className="mt-2 tnum text-subhead leading-none text-fg-faint">
+                    {NO_VALUE}
+                  </div>
+                  <div className="mt-2 text-caption leading-snug text-fg-faint">
+                    The threshold could not be read from the published index just
+                    now, so none is stated.
+                  </div>
+                </div>
+              ) : (
+                <Stamp
+                  tone="negative"
+                  label="Annualised gate"
+                  value={`${minSessions} ${minSessions === 1 ? "session" : "sessions"}`}
+                  note="Nothing annualised is published before that. Cumulative return, the daily returns and the realised drawdown path appear from day one."
+                />
+              )}
+              <div className="mt-6">
+                <MarginBlock label="The rate behind every ratio">
+                  <MarginRows
+                    rows={[
+                      {
+                        k: "Series",
+                        v: "3-month Treasury constant-maturity yield.",
+                      },
+                      {
+                        k: "Window",
+                        v: "Averaged over the window the ratio covers, not today’s print.",
+                      },
+                      {
+                        k: "Where it is published",
+                        v: (
+                          <>
+                            Beside every number it produced, in each book&rsquo;s{" "}
+                            <Em>metrics.json</Em>.
+                          </>
+                        ),
+                      },
+                    ]}
+                  />
+                </MarginBlock>
+              </div>
+            </>
+          }
+        >
           {/* "OUR CALCULATION SOURCE IS OPEN" WAS NOT TRUE. The metrics module
               is the firm's and is published nowhere; a reader cannot read it.
               The claim that IS true is the one that does the work anyway — the
@@ -254,7 +442,37 @@ export default async function MethodologyPage() {
           </p>
         </Section>
 
-        <Section title="Book level versus per strategy">
+        <Section
+          id="attribution"
+          title="Book level versus per strategy"
+          gloss="Exact figures, and attributed ones."
+          aside={
+            <MarginBlock label="Two kinds of number">
+              <MarginRows
+                rows={[
+                  {
+                    k: "Book level",
+                    v: "Exact. Broker equity, broker fills, read and never reconstructed.",
+                  },
+                  {
+                    k: "Per strategy",
+                    v: "A model. One net fill attributed back pro-rata by requested size.",
+                  },
+                  {
+                    k: "Do they add up",
+                    v: (
+                      <>
+                        No. The contributions in <Em>attributed.csv</Em> do not
+                        close on the broker&rsquo;s own daily return, and
+                        sometimes carry the opposite sign.
+                      </>
+                    ),
+                  },
+                ]}
+              />
+            </MarginBlock>
+          }
+        >
           <p>
             These are not equally hard numbers and are never presented as though
             they were. <strong className="font-medium">Book level is exact</strong>:
@@ -288,7 +506,37 @@ export default async function MethodologyPage() {
           </p>
         </Section>
 
-        <Section title="The benchmark">
+        <Section
+          id="benchmark"
+          title="The benchmark"
+          gloss="What is drawn beside a book."
+          note="A book with no meaningful comparison to an index is drawn against cash alone. That is decided by the book’s own published benchmark file, not by this page."
+          aside={
+            <MarginBlock label="The lines beside a book">
+              <MarginRows
+                rows={[
+                  {
+                    k: "Daily",
+                    v: (
+                      <>
+                        <Em>benchmark.csv</Em>. Split- and dividend-adjusted SPY
+                        total return, on the same dates as the book.
+                      </>
+                    ),
+                  },
+                  {
+                    k: "Intraday",
+                    v: "The last 5-minute price bar at or before each instant. No dividend adjustment, nothing interpolated between bars.",
+                  },
+                  {
+                    k: "Cash",
+                    v: "Accrued at the risk-free rate, on the book’s own calendar grid.",
+                  },
+                ]}
+              />
+            </MarginBlock>
+          }
+        >
           <p>
             <strong className="font-medium">Two different SPY series, labelled apart.</strong>{" "}
             The daily file (<Em>benchmark.csv</Em>) is split- and
@@ -350,7 +598,45 @@ export default async function MethodologyPage() {
             file this site reads states a commission schedule — so the honest
             content is that it is not published. A plausible number written here
             would be indistinguishable, to a reader, from a measured one. */}
-        <Section title="Costs and fills">
+        <Section
+          id="costs"
+          title="Costs and fills"
+          gloss="What a fill cost, and what is not published."
+          aside={
+            <MarginBlock label="Research cost model, defaults">
+              <div className="scroll-x">
+                <table className="w-full min-w-[13rem] text-caption">
+                  <thead>
+                    <tr className="border-b hairline text-left text-label uppercase tracking-[0.12em] text-fg-faint">
+                      <th className="pb-2 pr-3 font-medium">Asset class</th>
+                      <th className="pb-2 pr-3 text-right font-medium">
+                        Half-spread
+                      </th>
+                      <th className="pb-2 text-right font-medium">Borrow a year</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-fg-muted">
+                    {COST_DEFAULTS.map((row) => (
+                      <tr key={row.cls} className="border-b hairline last:border-b-0">
+                        <td className="py-2 pr-3 leading-snug">{row.cls}</td>
+                        <td className="py-2 pr-3 text-right text-fg">
+                          {row.spread}
+                        </td>
+                        <td className="py-2 text-right text-fg">{row.borrow}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-3 text-caption leading-snug text-fg-faint">
+                Borrow accrues on the short leg alone. Spot FX has no borrow line
+                at all: financing there sits in the swap points rather than in a
+                rate. These are the defaults the research charged, never a
+                statement of what an account was charged.
+              </p>
+            </MarginBlock>
+          }
+        >
           <p>
             <strong className="font-medium">
               A paper fill is a real order and a simulated execution.
@@ -415,17 +701,14 @@ export default async function MethodologyPage() {
             <strong className="font-medium">
               Spread and borrow are set by asset class, not by one number.
             </strong>{" "}
-            Left unset they resolve per instrument: US equities and ETFs at{" "}
-            <Em>2.5 bp</Em> of half-spread and <Em>50 bp</Em> a year of borrow,
-            crypto at <Em>8 bp</Em> and <Em>300 bp</Em>, spot FX majors at{" "}
-            <Em>1 bp</Em> and no borrow line at all. Financing there sits in
-            the swap points rather than in a rate. The figures are provisional,
-            they are one table, and a strategy may override any of them. Two
-            limits of it are worth stating. An instrument the table does not
-            name is charged no spread and no borrow, which is a fact about the
-            table rather than about the instrument. And the single flat number
-            this replaced is the setting under which an illiquid name looks
-            investable, which is the reason the table exists.
+            Left unset they resolve per instrument, from a table of defaults per
+            asset class. Those figures are provisional, they are one table, and a
+            strategy may override any of them. Two limits of it are worth
+            stating. An instrument the table does not name is charged no spread
+            and no borrow, which is a fact about the table rather than about the
+            instrument. And the single flat number this replaced is the setting
+            under which an illiquid name looks investable, which is the reason
+            the table exists.
           </p>
           <p>
             <strong className="font-medium">
@@ -441,34 +724,45 @@ export default async function MethodologyPage() {
           </p>
         </Section>
 
-        <Section title="Known biases and limits">
+        <Section
+          id="limits"
+          title="Known biases and limits"
+          gloss="What these results do not establish."
+          note={
+            feeds.size > 0
+              ? "Each row is read from the newest chained snapshot of that kind of account, rather than typed into this page."
+              : undefined
+          }
+          aside={
+            feeds.size > 0 ? (
+              <MarginBlock label="Feed behind the fills">
+                <MarginRows
+                  rows={[...feeds].map(([kind, feed]) => ({
+                    k: kindLabel(kind),
+                    v: <Em>{feed}</Em>,
+                  }))}
+                />
+              </MarginBlock>
+            ) : undefined
+          }
+        >
           {/* THE FEED BEHIND A SIMULATED FILL IS THE FIRST BIAS THERE IS, and
               it was published in every snapshot and stated on no page a human
               reads. It belongs at the top of this section, and it is read out
               of the evidence rather than typed in here — a caveat this site
-              asserts about itself is worth less than one it can point at. */}
+              asserts about itself is worth less than one it can point at. The
+              readings themselves now sit in the margin, one row per kind of
+              account, rather than inside a run-on clause. */}
           {feeds.size > 0 && (
             <p>
               <strong className="font-medium">
                 The market data behind the fills is not the whole tape.
               </strong>{" "}
               A simulated fill is only as good as the prices it was simulated
-              against, and each book stamps the feed it used into every one of
-              its records:{" "}
-              {[...feeds].map(([kind, feed], i) => (
-                <span key={kind}>
-                  {i > 0 ? "; " : ""}
-                  {kind === "paper"
-                    ? "the paper accounts"
-                    : kind === "real_capital"
-                      ? "the real-capital book"
-                      : kind}{" "}
-                  on <Em>{feed}</Em>
-                </span>
-              ))}
-              . A feed covering a few percent of consolidated volume prints
-              fewer quotes, and at wider spreads, than the consolidated tape a
-              real order meets. A fill simulated against it is not
+              against, and the feed behind each one is stamped into the
+              published records rather than asserted here. A feed covering a
+              few percent of consolidated volume prints fewer quotes, and at
+              wider spreads, than the consolidated tape a real order meets. A fill simulated against it is not
               interchangeable with one that happened. It is disclosed because it
               is a real limit on what these results demonstrate.
             </p>
@@ -489,7 +783,49 @@ export default async function MethodologyPage() {
           </p>
         </Section>
 
-        <Section title="Publication timing">
+        <Section
+          id="timing"
+          title="Publication timing"
+          gloss="What is released, and when."
+          note={
+            lag === null ? (
+              "The index could not be read just now, so no release rule is stated."
+            ) : (
+              <>
+                Read from <Em>detail_lag_days</Em> in <Em>index.json</Em>, not
+                fixed in this page.
+              </>
+            )
+          }
+          aside={
+            <MarginBlock label="Release">
+              <MarginRows
+                rows={[
+                  {
+                    k: "NAV, returns, metrics, benchmarks",
+                    v: "No lag.",
+                  },
+                  {
+                    k: "Orders, fills, positions",
+                    v: (
+                      <span
+                        className={
+                          lag === null ? "tnum text-fg-faint" : "tnum text-fg"
+                        }
+                      >
+                        {detailRelease}
+                      </span>
+                    ),
+                  },
+                  {
+                    k: "The binding rule",
+                    v: "Execution, not the calendar. A cycle’s detail is released once that cycle has actually executed.",
+                  },
+                ]}
+              />
+            </MarginBlock>
+          }
+        >
           {/* "held back for 0 days" was literally what this rendered: the
               published lag is 0, and the paragraphs beneath it then explained a
               waiting period that does not exist. The zero case is its own
@@ -537,19 +873,89 @@ export default async function MethodologyPage() {
   );
 }
 
-function Section({
-  title,
+/**
+ * A BLOCK IN THE MARGIN: a ruled label, then the thing it names.
+ *
+ * The margin runs 296px at full width and 140px at the breakpoint itself, so
+ * nothing in here is laid out in two columns and nothing assumes a width. The
+ * one exception is the cost table, which is genuinely tabular and scrolls
+ * inside its own container.
+ */
+function MarginBlock({
+  label,
   children,
 }: {
-  title: string;
+  label: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-t hairline pt-6">
-      <h2 className="text-subhead font-semibold tracking-tight">{title}</h2>
-      <div className="mt-3 space-y-3">{children}</div>
-    </section>
+    <div>
+      <h3 className="border-b hairline pb-2 text-label font-medium uppercase tracking-[0.13em] text-fg-faint">
+        {label}
+      </h3>
+      <div className="mt-3">{children}</div>
+    </div>
   );
+}
+
+/** Key above value, a hairline between pairs. Stacked rather than two columns:
+ *  the keys here are phrases, not words, and a 140px margin has no second
+ *  column to give them. */
+function MarginRows({
+  rows,
+}: {
+  rows: { k: string; v: React.ReactNode }[];
+}) {
+  return (
+    <dl>
+      {rows.map((row, i) => (
+        <div
+          key={row.k}
+          className={i > 0 ? "mt-3 border-t hairline pt-3" : undefined}
+        >
+          <dt className="text-label uppercase tracking-[0.12em] text-fg-faint">
+            {row.k}
+          </dt>
+          <dd className="mt-1.5 text-caption leading-snug text-fg-muted">
+            {row.v}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/** The cycle, numbered to match the list in the measure: what happens is in the
+ *  prose, what it leaves behind is here. */
+function StepColumn({ steps }: { steps: string[] }) {
+  return (
+    <ol>
+      {steps.map((step, i) => (
+        <li
+          key={step}
+          className={
+            i > 0
+              ? "mt-2.5 flex gap-3 border-t hairline pt-2.5"
+              : "flex gap-3"
+          }
+        >
+          <span className="tnum w-3 shrink-0 text-caption leading-snug text-fg-faint">
+            {i + 1}
+          </span>
+          <span className="text-caption leading-snug text-fg-muted">{step}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** The account kinds this site publishes, in the words the prose uses for them.
+ *  An unrecognised kind is printed as the payload spells it rather than guessed
+ *  at: a kind nobody has named yet is not "other". */
+function kindLabel(kind: string): string {
+  if (kind === "paper") return "Paper accounts";
+  if (kind === "real_capital") return "Real capital";
+  return kind;
 }
 
 function Em({ children }: { children: React.ReactNode }) {
