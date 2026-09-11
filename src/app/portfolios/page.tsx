@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { GatedLink } from "@/components/GatedLink";
 import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Note } from "@/components/Note";
 import {
@@ -12,6 +13,7 @@ import {
   type BookSummary,
   bookSlug,
   getIndex,
+  getResearch,
   getIntraday,
   getMeta,
   getNav,
@@ -110,7 +112,11 @@ function sameComposition(a: BookCategory[], b: BookCategory[]): boolean {
 }
 
 export default async function Portfolios() {
-  const index = await getIndex();
+  // `getResearch` is read for one reason: the paragraph below links to
+  // /research, and that route is not rendered when the summary is absent.
+  // Memoised for 60s and already fetched by three other routes.
+  const [index, research] = await Promise.all([getIndex(), getResearch()]);
+  const hasResearch = research !== null;
 
   // A capital twin sits directly beneath the book it copies, in the publisher's
   // order otherwise. `orderWithVariants` is the one place that knows the rule,
@@ -252,9 +258,9 @@ export default async function Portfolios() {
             by the desk. Its members are assembled out of the research
             catalogue, the same catalogue whose search and deflation are set out
             under{" "}
-            <Link href="/research" className="text-accent hover:underline">
+            <GatedLink href="/research" available={hasResearch}>
               research
-            </Link>
+            </GatedLink>
             . The roster is fixed: the desk stages orders towards those weights,
             marks the account after each close and archives the result, and the
             book itself is not re-chosen between marks.

@@ -1,29 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getIndex, getResearch } from "@/lib/data";
+import { visibleNav } from "@/lib/nav";
 import { Mark } from "./Mark";
 import { NavLinks } from "./NavLinks";
 import { Footer } from "./Footer";
-
-const NAV = [
-  // ORDER IS THE ARGUMENT: identity, then what is traded, then the denominator
-  // that makes those figures readable, then what was thrown away, then how to
-  // check any of it, then the reference, then the standing caveats.
-  { href: "/firm", label: "The firm" },
-  { href: "/portfolios", label: "Portfolios" },
-  // Listed only while the research summary is actually published. The link led
-  // to a page that read "the research summary has not been published yet" for
-  // as long as the file was absent, and a primary navigation item with nothing
-  // behind it is a promise the record cannot keep.
-  { href: "/research", label: "Research", needsResearch: true },
-  // Gated on the same payload: every figure on /refused comes from research.json,
-  // so without it the page has nothing to count and the promise in the site's
-  // own opening sentence — "what we refused" — would lead somewhere empty.
-  { href: "/refused", label: "Refused", needsResearch: true },
-  { href: "/verify", label: "Verify" },
-  { href: "/methodology", label: "Methodology" },
-  { href: "/disclosures", label: "Disclosures" },
-];
 
 /** A ruled page, not a set of panels.
  *
@@ -43,8 +24,8 @@ export async function Shell({ children }: { children: ReactNode }) {
   // what the accounts ARE cannot be a constant once one of them changes.
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
   const hasLive = (index?.books ?? []).some((b) => b.capital_at_risk);
-  const nav = NAV.filter((item) => !item.needsResearch || research !== null)
-    .map(({ href, label }) => ({ href, label }));
+  const hasResearch = research !== null;
+  const nav = visibleNav(hasResearch).map(({ href, label }) => ({ href, label }));
 
   // HOW CURRENT THE RECORD IS, read off the books rather than off the clock.
   // `published_at` is when the publisher last RAN, which is not the same claim
@@ -109,7 +90,7 @@ export async function Shell({ children }: { children: ReactNode }) {
       <main className="flex-1 mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8 lg:py-10">
         {children}
       </main>
-      <Footer hasLive={hasLive} />
+      <Footer hasLive={hasLive} hasResearch={hasResearch} />
     </div>
   );
 }

@@ -77,14 +77,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const record = when(index?.published_at);
   const searched = when(research?.generated_at);
 
+  // THE SAME GATE THE MASTHEAD APPLIES. /research and /refused render nothing
+  // without research.json, and this file emitted both unconditionally while
+  // already holding the payload that says so — two lines above, for `searched`.
+  // A sitemap is a list of addresses a crawler is told exist, so it was the one
+  // surface making the promise to machines rather than to readers.
+  const hasResearch = research !== null;
+
   const routes: MetadataRoute.Sitemap = [
     { url: abs("/"), lastModified: record },
     { url: abs("/firm") },
     { url: abs("/portfolios"), lastModified: record },
-    { url: abs("/research"), lastModified: searched },
-    // Counts from research.json, the index, and the books' own metrics: it
-    // changed when the later of the two payloads did.
-    { url: abs("/refused"), lastModified: newest(record, searched) },
+    ...(hasResearch
+      ? [
+          { url: abs("/research"), lastModified: searched },
+          // Counts from research.json, the index, and the books' own metrics:
+          // it changed when the later of the two payloads did.
+          { url: abs("/refused"), lastModified: newest(record, searched) },
+        ]
+      : []),
     { url: abs("/verify"), lastModified: record },
     { url: abs("/methodology") },
     { url: abs("/disclosures"), lastModified: record },

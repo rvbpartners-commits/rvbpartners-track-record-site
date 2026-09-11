@@ -3,6 +3,7 @@ import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Note } from "@/components/Note";
 import { Hero } from "@/components/Hero";
 import { CONTACT_EMAIL, getIndex, getResearch } from "@/lib/data";
+import { visibleNav } from "@/lib/nav";
 import { ENTITY } from "@/lib/entity";
 import { NO_VALUE, date } from "@/lib/format";
 
@@ -160,14 +161,17 @@ export default async function Home() {
               n: "01",
               head: "We test",
               body: "A strategy is built and measured inside one framework, under one cost structure and one execution delay, then deflated against everything else that was searched. Most do not survive that.",
-              href: "/research",
+              // The only step whose destination is conditional. The prose is
+              // true whether or not the summary is published; the link is not,
+              // so it is dropped rather than the step.
+              href: research !== null ? "/research" : null,
               cta: "The search, and the correction",
             },
             {
               n: "02",
               head: "We select",
               body: "What survives is assembled into fixed rosters. A portfolio here is a committed file of strategies and target weights, traded on one broker account, and it is not re-chosen between marks.",
-              href: "/portfolios",
+              href: "/portfolios" as string | null,
               cta: "The accounts",
             },
             {
@@ -184,12 +188,14 @@ export default async function Home() {
                 {s.head}
               </h3>
               <p className="mt-2.5 text-body text-fg-muted">{s.body}</p>
-              <Link
-                href={s.href}
-                className="mt-4 inline-block font-figure text-label uppercase text-accent hover:underline"
-              >
-                {s.cta} &rarr;
-              </Link>
+              {s.href && (
+                <Link
+                  href={s.href}
+                  className="mt-4 inline-block font-figure text-label uppercase text-accent hover:underline"
+                >
+                  {s.cta} &rarr;
+                </Link>
+              )}
             </li>
           ))}
         </ol>
@@ -236,16 +242,13 @@ export default async function Home() {
         <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
           Contents
         </h2>
+        {/* READ FROM THE SAME LIST THE MASTHEAD READS, and gated the same way.
+            This was a second hardcoded array of the same seven routes, so with
+            research.json absent the masthead correctly dropped /research and
+            /refused while this list went on offering both — the front page
+            promising two pages the register could not show. */}
         <ul className="mt-5 max-w-[80ch]">
-          {[
-            ["/firm", "The firm", "Who is RVB Partners, and what can you check without taking our word for it?"],
-            ["/portfolios", "Portfolios", "What accounts exist, what is in each, and how do they differ?"],
-            ["/research", "Research", "How much was searched to produce what is published?"],
-            ["/refused", "Refused", "Most of what we tested did not work. This is the count."],
-            ["/verify", "Verify", "How can a stranger prove this record was not edited?"],
-            ["/methodology", "Methodology", "By what conventions is every number here produced?"],
-            ["/disclosures", "Disclosures", "What must be held in mind before believing any of it?"],
-          ].map(([href, label, question]) => (
+          {visibleNav(research !== null).map(({ href, label, question }) => (
             <li key={href} className="border-b hairline last:border-b-0">
               <Link
                 href={href}

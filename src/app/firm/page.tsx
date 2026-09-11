@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { GatedLink } from "@/components/GatedLink";
 import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Note } from "@/components/Note";
-import { CONTACT_EMAIL, SITE_ORIGIN, getIndex } from "@/lib/data";
+import { CONTACT_EMAIL, SITE_ORIGIN, getIndex, getResearch} from "@/lib/data";
 import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
 import { date } from "@/lib/format";
 
@@ -50,7 +51,12 @@ export const metadata: Metadata = {
 };
 
 export default async function FirmPage() {
-  const index = await getIndex();
+  // `getResearch` is read for one reason: two sentences below link to
+  // /research, and that route is not rendered when the summary is absent.
+  // Both fetches are memoised for 60s and three other routes already take
+  // them, so this costs nothing.
+  const [index, research] = await Promise.all([getIndex(), getResearch()]);
+  const hasResearch = research !== null;
   // Derived, never asserted — the same expression the masthead and the footer
   // use, so a book withheld from the index rewrites this page's account
   // sentence in the same breath as theirs. Today every published book is paper
@@ -401,9 +407,9 @@ export default async function FirmPage() {
             to an append-only ledger — because a result means nothing without
             the number of things that were tried to find it. Those counts are
             published under{" "}
-            <Link href="/research" className="text-accent hover:underline">
+            <GatedLink href="/research" available={hasResearch}>
               research
-            </Link>
+            </GatedLink>
             .
           </Step>
           <Step n={2} name="Catalogue">
@@ -412,9 +418,9 @@ export default async function FirmPage() {
             number of trials rather than its own grid, and how many cleared the
             nominal bar, how many that correction demoted and how many are
             presented as an edge are published as counts on the same{" "}
-            <Link href="/research" className="text-accent hover:underline">
+            <GatedLink href="/research" available={hasResearch}>
               research
-            </Link>{" "}
+            </GatedLink>{" "}
             page.
           </Step>
           <Step n={3} name="Portfolios">

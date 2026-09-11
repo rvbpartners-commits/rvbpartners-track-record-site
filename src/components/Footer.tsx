@@ -15,7 +15,16 @@ import { AccountDisclosure } from "./AccountDisclosure";
  *
  *  It is also hidden on the portfolio pages, where each book states its own
  *  kind in its own header. See `AccountDisclosure`. */
-export function Footer({ hasLive }: { hasLive: boolean }) {
+export function Footer({
+  hasLive,
+  /** Same gate the masthead applies. The footer linked /refused on every page
+   *  whatever the payload said, so with research.json absent the masthead
+   *  dropped the route and the footer underneath it kept offering it. */
+  hasResearch,
+}: {
+  hasLive: boolean;
+  hasResearch: boolean;
+}) {
   return (
     <footer className="mt-16 border-t hairline">
       <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8">
@@ -30,9 +39,11 @@ export function Footer({ hasLive }: { hasLive: boolean }) {
           <Link href="/firm" className="hover:text-fg transition-colors">
             The firm
           </Link>
-          <Link href="/refused" className="hover:text-fg transition-colors">
-            Refused
-          </Link>
+          {hasResearch && (
+            <Link href="/refused" className="hover:text-fg transition-colors">
+              Refused
+            </Link>
+          )}
           <Link href="/disclosures" className="hover:text-fg transition-colors">
             Disclosures
           </Link>
