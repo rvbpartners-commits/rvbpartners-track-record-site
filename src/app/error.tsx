@@ -37,7 +37,12 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
       <button
         type="button"
         onClick={reset}
-        className="mt-7 border border-rule px-4 py-2 text-small text-fg hover:border-accent hover:text-accent transition-colors"
+        /* `border-rule` named a token that has never existed: there is no
+           `--color-rule` in globals.css and no Tailwind config to define one,
+           so the utility generated nothing and the border fell back to
+           Tailwind v4's default of `currentColor` — which on this element is
+           `text-fg`, #0a0a0a. The site's one border token is `hairline`. */
+        className="mt-7 border hairline px-4 py-2 text-small text-fg hover:border-accent hover:text-accent transition-colors"
       >
         Try again
       </button>
