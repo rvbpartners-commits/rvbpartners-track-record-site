@@ -277,26 +277,43 @@ export default async function Portfolios() {
           </p>
         </div>
         {loaded && (
-          /* `lg:col-start-3` USED TO BE HERE, left over from the three-track
-             grid. With two columns it pushed the link into an IMPLICIT third
-             one, which took its width out of the text track: the lede wrapped
-             at about 340px instead of 820 and the gap between them was the
-             column the browser invented to hold the link.
+          /* THE ONE THING ON THIS PAGE A READER IS ASKED TO PRESS.
 
-             Ink on white, not an outline. It is the only thing on the page a
-             reader is being asked to press, and a hairline rectangle beside a
-             paragraph reads as another note. */
+             It was a hairline rectangle with a small line of text and a small
+             arrow, on a site built entirely out of hairline rectangles, so it
+             read as one more note rather than as a control. It is a block of
+             ink now: the invitation at subhead size in the band's own light
+             type, what is at the other end underneath it, and the arrow at
+             title size in the bottom corner where the eye finishes.
+
+             `self-stretch` so it stands the full height of the lede beside it
+             rather than floating at one end of the row, and `justify-between`
+             so the label sits at the top and the arrow at the foot. The ink is
+             the hero band's, not a fourth black.
+
+             (`lg:col-start-3` used to be here, left over from the three-track
+             grid. With two columns defined, starting an item at column 3 makes
+             the browser invent an IMPLICIT third track to hold it, and that
+             track's width comes out of the first one — which is why the lede
+             wrapped at 340px with a gap beside it.) */
           <a
             href="#portfolios"
-            className="group self-end bg-[#0c0d0e] px-5 py-4 text-small font-medium text-[#f2f0ec] transition-opacity hover:opacity-90"
+            className="group flex flex-col justify-between self-stretch bg-[#0c0d0e] p-6 text-[#f2f0ec] transition-colors hover:bg-[#1e1f21]"
           >
-            <span className="flex items-baseline justify-between gap-3">
+            <span className="text-subhead font-semibold leading-snug">
               Discover the portfolios in depth
-              <span aria-hidden="true">&darr;</span>
             </span>
-            <span className="mt-2 block text-caption font-normal text-[#b9b4ab]">
-              Every published account, with what it was funded with and when it
-              opened.
+            <span className="mt-6 flex items-end justify-between gap-5">
+              <span className="text-caption leading-snug text-[#b9b4ab]">
+                Every published account, what it was funded with, and when it
+                opened.
+              </span>
+              <span
+                aria-hidden="true"
+                className="shrink-0 text-title leading-none transition-transform duration-150 group-hover:translate-y-1"
+              >
+                &darr;
+              </span>
             </span>
           </a>
         )}
