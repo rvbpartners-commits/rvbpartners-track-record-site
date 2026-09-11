@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Fragment, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { getIndex, getResearch } from "@/lib/data";
 import { date } from "@/lib/format";
 import { visibleNav } from "@/lib/nav";
@@ -19,13 +19,17 @@ import { Footer } from "./Footer";
  * whole page runs on one rule — the serif is the firm talking, the mono is
  * something read off a file — and an index of the register is the second kind.
  *
- * THE RUNNING HEAD WAS THE PROBLEM, NOT THE WHITE. The band was called cheap,
- * and the reason is not its ground: it is that every element in it sat at the
- * smallest step of the scale — 10.5px, `--fg-faint`, capitals — so an eight-step
- * type scale was represented up here by exactly two steps, and the three facts
- * that say what a reader has opened were a single run-on caption at 4.67:1.
- * They are now three separate facts at `text-small`, each with its own label, in
- * `--fg-muted` and `--fg`.
+ * THE RUNNING HEAD IS ONE QUIET LINE. It began as a run-on caption at 10.5px
+ * in `--fg-faint`, which is 4.67:1 and the floor of the scale: the facts that
+ * tell a reader what they have opened, set as the least legible thing on the
+ * page. Breaking it into three labelled facts with ruled labels fixed the
+ * legibility and overshot — at `text-small` with an underline under each label
+ * it read as a row of controls, and the underlines read as links.
+ *
+ * So: one line again, at `text-caption` in `--fg-muted` (8.88:1) with the two
+ * VALUES in `--fg`, so the date and the count carry and the words around them
+ * recede. A running head is read once, on arrival, and then ignored; staying
+ * out of the way is a requirement and not a compromise.
  *
  * And on the home page the band repeated everything below it: the mark again
  * 136px lower at 3.5x the size, the wordmark again opening the hero's lede, the
@@ -54,22 +58,10 @@ export async function Shell({ children }: { children: ReactNode }) {
     .sort()
     .at(-1);
 
-  // THREE FACTS, NOT ONE STRING. Joining them with middots produced a caption;
-  // separating them lets each carry its own label and its own weight, which is
-  // what a running head is for. Every value is still read from the payload —
-  // none of these may ever become a constant.
-  const facts: { label: string | null; value: string }[] = index
-    ? [
-        // The lead keeps its exact wording, including the paper qualifier: it
-        // is a standing claim about what these accounts ARE, derived from the
-        // books, and it must not be softened into a label.
-        { label: null, value: hasLive ? "Public record" : "Public record · paper" },
-        ...(currentTo
-          ? [{ label: "Current to", value: date(currentTo) }]
-          : []),
-        { label: "Chained", value: `${index.chain.entries} entries` },
-      ]
-    : [];
+  // The lead keeps its exact wording, paper qualifier included: it is a
+  // standing claim about what these accounts ARE, derived from the books, and
+  // it may never become a constant. Nor may either figure beside it.
+  const lead = hasLive ? "Public record" : "Public record · paper";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,40 +98,28 @@ export async function Shell({ children }: { children: ReactNode }) {
                  a 1px nudge, wrong for a square one. */
               className="inline-flex items-center gap-2.5 text-subhead font-bold tracking-[-0.022em]"
             >
-              <Mark aria-hidden="true" className="h-[21px] w-auto" />
+              <Mark aria-hidden="true" className="h-[26px] w-auto" />
               RVB Partners
             </Link>
-            {facts.length > 0 && (
-              /* Full width under the name on a phone, where three facts and the
-                 wordmark cannot share a line; pushed right from `sm` up. */
-              <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-1.5 text-small text-fg-muted sm:ml-auto sm:w-auto">
-                {facts.map((f, i) => (
-                  <Fragment key={f.value}>
-                    {i > 0 && (
-                      <span
-                        aria-hidden="true"
-                        className="hidden h-4 w-px bg-hairline sm:block"
-                      />
-                    )}
-                    <span className="inline-flex items-baseline gap-x-2">
-                      {f.label && (
-                        <span className="border-b hairline pb-[3px] text-label font-medium uppercase tracking-[0.13em] text-fg-faint">
-                          {f.label}
-                        </span>
-                      )}
-                      <span
-                        /* `tabular-nums`, not `.tnum`: the site's `.tnum`
-                           class also switches the face to the mono, and the
-                           chrome is one typeface now. The figures still line
-                           up. */
-                        className={`tabular-nums text-fg ${f.label ? "" : "font-semibold"}`}
-                      >
-                        {f.value}
-                      </span>
-                    </span>
-                  </Fragment>
-                ))}
-              </div>
+            {index && (
+              /* `tabular-nums`, not `.tnum`: the site's `.tnum` class also
+                 switches the face to the mono, and the chrome is one typeface
+                 now. The figures still line up.
+
+                 Full width under the wordmark on a phone; right-aligned from
+                 `sm` up, where it has a column of its own. */
+              <p className="w-full text-caption tabular-nums text-fg-muted sm:ml-auto sm:w-auto sm:text-right">
+                {lead}
+                {currentTo && (
+                  <>
+                    {" · current to "}
+                    <span className="text-fg">{date(currentTo)}</span>
+                  </>
+                )}
+                {" · "}
+                <span className="text-fg">{index.chain.entries}</span>
+                {" chained entries"}
+              </p>
             )}
           </div>
 
