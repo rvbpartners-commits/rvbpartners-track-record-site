@@ -230,15 +230,19 @@ export default function LegalNotice() {
         <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           {/* WRITTEN FROM WHAT THE SITE ACTUALLY DOES, not from a template. If
               this ever stops being true — an analytics script, an embed, a
-              cookie — this paragraph is the thing that has to change first. */}
+              cookie — this paragraph is the thing that has to change first.
+              It went stale once already: it described a `sessionStorage` entry
+              written by the title page, and the title page was folded into the
+              hero without this notice being revisited. A legal notice
+              describing a store the site does not have is the one kind of
+              inaccuracy here that is not a matter of taste. */}
           <p>
             <span className="text-fg">This site sets no cookies</span> and
             carries no analytics, no advertising and no third-party tracking. It
-            stores one thing in your browser: a note that you have already
-            passed the title page, kept in <code>sessionStorage</code> so the
-            site does not show it to you again in the same session. It is
-            cleared when you close the tab, it never leaves your browser, and it
-            is never sent to us.
+            stores nothing in your browser: no cookie, no{" "}
+            <code>localStorage</code> entry, no <code>sessionStorage</code>{" "}
+            entry. Reading it leaves nothing behind on your machine and sends
+            nothing to us.
           </p>
           <p>
             Writing to us at{" "}
