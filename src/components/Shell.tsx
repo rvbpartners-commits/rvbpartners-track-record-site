@@ -123,12 +123,16 @@ export async function Shell({ children }: { children: ReactNode }) {
                     )}
                     <span className="inline-flex items-baseline gap-x-2">
                       {f.label && (
-                        <span className="font-figure text-label font-medium uppercase tracking-[0.13em] text-fg-faint">
+                        <span className="border-b hairline pb-[3px] text-label font-medium uppercase tracking-[0.13em] text-fg-faint">
                           {f.label}
                         </span>
                       )}
                       <span
-                        className={`tnum text-fg ${f.label ? "" : "font-semibold"}`}
+                        /* `tabular-nums`, not `.tnum`: the site's `.tnum`
+                           class also switches the face to the mono, and the
+                           chrome is one typeface now. The figures still line
+                           up. */
+                        className={`tabular-nums text-fg ${f.label ? "" : "font-semibold"}`}
                       >
                         {f.value}
                       </span>

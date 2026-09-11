@@ -96,10 +96,14 @@ export function Hero({
           <dl className="mt-14 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-[#2a2a27] pt-9 lg:mt-16 lg:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label}>
-                <dt className="font-figure text-label uppercase tracking-[0.15em] text-[#8b8781]">
+                {/* A RULE UNDER EACH LABEL. With the mono gone the label and
+                    its figure were separated by size and colour alone, and at
+                    this scale that is not enough to read the four as four
+                    pairs rather than as eight stacked lines. */}
+                <dt className="border-b border-[#3a3a37] pb-2.5 text-label font-medium uppercase tracking-[0.13em] text-[#8b8781]">
                   {s.label}
                 </dt>
-                <dd className="mt-2.5 font-figure tnum text-heading leading-none sm:text-title">
+                <dd className="mt-3.5 tabular-nums text-heading leading-none sm:text-title">
                   {s.value}
                 </dd>
               </div>
