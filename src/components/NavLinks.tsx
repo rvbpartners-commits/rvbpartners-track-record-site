@@ -34,11 +34,18 @@ export type NavItem = { href: string; label: string };
  * on the masthead's bottom hairline, which is a tab and reads at a glance;
  * `--fg` against `--fg-faint` at 10.5px did not.
  *
- * CENTRED, AND ALL SEVEN IN THE BAND'S LIGHT TYPE. The row sat flush left in
- * `--fg-faint`, so the site's one navigation control was both off to one side
- * and the palest text in the masthead. It is centred now, and since the
- * masthead became an ink band it is set in that band's `#f2f0ec` rather than in
- * the page's black, which on that ground is not a colour but an absence.
+ * FLUSH LEFT, AND ALL SEVEN IN THE BAND'S LIGHT TYPE. The row was set in
+ * `--fg-faint`, which made the site's one navigation control the palest text in
+ * the masthead; every item is the band's `#f2f0ec` now, since on ink the page's
+ * black is not a colour but an absence.
+ *
+ * IT WAS CENTRED FOR ONE COMMIT AND IT WAS WRONG. Centring a contents row makes
+ * its left edge move every time the number of items changes — and two of these
+ * seven are conditional on `research.json`, so the row would shift under a
+ * reader between one publish and the next. It also broke the one alignment the
+ * masthead had: the wordmark, the row beneath it and every line of the document
+ * below all start at the same left edge, and that column is what the whole
+ * grid is built on.
  *
  * The values are literals, as they are on every ink surface here. The palette
  * tokens describe a white page; this band is the one piece of chrome that is
@@ -50,9 +57,9 @@ export type NavItem = { href: string; label: string };
  * band's own bottom edge is a tab, and it reads at a glance. Hover fades
  * towards the band's muted grey, since there is nowhere brighter to go.
  *
- * `min-w-max` stays with `justify-center`: where the row fits, it centres;
- * where it does not (a phone), it keeps its natural width and scrolls from the
- * left edge, which is the behaviour the masthead's `scroll-x` depends on.
+ * `min-w-max` is what lets the row keep its natural width on a phone and scroll
+ * sideways rather than wrap, which is the behaviour the masthead's `scroll-x`
+ * depends on.
  *
  * `aria-current="page"` is the substance; the rule is the visible half of the
  * same fact. A dossier under `/portfolios/<slug>` marks `Portfolios`, because a
@@ -63,7 +70,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
   const path = usePathname();
 
   return (
-    <div className="flex min-w-max justify-center gap-8 py-2.5">
+    <div className="flex min-w-max gap-8 py-2.5">
       {items.map((item) => {
         const active =
           path === item.href ||
