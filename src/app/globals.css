@@ -224,51 +224,6 @@ a {
   }
 }
 
-/* THE TITLE PAGE'S SCROLL CUE. A hairline that fills downward and repeats, so
-   the affordance reads as "there is more below" rather than as a decorative
-   tick. Motion is opt-out: under `prefers-reduced-motion` the rule simply sits
-   there at full length, which still says the same thing. */
-.curtain-cue {
-  /* TWO LAYERS. A permanent hairline track, plus a highlight that travels down
-     it. With the highlight alone the cue is invisible for most of every cycle —
-     the affordance blinks out exactly when a hesitating reader looks for it. */
-  background-image:
-    linear-gradient(
-      to bottom,
-      var(--fg) 0%,
-      var(--fg) 42%,
-      transparent 42%,
-      transparent 100%
-    ),
-    linear-gradient(var(--hairline), var(--hairline));
-  background-size: 100% 240%, 100% 100%;
-  background-repeat: no-repeat, no-repeat;
-  background-position: 0 -140%, 0 0;
-  animation: curtain-cue 2.4s ease-in-out infinite;
-}
-
-@keyframes curtain-cue {
-  0%        { background-position: 0 -140%, 0 0; }
-  60%, 100% { background-position: 0 100%,  0 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .curtain-cue {
-    animation: none;
-    background-image: none;
-    background-color: var(--fg-faint);
-  }
-}
-
-/* Set by the blocking script in <head> (see layout.tsx) for a visitor who has
-   already crossed the threshold in this browsing session. The panel is still
-   in the markup — identical HTML for everyone, so nothing to reconcile at
-   hydration — it simply never occupies space or paints. React unmounts it a
-   moment later; this rule is only what covers the interval before that. */
-html[data-entered] [data-curtain] {
-  display: none;
-}
-
 /* A LINK MUST BE VISIBLE AS A LINK WITHOUT HOVERING.
    `text-accent` alone is a colour distinction, and inside a muted paragraph it
    is a weak one: the gold (#b8975c) and the muted body (#a9a294) are close in
