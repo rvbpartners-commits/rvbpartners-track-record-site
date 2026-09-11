@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getIndex, SITE_HOST } from "@/lib/data";
+import { INK, INK_FAINT, INK_FG, INK_MUTED, markDataUri } from "@/lib/brand";
 
 /**
  * The card a shared link unfurls into. Generated from the live index so it
@@ -42,24 +43,32 @@ export default async function OgImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#0d0f12",
-          color: "#e8e6e1",
+          background: INK,
+          color: INK_FG,
           padding: "72px 80px",
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         }}
       >
-        <div style={{ display: "flex", fontSize: 26, color: "#d8a54f", letterSpacing: "0.14em" }}>
-          RVB PARTNERS
+        {/* THE MARK, WHERE A GOLD WORDMARK USED TO BE. #d8a54f was the accent of
+            the palette retired in 2bc4e65 and exists nowhere in globals.css, so
+            the card every shared link unfurled into was advertising a design the
+            site had stopped using. The wordmark keeps its place beside it, now
+            in the hero band's own type colour. */}
+        <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
+          <img src={markDataUri()} alt="" width={54} height={54} />
+          <div style={{ display: "flex", fontSize: 26, letterSpacing: "0.14em" }}>
+            RVB PARTNERS
+          </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ fontSize: 68, lineHeight: 1.05, letterSpacing: "-0.02em" }}>
             Public register
           </div>
-          <div style={{ display: "flex", fontSize: 30, color: "#9aa1ab", lineHeight: 1.35, maxWidth: 900 }}>
+          <div style={{ display: "flex", fontSize: 30, color: INK_MUTED, lineHeight: 1.35, maxWidth: 900 }}>
             {subtitle}
           </div>
         </div>
-        <div style={{ display: "flex", fontSize: 24, color: "#6f7889" }}>
+        <div style={{ display: "flex", fontSize: 24, color: INK_FAINT }}>
           {SITE_HOST}
         </div>
       </div>
