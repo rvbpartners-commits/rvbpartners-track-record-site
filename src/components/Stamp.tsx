@@ -55,12 +55,12 @@ export function Stamp({
       }}
     >
       <div
-        className="font-figure text-label font-semibold uppercase tracking-[0.16em]"
+        className="text-label font-semibold uppercase tracking-[0.16em]"
         style={{ color: negative ? "var(--oxide)" : "var(--fg-faint)" }}
       >
         {label}
       </div>
-      <div className="mt-2 font-figure tnum text-subhead leading-none text-fg">
+      <div className="mt-2 tnum text-subhead leading-none text-fg">
         {value}
       </div>
       {note && (

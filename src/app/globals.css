@@ -23,6 +23,11 @@
  * colours are stated inline in Hero.tsx because they describe that band and
  * nothing else; the two this stylesheet needs for the focus ring are tokens.
  *
+ * ONE TYPEFACE, at the firm's direction. Inter sets everything a reader reads,
+ * figures included. IBM Plex Mono is kept for LITERAL strings only — hashes,
+ * commands, filenames, registered identifiers — where a monospace keeps 0
+ * apart from O and one character above another. See the `.tnum` block below.
+ *
  * Green/red are the only saturated colours besides the reserved oxide, and they
  * mean exactly one thing: the sign of a return. Nothing decorative is allowed
  * to use them, or they stop reading as data.
@@ -192,9 +197,8 @@ html {
 body {
   background: var(--bg);
   color: var(--fg);
-  /* Prose is the serif. Anything that is a MEASUREMENT opts into the mono via
-     .tnum or an explicit font-figure class — the two faces are the grammar,
-     not decoration. */
+  /* One face for everything a reader reads. The mono is reserved for literal
+     strings — see the rule below. */
   font-family: var(--font-prose), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 16.5px;
@@ -210,17 +214,39 @@ body {
    or it is nothing. Set once, so no component can quietly reintroduce a card. */
 table, th, td, pre, code, .hairline { border-radius: 0; }
 
-/* Tabular figures everywhere a number sits in a column, so digits line up and
-   a changing value does not make the row jitter. */
-/* A number is set in the face that measurement is set in. This is the single
-   rule that makes the page read as a register rather than a brochure. */
-.tnum, table, th, td, code, pre, .mono {
-  font-family: var(--font-figure), ui-monospace, SFMono-Regular, Menlo, monospace;
-}
+/* A FIGURE IS NOT A LITERAL, AND ONLY ONE OF THEM NEEDS THE MONO.
 
+   Every number on the site used to be set in IBM Plex Mono, on the rule that a
+   number is set in the face measurement is set in. Two things were wrong with
+   that. The mono's default zero carries a centred dot, so "10,300" rendered
+   with a dot through both zeros and read as damage in the data — on a register
+   whose whole argument is that its figures are exact. And it put a second
+   typeface on nearly every line of the site, which is most of why the pages
+   read as two designs rather than one.
+
+   The distinction that survives is narrower and does real work. A FIGURE is a
+   quantity, and what it needs is for its digits to line up so a changing value
+   does not make a row jitter: that is `tabular-nums`, and the prose face has
+   it. A LITERAL is a string someone might retype or compare character by
+   character — a hash, a command, a filename, a registered identifier — and
+   there the monospace is not a signal but the thing that keeps 0 apart from O
+   and one character above another. There the dotted zero is a feature.
+
+   So: figures in the prose face with tabular digits, literals in the mono. */
 .tnum {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+}
+
+/* Every table on this site is a column of figures, so none of them has to
+   ask for it. */
+table {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+code, pre, .mono {
+  font-family: var(--font-figure), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .hairline {

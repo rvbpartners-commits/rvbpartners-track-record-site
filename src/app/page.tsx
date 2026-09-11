@@ -152,7 +152,7 @@ export default async function Home() {
           a narrow column, which is a table of contents pretending to be a
           section. Three columns is the shape the content already had. */}
       <section className="mt-16 lg:mt-24">
-        <h2 className="font-figure text-label font-medium uppercase text-fg-faint">
+        <h2 className="text-label font-medium uppercase text-fg-faint">
           How this works
         </h2>
         <ol className="mt-9 grid gap-x-12 gap-y-12 md:grid-cols-3">
@@ -183,7 +183,7 @@ export default async function Home() {
             },
           ].map((s) => (
             <li key={s.n} className="border-t hairline pt-5">
-              <span className="font-figure text-label text-fg-faint">{s.n}</span>
+              <span className="text-label text-fg-faint">{s.n}</span>
               <h3 className="mt-3 text-subhead font-semibold text-fg">
                 {s.head}
               </h3>
@@ -191,7 +191,7 @@ export default async function Home() {
               {s.href && (
                 <Link
                   href={s.href}
-                  className="mt-4 inline-block font-figure text-label uppercase text-accent hover:underline"
+                  className="mt-4 inline-block text-label uppercase text-accent hover:underline"
                 >
                   {s.cta} &rarr;
                 </Link>
@@ -206,7 +206,7 @@ export default async function Home() {
           the front page this is a fact about the work, not a confession. */}
       {shownRejected.length > 0 && (
         <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-          <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+          <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
             What we rejected
           </h2>
           <p className="mt-6 max-w-[68ch] text-body text-fg-muted">
@@ -222,7 +222,7 @@ export default async function Home() {
           <dl className="mt-7 grid gap-x-10 gap-y-6 sm:grid-cols-3 max-w-[76ch]">
             {shownRejected.map(([value, label]) => (
               <div key={label}>
-                <dt className="font-figure tnum text-heading leading-none text-fg">
+                <dt className="tnum text-heading leading-none text-fg">
                   {int(value)}
                 </dt>
                 <dd className="mt-2.5 text-small leading-snug text-fg-faint">
@@ -239,7 +239,7 @@ export default async function Home() {
           this far should choose where to go from what they want to know,
           rather than from a noun. */}
       <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-        <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+        <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
           Contents
         </h2>
         {/* READ FROM THE SAME LIST THE MASTHEAD READS, and gated the same way.
@@ -254,7 +254,7 @@ export default async function Home() {
                 href={href}
                 className="group grid gap-x-6 gap-y-1 py-3.5 sm:grid-cols-[minmax(0,150px)_minmax(0,1fr)]"
               >
-                <span className="font-figure text-label uppercase tracking-[0.15em] text-fg-faint transition-colors group-hover:text-fg">
+                <span className="text-label uppercase tracking-[0.15em] text-fg-faint transition-colors group-hover:text-fg">
                   {label}
                 </span>
                 <span className="text-body leading-snug text-fg-muted transition-colors group-hover:text-fg">

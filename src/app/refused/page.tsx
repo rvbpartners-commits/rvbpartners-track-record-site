@@ -611,7 +611,7 @@ export default async function RefusedPage() {
                       the portfolios, written here exactly as their metrics files
                       write them:
                     </p>
-                    <p className="mt-2 font-figure text-small leading-relaxed text-fg-muted">
+                    <p className="mt-2 text-small leading-relaxed text-fg-muted">
                       {suppressed.join(" · ")}
                     </p>
                   </>
@@ -640,7 +640,7 @@ export default async function RefusedPage() {
                           const gate = metrics[i]?.insufficient_history;
                           return (
                             <tr key={b.book} className="border-t hairline">
-                              <td className="py-2 pr-6 font-figure text-small text-fg-muted">
+                              <td className="py-2 pr-6 text-small text-fg-muted">
                                 {b.label}
                               </td>
                               <td className="py-2 pr-6 tnum text-right text-fg">
@@ -667,7 +667,7 @@ export default async function RefusedPage() {
               <p>
                 {suppressed.includes("win_rate") ? (
                   <>
-                    <span className="font-figure text-small text-fg-muted">
+                    <span className="text-small text-fg-muted">
                       win_rate
                     </span>{" "}
                     is on that same suppressed list, and it is suppressed for
@@ -838,7 +838,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         {gloss && (
           <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
@@ -865,7 +865,7 @@ function Figure({
 }) {
   return (
     <div className="border-t hairline pt-4">
-      <div className="font-figure tnum text-heading leading-none tracking-tight text-fg">
+      <div className="tnum text-heading leading-none tracking-tight text-fg">
         {value}
       </div>
       <div className="mt-2.5 text-small font-medium leading-snug">{label}</div>
@@ -889,7 +889,7 @@ function Item({
 }) {
   return (
     <li className="flex gap-5">
-      <span className="shrink-0 w-5 pt-1 font-figure tnum text-small text-fg-faint">
+      <span className="shrink-0 w-5 pt-1 tnum text-small text-fg-faint">
         {n}
       </span>
       <div className="min-w-0 max-w-[72ch]">

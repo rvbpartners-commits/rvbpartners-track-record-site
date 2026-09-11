@@ -283,7 +283,7 @@ function Section({
 }) {
   return (
     <section id={id} className="mt-12 lg:mt-16 scroll-mt-8 border-t hairline pt-6">
-      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
           {gloss}

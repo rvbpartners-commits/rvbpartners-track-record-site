@@ -155,7 +155,7 @@ export default async function FirmPage() {
               legal formula with English phonetics, which is the one sentence on
               the page a reader is being invited to check against the register
               character for character. */}
-          <blockquote lang="fr" className="font-figure text-body text-fg">
+          <blockquote lang="fr" className="text-body text-fg">
             {ENTITY.purpose}
           </blockquote>
           <figcaption className="mt-3 text-small leading-relaxed text-fg-faint">
@@ -504,7 +504,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
           {gloss}
@@ -565,7 +565,7 @@ function Term({
       <dt id={id} className="scroll-mt-8">
         <a
           href={`#${id}`}
-          className="font-figure text-small font-medium text-fg hover:text-accent transition-colors"
+          className="text-small font-medium text-fg hover:text-accent transition-colors"
         >
           {term}
         </a>
@@ -590,7 +590,7 @@ function Step({
 }) {
   return (
     <li className="sm:grid sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-x-10">
-      <span className="font-figure text-caption uppercase tracking-[0.12em] text-fg-faint">
+      <span className="text-caption uppercase tracking-[0.12em] text-fg-faint">
         <span className="tnum">{n}</span>
         <span className="mx-2">·</span>
         {name}

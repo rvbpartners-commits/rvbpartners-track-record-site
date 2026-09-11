@@ -349,7 +349,7 @@ export default async function Portfolios() {
                       : ""
                   }`}
                 >
-                  <div className="font-figure text-label uppercase tracking-[0.14em] text-fg-faint">
+                  <div className="text-label uppercase tracking-[0.14em] text-fg-faint">
                     {head}
                   </div>
                   <p className="mt-2 text-small leading-relaxed text-fg-muted">
@@ -731,7 +731,7 @@ function Th({
 }) {
   return (
     <th
-      className={`pb-3 font-figure text-label font-medium uppercase tracking-[0.14em] ${
+      className={`pb-3 text-label font-medium uppercase tracking-[0.14em] ${
         align === "right" ? "pr-6 text-right last:pr-0" : "pr-6"
       }`}
     >
@@ -753,7 +753,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         {gloss && (
           <span className="ml-3 normal-case tracking-normal text-fg-faint/70">

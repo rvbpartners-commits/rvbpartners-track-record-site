@@ -520,7 +520,7 @@ function Section({
 }) {
   return (
     <section className="mt-12 lg:mt-16 border-t hairline pt-6">
-      <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+      <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
           {gloss}
@@ -569,7 +569,7 @@ function Clocks({
           key={i}
           className="border-t hairline py-4 sm:flex sm:items-baseline sm:gap-8"
         >
-          <div className="font-figure tnum text-small text-fg sm:w-[190px] sm:shrink-0">
+          <div className="tnum text-small text-fg sm:w-[190px] sm:shrink-0">
             {row.value}
           </div>
           <div className="mt-1.5 sm:mt-0">
