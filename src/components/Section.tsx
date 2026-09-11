@@ -48,12 +48,17 @@ import type { ReactNode } from "react";
  * the part and the content gets the whole column. Its note moves into the rail,
  * because there is no margin left to put it in.
  *
- * A SECTION WITH AN EMPTY MARGIN IS A SECTION THAT HAS NOT BEEN FINISHED. The
- * third track is not decoration and it is not slack: either something published
- * belongs beside the prose, or the content was never prose and the section
- * should be `wide`. The rule above each section spans the full width either
- * way, which on its own is most of why a page stopped looking like it ended in
- * the middle.
+ * AN EMPTY MARGIN NEEDS A REASON. The third track is not slack to be left
+ * lying around: nearly always either something published belongs beside the
+ * prose, or the content was never prose and the section wants `wide`. Of the
+ * site's 58 sections, 56 take one of those two. The two that do not are four
+ * lines long apiece and a pointer each, and a figure hung beside them would be
+ * a figure repeated from the section above for the sake of filling a column.
+ * Both say so in a comment where they stand. That is the bar: an empty margin
+ * is a decision that has been written down, not a section nobody finished.
+ *
+ * The rule above each section spans the full width either way, which on its own
+ * is most of why a page stopped looking like it ended in the middle.
  *
  * BELOW `lg` the three tracks stack: rail, then prose, then margin. The margin
  * carries annotation rather than substance, so it reads correctly last.
