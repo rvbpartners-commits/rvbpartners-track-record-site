@@ -34,10 +34,9 @@ export type NavItem = { href: string; label: string };
  * on the masthead's bottom hairline, which is a tab and reads at a glance;
  * `--fg` against `--fg-faint` at 10.5px did not.
  *
- * FLUSH LEFT, AND ALL SEVEN IN THE BAND'S LIGHT TYPE. The row was set in
+ * FLUSH LEFT, AND ALL SEVEN IN THE PAGE'S OWN INK. The row was set in
  * `--fg-faint`, which made the site's one navigation control the palest text in
- * the masthead; every item is the band's `#f2f0ec` now, since on ink the page's
- * black is not a colour but an absence.
+ * the masthead. Every item is `--fg` now.
  *
  * IT WAS CENTRED FOR ONE COMMIT AND IT WAS WRONG. Centring a contents row makes
  * its left edge move every time the number of items changes — and two of these
@@ -47,15 +46,12 @@ export type NavItem = { href: string; label: string };
  * below all start at the same left edge, and that column is what the whole
  * grid is built on.
  *
- * The values are literals, as they are on every ink surface here. The palette
- * tokens describe a white page; this band is the one piece of chrome that is
- * not one, and it shares its four values with Hero.tsx.
- *
  * That leaves the RULE as the only mark of place, which is the point: colour
  * was carrying it before, and `--fg` against `--fg-faint` at 13px is a
  * distinction a reader has to go looking for. A 2px rule sitting on the
- * band's own bottom edge is a tab, and it reads at a glance. Hover fades
- * towards the band's muted grey, since there is nowhere brighter to go.
+ * masthead's own bottom hairline is a tab, and it reads at a glance. Hover
+ * fades towards `--fg-muted` rather than darkening, since there is no longer
+ * anywhere darker to go.
  *
  * `min-w-max` is what lets the row keep its natural width on a phone and scroll
  * sideways rather than wrap, which is the behaviour the masthead's `scroll-x`
@@ -82,8 +78,8 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             aria-current={active ? "page" : undefined}
             className={`relative text-small font-medium transition-colors ${
               active
-                ? "text-[#f2f0ec] after:absolute after:inset-x-0 after:-bottom-[10px] after:h-[2px] after:bg-[#f2f0ec]"
-                : "text-[#f2f0ec] hover:text-[#b9b4ab]"
+                ? "text-fg after:absolute after:inset-x-0 after:-bottom-[10px] after:h-[2px] after:bg-fg"
+                : "text-fg hover:text-fg-muted"
             }`}
           >
             {item.label}

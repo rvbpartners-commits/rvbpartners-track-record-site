@@ -89,20 +89,7 @@ export async function Shell({ children }: { children: ReactNode }) {
           The rules now all measure the same, so the masthead is bounded the
           way the text is and the head reads as the top of the document rather
           than as a bar laid across it. */}
-      {/* ONE BAND, THE HERO'S OWN INK. The masthead is #0c0d0e, the same value
-          the hero carries, so on the front page the head and the cover are one
-          continuous block with no seam between them — which is what the
-          negative margin on the hero was already reaching for. On the seven
-          pages with no hero it is an ink head over a white document, which is
-          the shape the reference asset managers use.
-
-          Flat colour, no artwork. The network image was tried here and
-          rejected; what was wanted was this colour.
-
-          `ground-ink` switches the focus ring to the light variant, so a
-          keyboard reader still gets a visible one on this ground; see the rule
-          in globals.css. */}
-      <header className="ground-ink bg-[#0c0d0e] text-[#f2f0ec]">
+      <header>
         {/* `mx-auto` is what centres the column. A `max-w-*` on its own only
             caps the width — the block stays flush left, which on a wide screen
             leaves the whole site pinned to one edge. Every container that caps
@@ -131,12 +118,12 @@ export async function Shell({ children }: { children: ReactNode }) {
 
                  Full width under the wordmark on a phone; right-aligned from
                  `sm` up, where it has a column of its own. */
-              <p className="w-full text-caption tabular-nums text-[#b9b4ab] sm:ml-auto sm:w-auto sm:text-right">
+              <p className="w-full text-caption tabular-nums text-fg-muted sm:ml-auto sm:w-auto sm:text-right">
                 {lead}
                 {currentTo && (
                   <>
                     {" · current to "}
-                    <span className="text-[#f2f0ec]">{date(currentTo)}</span>
+                    <span className="text-fg">{date(currentTo)}</span>
                   </>
                 )}
                 {/* `chain?.entries`, not `chain.entries`. getIndex validates
@@ -151,7 +138,7 @@ export async function Shell({ children }: { children: ReactNode }) {
                 {typeof index.chain?.entries === "number" && (
                   <>
                     {" · "}
-                    <span className="text-[#f2f0ec]">
+                    <span className="text-fg">
                       {index.chain.entries.toLocaleString("en-US")}
                     </span>
                     {" chained entries"}
@@ -170,10 +157,7 @@ export async function Shell({ children }: { children: ReactNode }) {
               reader nothing about which one they are in. */}
           <nav
             aria-label="Sections of the register"
-            /* THE BAND'S OWN RULES. `--hairline` is #e2e1de, which on ink is
-               a bright white line rather than an edge. These are the hero
-               band's values, and the two surfaces now match. */
-            className="-mx-5 border-y border-[#2a2a27] px-5 scroll-x sm:mx-0 sm:px-0"
+            className="border-y hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x"
           >
             <NavLinks items={nav} />
           </nav>
