@@ -5,9 +5,12 @@ It renders the
 [track-record data repository](https://github.com/rvbpartners-commits/rvbpartners-track-record-data)
 and does nothing else.
 
-> **Alpaca paper accounts.** No capital is at risk and fills are simulated. Past
-> performance is not indicative of future results. Nothing here is investment
-> advice.
+> **Paper accounts and real capital.** Some portfolios in this record are
+> broker-simulated paper accounts, in which no capital is at risk and fills are
+> simulated; others trade the firm's own real capital. Each portfolio's page
+> states which it is, and the site reads that from `account_kind` rather than
+> asserting it. No third-party money is managed. Past performance is not
+> indicative of future results. Nothing here is investment advice.
 
 ## The rule
 
