@@ -52,8 +52,8 @@ const FACE_FRONT = "#333333";
  */
 export function markSvg(): string {
   return [
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -55 260 260" width="260" height="260">',
-    `<rect x="-15" y="-55" width="260" height="260" fill="${INK}"/>`,
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -70 290 290" width="260" height="260">',
+    `<rect x="-30" y="-70" width="290" height="290" fill="${INK}"/>`,
     `<polygon points="0,90 50,80 50,120 0,130" fill="${FACE_SIDE}"/>`,
     `<polygon points="50,80 110,95 110,120 50,120" fill="${FACE_FRONT}"/>`,
     `<polygon points="0,90 50,80 110,95 60,105" fill="${FACE_TOP}"/>`,

@@ -252,78 +252,76 @@ export default async function Portfolios() {
 
   return (
     <div className="pt-2 lg:pt-6">
-      {/* ─── THE HEAD, AND THE REGISTER BESIDE IT ─────────────────────────
-          A reader arriving here wants one of two things: to know what a
-          portfolio is, or to open one. The page answered the first and made
-          the second a scroll past four sections and a chart to a table at the
-          foot — on the page whose whole job is to list the accounts.
+      {/* ─── THE HEAD ────────────────────────────────────────────────────
+          THE LIST CAME OUT. Naming all seven books beside the lede put the
+          contents of the page into its own header, twenty lines above a table
+          that says the same names with their funding and their inception. Two
+          copies of one list, and the upper one had nothing the lower one
+          lacked, so the white around it was doing nothing either.
 
-          They are now side by side. The lead keeps the measure; the right
-          column is the register itself, every book named and linked, with its
-          published account kind against it. It is the contents of this page
-          and the call to action at once, which is the only kind this site's
-          voice can carry: a list of what is here, not a button.
-
-          Rendered only when the index loaded. With no books there is nothing
-          to list, and an empty rail beside the lead would read as a column
-          that failed rather than as a record with nothing in it. */}
-      <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,var(--measure))_minmax(0,1fr)]">
-        <div>
-          <h1 className="text-title">Portfolios</h1>
-          <p className="mt-5 text-body text-fg-muted">
-            Every portfolio RVB Partners publishes, what kind of account each
-            one is, and how they differ from one another. Each has its own
-            page, where the curve, the holdings and the chained evidence for it
-            live.
-          </p>
-        </div>
-
+          One way in, instead. The reader who wants to know what a portfolio is
+          reads the lede; the reader who came to open one takes the link and
+          skips everything between here and the accounts. */}
+      <div className="max-w-[var(--measure)]">
+        <h1 className="text-title">Portfolios</h1>
+        <p className="mt-5 text-body text-fg-muted">
+          Every portfolio RVB Partners publishes, what kind of account each one
+          is, and how they differ from one another. Each has its own page, where
+          the curve, the holdings and the chained evidence for it live.
+        </p>
         {loaded && (
-          <nav aria-label="The portfolios" className="lg:pt-2">
-            <h2 className="border-b hairline pb-2 text-label font-semibold uppercase tracking-[0.13em] text-fg">
-              The accounts
-            </h2>
-            <ul>
-              {books.map((b) => (
-                <li key={b.book} className="border-b hairline">
-                  <Link
-                    href={`/portfolios/${bookSlug(b)}`}
-                    className="group flex items-baseline justify-between gap-3 py-2"
-                  >
-                    <span className="text-small text-accent group-hover:underline">
-                      {b.label}
-                    </span>
-                    {/* The book's own published wording, never a sentence
-                        decided here. Both kinds get the same treatment; the
-                        difference is the text. */}
-                    <span className="shrink-0 text-caption text-fg-faint">
-                      {b.account_kind_label ??
-                        (b.capital_at_risk
-                          ? "Capital at risk"
-                          : "Paper")}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <a
-              href="#accounts"
-              className="mt-3 inline-block text-caption text-accent hover:underline"
-            >
-              Funding and inception, in full{" "}
-              <span aria-hidden="true">&darr;</span>
-            </a>
-          </nav>
+          <a
+            href="#accounts"
+            className="mt-7 inline-flex items-center gap-2.5 border hairline px-5 py-3 text-small font-medium text-fg transition-colors hover:border-accent hover:bg-bg-subtle"
+          >
+            Discover the portfolios in depth
+            <span aria-hidden="true">&darr;</span>
+          </a>
         )}
       </div>
 
-      {/* ─── WHAT A PORTFOLIO IS ──────────────────────────────────────────
-          This paragraph exists nowhere else on the site. Every other page
-          assumes the reader already knows what a "book" is, and a reader who
-          does not has been looking at a column of labelled returns without
-          knowing what was being returned. It carries no figure, so it is safe
-          above the account statement below. */}
-      <Section title="What a portfolio is here" gloss="Before the figures">
+      <Section
+        title="What a portfolio is here"
+        gloss="Before the figures"
+        aside={
+          loaded && index ? (
+            /* THE REGISTER'S OWN SHAPE, beside the definition of what is in it.
+               Every value is read or selected from the published index: a
+               count of the books listed below, the earliest inception among
+               them, and the threshold the record publishes for withholding an
+               annualised figure. Nothing is divided, averaged or derived. */
+            <MarginList label="The register">
+              <MarginPair
+                label="Portfolios"
+                value={int(books.length)}
+                figure
+              />
+              <MarginPair
+                label="Earliest opened"
+                value={
+                  books
+                    .map((b) => b.inception)
+                    .filter(Boolean)
+                    .sort()[0]
+                    ? date(
+                        books
+                          .map((b) => b.inception)
+                          .filter(Boolean)
+                          .sort()[0],
+                      )
+                    : NO_VALUE
+                }
+                figure
+              />
+              <MarginPair
+                label="Sessions to annualise"
+                value={int(index.min_sessions_for_annualised)}
+                figure
+              />
+            </MarginList>
+          ) : undefined
+        }
+      >
         <div className="space-y-4 text-body text-fg-muted">
           <p>
             A portfolio here is a fixed roster of strategies held at target
@@ -377,7 +375,7 @@ export default async function Portfolios() {
           a rising line on the apex domain makes the site's opening job "show
           the returns", which is the reading order of a pitch. */}
       {loaded && index && series.length > 0 && (
-        <Section title="The record" gloss="Every drawn account, rebased">
+        <Section title="The record" gloss="Every drawn account, rebased" wide>
           {/* ONE CHILD OF THE MEASURE, deliberately. The grid sets the rhythm
               between the parts of a section at 1rem; the chart, its legend and
               the qualifications are one part, and their own spacing is set
@@ -459,6 +457,7 @@ export default async function Portfolios() {
         id="accounts"
         title="The accounts"
         gloss="One row per portfolio"
+        wide
         note="Nothing in the table below is annualised and nothing in it is ranked. Every figure is published as it stands, except the strategy count, which is the sum of the book’s own per-category counts and is named as one."
       >
         {loaded && index ? (
@@ -669,6 +668,7 @@ export default async function Portfolios() {
         <Section
           title="The capital twins"
           gloss={twins.length === 1 ? "One pair" : `${twins.length} pairs`}
+          wide
         >
           {/* Three columns fit the measure; a minimum width keeps them from
               crushing into each other on a phone, where the section is the

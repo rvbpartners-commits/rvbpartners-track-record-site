@@ -522,7 +522,7 @@ function BookView({
             is not chained evidence; `marked: false` says it is not an
             after-close mark. Neither reached the reader. */}
         {rawLive && (
-          <p className="mt-5 text-caption text-fg-faint max-w-[80ch] leading-relaxed">
+          <p className="mt-5 text-caption text-fg-faint max-w-[var(--measure)] leading-relaxed">
             {live ? (
               <>
                 Latest broker reading, {marketTime(rawLive.at, zone)}
@@ -646,6 +646,7 @@ function BookView({
       <Section
         title="Cumulative return"
         first
+        fill
         note={
           <>
             {granular ? (
@@ -786,7 +787,7 @@ function BookView({
             Nothing here invents the missing base; the two published figures are
             named, and the ledger's is the one that counts. */}
         {chartMismatch && (
-          <p className="mt-4 text-small text-fg-faint max-w-[80ch] leading-relaxed">
+          <p className="mt-4 text-small text-fg-faint max-w-[var(--measure)] leading-relaxed">
             <span className="text-warn-fg">
               This curve does not end on the published cumulative return.
             </span>{" "}
@@ -833,7 +834,7 @@ function BookView({
             does not render when the chain, the record or either figure is
             missing. */}
         {snapshotMismatch && (
-          <p className="mt-4 text-small text-fg-faint max-w-[80ch] leading-relaxed">
+          <p className="mt-4 text-small text-fg-faint max-w-[var(--measure)] leading-relaxed">
             <span className="text-warn-fg">
               The headline above is not the figure in this book&rsquo;s final
               chained record.
@@ -916,7 +917,7 @@ function BookView({
             away, in full. Native <details>: no state, and it opens with
             JavaScript off. */}
         {capitalEvents.length ? (
-          <details className="mt-4 text-small text-fg-muted max-w-[80ch]">
+          <details className="mt-4 text-small text-fg-muted max-w-[var(--measure)]">
             <summary className="cursor-pointer text-fg-faint hover:text-fg">
               {capitalEvents.length} capital movement
               {capitalEvents.length === 1 ? "" : "s"} excluded from the return
@@ -972,6 +973,7 @@ function BookView({
       {daily.length > 0 && (
         <Section
           title="Daily and cumulative result"
+          fill
           note={
             <>
               The combined result of both legs, in {currency}
@@ -1010,6 +1012,7 @@ function BookView({
       {roundTrips && (
         <Section
           title="Round trips"
+          fill
           note={
             <>
               {/* "NOTHING HERE IS A RATIO THAT NEEDS A DISTRIBUTION" sat
@@ -1036,6 +1039,7 @@ function BookView({
 
       <Section
         title="Statistics"
+        fill
         note={
           <>
             Every figure here is computed by the firm&rsquo;s{" "}
@@ -1050,7 +1054,7 @@ function BookView({
         }
       >
         {metrics === null ? (
-          <p className="text-small text-fg-muted max-w-[80ch]">
+          <p className="text-small text-fg-muted max-w-[var(--measure)]">
             The statistics ledger could not be loaded from the data repository.
             Nothing is shown here rather than a partial ledger with no way to
             tell a withheld figure from an absent one.
@@ -1080,6 +1084,7 @@ function BookView({
       {exposure ? (
         <Section
           title="Exposure"
+          fill
           note={
             <>
               Every figure below is published data, computed by the desk. The
@@ -1093,6 +1098,7 @@ function BookView({
       ) : (
       <Section
         title="Composition and holdings"
+        fill
         note={
           <>
             {/* THE CLAIM HAD TO MATCH THE TABLE. "Profit is reported per
@@ -1188,7 +1194,7 @@ function BookView({
             on a $1M book and a $100k one. Below the bar there is nothing worth
             a reader's attention; above it, the number is theirs to see. */}
         {reconciliationGap && (
-          <p className="mt-4 text-small leading-relaxed text-fg-faint max-w-[80ch]">
+          <p className="mt-4 text-small leading-relaxed text-fg-faint max-w-[var(--measure)]">
             <span className="text-warn-fg">
               These holdings do not reconcile with the account.
             </span>{" "}
@@ -1213,7 +1219,7 @@ function BookView({
       </Section>
       )}
 
-      <Section title="Account">
+      <Section title="Account" fill>
         <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-small">
           <Line label="Type">{accountLabel}</Line>
           <Line label="Reference">
@@ -1287,7 +1293,7 @@ function BookView({
             book it is about, as well as on the verify page where the restart is
             declared. Counted from the chain, never asserted. */}
         {bundle.chain && bundle.chain.backfilled > 0 && (
-          <p className="mt-6 text-small text-fg-faint max-w-[80ch] leading-relaxed">
+          <p className="mt-6 text-small text-fg-faint max-w-[var(--measure)] leading-relaxed">
             {bundle.chain.backfilled} of this book&rsquo;s{" "}
             {bundle.chain.records} chained records joined the chain
             {bundle.chain.recordedOn

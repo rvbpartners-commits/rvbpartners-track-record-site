@@ -28,7 +28,7 @@ import type { SVGProps } from "react";
  *
  * THE PLATE IS SQUARE AND THE STAIRCASE IS CENTRED IN IT. The artwork occupies
  * x 0…230 and y 20…130, and the viewBox is expanded symmetrically about its
- * centre (115, 75) to a 260 × 260 box — so the staircase spans 88% of the
+ * centre (115, 75) to a 290 × 290 box — so the staircase spans 79% of the
  * tile's width rather than floating in it. A square plate is what the mark
  * uses off this site, but the drawing inside it is 2:1, so generous padding
  * turns the whole thing into a smudge at favicon size.
@@ -40,14 +40,14 @@ export function Mark({
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="-15 -55 260 260"
+      viewBox="-30 -70 290 290"
       role="img"
       aria-label="RVB Partners"
       className={className}
       {...rest}
     >
       {/* The ground, as part of the mark. */}
-      <rect x="-15" y="-55" width="260" height="260" fill="#0c0d0e" />
+      <rect x="-30" y="-70" width="290" height="290" fill="#0c0d0e" />
       {/* Step 1 — front-most (bottom-left) */}
       <polygon points="0,90 50,80 50,120 0,130" fill="#8c8c8c" />
       <polygon points="50,80 110,95 110,120 50,120" fill="#333333" />

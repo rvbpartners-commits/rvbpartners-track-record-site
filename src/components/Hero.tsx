@@ -50,7 +50,7 @@ export function Hero({
 }) {
   return (
     <section className="ground-ink relative left-1/2 -mt-8 w-screen -translate-x-1/2 bg-[#0c0d0e] text-[#f2f0ec] lg:-mt-10">
-      <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12 pt-14 pb-14 lg:pt-20 lg:pb-16">
+      <div className="mx-auto max-w-[var(--column)] px-5 sm:px-8 lg:px-12 pt-14 pb-14 lg:pt-20 lg:pb-16">
         <h1 className="max-w-[19ch] text-display font-semibold">
           Systematic strategies, tested against how results deceive.
         </h1>

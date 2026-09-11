@@ -33,11 +33,27 @@ import type { ReactNode } from "react";
  *            payload, a schematic, a marginal note. This is the column that was
  *            white.
  *
- * A SECTION WITH AN EMPTY MARGIN IS NOT A FAILURE OF THE GRID. The gloss falls
- * into it when nothing else is there, so every section has something in its
- * third track from the first day, and the rule above each section spans the
- * full width either way — which on its own is most of why a page stopped
- * looking like it ended in the middle.
+ * `fill` IS FOR A CHART THAT STILL WANTS ITS ANNOTATION. A book page's curve is
+ * the product, and capping it at a reading measure drew a 528px chart with a
+ * 296px note beside it inside a 1180px column: the one figure a reader came for,
+ * squeezed to fit a rule written for sentences. A filled section gives the
+ * content every pixel the note does not need, and the note keeps a real column
+ * rather than a sliver.
+ *
+ * `wide` IS FOR CONTENT THAT IS NOT PROSE. A chart, a seven-column table or a
+ * glossary has no business being capped at a reading measure: 33rem is the
+ * width at which a SENTENCE stops being comfortable, and applying it to a
+ * table just crushes the table and leaves 296px of white beside it. A wide
+ * section spans the measure and the margin together, so the rail still names
+ * the part and the content gets the whole column. Its note moves into the rail,
+ * because there is no margin left to put it in.
+ *
+ * A SECTION WITH AN EMPTY MARGIN IS A SECTION THAT HAS NOT BEEN FINISHED. The
+ * third track is not decoration and it is not slack: either something published
+ * belongs beside the prose, or the content was never prose and the section
+ * should be `wide`. The rule above each section spans the full width either
+ * way, which on its own is most of why a page stopped looking like it ended in
+ * the middle.
  *
  * BELOW `lg` the three tracks stack: rail, then prose, then margin. The margin
  * carries annotation rather than substance, so it reads correctly last.
@@ -50,6 +66,8 @@ export function Section({
   aside,
   children,
   first = false,
+  wide = false,
+  fill = false,
 }: {
   /** Anchor target, for in-page links. */
   id?: string;
@@ -66,16 +84,30 @@ export function Section({
   /** The first section on a page carries no rule above it; the page title is
    *  already the boundary. */
   first?: boolean;
+  /** Content spans the measure AND the margin. For wide tables and glossaries:
+   *  things that are not sentences and must not be measured like one. */
+  wide?: boolean;
+  /** Content takes every pixel the margin does not need. For a chart that still
+   *  has a note to carry. Ignored when `wide` is set. */
+  fill?: boolean;
 }) {
-  const hasMargin = Boolean(note || aside || gloss);
+  // `note || aside`, NOT `|| gloss`: the gloss is rendered in the RAIL, so
+  // counting it here rendered an empty div in the third track and called the
+  // section finished.
+  const hasMargin = Boolean(note || aside) && !wide;
   return (
     <section
       id={id}
-      className={
+      className={[
+        "section-grid",
+        fill && !wide ? "section-grid--fill" : "",
+        "scroll-mt-8",
         first
-          ? "section-grid scroll-mt-8 mt-8 lg:mt-10"
-          : "section-grid scroll-mt-8 mt-12 border-t hairline pt-7 lg:mt-16"
-      }
+          ? "mt-8 lg:mt-10"
+          : "mt-12 border-t hairline pt-7 lg:mt-16",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div className="section-rail">
         <h2 className="text-caption font-semibold uppercase tracking-[0.12em] text-fg">
@@ -88,9 +120,20 @@ export function Section({
         {gloss && (
           <p className="mt-2 text-caption leading-snug text-fg-muted">{gloss}</p>
         )}
+        {/* A wide section has no third track to annotate from, so its note
+            joins the rail under the gloss. */}
+        {wide && note && (
+          <div className="mt-4 text-caption leading-relaxed text-fg-muted">
+            {note}
+          </div>
+        )}
       </div>
 
-      <div className="section-measure min-w-0">{children}</div>
+      <div
+        className={`min-w-0 ${wide ? "section-measure section-wide" : "section-measure"}`}
+      >
+        {children}
+      </div>
 
       {hasMargin && (
         <div className="section-margin min-w-0">

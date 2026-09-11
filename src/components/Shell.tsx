@@ -95,7 +95,7 @@ export async function Shell({ children }: { children: ReactNode }) {
             leaves the whole site pinned to one edge. Every container that caps
             its width at MEASURE below does both, and they all use the same
             token so the masthead, the body and the footer share one edge. */}
-        <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[var(--column)] w-full px-5 sm:px-8 lg:px-12">
           <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 pt-4 pb-3">
             {/* The mark rides with the name here too. A site whose title page
                 opens on a logo and whose masthead then shows none reads as two
@@ -108,7 +108,7 @@ export async function Shell({ children }: { children: ReactNode }) {
                  a 1px nudge, wrong for a square one. */
               className="inline-flex items-center gap-2.5 text-subhead font-bold tracking-[-0.022em]"
             >
-              <Mark aria-hidden="true" className="h-[26px] w-auto" />
+              <Mark aria-hidden="true" className="h-[29px] w-auto" />
               RVB Partners
             </Link>
             {index && (
@@ -166,7 +166,7 @@ export async function Shell({ children }: { children: ReactNode }) {
 
       <main
         id="main"
-        className="flex-1 mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8 lg:py-10"
+        className="flex-1 mx-auto max-w-[var(--column)] w-full px-5 sm:px-8 lg:px-12 py-8 lg:py-10"
       >
         {children}
       </main>

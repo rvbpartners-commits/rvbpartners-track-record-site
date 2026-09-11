@@ -113,6 +113,10 @@
      element, and it lives on a grid track so no component has to restate it. */
   --measure: 33rem;
   --rail: 172px;
+  /* THE COLUMN. 1180px read as a narrow strip centred in a wide screen, which
+     is its own kind of empty right-hand side. 1280 gives the three tracks room
+     without letting any line of prose past `--measure`. */
+  --column: 1280px;
   --warn-bg: #f7f6f3;
   --warn-fg: #3a3936;
   --warn-line: #dedcd6;
@@ -300,6 +304,28 @@ code, pre, .mono {
    page cannot reintroduce a local width cap without it being obvious. */
 .section-measure > * + * {
   margin-top: 1rem;
+}
+
+/* CONTENT THAT IS NOT A SENTENCE SPANS BOTH TRACKS. 33rem is the width at
+   which a line of prose stops being comfortable to read; it is not a width a
+   chart or a seven-column table has any reason to obey. Capping those at the
+   measure crushed them and left the margin white beside them, which is the
+   same empty right-hand column by another route. */
+@media (min-width: 1024px) {
+  .section-wide {
+    grid-column: 2 / -1;
+  }
+
+  /* A CHART TAKES WHAT THE NOTE DOES NOT NEED. `--measure` is the width at
+     which a SENTENCE stops being comfortable; a curve has no such limit, and
+     drawing one at 528px beside a 296px note was the one figure a reader came
+     for, squeezed to obey a rule written for prose. */
+  .section-grid--fill {
+    grid-template-columns:
+      var(--rail)
+      minmax(0, 1fr)
+      18rem;
+  }
 }
 
 /* Wide tables and charts scroll in place. */

@@ -54,7 +54,7 @@ export function Footer({ hasLive }: { hasLive: boolean }) {
         />
       </div>
 
-      <div className="mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-10">
+      <div className="mx-auto max-w-[var(--column)] w-full px-5 sm:px-8 lg:px-12 py-10">
         <AccountDisclosure hasLive={hasLive} />
         <p className="text-body leading-relaxed text-fg-muted max-w-[68ch] mt-3">
           Past performance is not indicative of future results. Nothing on this
