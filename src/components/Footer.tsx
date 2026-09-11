@@ -35,7 +35,10 @@ export function Footer({
           any financial instrument.
         </p>
 
-        <div className="mt-8 pt-6 border-t hairline grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-2.5 sm:gap-y-2 text-small text-fg-muted">
+        <nav
+          aria-label="Site footer"
+          className="mt-8 pt-6 border-t hairline grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-2.5 sm:gap-y-2 text-small text-fg-muted"
+        >
           <Link href="/firm" className="hover:text-fg transition-colors">
             The firm
           </Link>
@@ -83,7 +86,7 @@ export function Footer({
           <span className="col-span-2 sm:col-span-1 sm:ml-auto text-fg-faint mt-2 sm:mt-0">
             &copy; {new Date().getFullYear()} RVB
           </span>
-        </div>
+        </nav>
       </div>
     </footer>
   );

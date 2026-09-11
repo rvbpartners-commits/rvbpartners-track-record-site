@@ -150,7 +150,12 @@ export default async function FirmPage() {
         </div>
 
         <figure className="mt-6 max-w-[72ch] border-l hairline pl-5">
-          <blockquote className="font-figure text-body text-fg">
+          {/* `lang="fr"`: the document is `lang="en"` and this is the Kbis
+              wording verbatim. Without it a screen reader pronounces a French
+              legal formula with English phonetics, which is the one sentence on
+              the page a reader is being invited to check against the register
+              character for character. */}
+          <blockquote lang="fr" className="font-figure text-body text-fg">
             {ENTITY.purpose}
           </blockquote>
           <figcaption className="mt-3 text-small leading-relaxed text-fg-faint">
@@ -189,7 +194,9 @@ export default async function FirmPage() {
               "Legal form",
               <span key="form">
                 {ENTITY.legalFormEn}
-                <Gloss>as registered: {ENTITY.legalForm}</Gloss>
+                <Gloss>
+                  as registered: <span lang="fr">{ENTITY.legalForm}</span>
+                </Gloss>
               </span>,
             ],
             [

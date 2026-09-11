@@ -19,9 +19,9 @@
  * over-scroll. Without it those follow the reader's system and flash dark at
  * the edges.
  *
- * The one place ink is the ground is the hero band on the front page, and its
- * colours are stated inline in Hero.tsx because they are that band's and no
- * token's.
+ * The one place ink is the ground is the hero band on the front page. Its
+ * colours are stated inline in Hero.tsx because they describe that band and
+ * nothing else; the two this stylesheet needs for the focus ring are tokens.
  *
  * Green/red are the only saturated colours besides the reserved oxide, and they
  * mean exactly one thing: the sign of a return. Nothing decorative is allowed
@@ -78,6 +78,14 @@
      site's honesty go quiet with it. 5.1:1 on white. */
   --oxide: #b03a1e;
   --bench: #9a9995;
+  /* THE INK BAND. The hero is the one surface on the site whose ground is ink
+     rather than white. Its colours are set inline in Hero.tsx, where they
+     describe that band and nothing else — but a focus ring is a system
+     concern, not a band's, and the rule that draws it lives in this file. So
+     the two values the stylesheet itself needs are tokens, and the rest stay
+     where they are. */
+  --ink: #0c0d0e;
+  --ink-fg: #f2f0ec;
   --warn-bg: #f7f6f3;
   --warn-fg: #3a3936;
   --warn-line: #dedcd6;
@@ -166,6 +174,8 @@
   --color-accent: var(--accent);
   --color-oxide: var(--oxide);
   --color-bench: var(--bench);
+  --color-ink: var(--ink);
+  --color-ink-fg: var(--ink-fg);
   --color-warn-bg: var(--warn-bg);
   --color-warn-fg: var(--warn-fg);
   --color-warn-line: var(--warn-line);
@@ -258,4 +268,27 @@ a.text-accent {
 }
 a.text-accent:hover {
   text-decoration-color: var(--accent);
+}
+
+/* WHERE THE KEYBOARD IS.
+   `grep -rn "focus" src/` returned nothing at all: no `focus:`, no
+   `focus-visible:`, no outline rule anywhere. The browser's default ring is
+   suppressed by nothing here, but it is also inherited rather than designed —
+   it sits at whatever colour and offset the UA picks, it is the one part of
+   this page's appearance no decision was made about, and on the ink band it is
+   drawn in the UA's light-mode colour against a near-black ground.
+
+   Stated here, once, so it cannot be forgotten per component. `:focus-visible`
+   rather than `:focus`, so a mouse click on a button does not leave a ring
+   behind it; the offset keeps the ring clear of the hairline borders the site
+   draws, which would otherwise read as one thick edge. */
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+
+/* The hero band inverts the ground, and the page's ink is invisible on it. */
+.ground-ink :focus-visible,
+.ground-ink:focus-visible {
+  outline-color: var(--ink-fg);
 }

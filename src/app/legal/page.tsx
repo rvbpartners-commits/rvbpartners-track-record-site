@@ -55,7 +55,9 @@ export default function LegalNotice() {
               "Legal form",
               <span key="forme">
                 {ENTITY.legalFormEn}
-                <Gloss>as registered: {ENTITY.legalForm}</Gloss>
+                <Gloss>
+                  as registered: <span lang="fr">{ENTITY.legalForm}</span>
+                </Gloss>
               </span>,
             ],
             [
@@ -84,7 +86,9 @@ export default function LegalNotice() {
               "Registered activity",
               <span key="purpose">
                 {ENTITY.purposeEn}
-                <Gloss>as registered: {ENTITY.purpose}</Gloss>
+                <Gloss>
+                  as registered: <span lang="fr">{ENTITY.purpose}</span>
+                </Gloss>
               </span>,
             ],
             [
@@ -168,7 +172,7 @@ export default function LegalNotice() {
             </span>{" "}
             That is not only a statement by the company: its registered
             corporate purpose, as filed, is{" "}
-            <em>{ENTITY.purpose.replace(/\.$/, "")}</em> — the purchase and sale
+            <em lang="fr">{ENTITY.purpose.replace(/\.$/, "")}</em> — the purchase and sale
             of financial products for its own account. The company does not
             manage third-party money and is not authorised to.
           </p>

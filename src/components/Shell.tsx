@@ -52,6 +52,19 @@ export async function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
 
+      {/* THE FIRST STOP FOR A KEYBOARD, AND THERE WAS NONE. Every route puts
+          the same seven contents links ahead of the page, so reaching the
+          actual content meant tabbing past all of them, on all twelve routes.
+          Visually hidden until it is focused, which is the whole point: it
+          costs a sighted reader nothing and it is the first thing a keyboard
+          reader reaches. */}
+      <a
+        href="#main"
+        className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:border focus-visible:hairline focus-visible:bg-bg focus-visible:px-4 focus-visible:py-2 focus-visible:text-small"
+      >
+        Skip to the record
+      </a>
+
       <header className="border-b hairline">
         {/* `mx-auto` is what centres the column. A `max-w-*` on its own only
             caps the width — the block stays flush left, which on a wide screen
@@ -85,13 +98,22 @@ export async function Shell({ children }: { children: ReactNode }) {
               doubles in height. Below `sm` they scroll sideways on one line
               instead; `-mx-5 px-5` lets the row bleed to the screen edge so the
               last link is visibly cut off rather than looking like the end. */}
-          <nav className="border-t hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x">
+          {/* LABELLED, because there are two navigation landmarks on every
+              page and a screen reader announcing "navigation" twice tells a
+              reader nothing about which one they are in. */}
+          <nav
+            aria-label="Sections of the register"
+            className="border-t hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x"
+          >
             <NavLinks items={nav} />
           </nav>
         </div>
       </header>
 
-      <main className="flex-1 mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8 lg:py-10">
+      <main
+        id="main"
+        className="flex-1 mx-auto max-w-[1180px] w-full px-5 sm:px-8 lg:px-12 py-8 lg:py-10"
+      >
         {children}
       </main>
       <Footer hasLive={hasLive} hasResearch={hasResearch} />
