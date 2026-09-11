@@ -34,17 +34,21 @@ export type NavItem = { href: string; label: string };
  * on the masthead's bottom hairline, which is a tab and reads at a glance;
  * `--fg` against `--fg-faint` at 10.5px did not.
  *
- * CENTRED, AND ALL SEVEN IN THE PAGE'S OWN INK. The row sat flush left in
+ * CENTRED, AND ALL SEVEN IN THE BAND'S LIGHT TYPE. The row sat flush left in
  * `--fg-faint`, so the site's one navigation control was both off to one side
- * and the palest text in the masthead. Every item is `--fg` now and the row is
- * centred in the column.
+ * and the palest text in the masthead. It is centred now, and since the
+ * masthead became an ink band it is set in that band's `#f2f0ec` rather than in
+ * the page's black, which on that ground is not a colour but an absence.
+ *
+ * The values are literals, as they are on every ink surface here. The palette
+ * tokens describe a white page; this band is the one piece of chrome that is
+ * not one, and it shares its four values with Hero.tsx.
  *
  * That leaves the RULE as the only mark of place, which is the point: colour
  * was carrying it before, and `--fg` against `--fg-faint` at 13px is a
  * distinction a reader has to go looking for. A 2px rule sitting on the
- * masthead's own bottom hairline is a tab, and it reads at a glance. Hover
- * fades towards `--fg-muted` rather than darkening, since there is no longer
- * anywhere darker to go.
+ * band's own bottom edge is a tab, and it reads at a glance. Hover fades
+ * towards the band's muted grey, since there is nowhere brighter to go.
  *
  * `min-w-max` stays with `justify-center`: where the row fits, it centres;
  * where it does not (a phone), it keeps its natural width and scrolls from the
@@ -71,8 +75,8 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             aria-current={active ? "page" : undefined}
             className={`relative text-small font-medium transition-colors ${
               active
-                ? "text-fg after:absolute after:inset-x-0 after:-bottom-[10px] after:h-[2px] after:bg-fg"
-                : "text-fg hover:text-fg-muted"
+                ? "text-[#f2f0ec] after:absolute after:inset-x-0 after:-bottom-[10px] after:h-[2px] after:bg-[#f2f0ec]"
+                : "text-[#f2f0ec] hover:text-[#b9b4ab]"
             }`}
           >
             {item.label}
