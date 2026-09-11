@@ -91,6 +91,28 @@
      where they are. */
   --ink: #0c0d0e;
   --ink-fg: #f2f0ec;
+
+  /* ── THE MEASURE, AND THE COLUMNS AROUND IT ─────────────────────────────
+     ONE WIDTH, OWNED BY A GRID. The site carried 92 hand-written
+     `max-w-[Nch]` classes in FOURTEEN distinct values (43 at 72ch, 21 at 80ch,
+     12 at 68ch, plus 76/74/64/62/58/52/46/40/26/24/19), inside a design system
+     whose own type-scale comment forbids exactly this kind of scattered
+     arbitrary value.
+
+     They did not mean what they said. `ch` is the advance width of a ZERO,
+     which in Inter is 0.63em against an average character's 0.475em, so
+     `max-w-[72ch]` renders about 96 characters — well past the ~75 where a
+     line stops being comfortable. Worse, `ch` resolves against the ELEMENT'S
+     OWN font-size, so the caps did not even order the way they read:
+     `max-w-[80ch]` on `text-small` is 656px while `max-w-[72ch]` on
+     `text-body` is 681px. That is why the right edge of every document page is
+     ragged instead of a line.
+
+     33rem is 528px, about 74 rendered characters at `--text-body`. It is a rem
+     so it means one width everywhere regardless of the size set on the
+     element, and it lives on a grid track so no component has to restate it. */
+  --measure: 33rem;
+  --rail: 172px;
   --warn-bg: #f7f6f3;
   --warn-fg: #3a3936;
   --warn-line: #dedcd6;
@@ -251,6 +273,33 @@ code, pre, .mono {
 
 .hairline {
   border-color: var(--hairline);
+}
+
+/* ── THE SECTION GRID ──────────────────────────────────────────────────────
+   Rail, measure, margin. See src/components/Section.tsx for what goes in each
+   and why there are three. Below `lg` the tracks stack in reading order:
+   what this part is, the prose, then the annotation. */
+.section-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 2.75rem;
+  row-gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .section-grid {
+    grid-template-columns:
+      var(--rail)
+      minmax(0, var(--measure))
+      minmax(0, 1fr);
+    row-gap: 0;
+  }
+}
+
+/* Prose inside the measure track. Set here rather than on each element so a
+   page cannot reintroduce a local width cap without it being obvious. */
+.section-measure > * + * {
+  margin-top: 1rem;
 }
 
 /* Wide tables and charts scroll in place. */
