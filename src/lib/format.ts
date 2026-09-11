@@ -103,18 +103,31 @@ export function direction(value: number | null | undefined): "up" | "down" | "fl
  *
  * The desk writes its notes in plain ASCII, and a double hyphen is how a dash
  * survives that: `"…the inception session -- a different number"`. Rendered
- * verbatim, those two hyphens land mid-paragraph beside the em dashes this
- * repository sets, on the same line, and read as damage in the data rather than
- * as the punctuation they are. Five such strings reach visible copy.
+ * verbatim, those two hyphens land mid-paragraph and read as damage in the data
+ * rather than as the punctuation they are.
+ *
+ * IT USED TO PRODUCE AN EM DASH, AND THE EM DASH IS BANNED FROM THIS SITE'S
+ * PROSE. Every one the repository itself wrote has been rewritten out of the
+ * sentence it sat in; this function was manufacturing more of them at render
+ * time, from text no page here is allowed to rewrite. One published string
+ * carries a `--` today (a book's `open_at_close.note`), so this is not
+ * hypothetical.
+ *
+ * A colon is the substitution, because it is what the construction almost
+ * always is in the desk's writing: a statement followed by the reason for it.
+ * "Published whether or not it is zero -- a field that only appears when it is
+ * inconvenient is not a disclosure" becomes the same sentence with a colon, and
+ * the reading does not move.
  *
  * NOTHING ELSE IS TOUCHED. The words, the numbers and the claims are the
- * desk's; this is the one substitution that cannot change what a sentence says.
- * A SINGLE hyphen is left alone — it is a minus sign, a range, or a hyphenated
- * word ("~2-3% of consolidated volume"), never a dash.
+ * desk's; this remains the one substitution that cannot change what a sentence
+ * says, which is what lets /disclosures go on promising that this site does not
+ * rewrite what it quotes. A SINGLE hyphen is left alone — it is a minus sign, a
+ * range, or a hyphenated word ("~2-3% of consolidated volume"), never a dash.
  */
 export function prose(text: string | null | undefined): string {
   if (!text) return "";
-  return text.replace(/\s*--\s*/g, " — ").trim();
+  return text.replace(/\s*--\s*/g, ": ").trim();
 }
 
 export function slugLabel(slug: string): string {

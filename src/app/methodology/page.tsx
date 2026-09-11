@@ -82,8 +82,8 @@ export default async function MethodologyPage() {
             next open it submits that plan; after that close it sweeps late fills,
             marks positions and snapshots account equity; then it archives
             everything with an internal hash chain. A separate publisher reads
-            that archive — never the live database — and writes the public
-            repository. Which portfolios exist, and how many, is published in{" "}
+            that archive and writes the public repository. That publisher
+            never reads the live database. Which portfolios exist, and how many, is published in{" "}
             <a
               className="text-accent hover:underline"
               href={`${REPO_URL}/blob/main/index.json`}
@@ -106,7 +106,7 @@ export default async function MethodologyPage() {
               the firm&rsquo;s own real capital, on a different venue pair and
               a different calendar, and{" "}
               {realCapital.length === 1 ? "its" : "their"} conventions differ from
-              the paper desk&rsquo;s in ways that matter — the calendar, the cash
+              the paper desk&rsquo;s in ways that matter: the calendar, the cash
               comparator&rsquo;s accrual grid, and the unit the withholding gate
               counts in. They are published per book:{" "}
               {realCapital.map((b, i) => (
@@ -168,10 +168,10 @@ export default async function MethodologyPage() {
             On the paper desk this is carried in four columns of each
             book&rsquo;s <Em>nav.csv</Em>: <Em>equity</Em> exactly as the broker
             reported it, <Em>flow</Em>, <Em>adj_factor</Em>, and{" "}
-            <Em>equity_adj</Em> — the flow-adjusted index every published metric
-            is computed on and every curve is drawn from. A book that has never
-            had a movement has <Em>adj_factor</Em> of 1 and the two equity
-            columns are identical. A book that reconstructs its own curve
+            <Em>equity_adj</Em>. That last column is the flow-adjusted index
+            every published metric is computed on and every curve is drawn from.
+            A book that has never had a movement has <Em>adj_factor</Em> of 1
+            and the two equity columns are identical. A book that reconstructs its own curve
             rather than reading a broker&rsquo;s equity does it by{" "}
             <strong className="font-medium">unitisation</strong> instead: a
             deposit buys units at that day&rsquo;s price, so it moves the
@@ -187,11 +187,11 @@ export default async function MethodologyPage() {
             <strong className="font-medium">The curve starts at funded capital.</strong>{" "}
             The desk&rsquo;s first equity snapshot is taken after the first
             trading day&rsquo;s close, so it already contains that day&rsquo;s
-            profit and loss — starting the curve there would silently delete the
+            profit and loss. Starting the curve there would silently delete the
             opening session. Each book is instead anchored to a broker equity
             reading taken before it traded, with the account funded and fully in
             cash. The exact date is each book&rsquo;s published inception, and it
-            is not always the trading day immediately before the first fill — an
+            is not always the trading day immediately before the first fill. An
             account funded over a weekend anchors on the day it was funded. That
             anchor row is a starting point, not a measured session: each book
             publishes both counts, and its page shows them separately.
@@ -213,18 +213,18 @@ export default async function MethodologyPage() {
               the stronger true thing together, rather than the false one. */}
           <p>
             Every metric is computed by one function in the firm&rsquo;s metrics
-            module and by nothing else — not in the publisher, and not in your
-            browser. That module is not published, so the check on offer is not
+            module. Neither the publisher nor your browser computes any of
+            them. That module is not published, so the check on offer is not
             &ldquo;read our code&rdquo;: it is that the input is published in
             full. <Em>nav.csv</Em> is the entire equity curve, every figure is
             published beside the convention and the risk-free rate it used, and
-            the definitions are the standard ones — so any number here can be
-            recomputed independently, and a disagreement is a fact about the
+            the definitions are the standard ones, so any number here can be
+            recomputed independently and a disagreement is a fact about the
             numbers rather than about whose code you trust. Your browser still
-            does arithmetic to <em>draw</em> — it scales an axis, sums a
+            does arithmetic to <em>draw</em>: it scales an axis, sums a
             table&rsquo;s own rows into its total row, and rebases a published
-            equity column onto the axis a chart uses — and none of that produces
-            a statistic reported anywhere on this site.
+            equity column onto the axis a chart uses. None of that produces a
+            statistic reported anywhere on this site.
           </p>
           <p>
             <strong className="font-medium">
@@ -246,7 +246,7 @@ export default async function MethodologyPage() {
             handful of sessions those figures are not imprecise estimates, they
             are meaningless ones. Cumulative return, the daily returns and the
             realised drawdown path appear from day one, because those are
-            statements of what happened rather than estimates of anything — so a
+            statements of what happened rather than estimates of anything, so a
             page can show the shape of a drawdown while the single{" "}
             <Em>max_drawdown</Em> field in <Em>metrics.json</Em> is still
             withheld under the gate. The two are the same definition, not two
@@ -257,8 +257,8 @@ export default async function MethodologyPage() {
         <Section title="Book level versus per strategy">
           <p>
             These are not equally hard numbers and are never presented as though
-            they were. <strong className="font-medium">Book level is exact</strong>{" "}
-            — broker equity, broker fills.{" "}
+            they were. <strong className="font-medium">Book level is exact</strong>:
+            broker equity, broker fills.{" "}
             <strong className="font-medium">Per strategy is an attributed model</strong>:
             the broker nets our orders, so a single net fill is attributed back to
             the strategies whose intents contributed to it, pro-rata by requested
@@ -281,9 +281,9 @@ export default async function MethodologyPage() {
             The per-category contributions published in <Em>attributed.csv</Em>{" "}
             are weighted per-strategy returns, and on every dated set they add up
             to something other than the broker&rsquo;s own daily return for that
-            book — sometimes with the opposite sign. The account-level figures are
-            unaffected, because they are read from the broker and never
-            reconstructed from the attribution. Read the split as a model of where
+            book, and sometimes to a figure of the opposite sign. The
+            account-level figures are unaffected, because they are read from the
+            broker and never reconstructed from the attribution. Read the split as a model of where
             the result came from, never as a decomposition that adds up.
           </p>
         </Section>
@@ -291,12 +291,12 @@ export default async function MethodologyPage() {
         <Section title="The benchmark">
           <p>
             <strong className="font-medium">Two different SPY series, labelled apart.</strong>{" "}
-            The daily file (<Em>benchmark.csv</Em>) is SPY total return —
-            split- and dividend-adjusted — on the same dates as the book. The
+            The daily file (<Em>benchmark.csv</Em>) is split- and
+            dividend-adjusted SPY total return, on the same dates as the book. The
             line drawn across an intraday chart is a different measurement: the
             last 5-minute price bar at or before each instant, with no dividend
             adjustment applied intraday and nothing interpolated between bars.
-            The two will not agree to the basis point — single-digit basis points
+            The two will not agree to the basis point. Single-digit basis points
             of day-over-day difference are normal, and the intraday series is
             rebased by the publisher on its own first bar rather than on the daily
             file&rsquo;s. Neither is adjusted onto the other, and the chart legend
@@ -321,7 +321,7 @@ export default async function MethodologyPage() {
               Not every book gets an equity benchmark.
             </strong>{" "}
             A book that holds offsetting positions on two venues and aims to be
-            neutral to the market has no meaningful comparison to an index — its
+            neutral to the market has no meaningful comparison to an index. Its
             opportunity cost is cash, and cash is the only line drawn beside it.
             That is decided by the published data, not by the page: a book whose
             benchmark file carries no index column is drawn without one, legend
@@ -360,9 +360,9 @@ export default async function MethodologyPage() {
             step: rather than carrying the order to a venue and matching it
             against another participant, the broker fills it from its own paper
             simulator. Each released session publishes the orders as they were
-            submitted — symbol, side, quantity, filled quantity, filled average
-            price, submission time, status — and the fills as they came back:
-            symbol, quantity, price, timestamp.
+            submitted: symbol, side, quantity, filled quantity, filled average
+            price, submission time, status. It publishes the fills as they came
+            back: symbol, quantity, price, timestamp.
           </p>
           {paperFeed && (
             <p>
@@ -398,18 +398,18 @@ export default async function MethodologyPage() {
             </strong>{" "}
             Every strategy is measured by one accounting engine that turns
             target weights into returns, and each charge falls on the weight
-            actually held — the weight decided one bar earlier, and including
-            the first move from flat into the book, which is the trade a naive
-            accounting forgets. There are four charges: a commission in basis
-            points of turnover; a half-spread crossed on every unit of that
+            actually held. That is the weight decided one bar earlier, and it
+            includes the first move from flat into the book, which is the trade
+            a naive accounting forgets. There are four charges: a commission in
+            basis points of turnover; a half-spread crossed on every unit of that
             turnover; borrow accrued each bar on the short leg alone, at an
             annual rate; and square-root market impact against average daily
-            volume. The commission is declared per strategy, and one presented
-            as a result with no commission declared — and no written exemption —
-            is refused by our own gate. Impact is the exception to the rest: it
-            is opt-in and needs a volume panel to compute, no strategy in the
-            catalogue supplies one, and so no impact cost was charged anywhere
-            in the research.
+            volume. The commission is declared per strategy. A strategy
+            presented as a result with no commission declared and no written
+            exemption is refused by our own gate. Impact is the exception to the
+            rest: it is opt-in and needs a volume panel to compute, no strategy
+            in the catalogue supplies one, and so no impact cost was charged
+            anywhere in the research.
           </p>
           <p>
             <strong className="font-medium">
@@ -418,7 +418,7 @@ export default async function MethodologyPage() {
             Left unset they resolve per instrument: US equities and ETFs at{" "}
             <Em>2.5 bp</Em> of half-spread and <Em>50 bp</Em> a year of borrow,
             crypto at <Em>8 bp</Em> and <Em>300 bp</Em>, spot FX majors at{" "}
-            <Em>1 bp</Em> and no borrow line at all — financing there sits in
+            <Em>1 bp</Em> and no borrow line at all. Financing there sits in
             the swap points rather than in a rate. The figures are provisional,
             they are one table, and a strategy may override any of them. Two
             limits of it are worth stating. An instrument the table does not
@@ -433,10 +433,10 @@ export default async function MethodologyPage() {
             </strong>{" "}
             The research figures are what that cost model produced; the figures
             published for these accounts are what a broker&rsquo;s simulator
-            produced. No backtested return series is published on this site —
-            every curve and every figure here is computed from an account&rsquo;s
-            own published record — and the cost model is part of how a strategy
-            was measured and chosen, never a statement of what an account was
+            produced. No backtested return series is published on this site.
+            Every curve and every figure here is computed from an account&rsquo;s
+            own published record. The cost model is part of how a strategy was
+            measured and chosen, never a statement of what an account was
             charged.
           </p>
         </Section>
@@ -468,7 +468,7 @@ export default async function MethodologyPage() {
               ))}
               . A feed covering a few percent of consolidated volume prints
               fewer quotes, and at wider spreads, than the consolidated tape a
-              real order meets — so a fill simulated against it is not
+              real order meets. A fill simulated against it is not
               interchangeable with one that happened. It is disclosed because it
               is a real limit on what these results demonstrate.
             </p>
@@ -505,7 +505,7 @@ export default async function MethodologyPage() {
             <p>
               Net asset value, daily returns, metrics and benchmarks are published
               with no lag. Orders, fills and positions are published as soon as
-              the cycle that produced them has actually executed — there is no
+              the cycle that produced them has actually executed. There is no
               additional waiting period, and the consequence is deliberate:
               current holdings are public.
             </p>
@@ -513,7 +513,8 @@ export default async function MethodologyPage() {
             <p>
               Net asset value, daily returns, metrics and benchmarks are published
               with no lag. Orders, fills and positions are held back for {lag}{" "}
-              {lag === 1 ? "day" : "days"} — a floor, not the binding rule.
+              {lag === 1 ? "day" : "days"}. That is a floor, not the binding
+              rule.
             </p>
           )}
           <p>
@@ -521,7 +522,7 @@ export default async function MethodologyPage() {
             detail is released only once that cycle has{" "}
             <strong className="font-medium">actually executed</strong>. The desk
             stages a plan after the close for the next open, and a stage can also
-            sit unexecuted for days if something failed — a pure date rule would
+            sit unexecuted for days if something failed. A pure date rule would
             eventually publish an order plan that had never been sent.
           </p>
           <p className="text-fg-muted">

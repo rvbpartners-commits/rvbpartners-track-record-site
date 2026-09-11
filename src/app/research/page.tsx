@@ -20,8 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Research",
     description: r
-      ? "How much was searched to produce what is published — recorded trials, " +
-        "idea families — and the bar the survivors were judged against."
+      ? "The recorded trials and idea families behind what is published, " +
+        "and the bar the survivors were judged against."
       : "The research summary behind this track record.",
     alternates: { canonical: `${SITE_ORIGIN}/research` },
   };
@@ -183,7 +183,7 @@ export default async function ResearchPage() {
           <Figure
             value={int(s.strategies_researched)}
             label="Strategies researched"
-            note="Each one carries its own committed returns, report and verdict — including the ones that failed."
+            note="Each one carries its own committed returns, report and verdict. That includes the ones that failed."
           />
           <Figure
             value={int(s.idea_families)}
@@ -234,8 +234,8 @@ export default async function ResearchPage() {
           Search enough strategies and some will look significant by chance
           alone. Every headline is therefore re-derived against the whole
           book&rsquo;s effective number of trials, not against its own small
-          grid — which is a far harsher test, and it is the one that decides
-          what appears on this site.
+          grid. That is a far harsher test, and it is the one that decides what
+          appears on this site.
         </p>
         <div className="mt-7 grid gap-x-10 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
           <Figure
@@ -294,7 +294,7 @@ export default async function ResearchPage() {
             </div>
             <p className="mt-4 text-small leading-relaxed text-fg-faint">
               Every headline is meant to be re-derived <em>excess</em> of the
-              risk-free rate — interest on cash is not alpha. For{" "}
+              risk-free rate. Interest on cash is not alpha. For{" "}
               {int(d.gross_sharpe_fallback_rows)} of the rows entering the
               correction above, the excess figure was not available in the
               committed record and the gross one was used instead, so those rows
@@ -317,7 +317,7 @@ export default async function ResearchPage() {
           <p className="max-w-[72ch] text-body text-fg-muted">
             A set of checks blocks our build. Where the catalogue still violates
             one, the offending strategies are grandfathered in a dated list that
-            may only ever shrink — never a loosened rule. The checks that
+            may only ever shrink. The rule is never loosened. The checks that
             currently carry debt are listed here, because a reader who can see
             the debt can believe the gates. The dates in the last column are the
             third clock named at the top of this page.
@@ -388,9 +388,8 @@ export default async function ResearchPage() {
       {/* ─── 6. THE OTHER END OF THE SAME CATALOGUE ───────────────────────*/}
       <Section title="What was refused" gloss="the same catalogue, from the other end">
         <p className="max-w-[72ch] text-body text-fg-muted">
-          This page counts the search. The same catalogue read from the other
-          end — everything it holds that is not presented as an edge — is set
-          out under{" "}
+          This page counts the search. Everything the same catalogue holds
+          that is not presented as an edge is set out under{" "}
           <Link href="/refused" className="text-accent hover:underline">
             refused
           </Link>
@@ -442,8 +441,9 @@ function Masthead() {
       </h1>
       <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         A track record shows what was kept. This page shows how much was
-        searched to produce it, and against what bar the survivors were judged
-        — the denominator that makes every other figure on this site readable.
+        searched to produce it, and against what bar the survivors were judged.
+        That is the denominator that makes every other figure on this site
+        readable.
       </p>
     </>
   );
@@ -473,8 +473,8 @@ function WhatThisIsNot({
           </span>{" "}
           Not one of the counts below is a return, and none of them says a
           strategy will make money. They say how many things were tried, how
-          many were thrown away, and against what bar the rest were judged — so
-          that a ratio elsewhere on this site can be read for what it is worth.
+          many were thrown away, and against what bar the rest were judged. A
+          ratio elsewhere on this site can then be read for what it is worth.
         </p>
         <p>
           <span className="text-fg">No strategy is named here.</span> Not on

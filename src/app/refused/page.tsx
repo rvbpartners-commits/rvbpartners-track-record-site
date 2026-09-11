@@ -189,7 +189,7 @@ export default async function RefusedPage() {
         Refused
       </h1>
       <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
-        Most of what we tested did not work. This page is the count — the
+        Most of what we tested did not work. This page is the count: the
         strategies that failed, the figures the record suppresses, and the
         limits of what it can prove about itself. It carries no performance
         figure, and every number on it is regenerated from the published
@@ -279,31 +279,31 @@ export default async function RefusedPage() {
                 how carefully the firm counts. */}
             <p className="mt-5 max-w-[72ch] text-small leading-relaxed text-fg-faint">
               <span className="tnum text-fg-muted">{count(folderTotal)}</span>{" "}
-              folders in all. That is not a count of
-              strategies: one strategy owns a folder in more than one tier at
-              once — the version in production, the unedited baseline it started
-              from, the champion a grid search found — and{" "}
+              folders in all. That is not a count of strategies. One strategy
+              owns a folder in more than one tier at once: the version in
+              production, the unedited baseline it started from, the champion a
+              grid search found.{" "}
               {s ? (
                 <>
-                  the number of distinct strategies researched is{" "}
+                  The number of distinct strategies researched is{" "}
                   <span className="tnum text-fg-muted">
                     {count(s.strategies_researched)}
                   </span>
                   , published separately.
                 </>
               ) : (
-                <>the count of distinct strategies is published separately.</>
+                <>The count of distinct strategies is published separately.</>
               )}
             </p>
 
             {presented !== undefined && (
               <p className="mt-3 max-w-[72ch] text-small leading-relaxed text-fg-faint">
                 <span className="tnum text-fg">{count(presented)}</span> of those
-                folders are presented as an edge anywhere on this site
+                folders are presented as an edge anywhere on this site.
                 {presentedReconciles
-                  ? " — the promote and conditional cells of the two tiers above that can be deployed, and nothing else"
-                  : ""}
-                . The rest are on disk and stay there.
+                  ? " Those are the promote and conditional cells of the two tiers above that can be deployed, and nothing else."
+                  : ""}{" "}
+                The rest are on disk and stay there.
               </p>
             )}
           </>
@@ -411,7 +411,7 @@ export default async function RefusedPage() {
                 at which the rate was threaded through. Those rows were deflated
                 against an input that flatters them. They are counted and
                 published as their own number rather than blended into the
-                total, which is why it is possible to say this at all — and it
+                total, which is why it is possible to say this at all. It
                 belongs on the page that qualifies the figure, not in a footnote
                 somewhere else.
               </p>
@@ -440,7 +440,7 @@ export default async function RefusedPage() {
                 or the survivor was chosen using the very window it was then
                 measured on. Several were named for a data series their code
                 never loaded. Archiving stops them being shown as an edge on any
-                surface — the index, the snapshot, the portfolios — and it does
+                surface: the index, the snapshot, the portfolios. It does
                 nothing else.
               </p>
               <p>
@@ -450,8 +450,8 @@ export default async function RefusedPage() {
                 Every one of those searches was still run, and a grid you have
                 searched cannot be un-searched by re-filing the folder it lives
                 in. The trial count that deflates every surviving strategy
-                includes all of them, deliberately — which is the conservative
-                direction, and makes the surviving figures harder to clear
+                includes all of them, deliberately. That is the conservative
+                direction, and it makes the surviving figures harder to clear
                 rather than easier.
               </p>
             </div>
@@ -468,7 +468,7 @@ export default async function RefusedPage() {
           <p className="max-w-[72ch] text-body text-fg-muted">
             A set of automated checks blocks our build. Where the catalogue
             still violates one, the offending strategies are grandfathered in a
-            dated list that may only ever shrink — never a loosened rule, and
+            dated list that may only ever shrink: never a loosened rule, and
             never a silenced check. Each figure below carries the date its list
             was drawn, so a list that has stopped shrinking is visible as one.
           </p>
@@ -676,7 +676,7 @@ export default async function RefusedPage() {
                 ) : (
                   <>The share of winning sessions is not published.</>
                 )}{" "}
-                The two counts behind it are published on every portfolio — the
+                The two counts behind it are published on every portfolio: the
                 winning sessions and the losing ones, side by side. Over this
                 many sessions the ratio between them is a small count wearing a
                 percent sign, so it is not printed; both numbers are there to
@@ -691,13 +691,14 @@ export default async function RefusedPage() {
             body={
               <>
                 <p>
-                  Holdings and attribution are published by category — mean
-                  reversion, momentum, trend following, seasonal — with the
-                  number of strategies in each. No strategy identifier appears
-                  anywhere in the published data, and the roster of names is not
-                  published at all. That is a choice, not an oversight: the
-                  category says what kind of risk is being taken, which is what
-                  a reader needs to judge the record; the logic is the work.
+                  Holdings and attribution are published by category: mean
+                  reversion, momentum, trend following, seasonal. Each category
+                  carries the number of strategies in it. No strategy identifier
+                  appears anywhere in the published data, and the roster of
+                  names is not published at all. That is a choice, not an
+                  oversight: the category says what kind of risk is being taken,
+                  which is what a reader needs to judge the record; the logic is
+                  the work.
                 </p>
                 {strategyIdentity && (
                   <p className="mt-3">{prose(strategyIdentity.body_en)}</p>
@@ -746,10 +747,10 @@ export default async function RefusedPage() {
           </Cannot>
           <Cannot title="That no other book exists unpublished">
             A chain proves no session was dropped <em>from that chain</em>. It
-            cannot prove a chain was never restarted — where that has happened it
-            is declared on the verify page, with the withdrawn chain published
-            beside the current one — and no amount of hashing can testify about a
-            file that was never put into it.
+            cannot prove a chain was never restarted. Where that has happened
+            it is declared on the verify page, with the withdrawn chain
+            published beside the current one. No amount of hashing can testify
+            about a file that was never put into it.
           </Cannot>
           <Cannot title="When a record was written, from below">
             A timestamp bounds a record from above only: it establishes that the
@@ -770,7 +771,7 @@ export default async function RefusedPage() {
           <Cannot title="That our commit signatures verify offline">
             The signer&rsquo;s public key is not published yet, so a clone
             reports <em>No principal matched</em> rather than a verified
-            signature — it can see a signature is present and has nothing to
+            signature. It can see a signature is present and has nothing to
             check it against. Until that key is published beside the data, the
             commit signatures rest on GitHub&rsquo;s badge. The hash chain and
             the timestamps do not.
@@ -796,15 +797,15 @@ export default async function RefusedPage() {
           >
             research.json
           </a>
-          , regenerated from the committed catalogue rather than typed
+          , regenerated from the committed catalogue rather than typed.
           {research ? (
             <>
               {" "}
-              — last generated{" "}
-              <span className="tnum">{date(research.generated_at)}</span>
+              It was last generated{" "}
+              <span className="tnum">{date(research.generated_at)}</span>.
             </>
-          ) : null}
-          . The withheld statistics come from each portfolio&rsquo;s own metrics
+          ) : null}{" "}
+          The withheld statistics come from each portfolio&rsquo;s own metrics
           file. The denominator these corrections are applied against is set out
           under{" "}
           <Link href="/research" className="text-accent hover:underline">

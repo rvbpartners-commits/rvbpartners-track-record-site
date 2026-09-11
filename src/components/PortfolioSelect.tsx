@@ -157,7 +157,7 @@ export function PortfolioSelect({
                             // other as a capital effect. The twins were funded
                             // later than the books they copy, so the pair also
                             // differs in measurement window.
-                            `Same strategies and weights, funded with $${size} — and started later, so the two returns cover different windows`
+                            `Same strategies and weights, funded with $${size}, but started later, so the two returns cover different windows`
                           : o.tagline}
                       </span>
                     )}

@@ -116,7 +116,7 @@ export function AnalyticsCharts({
       />
       <Rolling
         title="Rolling Sortino"
-        note="Downside deviation only — a violent good month is not penalised like a bad one."
+        note="Downside deviation only. A violent good month is not penalised like a bad one."
         series={analytics.rolling_sortino}
         held={held}
         format={(v) => ratio(v)}
@@ -206,7 +206,7 @@ function DailyBars({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Daily returns"
-      note="Every session since inception. Not gated — this is what happened, not an estimate of anything."
+      note="Every session since inception. Not gated: this is what happened, not an estimate of anything."
       empty={data.length === 0}
     >
       <ChartBox>
@@ -238,7 +238,7 @@ function DrawdownPath({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Drawdown"
-      note="Equity against its own running maximum. Not gated: this is what happened. The ledger's Maximum drawdown row is the single gated field in metrics.json — the same definition as the minimum of this path, not a second one, and it is withheld while this is not."
+      note="Equity against its own running maximum. Not gated: this is what happened. The ledger's Maximum drawdown row is the single gated field in metrics.json. It is the same definition as the minimum of this path, not a second one, and it is withheld while this is not."
       empty={data.length === 0}
     >
       <ChartBox>
@@ -324,7 +324,7 @@ function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Distribution of daily returns"
-      note="The raw shape behind skew and kurtosis — how fat the tails are, rather than one number describing them."
+      note="The raw shape behind skew and kurtosis: how fat the tails are, rather than one number describing them."
       empty={data.length === 0}
     >
       <ChartBox>
@@ -377,7 +377,7 @@ function Quantiles({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Return spread by horizon"
-      note="Where the shape changes with horizon — a book that looks calm daily and lumpy monthly gives itself away here. Whiskers are min and max; the box is the interquartile range; the line is the median. Horizons are calendar groups, so on a short record the first and last group of a weekly or monthly row can be a partial period; the observation count beside each row is the count of groups, not of full periods."
+      note="Where the shape changes with horizon: a book that looks calm daily and lumpy monthly gives itself away here. Whiskers are min and max; the box is the interquartile range; the line is the median. Horizons are calendar groups, so on a short record the first and last group of a weekly or monthly row can be a partial period; the observation count beside each row is the count of groups, not of full periods."
       empty={rows.length === 0}
     >
       <div className="space-y-4 pt-1">

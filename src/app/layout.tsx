@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   // redirecting hostname advertises that hostname as the canonical one.
   metadataBase: new URL(SITE_ORIGIN),
   title: {
-    default: "RVB Partners — public register",
+    default: "RVB Partners · public register",
     template: "%s · RVB",
   },
   // No portfolio count and no publishing cadence in here: both have already
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
   // but not promoted.
   robots: { index: true, follow: true },
   openGraph: {
-    title: "RVB Partners — public register",
+    title: "RVB Partners · public register",
     description:
       "Broker-simulated paper portfolios, hash-chained and timestamped. " +
       "Verify every number yourself.",

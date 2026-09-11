@@ -9,7 +9,7 @@ import { INK, INK_FAINT, INK_FG, INK_MUTED, markDataUri } from "@/lib/brand";
  * cumulative return in a preview image is a claim made where none of the
  * caveats fit.
  */
-export const alt = "RVB Partners — public register";
+export const alt = "RVB Partners · public register";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

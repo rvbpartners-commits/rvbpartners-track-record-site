@@ -82,7 +82,7 @@ export default async function FirmPage() {
       <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         This site is the public register of what we trade, how it was tested,
         and what we refused. This page is the short account of the company
-        publishing it — what it does, what it does not do, and the identifiers
+        publishing it: what it does, what it does not do, and the identifiers
         that let you check both against a third party&rsquo;s record rather than
         against our word.
       </p>
@@ -95,9 +95,9 @@ export default async function FirmPage() {
             them on its own accounts. Research and execution are not two
             systems: a strategy is tested by the same framework that later
             places its orders, under one cost structure, one execution delay and
-            one computation for every metric — so the rules a result was
-            measured under do not change on its way to an account. What that
-            produces is published here, session by session, as it is marked.
+            one computation for every metric, so the rules a result was measured
+            under do not change on its way to an account. What that produces is
+            published here, session by session, as it is marked.
           </p>
         </div>
         {/* THE SAME COMPONENT THE FOOTER RENDERS ON THE OTHER PAGES, not a copy
@@ -166,7 +166,7 @@ export default async function FirmPage() {
         </figure>
 
         <p className="mt-5 max-w-[72ch] text-body text-fg-muted">
-          <em>En compte propre</em> — for its own account — is the whole of the
+          <em>En compte propre</em> (for its own account) is the whole of the
           registered activity. The conditions attached to every figure published
           here are set out under{" "}
           <Link href="/disclosures" className="text-accent hover:underline">
@@ -204,7 +204,7 @@ export default async function FirmPage() {
               <span key="capital">
                 {ENTITY.capital}
                 <Gloss>
-                  variable, minimum {ENTITY.capitalMinimum} — the form exists so
+                  variable, minimum {ENTITY.capitalMinimum}: the form exists so
                   the figure can move
                 </Gloss>
               </span>,
@@ -250,12 +250,12 @@ export default async function FirmPage() {
         <p className="mt-6 max-w-[72ch] text-small leading-relaxed text-fg-faint">
           Every value above is transcribed from the company&rsquo;s{" "}
           <em>extrait Kbis</em> and appears in French on the register, where it
-          can be checked. The full notice — hosting, intellectual property,
-          personal data and the terms this site is published on — is at{" "}
+          can be checked. The full notice is at{" "}
           <Link href="/legal" className="text-accent hover:underline">
             legal
           </Link>
-          .
+          : hosting, intellectual property, personal data and the terms this
+          site is published on.
         </p>
       </Section>
 
@@ -304,7 +304,7 @@ export default async function FirmPage() {
           <Term id="rvb-partners" term="RVB Partners">
             The company. It is registered in Paris under the identifiers above,
             and it is the party accountable for everything published on this
-            site — the figures, the method and the refusals alike.
+            site: the figures, the method and the refusals alike.
           </Term>
 
           <Term id="the-desk" term="The desk">
@@ -318,7 +318,7 @@ export default async function FirmPage() {
 
           <Term id="paper-account" term="A paper account">
             A real broker account trading live market prices with simulated
-            money — the orders and fills are the broker&rsquo;s; the money is
+            money. The orders and fills are the broker&rsquo;s; the money is
             not. Every account on this site is one. A simulated fill is only as
             good as the market data it was simulated against, and each record
             names the feed it used; the limits that puts on these results are
@@ -334,7 +334,7 @@ export default async function FirmPage() {
             swept, positions valued, and the broker&rsquo;s own account equity
             taken as that session&rsquo;s net asset value. A session joins the
             record when it has been marked, which is why a curve ends at a close
-            rather than at the current moment — the newest broker reading on a
+            rather than at the current moment. The newest broker reading on a
             portfolio page is shown separately and labelled as not yet marked.
           </Term>
 
@@ -355,14 +355,14 @@ export default async function FirmPage() {
             A record that joined the chain later than the session it describes.
             The chain stamps the day each record was recorded beside the session
             it covers, so where there is a gap between the two it is published
-            rather than assumed to be zero — the verify table prints both
+            rather than assumed to be zero. The verify table prints both
             columns, and a timestamp proof bounds a record from above only.
           </Term>
 
           <Term id="gated" term="Gated">
             A statistic withheld because there is not enough history to compute
-            it honestly. Annualised figures — a Sharpe ratio, a volatility, an
-            annual return — are withheld until a book has{" "}
+            it honestly. Annualised figures (a Sharpe ratio, a volatility, an
+            annual return) are withheld until a book has{" "}
             {/* THE THRESHOLD IS READ FROM THE PUBLISHED INDEX, never typed
                 here. It is one number in one file, and a copy of it in this
                 repository is a number that can disagree with the gate it
@@ -378,8 +378,8 @@ export default async function FirmPage() {
             . On a handful of sessions those figures are not imprecise
             estimates, they are meaningless ones. Each book publishes the exact
             list of names it is suppressing and its page renders a dash in their
-            place; what happened — cumulative return, the daily returns, the
-            realised drawdown path — is shown from day one.
+            place. What happened is shown from day one: cumulative return, the
+            daily returns, the realised drawdown path.
           </Term>
 
           <Term id="attributed" term="Attributed">
@@ -388,8 +388,8 @@ export default async function FirmPage() {
             is attributed back to the strategies whose intents contributed to
             it, pro-rata by requested size; a different rule would give
             different numbers from the same fills. Book-level figures are read
-            from the broker and never reconstructed from the attribution — and
-            the attribution does not add up to the book, which{" "}
+            from the broker and never reconstructed from the attribution. The
+            attribution does not add up to the book, which{" "}
             <Link href="/methodology" className="text-accent hover:underline">
               methodology
             </Link>{" "}
@@ -411,9 +411,9 @@ export default async function FirmPage() {
           <Step n={1} name="Research">
             Every strategy is built and tested inside the framework that will
             later execute it, and every backtest, sweep and grid cell is written
-            to an append-only ledger — because a result means nothing without
-            the number of things that were tried to find it. Those counts are
-            published under{" "}
+            to an append-only ledger, because a result means nothing without the
+            number of things that were tried to find it. Those counts are published
+            under{" "}
             <GatedLink href="/research" available={hasResearch}>
               research
             </GatedLink>
@@ -446,9 +446,9 @@ export default async function FirmPage() {
             strategy name: the catalogue is the work.
           </Step>
           <Step n={4} name="The desk">
-            The desk runs each portfolio on a fixed daily cycle — stage after
-            the close, execute at the next open, mark after the close that
-            follows — with the same cost and timing rules the research used. The
+            The desk runs each portfolio on a fixed daily cycle: stage after the
+            close, execute at the next open, mark after the close that follows.
+            The cost and timing rules are the same ones the research used. The
             conventions, and the biases they do not remove, are set out under{" "}
             <Link href="/methodology" className="text-accent hover:underline">
               methodology
@@ -473,8 +473,8 @@ export default async function FirmPage() {
           would be the only unverifiable claim on it. */}
       <Section title="How to reach us" gloss="One address">
         <p className="max-w-[72ch] text-body text-fg-muted">
-          Anything about this record — a figure that does not reconcile, a check
-          that fails, a passage that is unclear — goes to{" "}
+          Anything about this record (a figure that does not reconcile, a check
+          that fails, a passage that is unclear) goes to{" "}
           <a
             href={`mailto:${CONTACT_EMAIL}`}
             className="text-accent hover:underline"

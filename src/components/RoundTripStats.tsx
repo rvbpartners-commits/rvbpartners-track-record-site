@@ -99,10 +99,10 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
       <p className="mt-6 text-small leading-relaxed text-fg-muted max-w-[72ch]">
         Each round trip is the <strong className="font-medium text-fg">sum of
         both legs</strong>. The hedge account runs in hedging mode, so its half
-        only appears when a ticket settles — or never, while the ticket stays
-        locked against an opposite one. Counted on one leg alone this book reads
-        negative; counted on both, it does not. The convention is set out in the
-        methodology and every snapshot carries the decomposition.
+        appears only when a ticket settles, and not at all while that ticket
+        stays locked against an opposite one. Counted on one leg alone this
+        book reads negative; counted on both, it does not. The convention is set
+        out in the methodology and every snapshot carries the decomposition.
       </p>
       {/* "drawdown" is struck from this list deliberately: the realised
           drawdown path and its episodes are published on this same page,
@@ -112,9 +112,9 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
       <p className="mt-3 text-small leading-relaxed text-fg-muted max-w-[72ch]">
         Sharpe, volatility and every other annualised figure stay withheld below{" "}
         {rt.round_trips_needed_for_annualising} round trips. On {rt.round_trips}{" "}
-        they would not be imprecise, they would be meaningless. The realised
-        series — every daily result, and the drawdown path — are not annualised
-        estimates and are published in full.
+        they would not be imprecise, they would be meaningless. Every daily
+        result and the drawdown path are realised series. They are not
+        annualised estimates, and they are published in full.
       </p>
       <p className="mt-3 text-small leading-relaxed text-fg-muted max-w-[72ch]">
         The net result above covers the closed round trips only. It is not the

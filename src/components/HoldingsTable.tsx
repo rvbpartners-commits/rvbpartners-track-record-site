@@ -188,8 +188,8 @@ export function HoldingsTable({
       {suppressedPct > 0 && (
         <p className="mt-3 text-small text-fg-faint">
           {suppressedPct === 1
-            ? "One category publishes an open-P&L percentage whose sign contradicts its own dollar figure — it is taken over a signed net cost basis — so the percentage is not shown for it."
-            : `${suppressedPct} categories publish an open-P&L percentage whose sign contradicts their own dollar figure — it is taken over a signed net cost basis — so the percentage is not shown for them.`}{" "}
+            ? "One category publishes an open-P&L percentage whose sign contradicts its own dollar figure. That percentage is taken over a signed net cost basis, so it is not shown for that category."
+            : `${suppressedPct} categories publish an open-P&L percentage whose sign contradicts their own dollar figure. That percentage is taken over a signed net cost basis, so it is not shown for those categories.`}{" "}
           The dollar amounts are unaffected and reconcile with cost basis and
           market value.
         </p>

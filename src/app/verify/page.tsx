@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   title: "Verify",
   description:
     "Every published snapshot with its hash, its commit, and its " +
-    "OpenTimestamps proof — so a stranger can re-derive every number.",
+    "OpenTimestamps proof, so a stranger can re-derive every number.",
 };
 
 /** How many chain records one page of the register shows.
@@ -199,7 +199,7 @@ export default async function VerifyPage({
           existed. You do not have to take any of it on trust, and you do not need
           our cooperation to check it. The one exception is the latest broker
           reading in each portfolio&rsquo;s header: it is a current reading of an
-          account, not an after-close mark, and it is not chained evidence — the
+          account, not an after-close mark, and it is not chained evidence. The
           page labels it as such and shows the chained figure beneath it.
         </p>
       </header>
@@ -232,12 +232,12 @@ export default async function VerifyPage({
             <strong className="font-semibold">This does not prove:</strong> that
             the trading was skilful, that a simulated fill would have happened in
             a real market, or that no other book exists unpublished. A chain
-            proves no session was dropped <em>from that chain</em> — it cannot
+            proves no session was dropped <em>from that chain</em>. It cannot
             prove a chain was never restarted, so a restart is declared
             separately below. A timestamp bounds a record from above only: it
             proves the file existed by a given block and says nothing about how
             much earlier. Git history can be rewritten by whoever controls a
-            repository — which is exactly why the hash chain, the Bitcoin
+            repository. That is exactly why the hash chain, the Bitcoin
             timestamps, the signed commits and the branch ruleset are used
             together rather than relying on any one of them.
           </Note>
@@ -301,7 +301,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               const back = backfilledFor(book);
               return (
               <Note key={book} tone="warn">
-                <strong className="font-semibold">{labelFor(book)}</strong> —
+                <strong className="font-semibold">{labelFor(book)}:</strong>{" "}
                 this book&rsquo;s chain was restarted, and the table below
                 therefore shows a genesis entry dated after the record begins.{" "}
                 {/* STATE THE COUNT WHERE THE RESTART IS DECLARED. The raw
@@ -383,11 +383,11 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                 cannot give you: a timestamp proves a file existed, but says
                 nothing about whether the series is <em>complete</em>. Because
                 each session commits to the one before it, a day cannot be
-                removed later without breaking every record after it — so
-                publishing only the good days leaves evidence. What it does not
-                cover is a chain that was replaced wholesale; where that has
-                happened it is declared above, with the withdrawn chain published
-                beside the current one.
+                removed later without breaking every record after it.
+                Publishing only the good days therefore leaves evidence. What it
+                does not cover is a chain that was replaced wholesale; where that
+                has happened it is declared above, with the withdrawn chain
+                published beside the current one.
               </>
             }
           />
@@ -399,15 +399,15 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                 Each snapshot has an OpenTimestamps proof beside it, anchored in
                 the Bitcoin blockchain. Run{" "}
                 <Code>ots verify &lt;file&gt;.ots</Code>. Read the direction
-                carefully: a proof bounds a record from <em>above</em> — it
+                carefully: a proof bounds a record from <em>above</em>. It
                 establishes that the file existed no later than the block it is
                 anchored in, and says nothing about how much earlier. A record
                 written in a later backfill and stamped once therefore carries a
                 proof for the day it was stamped, not for its session date. The{" "}
                 <strong className="font-medium">Recorded</strong> column in the
                 table below is the chain&rsquo;s own <Code>ts</Code> for each
-                entry — the day the record joined the chain — printed beside its
-                session so the gap is visible rather than assumed to be zero.
+                entry: the day the record joined the chain. It is printed beside
+                its session so the gap is visible rather than assumed to be zero.
               </>
             }
           />
@@ -418,15 +418,15 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               <>
                 <Code>nav.csv</Code> is the whole equity curve. Every metric is
                 computed from it by one function in the firm&rsquo;s metrics
-                module — which is not itself published, so the check available
-                to you is the better one: recompute from the curve. The
+                module. That module is not itself published, so the check
+                available to you is the better one: recompute from the curve. The
                 convention is named and the risk-free rate is echoed in{" "}
                 <Code>metrics.json</Code>, the definitions are the standard ones,
                 and a disagreement is then a fact about the numbers rather than
-                about whose code you trust. No metric is computed in your browser
-                — this page renders numbers it was handed. The browser does scale
-                axes and total a table&rsquo;s own rows, which is drawing, not
-                measuring.
+                about whose code you trust. No metric is computed in your
+                browser. This page renders numbers it was handed. The browser does
+                scale axes and total a table&rsquo;s own rows, which is drawing,
+                not measuring.
               </>
             }
           />
@@ -475,7 +475,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               </span>
             ))}
             . They are not counted here because they are not part of a current
-            chain — they are kept, unrewritten, so the withdrawn record can be
+            chain. They are kept, unrewritten, so the withdrawn record can be
             verified as easily as this one.
           </p>
         )}
@@ -683,7 +683,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             requires every commit to be signed, so the append-only history cannot
             be rewritten without leaving a trace. Each publish commit is signed
             with an SSH key and GitHub shows it as Verified. Publication runs on
-            the trading box itself — GitHub Actions is not involved in producing
+            the trading box itself. GitHub Actions is not involved in producing
             this data and holds no broker credential.
           </p>
 
@@ -706,15 +706,16 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             can see a signature is present but has nothing to check it against.
             That is a gap in what is published here, not a failed signature.
             Until an <Code>allowed_signers</Code> file is published beside the
-            data — at which point{" "}
+            data, the commit signatures rest on GitHub&rsquo;s badge. Once it is
+            published,{" "}
             <Code>
               git -c gpg.ssh.allowedSignersFile=allowed_signers log
               --show-signature
             </Code>{" "}
-            checks it offline — the commit signatures rest on GitHub&rsquo;s
-            badge. The hash chain and the Bitcoin timestamps do not: those are
-            checkable today, with no key and no cooperation from us, which is
-            why they are the first two checks above rather than the signature.
+            checks them offline. The hash chain and the Bitcoin timestamps do
+            not rest on that badge: those are checkable today, with no key and
+            no cooperation from us, which is why they are the first two checks
+            above rather than the signature.
           </p>
 
           <div className="mt-6 border-t hairline pt-5">

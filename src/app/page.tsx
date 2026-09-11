@@ -135,8 +135,8 @@ export default async function Home() {
             The company&rsquo;s registered corporate purpose, as filed, is{" "}
             <span className="text-fg">
               {ENTITY.purposeEn.replace(/\.$/, "")}
-            </span>{" "}
-            —{" "}
+            </span>
+            . That is{" "}
             <Link href="/firm" className="text-accent hover:underline">
               the register&rsquo;s record of it
             </Link>
@@ -212,7 +212,7 @@ export default async function Home() {
           <p className="mt-6 max-w-[68ch] text-body text-fg-muted">
             Nothing is deleted when it fails. The code, the returns and the
             report card stay exactly where they were, auditable, and stop being
-            presented as a result — which is what makes the count publishable at
+            presented as a result. That is what makes the count publishable at
             all.{" "}
             <Link href="/refused" className="text-accent hover:underline">
               What we refused, in full

@@ -17,8 +17,8 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Disclosures",
   description:
-    "The specific, measured limitations of this track record — published " +
-    "beside the data, and stamped per book into the published records.",
+    "The specific, measured limitations of this track record, published " +
+    "beside the data and stamped per book into the published records.",
 };
 
 const SEVERITY: Record<string, { label: string; className: string }> = {
@@ -107,9 +107,10 @@ export default async function DisclosuresPage() {
           >
             data repository
           </a>{" "}
-          also carries its own per-book disclosure block — including whether that
-          book&rsquo;s capital is real — so a reader who only ever touches the raw
-          JSON gets the caveats that apply to the book in front of them.
+          also carries its own per-book disclosure block, including whether that
+          book&rsquo;s capital is real. A reader who only ever touches the raw
+          JSON therefore gets the caveats that apply to the book in front of
+          them.
         </p>
       </header>
 
@@ -124,7 +125,7 @@ export default async function DisclosuresPage() {
               ? "One disclosure below is published without a scope."
               : `${unscoped.length} disclosures below are published without a scope.`}
           </strong>{" "}
-          This record contains portfolios of more than one kind — broker-simulated
+          This record contains portfolios of more than one kind: broker-simulated
           paper accounts and{" "}
           {realCapital.length === 1 ? "a portfolio" : "portfolios"} trading real
           capital
@@ -204,8 +205,8 @@ export default async function DisclosuresPage() {
                   {feeds.get(d.applies_to)}. It is stamped into every published
                   record for these books. A feed carrying a few percent of
                   consolidated volume prints fewer quotes, and wider ones, than
-                  the tape a real order meets — so a fill simulated against it
-                  is not interchangeable with one that happened.
+                  the tape a real order meets. A fill simulated against it is
+                  therefore not interchangeable with one that happened.
                 </p>
               )}
               {audience.warn && DENIES_RISK.test(d.body_en) && (
@@ -239,10 +240,10 @@ export default async function DisclosuresPage() {
                 <p className="mt-3 text-small leading-relaxed text-warn-fg">
                   Correction: the attribution does <em>not</em> sum to the book.
                   The published per-category contributions are weighted
-                  per-strategy returns and, added up for a session, they differ
-                  from that book&rsquo;s own broker-measured daily return —
-                  sometimes with the opposite sign. Book-level equity and returns
-                  are unaffected: they are read from the broker and never
+                  per-strategy returns. Added up for a session they differ from
+                  that book&rsquo;s own broker-measured daily return, and
+                  sometimes carry the opposite sign. Book-level equity and returns are
+                  unaffected: they are read from the broker and never
                   reconstructed from the attribution.{" "}
                   {/* Say WHY an uncorrected paragraph is still sitting above a
                       correction. Left unexplained it reads as the site having
@@ -250,7 +251,7 @@ export default async function DisclosuresPage() {
                       site refusing to edit text it republishes verbatim. */}
                   <span className="text-fg-muted">
                     The paragraph above is republished word for word from the
-                    published data and is not edited here — this page does not
+                    published data and is not edited here. This page does not
                     rewrite what it quotes. The correction stands until the
                     published body is amended at its source.
                   </span>
@@ -304,7 +305,7 @@ function audienceFor(
   }
   if (!mixedKinds) return { label: AUDIENCE.all, warn: false };
   return {
-    label: "Published without an audience — see the notice above",
+    label: "Published without an audience: see the notice above",
     warn: true,
   };
 }

@@ -85,9 +85,9 @@ export default function NotFound() {
         This address is not part of the register.
       </h1>
       <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
-        Nothing is published at it. Either it was never one of ours — a typo, or
-        an address assembled by hand — or it named a page this site no longer
-        shows.
+        Nothing is published at it. Either it named a page this site no longer
+        shows, or it was never one of ours (a typo, or an address assembled by
+        hand).
       </p>
       <p className="mt-4 max-w-[68ch] text-body text-fg-muted">
         Which of the two it is can be settled without asking us, and that is the
@@ -143,12 +143,11 @@ export default function NotFound() {
           </a>
         </p>
         <p className="mt-5 max-w-[72ch] text-small leading-relaxed text-fg-faint">
-          The checks that run on a clone of it — and what each one proves — are
-          set out under{" "}
+          The checks that run on a clone of it are set out under{" "}
           <Link href="/verify" className="text-accent hover:underline">
             verify
           </Link>
-          .
+          , along with what each one proves.
         </p>
       </Section>
     </div>

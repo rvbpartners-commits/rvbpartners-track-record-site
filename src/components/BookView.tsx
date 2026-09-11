@@ -421,8 +421,8 @@ function BookView({
           <p className="mt-2 text-small text-fg-faint">
             Capital variant
             {bundle.variantSize ? ` (${bundle.variantSize})` : ""} of{" "}
-            <span className="text-fg-muted">{bundle.variantParentLabel}</span> —
-            the pair is published to measure capital sensitivity, and both
+            <span className="text-fg-muted">{bundle.variantParentLabel}</span>.
+            The pair is published to measure capital sensitivity, and both
             books&rsquo; target weights are published in the index.
             {laterStart !== null && (
               <>
@@ -527,7 +527,7 @@ function BookView({
               <>
                 Latest broker reading, {marketTime(rawLive.at, zone)}
                 {rawLive.marked ? "" : ", not an after-close mark"}
-                {rawLive.source ? ` — ${rawLive.source}` : ""}.
+                {rawLive.source ? `, from ${rawLive.source}` : ""}.
               </>
             ) : (
               <>
@@ -541,8 +541,9 @@ function BookView({
                     that is the one printed. */}
                 <span className="text-warn-fg">
                   The last broker reading for this book is dated{" "}
-                  {marketTime(rawLive.at, zone)} — the last reading this book
-                  produced, and older than this record&rsquo;s current publish
+                  {marketTime(rawLive.at, zone)}. It is the last reading this
+                  book produced, and it is older than this record&rsquo;s current
+                  publish
                   {publishedAt ? ` (${dateTime(publishedAt)})` : ""}
                   {summary.last_session
                     ? `. Its last marked session is ${date(summary.last_session)}`
@@ -553,7 +554,7 @@ function BookView({
                 those are the marked, chained ones. The reading itself was{" "}
                 {signedPct(rawLive.cumulative_return, 3)} on equity of{" "}
                 {money(rawLive.equity, currency, 2)}
-                {rawLive.source ? ` — ${rawLive.source}` : ""}.
+                {rawLive.source ? `, from ${rawLive.source}` : ""}.
                 {/* THE TWO FIGURES IN THAT SENTENCE ARE NOT ON ONE BASIS, and
                     a reader who divides the equity by the funded capital gets a
                     third number that matches neither. That is not an error: on
@@ -597,7 +598,7 @@ function BookView({
       ) : gate ? (
         <Note tone="warn" className="mt-8">
           <strong className="font-semibold">
-            Annualised statistics are withheld — {gate.have} of {gate.need}{" "}
+            Annualised statistics are withheld: {gate.have} of {gate.need}{" "}
             {gateUnit}.
           </strong>{" "}
           {/* THE PROMISE IS CHECKED, NOT REPEATED. "Each keeps its row in the
@@ -655,7 +656,7 @@ function BookView({
                     caption about a chart that is not there. Where they differ,
                     both are named — the divergence is a signal, not something to
                     reconcile away. */}
-                Broker account equity at 5-minute resolution — {points.length}{" "}
+                Broker account equity at 5-minute resolution: {points.length}{" "}
                 readings, not interpolation
                 {typeof meta?.intraday_points === "number" &&
                 meta.intraday_points !== points.length
@@ -685,14 +686,14 @@ function BookView({
                         the books start on different days. Unnamed, that reads
                         as two contradictory measurements of one index. One
                         clause removes the whole objection. */}
-                    The index line here is a 5-minute <em>price</em> path —
+                    The index line here is a 5-minute <em>price</em> path:
                     dividends are not applied intraday and it is rebased on{" "}
                     <strong className="font-medium text-fg">
                       this book&rsquo;s first published bar
                       {points.length > 0 ? `, ${date(points[0].date)}` : ""}
                     </strong>
                     , so it will not end where the daily total-return series in{" "}
-                    <code>benchmark.csv</code> ends — and the same index line on
+                    <code>benchmark.csv</code> ends. The same index line on
                     another portfolio&rsquo;s page is rebased on that
                     book&rsquo;s own start, not this one.
                   </>
@@ -714,7 +715,7 @@ function BookView({
                 The only comparator drawn is the cash line this book publishes.
                 Its accrual grid is this book&rsquo;s own calendar, not the
                 trading-day grid the paper desk uses, and the rule is stated in
-                this book&rsquo;s own methodology note — read the line against
+                this book&rsquo;s own methodology note. Read the line against
                 that note rather than against the annual risk-free rate published
                 beside it
                 {metrics ? ` (${pct(metrics.risk_free_annual)})` : ""}, which is
@@ -730,7 +731,7 @@ function BookView({
                   {rejectedLabels.length} session
                   {rejectedLabels.length === 1 ? "" : "s"} excluded
                 </strong>{" "}
-                from the intraday line — the broker feed contradicted the
+                from the intraday line. The broker feed contradicted the
                 published NAV: {rejectedLabels.join("; ")}.
                 {rejectedDrawnCount > 0 ? (
                   <>
@@ -798,8 +799,8 @@ function BookView({
                 {" "}
                 The difference is the inception session, whose return this book
                 measures against its opening balance of{" "}
-                {money(meta.opening_capital, currency, 2)} — a number this
-                book&rsquo;s <code>nav.csv</code> does not carry, so the rebase
+                {money(meta.opening_capital, currency, 2)}. This book&rsquo;s{" "}
+                <code>nav.csv</code> does not carry that number, so the rebase
                 cannot reproduce it.
                 {/* "The desk states why:" was answered by a NOUN PHRASE — the
                     published note begins "the equity at the OPEN of the
@@ -845,9 +846,9 @@ function BookView({
             <strong className="font-medium text-fg">not amended</strong>: it
             says what was known when it was written, its hash still verifies,
             and a record that can be rewritten after the fact is not a record.
-            Both numbers are published — the chained one in{" "}
+            Both numbers are published: the chained one in{" "}
             <code>snapshots/</code>, the corrected one in{" "}
-            <code>metrics.json</code> — and neither is hidden behind the other.
+            <code>metrics.json</code>. Neither is hidden behind the other.
           </p>
         )}
         {lastSession && (
@@ -1104,11 +1105,11 @@ function BookView({
                 what is actually protected, which is the thing that matters and
                 is genuinely never published: WHICH STRATEGY holds the position.
                 A style is not a strategy, and the positions are visible. */}
-            Grouped by the category of strategy holding them — the style is
+            Grouped by the category of strategy holding them: the style is
             published, the strategies are not. That is the whole of what is
             withheld here, and it is withheld completely: no strategy identity
             appears in any published file. The positions themselves are not
-            withheld — each row carries its quantity, its cost basis and its
+            withheld. Each row carries its quantity, its cost basis and its
             mark, so an individual holding&rsquo;s open result is a subtraction
             a reader can do. P&amp;L is TOTALLED per category rather than per
             symbol because the category is the unit the attribution model
@@ -1119,7 +1120,7 @@ function BookView({
             </strong>{" "}
             A sleeve declared in the table below can hold nothing on a given
             session, and the desk&rsquo;s attribution can be missing a sleeve that
-            demonstrably held a position — so the two tables answer different
+            demonstrably held a position. The two tables answer different
             questions and are not two views of one number.
           </>
         }
@@ -1199,7 +1200,7 @@ function BookView({
             <span className="tnum">
               {money(reconciliationGap.invested, currency)}
             </span>{" "}
-            invested on {date(reconciliationGap.session)} — a difference of{" "}
+            invested on {date(reconciliationGap.session)}. The difference is{" "}
             <span className="tnum text-fg">
               {money(reconciliationGap.gap, currency)}
             </span>
@@ -1301,7 +1302,7 @@ function BookView({
             </a>{" "}
             prints both columns. A timestamp proof bounds a record from above
             only, so a record written in a batch carries a proof for the day it
-            was stamped rather than for its session — which is why the recording
+            was stamped rather than for its session. That is why the recording
             date is published rather than left to be assumed zero.
           </p>
         )}

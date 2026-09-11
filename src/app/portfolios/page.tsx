@@ -252,11 +252,11 @@ export default async function Portfolios() {
       <Section title="What a portfolio is here" gloss="Before the figures">
         <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           <p>
-            A portfolio here — the record calls it a{" "}
-            <span className="text-fg">book</span> — is a fixed roster of
-            strategies held at target weights and traded on one broker account
-            by the desk. Its members are assembled out of the research
-            catalogue, the same catalogue whose search and deflation are set out
+            A portfolio here is a fixed roster of strategies held at target
+            weights and traded on one broker account by the desk. The record
+            calls it a <span className="text-fg">book</span>. Its members are
+            assembled out of the research catalogue, the same catalogue whose
+            search and deflation are set out
             under{" "}
             <GatedLink href="/research" available={hasResearch}>
               research
@@ -479,8 +479,8 @@ export default async function Portfolios() {
             <div className="mt-6 max-w-[80ch] space-y-2 text-small leading-relaxed text-fg-faint">
               <p>
                 <span className="text-fg-muted">Return</span> is cumulative
-                since the account was funded, as published by the desk — not
-                annualised, and covering a different window for each book.{" "}
+                since the account was funded, as published by the desk. It is
+                not annualised, and covers a different window for each book.{" "}
                 <span className="text-fg-muted">Funded with</span> is the
                 capital the account was opened with, which on a simulated
                 account is simulated capital.{" "}
@@ -492,8 +492,8 @@ export default async function Portfolios() {
                 <span className="text-fg-muted">Strategies</span> is the sum of
                 the per-category counts the record publishes for the book; the
                 categories are listed beneath it. Holdings are published by
-                category and no strategy is named anywhere in this record —
-                which is why this column is a count and never a list.
+                category and no strategy is named anywhere in this record.
+                That is why this column is a count and never a list.
               </p>
             </div>
           </>
@@ -574,9 +574,10 @@ export default async function Portfolios() {
             <p>
               A twin is not another portfolio. It is one of the books above run
               at a smaller size, so that the pair measures capital sensitivity
-              and nothing else
-              {allTenths ? " — a tenth of the capital, in every pair here" : ""}
-              .
+              and nothing else.
+              {allTenths
+                ? " The smaller size is a tenth of the capital, in every pair here."
+                : ""}
               {allMatched
                 ? " The category counts and weights published for the two sides of each pair are identical, which is what makes a pair one experiment rather than two ideas."
                 : ""}
@@ -587,9 +588,9 @@ export default async function Portfolios() {
                   they copy, so the two returns do not cover the same window and
                   the difference between them is not a capital effect alone. */}
               They were not opened on the same day. The dates above are the
-              record&rsquo;s own, and the twin&rsquo;s return therefore covers a
-              shorter window than its parent&rsquo;s — so the gap between their
-              two returns in the index above is a difference of capital{" "}
+              record&rsquo;s own, and the twin&rsquo;s return covers a shorter
+              window than its parent&rsquo;s. The gap between their two returns
+              in the index above is therefore a difference of capital{" "}
               <em>and</em> of measurement window. Read a pair as one experiment
               with two readings, never as two records to rank against each
               other.

@@ -18,7 +18,7 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
       </h1>
       <p className="mt-4 text-body text-fg-muted max-w-[62ch] leading-relaxed">
         The site could not reach the published data. Nothing is being shown
-        rather than a stale or partial figure — this is a display failure on our
+        rather than a stale or partial figure. This is a display failure on our
         side, not a change to the record.
       </p>
       <p className="mt-3 text-body text-fg-muted max-w-[62ch] leading-relaxed">

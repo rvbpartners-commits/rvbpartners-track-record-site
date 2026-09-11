@@ -27,7 +27,7 @@ import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
 export const metadata: Metadata = {
   title: "Legal notice",
   description:
-    "Legal notice for RVB Partners — company identification, officers, hosting, and the terms on which this site is published.",
+    "Legal notice for RVB Partners: company identification, officers, hosting, and the terms on which this site is published.",
   alternates: { canonical: `${SITE_ORIGIN}/legal` },
 };
 
@@ -144,7 +144,7 @@ export default function LegalNotice() {
               <span key="data-host">
                 GitHub, Inc.
                 <Gloss>
-                  the record itself is served from a public repository — see{" "}
+                  the record itself is served from a public repository: see{" "}
                   <a
                     href={DATA_REPO_URL}
                     className="text-accent hover:underline"
@@ -170,11 +170,11 @@ export default function LegalNotice() {
             <span className="text-fg">
               {ENTITY.name} trades its own capital and no one else&rsquo;s.
             </span>{" "}
-            That is not only a statement by the company: its registered
+            That is not only a statement by the company. Its registered
             corporate purpose, as filed, is{" "}
-            <em lang="fr">{ENTITY.purpose.replace(/\.$/, "")}</em> — the purchase and sale
-            of financial products for its own account. The company does not
-            manage third-party money and is not authorised to.
+            <em lang="fr">{ENTITY.purpose.replace(/\.$/, "")}</em>: the purchase
+            and sale of financial products for its own account. The company
+            does not manage third-party money and is not authorised to.
           </p>
           <p>
             This site publishes a record of that trading. Nothing on it is
@@ -204,8 +204,8 @@ export default function LegalNotice() {
           <p>
             The name {ENTITY.name}, the {ENTITY.short} mark and the editorial
             content of this site belong to the company. The published record
-            itself — every figure, series and snapshot — is deliberately open:
-            it is served from{" "}
+            itself is deliberately open. Every figure, series and snapshot in it
+            is served from{" "}
             <a
               href={DATA_REPO_URL}
               className="text-accent hover:underline"
