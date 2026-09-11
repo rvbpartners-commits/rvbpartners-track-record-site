@@ -35,6 +35,9 @@ export const MAINTAINER_AVATAR =
   "https://avatars.githubusercontent.com/u/247671242?v=4";
 /** One address, used by the footer and the landing page. */
 export const CONTACT_EMAIL = "contact@rvbpartners.fr";
+/** The firm's only social presence. Named here with the other canonical
+ *  addresses so a page never types it out. */
+export const LINKEDIN_URL = "https://www.linkedin.com/company/rvb-partners/";
 /** @deprecated use DATA_REPO_URL */
 export const REPO_URL = DATA_REPO_URL;
 

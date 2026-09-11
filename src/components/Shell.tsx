@@ -145,7 +145,7 @@ export async function Shell({ children }: { children: ReactNode }) {
       >
         {children}
       </main>
-      <Footer hasLive={hasLive} hasResearch={hasResearch} />
+      <Footer hasLive={hasLive} />
     </div>
   );
 }

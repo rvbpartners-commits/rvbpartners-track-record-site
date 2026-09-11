@@ -230,7 +230,7 @@ export default function LegalNotice() {
       </Section>
 
       {/* ─── DONNÉES / COOKIES ────────────────────────────────────────── */}
-      <Section title="Personal data and cookies" gloss="Privacy">
+      <Section id="cookies" title="Personal data and cookies" gloss="Privacy">
         <div className="max-w-[72ch] space-y-4 text-body text-fg-muted">
           {/* WRITTEN FROM WHAT THE SITE ACTUALLY DOES, not from a template. If
               this ever stops being true — an analytics script, an embed, a
@@ -267,16 +267,22 @@ export default function LegalNotice() {
 }
 
 function Section({
+  id,
   title,
   gloss,
   children,
 }: {
+  /** Anchor target. The footer's "Cookies" entry links to `#cookies`, which
+   *  has to land ON the section that says the site stores nothing rather than
+   *  at the top of a legal notice. `scroll-mt` keeps the heading clear of the
+   *  viewport edge when it does. */
+  id?: string;
   title: string;
   gloss: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-12 lg:mt-16 border-t hairline pt-6">
+    <section id={id} className="mt-12 lg:mt-16 scroll-mt-8 border-t hairline pt-6">
       <h2 className="font-figure text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         <span className="ml-3 normal-case tracking-normal text-fg-faint/70">
