@@ -348,7 +348,7 @@ export default async function MethodologyPage() {
                   <div className="text-label font-semibold uppercase tracking-[0.16em] text-fg-faint">
                     Annualised gate
                   </div>
-                  <div className="mt-2 tnum text-subhead leading-none text-fg-faint">
+                  <div className="mt-2 tnum text-small leading-snug text-fg-faint">
                     {NO_VALUE}
                   </div>
                   <div className="mt-2 text-caption leading-snug text-fg-faint">

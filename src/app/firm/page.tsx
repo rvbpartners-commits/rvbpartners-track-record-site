@@ -756,7 +756,7 @@ function MarginList({ rows }: { rows: MarginRow[] }) {
             className={
               row.literal
                 ? "mt-1.5 font-figure text-small leading-snug text-fg"
-                : "mt-1.5 tnum text-subhead leading-none text-fg"
+                : "mt-1.5 tnum text-small leading-snug text-fg"
             }
           >
             {row.value}
@@ -829,7 +829,7 @@ function StepEvidence({
             <span className="mx-1.5">·</span>
             {row.name}
           </div>
-          <div className="mt-2 tnum text-subhead leading-none text-fg">
+          <div className="mt-2 tnum text-small leading-snug text-fg">
             {row.value}
           </div>
           <div className="mt-1.5 text-caption leading-snug text-fg-faint">

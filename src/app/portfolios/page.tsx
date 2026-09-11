@@ -262,20 +262,35 @@ export default async function Portfolios() {
           One way in, instead. The reader who wants to know what a portfolio is
           reads the lede; the reader who came to open one takes the link and
           skips everything between here and the accounts. */}
-      <div className="max-w-[var(--measure)]">
-        <h1 className="text-title">Portfolios</h1>
-        <p className="mt-5 text-body text-fg-muted">
-          Every portfolio RVB Partners publishes, what kind of account each one
-          is, and how they differ from one another. Each has its own page, where
-          the curve, the holdings and the chained evidence for it live.
-        </p>
+      {/* THE LEAD, AND THE WAY IN BESIDE IT. The link sat under the paragraph,
+          which is where a reader who has finished reading finds it — and the
+          reader who came to open a portfolio has not come to read. Across from
+          the lede it is the first thing on the page that is not prose, on the
+          side of the column that was empty. */}
+      <div className="grid gap-x-11 gap-y-6 lg:grid-cols-[minmax(0,var(--measure))_minmax(2.75rem,1fr)_minmax(0,var(--margin))]">
+        <div>
+          <h1 className="text-title">Portfolios</h1>
+          <p className="mt-5 text-body text-fg-muted">
+            Every portfolio RVB Partners publishes, what kind of account each
+            one is, and how they differ from one another. Each has its own page,
+            where the curve, the holdings and the chained evidence for it live.
+          </p>
+        </div>
         {loaded && (
           <a
-            href="#accounts"
-            className="mt-7 inline-flex items-center gap-2.5 border hairline px-5 py-3 text-small font-medium text-fg transition-colors hover:border-accent hover:bg-bg-subtle"
+            href="#portfolios"
+            className="group self-end lg:col-start-3 border hairline px-5 py-4 text-small font-medium text-fg transition-colors hover:border-accent hover:bg-bg-subtle"
           >
-            Discover the portfolios in depth
-            <span aria-hidden="true">&darr;</span>
+            <span className="flex items-baseline justify-between gap-3">
+              Discover the portfolios in depth
+              <span aria-hidden="true" className="text-fg-faint group-hover:text-accent">
+                &darr;
+              </span>
+            </span>
+            <span className="mt-2 block text-caption font-normal text-fg-muted">
+              Every published account, with what it was funded with and when it
+              opened.
+            </span>
           </a>
         )}
       </div>
@@ -454,8 +469,8 @@ export default async function Portfolios() {
           everywhere else — the sentence that qualifies a figure is worth
           nothing once the figure has been read. */}
       <Section
-        id="accounts"
-        title="The accounts"
+        id="portfolios"
+        title="The portfolios"
         gloss="One row per portfolio"
         wide
         note="Nothing in the table below is annualised and nothing in it is ranked. Every figure is published as it stands, except the strategy count, which is the sum of the book’s own per-category counts and is named as one."

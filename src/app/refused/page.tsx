@@ -1082,7 +1082,7 @@ function TierMatrix({
           >
             {rejectKey.replace(/_/g, " ")}, all tiers
           </div>
-          <div className="mt-1.5 tnum text-subhead leading-none text-fg">
+          <div className="mt-1.5 tnum text-small leading-snug text-fg">
             {count(rejectTotal)}
           </div>
           <p className="mt-1.5 text-caption leading-snug text-fg-faint">
@@ -1126,7 +1126,7 @@ function Figure({
 function MarginFigure({ value, label }: { value: string; label: string }) {
   return (
     <div className="border-t hairline pt-2">
-      <div className="tnum text-subhead leading-none text-fg">{value}</div>
+      <div className="tnum text-small leading-snug text-fg">{value}</div>
       <div className="mt-1.5 text-caption leading-snug text-fg-faint">
         {label}
       </div>

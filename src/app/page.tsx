@@ -204,12 +204,17 @@ export default async function Home() {
       {/* ─── 8. WHAT WE REJECTED ──────────────────────────────────────────
           Three figures and one link. The full account is a page of its own; on
           the front page this is a fact about the work, not a confession. */}
+      {/* THE COUNTS MOVE UP BESIDE THE PROSE. They sat underneath it in a
+          three-column row capped at 76ch, so the paragraph stopped at the
+          middle of the page and the figures stopped there too, one under the
+          other. The sentence says what was thrown away; the figures say how
+          much. They belong on one line of sight, at the two edges. */}
       {shownRejected.length > 0 && (
-        <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-          <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
+        <section className="section-grid mt-16 border-t hairline pt-7 lg:mt-24">
+          <h2 className="section-head text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
             What we rejected
           </h2>
-          <p className="mt-6 max-w-[68ch] text-body text-fg-muted">
+          <p className="text-body text-fg-muted">
             Nothing is deleted when it fails. The code, the returns and the
             report card stay exactly where they were, auditable, and stop being
             presented as a result. That is what makes the count publishable at
@@ -219,13 +224,13 @@ export default async function Home() {
             </Link>
             .
           </p>
-          <dl className="mt-7 grid gap-x-10 gap-y-6 sm:grid-cols-3 max-w-[76ch]">
+          <dl className="section-margin mt-8 border-t hairline lg:mt-0">
             {shownRejected.map(([value, label]) => (
-              <div key={label}>
-                <dt className="tnum text-heading leading-none text-fg">
+              <div key={label} className="border-b hairline py-2.5">
+                <dt className="tnum text-small leading-snug text-fg">
                   {int(value)}
                 </dt>
-                <dd className="mt-2.5 text-small leading-snug text-fg-faint">
+                <dd className="mt-0.5 text-caption leading-snug text-fg-muted">
                   {label}
                 </dd>
               </div>
@@ -247,12 +252,12 @@ export default async function Home() {
             research.json absent the masthead correctly dropped /research and
             /refused while this list went on offering both — the front page
             promising two pages the register could not show. */}
-        <ul className="mt-5 max-w-[80ch]">
+        <ul className="mt-5">
           {visibleNav(research !== null).map(({ href, label, question }) => (
             <li key={href} className="border-b hairline last:border-b-0">
               <Link
                 href={href}
-                className="group grid gap-x-6 gap-y-1 py-3.5 sm:grid-cols-[minmax(0,150px)_minmax(0,1fr)]"
+                className="group grid gap-x-6 gap-y-1 py-3.5 sm:grid-cols-[minmax(0,170px)_minmax(0,1fr)]"
               >
                 <span className="text-label uppercase tracking-[0.15em] text-fg-faint transition-colors group-hover:text-fg">
                   {label}
@@ -273,7 +278,7 @@ export default async function Home() {
           front page do not read as scrupulousness; they read as a site that is
           out of date. */}
       <section className="mt-16 lg:mt-24 border-t hairline pt-7">
-        <p className="max-w-[76ch] text-small leading-relaxed text-fg-faint">
+        <p className="max-w-[var(--measure)] text-small leading-relaxed text-fg-muted">
           {currentTo && (
             <>
               This record is current to{" "}

@@ -112,7 +112,7 @@
      so it means one width everywhere regardless of the size set on the
      element, and it lives on a grid track so no component has to restate it. */
   --measure: 33rem;
-  --rail: 172px;
+  --margin: 20rem;
   /* THE COLUMN. 1180px read as a narrow strip centred in a wide screen, which
      is its own kind of empty right-hand side. 1280 gives the three tracks room
      without letting any line of prose past `--measure`. */
@@ -280,23 +280,61 @@ code, pre, .mono {
 }
 
 /* ── THE SECTION GRID ──────────────────────────────────────────────────────
-   Rail, measure, margin. See src/components/Section.tsx for what goes in each
-   and why there are three. Below `lg` the tracks stack in reading order:
-   what this part is, the prose, then the annotation. */
+   A full-width head, then the content at the LEFT edge and the margin at the
+   RIGHT edge with an elastic gutter between them. See src/components/Section.tsx.
+
+   THERE IS NO LEFT RAIL. The first version put each section's name in a 172px
+   column down the left side. It named the part, which was the job, and it also
+   gave every section on the site a permanent empty strip at the left margin —
+   beside a chart, three words over 600px of nothing, with the chart squeezed
+   into the middle to pay for it. The name sits above its content now.
+
+   The gutter is the flexible track, so prose keeps `--measure` at the left
+   edge and the margin keeps its width at the right edge: what a wider screen
+   adds falls BETWEEN the two rather than after both, which is what left the
+   right-hand side of this site empty in the first place. */
 .section-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  column-gap: 2.75rem;
   row-gap: 1.25rem;
+}
+
+.section-head {
+  margin-bottom: 0.25rem;
 }
 
 @media (min-width: 1024px) {
   .section-grid {
     grid-template-columns:
-      var(--rail)
       minmax(0, var(--measure))
-      minmax(0, 1fr);
+      minmax(2.75rem, 1fr)
+      minmax(0, var(--margin));
     row-gap: 0;
+  }
+
+  .section-head {
+    grid-column: 1 / -1;
+    margin-bottom: 1.5rem;
+  }
+
+  /* The margin is the third track; the gutter between is left empty. */
+  .section-margin {
+    grid-column: 3;
+  }
+
+  /* CONTENT THAT IS NOT A SENTENCE TAKES THE WHOLE WIDTH. `--measure` is the
+     width at which a line of PROSE stops being comfortable; it is not a width a
+     chart or a seven-column table has any reason to obey. */
+  .section-wide {
+    grid-column: 1 / -1;
+  }
+
+  /* A CHART TAKES WHAT THE MARGIN DOES NOT NEED. */
+  .section-grid--fill {
+    grid-template-columns:
+      minmax(0, 1fr)
+      2.75rem
+      minmax(0, var(--margin));
   }
 }
 
@@ -304,28 +342,6 @@ code, pre, .mono {
    page cannot reintroduce a local width cap without it being obvious. */
 .section-measure > * + * {
   margin-top: 1rem;
-}
-
-/* CONTENT THAT IS NOT A SENTENCE SPANS BOTH TRACKS. 33rem is the width at
-   which a line of prose stops being comfortable to read; it is not a width a
-   chart or a seven-column table has any reason to obey. Capping those at the
-   measure crushed them and left the margin white beside them, which is the
-   same empty right-hand column by another route. */
-@media (min-width: 1024px) {
-  .section-wide {
-    grid-column: 2 / -1;
-  }
-
-  /* A CHART TAKES WHAT THE NOTE DOES NOT NEED. `--measure` is the width at
-     which a SENTENCE stops being comfortable; a curve has no such limit, and
-     drawing one at 528px beside a 296px note was the one figure a reader came
-     for, squeezed to obey a rule written for prose. */
-  .section-grid--fill {
-    grid-template-columns:
-      var(--rail)
-      minmax(0, 1fr)
-      18rem;
-  }
 }
 
 /* Wide tables and charts scroll in place. */
