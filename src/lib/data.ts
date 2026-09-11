@@ -674,13 +674,19 @@ function num(v: string | undefined): number | null {
  *  choice made here, and only here — one list, one place a reader (or a future
  *  editor of this file) can find every book currently withheld and why.
  *
- *  `maker_01`: withheld 2026-09-05. The broker account was converted from
- *  hedging to netting mode and reset; the published record still ends
- *  2026-08-27 under the superseded convention while the corrected, netting-
- *  aware chain waits on the broker market reopening to publish for real. Shown
- *  again once that chain is live.
+ *  THE SET IS EMPTY, AND THAT IS THE NORMAL STATE. It is kept because the
+ *  decision it records has to live somewhere a reader can find; a withheld book
+ *  removed by deleting the mechanism leaves nothing to read the next time.
+ *
+ *  `maker_01`: withheld 2026-09-05, released 2026-09-11. The broker account had
+ *  been converted from hedging to netting mode and reset, and the published
+ *  record still ended 2026-08-27 under the superseded convention. That chain is
+ *  now archived under `superseded/` and a new one runs from inception
+ *  2026-09-10, fed by the trading system's own machine export. The book comes
+ *  back on its first closed session — until then it is absent from
+ *  `index.json`, published by nothing here, and this file has no say in it.
  */
-const WITHHELD_BOOKS = new Set<string>(["maker_01"]);
+const WITHHELD_BOOKS = new Set<string>([]);
 
 /** The account kind a book is published under. `account_kind` where the payload
  *  states it; otherwise derived, which is what every book predating the field
