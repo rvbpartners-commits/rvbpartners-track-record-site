@@ -277,17 +277,24 @@ export default async function Portfolios() {
           </p>
         </div>
         {loaded && (
+          /* `lg:col-start-3` USED TO BE HERE, left over from the three-track
+             grid. With two columns it pushed the link into an IMPLICIT third
+             one, which took its width out of the text track: the lede wrapped
+             at about 340px instead of 820 and the gap between them was the
+             column the browser invented to hold the link.
+
+             Ink on white, not an outline. It is the only thing on the page a
+             reader is being asked to press, and a hairline rectangle beside a
+             paragraph reads as another note. */
           <a
             href="#portfolios"
-            className="group self-end lg:col-start-3 border hairline px-5 py-4 text-small font-medium text-fg transition-colors hover:border-accent hover:bg-bg-subtle"
+            className="group self-end bg-[#0c0d0e] px-5 py-4 text-small font-medium text-[#f2f0ec] transition-opacity hover:opacity-90"
           >
             <span className="flex items-baseline justify-between gap-3">
               Discover the portfolios in depth
-              <span aria-hidden="true" className="text-fg-faint group-hover:text-accent">
-                &darr;
-              </span>
+              <span aria-hidden="true">&darr;</span>
             </span>
-            <span className="mt-2 block text-caption font-normal text-fg-muted">
+            <span className="mt-2 block text-caption font-normal text-[#b9b4ab]">
               Every published account, with what it was funded with and when it
               opened.
             </span>

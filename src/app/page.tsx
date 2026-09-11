@@ -124,7 +124,7 @@ export default async function Home() {
           canvas empty, which is the layout of a document rather than of a
           firm's front page — and it pushed everything below the fold for no
           gain in readability. */}
-      <section className="mt-16 grid gap-x-16 gap-y-8 border-b hairline pb-14 lg:mt-24 lg:grid-cols-2 lg:pb-20">
+      <section className="mt-14 grid gap-x-16 gap-y-8 border-b hairline pb-12 lg:mt-16 lg:grid-cols-2 lg:pb-14">
         <div>
           <p className="text-subhead text-fg">
             A paper account is a real broker account trading live market prices
@@ -151,11 +151,16 @@ export default async function Home() {
       {/* HOW THIS WORKS — three across, full width. It was a vertical list in
           a narrow column, which is a table of contents pretending to be a
           section. Three columns is the shape the content already had. */}
-      <section className="mt-16 lg:mt-24">
-        <h2 className="text-label font-medium uppercase text-fg-faint">
+      {/* A RULE ABOVE THE HEADING, like every other section on the page. This
+          one had none, and its three columns each carried their own rule
+          starting below the heading — so the heading floated free and the three
+          short rules read as the section boundary rather than as the top of
+          each step. The rule is the boundary; the numbers group the steps. */}
+      <section className="mt-12 border-t hairline pt-7 lg:mt-16">
+        <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
           How this works
         </h2>
-        <ol className="mt-9 grid gap-x-12 gap-y-12 md:grid-cols-3">
+        <ol className="mt-8 grid gap-x-12 gap-y-10 md:grid-cols-3">
           {[
             {
               n: "01",
@@ -182,7 +187,7 @@ export default async function Home() {
               cta: "Check it without asking us",
             },
           ].map((s) => (
-            <li key={s.n} className="border-t hairline pt-5">
+            <li key={s.n}>
               <span className="text-label text-fg-faint">{s.n}</span>
               <h3 className="mt-3 text-subhead font-semibold text-fg">
                 {s.head}
@@ -212,7 +217,7 @@ export default async function Home() {
           what was thrown away, then the counts say how much. In that order,
           both full width. */}
       {shownRejected.length > 0 && (
-        <section className="mt-16 border-t hairline pt-7 lg:mt-24">
+        <section className="mt-12 border-t hairline pt-7 lg:mt-16">
           <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
             What we rejected
           </h2>
@@ -226,7 +231,7 @@ export default async function Home() {
             </Link>
             .
           </p>
-          <dl className="mt-8 grid gap-x-12 gap-y-8 border-t hairline pt-6 sm:grid-cols-3">
+          <dl className="mt-7 grid gap-x-12 gap-y-7 border-t hairline pt-5 sm:grid-cols-3">
             {shownRejected.map(([value, label]) => (
               <div key={label}>
                 <dt className="tnum text-heading leading-none text-fg">
@@ -245,7 +250,7 @@ export default async function Home() {
           Each part printed as the question it answers. A reader who has got
           this far should choose where to go from what they want to know,
           rather than from a noun. */}
-      <section className="mt-16 lg:mt-24 border-t hairline pt-7">
+      <section className="mt-12 border-t hairline pt-7 lg:mt-16">
         <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
           Contents
         </h2>
@@ -279,7 +284,7 @@ export default async function Home() {
           they qualify — each next to what it governs. Three dates stacked on a
           front page do not read as scrupulousness; they read as a site that is
           out of date. */}
-      <section className="mt-16 lg:mt-24 border-t hairline pt-7">
+      <section className="mt-12 border-t hairline pt-7 lg:mt-16">
         <p className="text-small leading-relaxed text-fg-muted">
           {currentTo && (
             <>
