@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Mark } from "./Mark";
 
 /**
  * THE HERO — a full-bleed opening band, in the shape an institutional site
@@ -27,6 +26,20 @@ import { Mark } from "./Mark";
  * The band keeps the ink ground the rest of the site has left behind, and
  * that is the point: one dark screen at the top of a white document reads as
  * a cover. Repeated anywhere else it would just be a second theme.
+ *
+ * IT NO LONGER CARRIES THE MARK. The masthead directly above it does, and on
+ * this page the two sat 136px apart at 13px and 46px — the same logo twice on
+ * one screen, which is what made the pair read as two competing bands rather
+ * than as a head and a cover. Of the two the masthead is the one every route
+ * has; this band is on one page. So the mark stays up there and the cover opens
+ * on the sentence, which is the more confident opening anyway.
+ *
+ * AND IT BUTTS THE RULE. `main` pads itself `py-8 lg:py-10`, which is right for
+ * prose and wrong for a full-bleed band: it left a 40px strip of white between
+ * the masthead's bottom rule and the top of the ink, so the band floated
+ * instead of meeting the head. The negative top margin cancels exactly that
+ * padding. It lives here rather than in `Shell` because this is the only child
+ * that wants it, and `main` must keep its padding for every other page.
  */
 export function Hero({
   stats,
@@ -36,11 +49,9 @@ export function Hero({
   stats: { label: string; value: string }[];
 }) {
   return (
-    <section className="ground-ink relative left-1/2 w-screen -translate-x-1/2 bg-[#0c0d0e] text-[#f2f0ec]">
-      <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12 pt-16 pb-14 lg:pt-24 lg:pb-16">
-        <Mark aria-hidden="true" className="h-[44px] w-auto sm:h-[52px]" />
-
-        <h1 className="mt-10 max-w-[19ch] text-display font-semibold">
+    <section className="ground-ink relative left-1/2 -mt-8 w-screen -translate-x-1/2 bg-[#0c0d0e] text-[#f2f0ec] lg:-mt-10">
+      <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12 pt-14 pb-14 lg:pt-20 lg:pb-16">
+        <h1 className="max-w-[19ch] text-display font-semibold">
           Systematic strategies, tested against how results deceive.
         </h1>
 
