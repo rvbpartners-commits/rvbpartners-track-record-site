@@ -31,41 +31,38 @@ export const INK_MUTED = "#b9b4ab";
 export const INK_FAINT = "#8b8781";
 
 /**
- * The mark's three faces, resolved against the ink ground.
+ * The mark's three greys, sampled from `_rvb_logo.png` and not repainted.
  *
- * `Mark.tsx` paints them in `currentColor` at 0.40 / 0.66 / 0.92 so one drawing
- * serves both grounds. These are those three opacities composited over `INK`
- * with `INK_FG` as the ink, which is what the browser computes for the hero
- * band — so the generated images and the rendered page show the same mark
- * rather than two that merely resemble each other.
+ * Same values as `Mark.tsx`, for the same reason: they are pitched for a dark
+ * ground, and the mark supplies that ground itself.
  */
-const FACE_TOP = "#686867";
-const FACE_RIGHT = "#a4a3a1";
-const FACE_LEFT = "#e0deda";
+const FACE_SIDE = "#8c8c8c";
+const FACE_TOP = "#5c5c5c";
+const FACE_FRONT = "#333333";
 
 /**
  * The mark as a standalone SVG document, for `next/og`.
  *
- * Satori renders a limited SVG subset and `currentColor` is not part of it, so
- * the faces are stated. It is handed over as a data URI on an `<img>`, which is
- * the path Satori supports without reservation — an inline `<svg>` with nine
- * `<polygon>` children is not.
+ * Satori renders a limited SVG subset, so this is handed over as a data URI on
+ * an `<img>` — the path it supports without reservation. An inline `<svg>` with
+ * ten children is not.
  *
- * Same geometry and same `viewBox` as `Mark.tsx`, including the `-20` origin
- * that stops the top cube being cropped. If one changes, change both.
+ * Same geometry, same greys and same square `viewBox` as `Mark.tsx`, black
+ * plate included. If one changes, change both.
  */
 export function markSvg(): string {
   return [
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -20 160 160" width="160" height="160">',
-    `<polygon points="0,80 40,60 80,80 40,100" fill="${FACE_TOP}"/>`,
-    `<polygon points="0,80 40,100 40,140 0,120" fill="${FACE_LEFT}"/>`,
-    `<polygon points="40,100 80,80 80,120 40,140" fill="${FACE_RIGHT}"/>`,
-    `<polygon points="40,40 80,20 120,40 80,60" fill="${FACE_TOP}"/>`,
-    `<polygon points="40,40 80,60 80,100 40,80" fill="${FACE_LEFT}"/>`,
-    `<polygon points="80,60 120,40 120,80 80,100" fill="${FACE_RIGHT}"/>`,
-    `<polygon points="80,0 120,-20 160,0 120,20" fill="${FACE_TOP}"/>`,
-    `<polygon points="80,0 120,20 120,60 80,40" fill="${FACE_LEFT}"/>`,
-    `<polygon points="120,20 160,0 160,40 120,60" fill="${FACE_RIGHT}"/>`,
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -55 260 260" width="260" height="260">',
+    `<rect x="-15" y="-55" width="260" height="260" fill="${INK}"/>`,
+    `<polygon points="0,90 50,80 50,120 0,130" fill="${FACE_SIDE}"/>`,
+    `<polygon points="50,80 110,95 110,120 50,120" fill="${FACE_FRONT}"/>`,
+    `<polygon points="0,90 50,80 110,95 60,105" fill="${FACE_TOP}"/>`,
+    `<polygon points="60,60 110,50 110,95 60,105" fill="${FACE_SIDE}"/>`,
+    `<polygon points="110,50 170,65 170,95 110,95" fill="${FACE_FRONT}"/>`,
+    `<polygon points="60,60 110,50 170,65 120,75" fill="${FACE_TOP}"/>`,
+    `<polygon points="120,30 170,20 170,65 120,75" fill="${FACE_SIDE}"/>`,
+    `<polygon points="170,20 230,35 230,65 170,65" fill="${FACE_FRONT}"/>`,
+    `<polygon points="120,30 170,20 230,35 180,45" fill="${FACE_TOP}"/>`,
     "</svg>",
   ].join("");
 }

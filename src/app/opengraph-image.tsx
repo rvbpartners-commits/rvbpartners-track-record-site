@@ -54,8 +54,8 @@ export default async function OgImage() {
             the card every shared link unfurled into was advertising a design the
             site had stopped using. The wordmark keeps its place beside it, now
             in the hero band's own type colour. */}
-        <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
-          <img src={markDataUri()} alt="" width={54} height={54} />
+        <div style={{ display: "flex", alignItems: "center", gap: 26 }}>
+          <img src={markDataUri()} alt="" width={88} height={88} />
           <div style={{ display: "flex", fontSize: 26, letterSpacing: "0.14em" }}>
             RVB PARTNERS
           </div>

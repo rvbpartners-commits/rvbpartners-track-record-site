@@ -12,12 +12,10 @@ import { INK, markDataUri } from "@/lib/brand";
  *
  * Ink rather than the site's white, deliberately: a tab icon is seen against
  * the browser's own chrome, and a white-ground mark disappears into a light tab
- * strip. The ground is the hero band's exact value, so the favicon and the
- * first thing a reader sees on the page are the same object.
- *
- * 6px of padding at 32px. The mark is a diagonal climb and reads as a smear
- * without air around it; at a favicon's size that margin is the difference
- * between three cubes and a grey mark.
+ * strip. The mark now carries that ground itself, so this fills the tile edge
+ * to edge rather than padding a drawing inside a second plate of the same
+ * colour — at 32px a border of ink around a square of ink is just a smaller
+ * icon.
  */
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
@@ -33,10 +31,9 @@ export default function Icon() {
           alignItems: "center",
           justifyContent: "center",
           background: INK,
-          padding: 6,
         }}
       >
-        <img src={markDataUri()} alt="" width={20} height={20} />
+        <img src={markDataUri()} alt="" width={32} height={32} />
       </div>
     ),
     { ...size },

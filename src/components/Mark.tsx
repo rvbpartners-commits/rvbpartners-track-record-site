@@ -1,47 +1,37 @@
 import type { SVGProps } from "react";
 
 /**
- * The RVB Partners brand mark — three isometric cubes climbing to the right.
+ * The RVB Partners brand mark: an isometric three-step staircase, on ink.
  *
- * SUPPLIED BY THE FIRM, AND IT REPLACES THE STAIRCASE. The previous mark was a
- * three-step staircase ported from `Web/SiteWebCr/components/ui/Logo.tsx`, and
- * the comment there recorded a rule: its three greys were sampled from
- * `_rvb_logo.png` so the rendered mark would match the printed documents, and
- * they were therefore NOT to be repainted for this site's palette. That rule
- * belonged to that drawing. This is a different mark, delivered for this site,
- * and the decision it carried is made again below rather than inherited.
+ * RESTORED AT THE FIRM'S DIRECTION. A three-cube variant was tried in 81a01a2
+ * and rejected on sight of it; this is the original geometry and the original
+ * three greys, which is the mark as it appears on the printed documents and on
+ * the firm's LinkedIn. The nine polygons came from the SVG the partners
+ * supplied and the greys were sampled from `_rvb_logo.png`:
  *
- * PAINTED IN `currentColor`, AT THREE OPACITIES. The mark as supplied is three
- * fixed greys — #c8c8c8 top faces, #9b9b9b right faces, #696969 left faces —
- * which is one drawing that works on exactly one ground. This site needs it on
- * two: the white masthead and the ink hero band. A fixed mid-grey goes muddy on
- * ink, where the light faces are barely separated from the dark ones and the
- * cubes stop reading as cubes.
+ *   #8c8c8c  side faces
+ *   #5c5c5c  top faces
+ *   #333333  front faces
  *
- * So each face takes the ink of whatever is around it and steps down from it:
+ * THE GREYS ARE NOT REPAINTED, AND THE GROUND IS WHY. Those three values are
+ * pitched for a dark ground and only work on one: the steps are described by
+ * the light and mid faces, and the front faces at #333333 are meant to sink
+ * into the ink as the shadow between them. Dropped onto the site's white that
+ * reading inverts and the mark goes flat and pale, which is what the earlier
+ * port did and what `currentColor` was an attempt to solve.
  *
- *   0.40  top faces     #9d9d9d on white
- *   0.66  right faces   #5d5d5d on white
- *   0.92  left faces    #1e1e1e on white
+ * So the mark carries its own ground. The black plate is part of the drawing
+ * rather than something the page provides, which means one component is
+ * correct in the masthead, in the hero band, in the favicon and in the share
+ * card, without any of them having to know what it needs. It is also how the
+ * mark is used everywhere off this site.
  *
- * On the white ground that is the supplied drawing made darker, at the firm's
- * direction — the mark as delivered read as grey beside a near-black wordmark,
- * which is a logo apologising for itself. On the ink band the relationship
- * inverts with the ground, so the light source flips and the cubes still read.
- * One drawing, correct on both, and it follows the `--fg` token rather than
- * sitting beside it.
- *
- * THE VIEWBOX IS THE TIGHT BOUNDING BOX, and it is square. The geometry spans
- * x 0…160 and y −20…140: the third cube's top face peaks 20 units ABOVE the
- * origin, so the `0 0 160 160` the drawing arrived with cropped it flat. The
- * box is stated as `0 -20 160 160` rather than padded to `0 -20 160 180`,
- * because 160 × 160 is exactly what the nine polygons occupy and any other
- * height puts dead space on one edge and centres the mark wrongly against
- * anything it sits beside.
- *
- * Consumers set a height and let the width follow; the mark is square, unlike
- * the 230 × 130 staircase it replaces, so the same `h-*` value now reads
- * noticeably larger and the call sites were re-sized with it.
+ * THE PLATE IS SQUARE AND THE STAIRCASE IS CENTRED IN IT. The artwork occupies
+ * x 0…230 and y 20…130, and the viewBox is expanded symmetrically about its
+ * centre (115, 75) to a 260 × 260 box — so the staircase spans 88% of the
+ * tile's width rather than floating in it. A square plate is what the mark
+ * uses off this site, but the drawing inside it is 2:1, so generous padding
+ * turns the whole thing into a smudge at favicon size.
  */
 export function Mark({
   className,
@@ -50,26 +40,26 @@ export function Mark({
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 -20 160 160"
+      viewBox="-15 -55 260 260"
       role="img"
       aria-label="RVB Partners"
       className={className}
       {...rest}
     >
-      <g fill="currentColor">
-        {/* Cube 1 — bottom-left */}
-        <polygon points="0,80 40,60 80,80 40,100" opacity="0.4" />
-        <polygon points="0,80 40,100 40,140 0,120" opacity="0.92" />
-        <polygon points="40,100 80,80 80,120 40,140" opacity="0.66" />
-        {/* Cube 2 — middle */}
-        <polygon points="40,40 80,20 120,40 80,60" opacity="0.4" />
-        <polygon points="40,40 80,60 80,100 40,80" opacity="0.92" />
-        <polygon points="80,60 120,40 120,80 80,100" opacity="0.66" />
-        {/* Cube 3 — top-right, peaking above the origin */}
-        <polygon points="80,0 120,-20 160,0 120,20" opacity="0.4" />
-        <polygon points="80,0 120,20 120,60 80,40" opacity="0.92" />
-        <polygon points="120,20 160,0 160,40 120,60" opacity="0.66" />
-      </g>
+      {/* The ground, as part of the mark. */}
+      <rect x="-15" y="-55" width="260" height="260" fill="#0c0d0e" />
+      {/* Step 1 — front-most (bottom-left) */}
+      <polygon points="0,90 50,80 50,120 0,130" fill="#8c8c8c" />
+      <polygon points="50,80 110,95 110,120 50,120" fill="#333333" />
+      <polygon points="0,90 50,80 110,95 60,105" fill="#5c5c5c" />
+      {/* Step 2 — middle */}
+      <polygon points="60,60 110,50 110,95 60,105" fill="#8c8c8c" />
+      <polygon points="110,50 170,65 170,95 110,95" fill="#333333" />
+      <polygon points="60,60 110,50 170,65 120,75" fill="#5c5c5c" />
+      {/* Step 3 — back-most (top-right) */}
+      <polygon points="120,30 170,20 170,65 120,75" fill="#8c8c8c" />
+      <polygon points="170,20 230,35 230,65 170,65" fill="#333333" />
+      <polygon points="120,30 170,20 230,35 180,45" fill="#5c5c5c" />
     </svg>
   );
 }
