@@ -79,7 +79,17 @@ export async function Shell({ children }: { children: ReactNode }) {
         Skip to the record
       </a>
 
-      <header className="border-b hairline">
+      {/* NO RULE ON THE <header> ITSELF. It carried `border-b hairline`, which
+          sits OUTSIDE the capped container and therefore ran the full width of
+          the viewport — while the rule between the name row and the contents
+          row, and every section rule on every page below, stop at the text
+          column. One band, two rule widths, and the wider of the two was the
+          one dividing the masthead from the page.
+
+          The rules now all measure the same, so the masthead is bounded the
+          way the text is and the head reads as the top of the document rather
+          than as a bar laid across it. */}
+      <header>
         {/* `mx-auto` is what centres the column. A `max-w-*` on its own only
             caps the width — the block stays flush left, which on a wide screen
             leaves the whole site pinned to one edge. Every container that caps
@@ -132,7 +142,7 @@ export async function Shell({ children }: { children: ReactNode }) {
               reader nothing about which one they are in. */}
           <nav
             aria-label="Sections of the register"
-            className="border-t hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x"
+            className="border-y hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x"
           >
             <NavLinks items={nav} />
           </nav>
