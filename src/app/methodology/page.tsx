@@ -38,7 +38,12 @@ export default async function MethodologyPage() {
   // paper record carries the field, and the sentence then does not render —
   // this page never states a feed it could not read.
   const paperFeed = feeds.get("paper") ?? null;
-  const minSessions = index?.min_sessions_for_annualised ?? 60;
+  // `?? null`, for the same reason `lag` above is. 60 is the threshold the
+  // publisher happens to emit today, and hardcoding it here meant that with the
+  // index unreachable this page went on stating a policy as fact — printing a
+  // number it had not read, on the page whose whole subject is where the
+  // numbers come from. An unknown threshold is an unknown threshold.
+  const minSessions = index?.min_sessions_for_annualised ?? null;
   // `?? null`, never `?? 1`. A failed fetch used to invent a one-day lag policy
   // and print it as fact; an unknown lag is an unknown lag and the paragraph
   // says so instead.
@@ -232,7 +237,9 @@ export default async function MethodologyPage() {
           </p>
           <p>
             <strong className="font-medium">
-              Annualised statistics are withheld until {minSessions} sessions.
+              {minSessions === null
+                ? "Annualised statistics are withheld until a book has enough history."
+                : `Annualised statistics are withheld until ${minSessions} sessions.`}
             </strong>{" "}
             Each book publishes the exact list of names it is suppressing, and
             its page renders that list rather than a copy of it kept here. On a
