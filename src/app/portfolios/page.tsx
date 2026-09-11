@@ -234,14 +234,70 @@ export default async function Portfolios() {
 
   return (
     <div className="pt-2 lg:pt-6">
-      <h1 className="text-title sm:text-title">
-        Portfolios
-      </h1>
-      <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
-        Every portfolio RVB Partners publishes, what kind of account each one
-        is, and how they differ from one another. Each has its own page, where
-        the curve, the holdings and the chained evidence for it live.
-      </p>
+      {/* ─── THE HEAD, AND THE REGISTER BESIDE IT ─────────────────────────
+          A reader arriving here wants one of two things: to know what a
+          portfolio is, or to open one. The page answered the first and made
+          the second a scroll past four sections and a chart to a table at the
+          foot — on the page whose whole job is to list the accounts.
+
+          They are now side by side. The lead keeps the measure; the right
+          column is the register itself, every book named and linked, with its
+          published account kind against it. It is the contents of this page
+          and the call to action at once, which is the only kind this site's
+          voice can carry: a list of what is here, not a button.
+
+          Rendered only when the index loaded. With no books there is nothing
+          to list, and an empty rail beside the lead would read as a column
+          that failed rather than as a record with nothing in it. */}
+      <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,var(--measure))_minmax(0,1fr)]">
+        <div>
+          <h1 className="text-title">Portfolios</h1>
+          <p className="mt-5 text-body text-fg-muted">
+            Every portfolio RVB Partners publishes, what kind of account each
+            one is, and how they differ from one another. Each has its own
+            page, where the curve, the holdings and the chained evidence for it
+            live.
+          </p>
+        </div>
+
+        {loaded && (
+          <nav aria-label="The portfolios" className="lg:pt-2">
+            <h2 className="border-b hairline pb-2 text-label font-semibold uppercase tracking-[0.13em] text-fg">
+              The accounts
+            </h2>
+            <ul>
+              {books.map((b) => (
+                <li key={b.book} className="border-b hairline">
+                  <Link
+                    href={`/portfolios/${bookSlug(b)}`}
+                    className="group flex items-baseline justify-between gap-3 py-2"
+                  >
+                    <span className="text-small text-accent group-hover:underline">
+                      {b.label}
+                    </span>
+                    {/* The book's own published wording, never a sentence
+                        decided here. Both kinds get the same treatment; the
+                        difference is the text. */}
+                    <span className="shrink-0 text-caption text-fg-faint">
+                      {b.account_kind_label ??
+                        (b.capital_at_risk
+                          ? "Capital at risk"
+                          : "Paper")}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="#accounts"
+              className="mt-3 inline-block text-caption text-accent hover:underline"
+            >
+              Funding and inception, in full{" "}
+              <span aria-hidden="true">&darr;</span>
+            </a>
+          </nav>
+        )}
+      </div>
 
       {/* ─── WHAT A PORTFOLIO IS ──────────────────────────────────────────
           This paragraph exists nowhere else on the site. Every other page
@@ -362,7 +418,7 @@ export default async function Portfolios() {
       )}
 
       {/* ─── THE INDEX ────────────────────────────────────────────────────── */}
-      <Section title="The accounts" gloss="One row per portfolio">
+      <Section id="accounts" title="The accounts" gloss="One row per portfolio">
         {loaded && index ? (
           <>
             <div className="scroll-x">
@@ -744,16 +800,20 @@ function Th({
 /** Section rule + head, matching the legal notice: the house pattern is a
  *  hairline, a small-caps mono head and a gloss saying what the section is for. */
 function Section({
+  id,
   title,
   gloss,
   children,
 }: {
+  /** Anchor target. `scroll-mt` keeps the heading clear of the viewport edge
+   *  when the jump from the header lands on it. */
+  id?: string;
   title: string;
   gloss?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-12 lg:mt-16 border-t hairline pt-6">
+    <section id={id} className="mt-12 scroll-mt-8 border-t hairline pt-6 lg:mt-16">
       <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
         {title}
         {gloss && (
