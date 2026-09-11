@@ -142,8 +142,25 @@ function buildChart(
   intraday: IntradayPoint[],
   benchIntraday: Map<string, { spy: number | null; cash: number | null }>,
   liveFactor = 1,
+  initialCapital = 0,
 ): { points: ChartPoint[]; granular: boolean } {
-  const base = nav.length > 0 ? nav[0].equity_adj : 0;
+  // THE BASE IS THE OPENING CAPITAL, NOT THE FIRST ROW. Every desk book opens
+  // its `nav.csv` with a row dated at inception carrying the funded capital and
+  // an empty `daily_return` — an origin, not a session — so the two were the
+  // same number and reading the first row worked by coincidence rather than by
+  // contract. The one book whose inception falls ON its first session cannot
+  // carry that row without publishing two rows for one day, and there the first
+  // row is a CLOSE: rebasing on it silently drops the first session's return,
+  // which is exactly the gap the mismatch notice below was reporting.
+  //
+  // `initial_capital` is the number every return in the record is divided by,
+  // published in the index and frozen write-once at inception. Using it is not
+  // inventing a base, it is reading the one the metrics already used. Verified
+  // against all six paper books before the change: their first row equals their
+  // initial capital to the last digit, so this is a no-op for them — and the
+  // mismatch notice stays, so if it were ever not a no-op, the page says so
+  // instead of quietly drawing a different curve.
+  const base = initialCapital || (nav.length > 0 ? nav[0].equity_adj : 0);
   if (!base) return { points: [], granular: false };
 
   const bench = new Map(benchmark.map((b) => [b.date, b]));
@@ -289,8 +306,10 @@ function BookView({
   const { points, granular } = useMemo(
     () =>
       buildChart(nav, benchmark, intraday, benchIntraday,
-                 meta?.capital_events?.live_factor ?? 1),
-    [nav, benchmark, intraday, benchIntraday, meta?.capital_events?.live_factor],
+                 meta?.capital_events?.live_factor ?? 1,
+                 summary.initial_capital),
+    [nav, benchmark, intraday, benchIntraday, meta?.capital_events?.live_factor,
+     summary.initial_capital],
   );
 
   // Does the drawn curve actually end on the published cumulative return? On
