@@ -65,9 +65,13 @@ export async function Shell({ children }: { children: ReactNode }) {
                 different sites. */}
             <Link
               href="/"
-              className="inline-flex items-baseline gap-2.5 text-subhead font-semibold"
+              /* `items-center`, not `items-baseline`. An SVG's baseline is its
+                 bottom edge, so a baseline-aligned mark hangs its whole height
+                 above the text — survivable for the old 230×130 staircase with
+                 a 1px nudge, wrong for a square one. */
+              className="inline-flex items-center gap-2.5 text-subhead font-semibold"
             >
-              <Mark aria-hidden="true" className="h-[13px] w-auto translate-y-[1px]" />
+              <Mark aria-hidden="true" className="h-[21px] w-auto" />
               RVB Partners
             </Link>
             {runningHead && (

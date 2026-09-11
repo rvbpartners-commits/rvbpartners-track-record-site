@@ -38,7 +38,7 @@ export function Hero({
   return (
     <section className="relative left-1/2 w-screen -translate-x-1/2 bg-[#0c0d0e] text-[#f2f0ec]">
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12 pt-16 pb-14 lg:pt-24 lg:pb-16">
-        <Mark aria-hidden="true" className="h-[38px] w-auto sm:h-[46px]" />
+        <Mark aria-hidden="true" className="h-[44px] w-auto sm:h-[52px]" />
 
         <h1 className="mt-10 max-w-[19ch] text-display font-semibold">
           Systematic strategies, tested against how results deceive.
