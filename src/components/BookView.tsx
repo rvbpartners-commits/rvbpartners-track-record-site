@@ -15,6 +15,7 @@ import type {
 } from "@/lib/data";
 import { DATA_REPO_URL } from "@/lib/data";
 import {
+  NO_VALUE,
   date,
   dateTime,
   marketTime,
@@ -1241,9 +1242,18 @@ function BookView({
           {typeof marketDataFeed === "string" ? (
             <Line label="Market data">{marketDataFeed}</Line>
           ) : null}
+          {/* `|| "—"` CONFLATED A ZERO WITH AN ABSENCE. The sum of a table's
+              own rows is a drawing operation the doctrine allows, but a
+              falsy-test on the result does not distinguish "no category list
+              was published" from "the categories published sum to nothing" —
+              and the second is a fact, printed here as a missing value. The
+              list's presence decides whether there is anything to say; the
+              total is then printed whatever it comes to. */}
           <Line label="Strategies">
             <span className="tnum">
-              {summary.categories?.reduce((s, c) => s + c.strategies, 0) || "—"}
+              {summary.categories && summary.categories.length > 0
+                ? summary.categories.reduce((s, c) => s + c.strategies, 0)
+                : NO_VALUE}
             </span>
           </Line>
           {summary.paths?.methodology ? (

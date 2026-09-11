@@ -111,11 +111,25 @@ export function DailyPnlChart({
                 {/* La couleur se decide par barre, et `Cell` est la seule
                     facon dont recharts la prend. Vert au-dessus de zero, rouge
                     en dessous -- meme convention de signe que partout ailleurs
-                    sur le site. */}
+                    sur le site.
+
+                    TROIS CAS, PAS DEUX. `(d.pnl ?? 0) >= 0` peignait en vert
+                    toute seance dont le P&L n'est pas publie : `null ?? 0`
+                    vaut 0, et 0 >= 0. Ce composant ne filtre pas les nuls, si
+                    bien qu'une seance absente s'asseyait sur l'axe dans la
+                    couleur des gains, indiscernable d'une journee qui n'a
+                    rien fait. Une absence se rend en filet : la barre garde sa
+                    place sur l'axe et ne revendique aucun signe. */}
                 {data.map((d) => (
                   <Cell
                     key={d.date}
-                    fill={(d.pnl ?? 0) >= 0 ? "var(--up)" : "var(--down)"}
+                    fill={
+                      d.pnl === null || d.pnl === undefined
+                        ? "var(--hairline)"
+                        : d.pnl >= 0
+                          ? "var(--up)"
+                          : "var(--down)"
+                    }
                   />
                 ))}
               </Bar>

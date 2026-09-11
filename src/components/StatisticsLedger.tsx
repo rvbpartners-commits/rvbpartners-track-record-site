@@ -108,18 +108,34 @@ export function StatisticsLedger({
       // saying the book has 16 observations. Up and down are published; the
       // total is not the sum of them, so no total is stated unless the desk
       // publishes the flat count too.
+      //
+      // NOR TO INVENT A COUNT. The fix above still reached this row through
+      // `?? 0` on both halves, and the row renders whenever EITHER count is
+      // published — so a book publishing four up sessions and withholding the
+      // down count printed "4 up · 0 down", a fabricated zero in the ledger,
+      // under a section note promising nothing here is computed in the
+      // browser. Each half is now printed only if it exists, and a half that
+      // does not simply contributes nothing.
       label: "Winning sessions",
       value:
-        v.positive_days === null && v.negative_days === null
-          ? "—"
-          : v.flat_days === null || v.flat_days === undefined
-            ? `${v.positive_days ?? 0} up · ${v.negative_days ?? 0} down`
-            : `${v.positive_days ?? 0} up · ${v.negative_days ?? 0} down · ${v.flat_days} flat`,
+        [
+          typeof v.positive_days === "number" ? `${v.positive_days} up` : null,
+          typeof v.negative_days === "number" ? `${v.negative_days} down` : null,
+          typeof v.flat_days === "number" ? `${v.flat_days} flat` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ") || "—",
+      // "…; the rest were flat" was a THIRD count, derived by subtraction from
+      // two published ones and stated as fact. A session the desk did not
+      // classify is a session this page knows nothing about, so the note now
+      // states only the published denominator — and only when both halves are
+      // present, or the comparison it rests on is itself made of a `?? 0`.
       note:
-        v.n_obs !== null &&
-        v.n_obs !== undefined &&
-        (v.positive_days ?? 0) + (v.negative_days ?? 0) < v.n_obs
-          ? `of ${v.n_obs} observations; the rest were flat`
+        typeof v.n_obs === "number" &&
+        typeof v.positive_days === "number" &&
+        typeof v.negative_days === "number" &&
+        v.positive_days + v.negative_days < v.n_obs
+          ? `of ${v.n_obs} observations`
           : undefined,
     },
     {
