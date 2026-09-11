@@ -46,10 +46,21 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
             for exactly this reason. The counts are what the desk measured and
             they are shown in full; the ratio over them is withheld until the
             book clears the same round-trip bar everything else annualised waits
-            for. Nothing is hidden: 6 and 0 are both on the page. */}
+            for. Nothing is hidden: 6 and 0 are both on the page.
+
+            AND THE LOSER COUNT WAS NEVER PUBLISHED. `rt.round_trips -
+            rt.winners` subtracted one published figure from another in the
+            browser and printed the difference as a measured outcome, labelled
+            "down". `RoundTrips` (lib/data.ts) carries `round_trips` and
+            `winners` and no loser count, for a reason the arithmetic cannot
+            see: a round trip that closes exactly flat is neither a winner nor
+            a loser, and this printed it as a loss. Two published numbers with
+            the word "of" between them say what the desk measured and claim
+            nothing about the remainder. The day the desk publishes `losers`,
+            it can be read rather than derived. */}
         <Stat
           label="Outcomes"
-          value={`${rt.winners} up · ${rt.round_trips - rt.winners} down`}
+          value={`${rt.winners} up of ${rt.round_trips}`}
           note={
             rt.annualised_withheld
               ? `hit rate withheld below ${rt.round_trips_needed_for_annualising} round trips`
