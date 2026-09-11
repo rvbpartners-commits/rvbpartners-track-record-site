@@ -89,7 +89,30 @@ export async function Shell({ children }: { children: ReactNode }) {
           The rules now all measure the same, so the masthead is bounded the
           way the text is and the head reads as the top of the document rather
           than as a bar laid across it. */}
-      <header>
+      {/* THE BAND. The artwork is the firm's own: a point network, the shape a
+          book of strategies makes. It is a 4200 x 700 strip, so it is set with
+          `cover` and centred, and it runs the full width of the viewport
+          because a background that stops where the text stops is a panel
+          rather than a ground.
+
+          THE OVERLAY IS NOT DECORATION. The artwork carries bright points, and
+          white type landing on one of them would be white on white. A flat
+          65% wash of the band's own ink over the image drops the brightest
+          pixel to #616262, which leaves the masthead's type at 5.38:1 — above
+          the 4.5:1 floor everywhere, including on a point. The faint grey lines
+          are still legible through it, which is what the picture is.
+
+          `ground-ink` switches the focus ring to the light variant; see the
+          rule in globals.css. */}
+      <header
+        className="ground-ink bg-[#0c0d0e] text-[#f2f0ec]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(12,13,14,.65), rgba(12,13,14,.65)), url('/banner-network.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         {/* `mx-auto` is what centres the column. A `max-w-*` on its own only
             caps the width — the block stays flush left, which on a wide screen
             leaves the whole site pinned to one edge. Every container that caps
@@ -118,12 +141,12 @@ export async function Shell({ children }: { children: ReactNode }) {
 
                  Full width under the wordmark on a phone; right-aligned from
                  `sm` up, where it has a column of its own. */
-              <p className="w-full text-caption tabular-nums text-fg-muted sm:ml-auto sm:w-auto sm:text-right">
+              <p className="w-full text-caption tabular-nums text-[#b9b4ab] sm:ml-auto sm:w-auto sm:text-right">
                 {lead}
                 {currentTo && (
                   <>
                     {" · current to "}
-                    <span className="text-fg">{date(currentTo)}</span>
+                    <span className="text-[#f2f0ec]">{date(currentTo)}</span>
                   </>
                 )}
                 {/* `chain?.entries`, not `chain.entries`. getIndex validates
@@ -138,7 +161,7 @@ export async function Shell({ children }: { children: ReactNode }) {
                 {typeof index.chain?.entries === "number" && (
                   <>
                     {" · "}
-                    <span className="text-fg">
+                    <span className="text-[#f2f0ec]">
                       {index.chain.entries.toLocaleString("en-US")}
                     </span>
                     {" chained entries"}
@@ -157,7 +180,10 @@ export async function Shell({ children }: { children: ReactNode }) {
               reader nothing about which one they are in. */}
           <nav
             aria-label="Sections of the register"
-            className="border-y hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x"
+            /* The band's own rules, not the page's. `--hairline` is #e2e1de,
+               which on ink is a bright white line; these are the hero band's
+               values, which read as an edge rather than as a highlight. */
+            className="-mx-5 border-y border-[#2a2a27] px-5 scroll-x sm:mx-0 sm:px-0"
           >
             <NavLinks items={nav} />
           </nav>
