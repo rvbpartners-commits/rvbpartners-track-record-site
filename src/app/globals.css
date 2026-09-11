@@ -1,24 +1,40 @@
 @import "tailwindcss";
 
 /*
- * Dark ground, thin type, almost no borders. Contrast is carried by weight and
- * colour, not by boxes — so the palette has three text weights and exactly one
- * hairline, and everything else is spacing.
+ * THE DESIGN SYSTEM. Read this before changing a colour or a size.
  *
- * SINGLE THEME, deliberately. There is no light palette and no
- * `prefers-color-scheme` switch: the page renders dark for every reader,
+ * White ground, near-black type, almost no borders. Contrast is carried by
+ * weight and colour, not by boxes — so the palette has three text weights and
+ * exactly one hairline, and everything else is spacing.
+ *
+ * SINGLE THEME, deliberately. There is no dark palette and no
+ * `prefers-color-scheme` switch: the page renders light for every reader,
  * whatever their system is set to. That is a design decision, not an omission,
  * so every colour below is stated explicitly rather than inherited from the
- * browser's defaults — a token left undefined would fall back to a light-mode
- * default and put light text on a dark ground, or the reverse.
+ * browser's defaults — a token left undefined would fall back to a dark-mode
+ * default and put light text on a light ground, or the reverse.
  *
- * `color-scheme: dark` is what carries the decision into the parts of the page
+ * `color-scheme: light` is what carries the decision into the parts of the page
  * CSS does not paint: scrollbars, form controls, and the canvas behind an
- * over-scroll. Without it those stay light and flash white at the edges.
+ * over-scroll. Without it those follow the reader's system and flash dark at
+ * the edges.
  *
- * Green/red are the only saturated colours and they mean exactly one thing:
- * the sign of a return. Nothing decorative is allowed to use them, or they stop
- * reading as data.
+ * The one place ink is the ground is the hero band on the front page, and its
+ * colours are stated inline in Hero.tsx because they are that band's and no
+ * token's.
+ *
+ * Green/red are the only saturated colours besides the reserved oxide, and they
+ * mean exactly one thing: the sign of a return. Nothing decorative is allowed
+ * to use them, or they stop reading as data.
+ *
+ * THIS COMMENT DESCRIBED THE OPPOSITE OF THE FILE UNDERNEATH IT. When the
+ * palette moved to white in 2bc4e65 the `:root` block below was rewritten and
+ * its own comment explains the move, but these paragraphs were left describing
+ * a dark ground, a dark `color-scheme`, and green/red as the only saturated
+ * colours — three claims the next 60 lines each contradict. A stylesheet whose
+ * header argues against its own tokens is worse than one with no header: the
+ * rules here are meant to be binding, and a reader who catches one of them
+ * lying stops treating the rest as rules.
  */
 
 :root {
@@ -225,11 +241,13 @@ a {
 }
 
 /* A LINK MUST BE VISIBLE AS A LINK WITHOUT HOVERING.
-   `text-accent` alone is a colour distinction, and inside a muted paragraph it
-   is a weak one: the gold (#b8975c) and the muted body (#a9a294) are close in
-   lightness, so a reader scanning the page — or one who cannot separate those
-   two hues at all — sees no link. Every accent link used `hover:underline`,
-   which is an affordance you have to already have found.
+   `text-accent` alone is a colour distinction, and a very weak one here: the
+   accent is #1a1a1a and body copy is #4a4a48, so on this palette a link and
+   the sentence around it are within a shade of each other and the colour says
+   nothing at all. (Under the retired gold palette the argument was the same
+   for the opposite reason — #b8975c against #a9a294, two hues close in
+   lightness.) Every accent link used `hover:underline`, which is an affordance
+   you have to already have found.
    The underline is therefore permanent and quiet, and firms up on hover. This
    is the one place the site accepts a decoration it could have lived without,
    because the alternative is a link nobody can see. */
