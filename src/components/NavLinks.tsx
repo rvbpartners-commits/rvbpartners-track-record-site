@@ -34,8 +34,24 @@ export type NavItem = { href: string; label: string };
  * on the masthead's bottom hairline, which is a tab and reads at a glance;
  * `--fg` against `--fg-faint` at 10.5px did not.
  *
- * `aria-current="page"` is the substance; the colour and the rule are the
- * visible half of the same fact. A dossier under `/portfolios/<slug>` marks `Portfolios`, because a
+ * CENTRED, AND ALL SEVEN IN THE PAGE'S OWN INK. The row sat flush left in
+ * `--fg-faint`, so the site's one navigation control was both off to one side
+ * and the palest text in the masthead. Every item is `--fg` now and the row is
+ * centred in the column.
+ *
+ * That leaves the RULE as the only mark of place, which is the point: colour
+ * was carrying it before, and `--fg` against `--fg-faint` at 13px is a
+ * distinction a reader has to go looking for. A 2px rule sitting on the
+ * masthead's own bottom hairline is a tab, and it reads at a glance. Hover
+ * fades towards `--fg-muted` rather than darkening, since there is no longer
+ * anywhere darker to go.
+ *
+ * `min-w-max` stays with `justify-center`: where the row fits, it centres;
+ * where it does not (a phone), it keeps its natural width and scrolls from the
+ * left edge, which is the behaviour the masthead's `scroll-x` depends on.
+ *
+ * `aria-current="page"` is the substance; the rule is the visible half of the
+ * same fact. A dossier under `/portfolios/<slug>` marks `Portfolios`, because a
  * reader inside a chapter is still in that chapter — hence the prefix test
  * rather than equality, with `/` excluded from it or every route would match.
  */
@@ -43,7 +59,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
   const path = usePathname();
 
   return (
-    <div className="flex gap-7 min-w-max py-2.5">
+    <div className="flex min-w-max justify-center gap-8 py-2.5">
       {items.map((item) => {
         const active =
           path === item.href ||
@@ -56,7 +72,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             className={`relative text-small font-medium transition-colors ${
               active
                 ? "text-fg after:absolute after:inset-x-0 after:-bottom-[10px] after:h-[2px] after:bg-fg"
-                : "text-fg-faint hover:text-fg"
+                : "text-fg hover:text-fg-muted"
             }`}
           >
             {item.label}
