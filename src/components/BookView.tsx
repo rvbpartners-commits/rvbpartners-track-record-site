@@ -149,7 +149,27 @@ function buildChart(
   const bench = new Map(benchmark.map((b) => [b.date, b]));
   const navByDate = new Map(nav.map((p) => [p.date, p]));
 
-  if (intraday.length === 0) {
+  // A STALE INTRADAY FILE MUST NOT TRUNCATE THE CURVE. The intraday branch maps
+  // over the intraday points alone, so any marked session the broker feed never
+  // reached is simply absent from the chart — the line stops, and nothing on the
+  // page says why. Measured 2026-09-12: four books published marks through
+  // 09-11 while their intraday file ended 2026-09-09T20:00Z, so the chart read
+  // +1.13% against a published +2.07% beside it.
+  //
+  // The rule is the one the comment below already states, taken to its
+  // conclusion: ONE resolution per line. Five-minute points are used when they
+  // cover the record; when they fall short the daily marks are used ENTIRELY,
+  // because a complete curve at lower resolution says more than a detailed one
+  // that stops two days ago. Mixing the two would put points of different
+  // meaning on one line, which is the thing being avoided, not a way out of it.
+  const derniereMarque = nav.length ? nav[nav.length - 1].date : null;
+  const derniereIntraday = intraday.reduce(
+    (max, p) => (p.session_date > max ? p.session_date : max), "");
+  const intradayCouvre =
+    intraday.length > 0 && derniereMarque !== null
+    && derniereIntraday >= derniereMarque;
+
+  if (!intradayCouvre) {
     return {
       granular: false,
       points: nav.map((p) => {

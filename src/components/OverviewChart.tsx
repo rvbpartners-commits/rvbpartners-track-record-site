@@ -72,12 +72,24 @@ function buildRows(series: OverviewSeries[]): Row[] {
     // Intraday where the broker gave it to us, the daily marks otherwise. Never
     // both for one book: mixing resolutions puts two points of different
     // meaning on one line.
-    const points = s.intraday.length
-      ? s.intraday.map((p) => ({
-          t: p.timestamp,
-          equity: p.equity * factorFor(p.session_date),
-        }))
-      : s.nav.map((p) => ({ t: p.date, equity: p.equity_adj }));
+    //
+    // AND ONLY WHERE IT REACHES THE END OF THE RECORD. A file that stops short
+    // used to win anyway, so the line ended wherever the broker feed did while
+    // the marks beside it ran on — measured 2026-09-12, four lines stopped on
+    // 09-09 against marks through 09-11, and the chart's own last value sat
+    // nearly a point of return below the figure printed next to it. A complete
+    // curve at daily resolution says more than a detailed one that stops.
+    const derniereMarque = s.nav.length ? s.nav[s.nav.length - 1].date : null;
+    const derniereIntraday = s.intraday.reduce(
+      (max, p) => (p.session_date > max ? p.session_date : max), "");
+    const points =
+      s.intraday.length > 0 && derniereMarque !== null
+      && derniereIntraday >= derniereMarque
+        ? s.intraday.map((p) => ({
+            t: p.timestamp,
+            equity: p.equity * factorFor(p.session_date),
+          }))
+        : s.nav.map((p) => ({ t: p.date, equity: p.equity_adj }));
 
     for (const p of points) {
       const row = byInstant.get(p.t) ?? { t: p.t };
