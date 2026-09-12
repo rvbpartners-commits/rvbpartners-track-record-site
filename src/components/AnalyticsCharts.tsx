@@ -49,7 +49,8 @@ export function AnalyticsCharts({
   // indistinguishable from a book that has no analytics to show. Say so.
   if (!analytics) {
     return (
-      <p className="mt-10 text-small text-fg-muted max-w-[80ch]">
+      // No width cap: the section grid owns the measure (see `Section.tsx`).
+      <p className="mt-10 text-small text-fg-muted">
         The analytics series could not be loaded from the data repository. The
         charts are not drawn rather than drawn from a partial payload.
       </p>
@@ -78,7 +79,7 @@ export function AnalyticsCharts({
   return (
     <>
       {countsDiffer && (
-        <p className="mt-8 text-small text-fg-faint max-w-[80ch] leading-relaxed">
+        <p className="mt-8 text-small text-fg-faint leading-relaxed">
           These panels are drawn from{" "}
           <code>analytics.json</code>, which publishes {drawnObs} daily
           {" "}

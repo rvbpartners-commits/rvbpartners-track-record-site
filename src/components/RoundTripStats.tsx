@@ -96,7 +96,13 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
         </Row>
       </dl>
 
-      <p className="mt-6 text-small leading-relaxed text-fg-muted max-w-[72ch]">
+      {/* THE PROSE ENDS WHERE THE FIGURES END. These paragraphs explain the
+          table directly above them, and a cap the table does not share left
+          them three hundred pixels short of it: the same block of content
+          with two different right edges, which reads as a column that failed
+          to fill rather than as a measure. The section grid gives both the
+          same track. */}
+      <p className="mt-6 text-small leading-relaxed text-fg-muted">
         Each round trip is the <strong className="font-medium text-fg">sum of
         both legs</strong>. The hedge account runs in hedging mode, so its half
         appears only when a ticket settles, and not at all while that ticket
@@ -109,14 +115,14 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
           ungated, because they are statements of what happened. Naming a
           withheld figure that the reader can see two panels below is the kind
           of small contradiction that costs a record its credit. */}
-      <p className="mt-3 text-small leading-relaxed text-fg-muted max-w-[72ch]">
+      <p className="mt-3 text-small leading-relaxed text-fg-muted">
         Sharpe, volatility and every other annualised figure stay withheld below{" "}
         {rt.round_trips_needed_for_annualising} round trips. On {rt.round_trips}{" "}
         they would not be imprecise, they would be meaningless. Every daily
         result and the drawdown path are realised series. They are not
         annualised estimates, and they are published in full.
       </p>
-      <p className="mt-3 text-small leading-relaxed text-fg-muted max-w-[72ch]">
+      <p className="mt-3 text-small leading-relaxed text-fg-muted">
         The net result above covers the closed round trips only. It is not the
         same population as the cumulative result charted for this book, which is
         the whole combined P&amp;L on every published day; the two are different

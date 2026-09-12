@@ -47,7 +47,13 @@ export function AccountDisclosure({ hasLive }: { hasLive: boolean }) {
  *  honest: withholding a book rewrites every copy of it in the same breath. */
 export function AccountDisclosureText({ hasLive }: { hasLive: boolean }) {
   return (
-    <p className="text-body leading-relaxed text-fg max-w-[68ch]">
+    /* No `max-w`: this sentence is placed by three different pages, and each
+       of them already gives it a column — a full-width band on /portfolios, a
+       half on the home page, the footer measure below. The cap it used to
+       carry was narrower than all three, so the firm's account statement
+       stopped mid-page on the one page that is entirely about which accounts
+       exist. */
+    <p className="text-body leading-relaxed text-fg">
       <span className="font-semibold">
         {hasLive
           ? "Some portfolios on this site are broker-simulated paper accounts; others trade the firm\u2019s own real capital."

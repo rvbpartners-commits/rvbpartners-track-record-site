@@ -84,7 +84,8 @@ export function ExposureSection({ exposure }: { exposure: Exposure }) {
             </table>
           </div>
         )}
-        <p className="mt-4 text-small leading-relaxed text-fg-muted max-w-[72ch]">
+        {/* Same track as the table above it — see `RoundTripStats`. */}
+        <p className="mt-4 text-small leading-relaxed text-fg-muted">
           {prose(exposure.note)}. A position still open at a close carries the only
           market risk in the book and none of the published profit: it is
           disclosed here and marked nowhere, and its result appears on the
