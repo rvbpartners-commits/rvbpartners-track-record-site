@@ -80,21 +80,14 @@ export function AnalyticsCharts({
     <>
       {countsDiffer && (
         <p className="mt-8 text-small text-fg-faint leading-relaxed">
-          These panels are drawn from{" "}
-          <code>analytics.json</code>, which publishes {drawnObs} daily
-          {" "}
-          {drawnObs === 1 ? "return" : "returns"} for this book
-          {firstDrawn ? ` beginning ${date(firstDrawn)}` : ""}, while the ledger
-          above reports {observations} observations from <code>metrics.json</code>
-          . The two files cover different windows, so every count, spread and
-          monthly cell below is over {drawnObs}
-          {typeof headline === "number" ? (
-            <>
-              , and the months will not compound to the{" "}
-              {signedPct(headline, 3)} headline for the same reason
-            </>
-          ) : null}
-          . Both counts are published; neither is adjusted onto the other here.
+          These panels cover {drawnObs} daily{" "}
+          {drawnObs === 1 ? "return" : "returns"}
+          {firstDrawn ? ` from ${date(firstDrawn)}` : ""}, a different window from
+          the {observations} sessions in the ledger above
+          {typeof headline === "number"
+            ? `, so the monthly figures will not compound exactly to the ${signedPct(headline, 3)} headline`
+            : ""}
+          .
         </p>
       )}
       <div className="mt-10 grid xl:grid-cols-2 gap-x-12 gap-y-10">
@@ -117,7 +110,7 @@ export function AnalyticsCharts({
       />
       <Rolling
         title="Rolling Sortino"
-        note="Downside deviation only. A violent good month is not penalised like a bad one."
+        note="Excess of cash, annualised, using downside deviation only."
         series={analytics.rolling_sortino}
         held={held}
         format={(v) => ratio(v)}
@@ -146,6 +139,10 @@ function Plot({
   empty?: boolean;
   children?: React.ReactNode;
 }) {
+  // A panel with nothing to draw is not drawn. Empty frames reading
+  // "withheld · 2/60" or "not enough sessions yet" filled a short record's page
+  // with boxes; the rule for annualised figures is stated once, above.
+  if (held || empty) return null;
   return (
     <figure className="m-0">
       <figcaption>
@@ -154,15 +151,7 @@ function Plot({
           <p className="mt-1 text-caption text-fg-muted leading-relaxed">{note}</p>
         )}
       </figcaption>
-      <div className="mt-3">
-        {held || empty ? (
-          <div className="flex items-center justify-center border hairline text-small text-fg-faint h-[150px] sm:h-[176px] px-4 text-center">
-            {held ?? "not enough sessions yet"}
-          </div>
-        ) : (
-          children
-        )}
-      </div>
+      <div className="mt-3">{children}</div>
     </figure>
   );
 }
@@ -207,7 +196,7 @@ function DailyBars({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Daily returns"
-      note="Every session since inception. Not gated: this is what happened, not an estimate of anything."
+      note="Every session since inception."
       empty={data.length === 0}
     >
       <ChartBox>
@@ -239,7 +228,7 @@ function DrawdownPath({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Drawdown"
-      note="Equity against its own running maximum. Not gated: this is what happened. The ledger's Maximum drawdown row is the single gated field in metrics.json. It is the same definition as the minimum of this path, not a second one, and it is withheld while this is not."
+      note="Equity against its own running maximum."
       empty={data.length === 0}
     >
       <ChartBox>
@@ -325,7 +314,7 @@ function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Distribution of daily returns"
-      note="The raw shape behind skew and kurtosis: how fat the tails are, rather than one number describing them."
+      note="How daily returns are spread, session by session."
       empty={data.length === 0}
     >
       <ChartBox>
@@ -378,7 +367,7 @@ function Quantiles({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Return spread by horizon"
-      note="Where the shape changes with horizon: a book that looks calm daily and lumpy monthly gives itself away here. Whiskers are min and max; the box is the interquartile range; the line is the median. Horizons are calendar groups, so on a short record the first and last group of a weekly or monthly row can be a partial period; the observation count beside each row is the count of groups, not of full periods."
+      note="Whiskers are the minimum and maximum, the box the interquartile range, the line the median. A weekly or monthly row can include a partial first or last period."
       empty={rows.length === 0}
     >
       <div className="space-y-4 pt-1">
@@ -463,28 +452,22 @@ function MonthlyHeatmap({ analytics }: { analytics: AnalyticsPayload }) {
     ),
   ];
   const marked = rows.filter((r) => r.partial).length;
-  const unexplained = rows.filter((r) => r.partial && !r.partial_reason).length;
 
   return (
     <Plot
       title="Monthly returns"
       note={
-        "Shaded against the largest month so far. " +
+        "Shaded against the largest month so far." +
         (marked > 0
-          ? `The asterisk is the publisher's own partial marker${
-              reasons.length > 0
-                ? `, and it publishes why: ${reasons.join("; ")}`
-                : ""
-            }. ` +
-            (unexplained > 0
-              ? `${unexplained} marked ${
-                  unexplained === 1 ? "month carries" : "months carry"
-                } no published reason. `
-              : "")
-          : "No month here carries a partial marker. A book whose publisher does not emit one will show none even for a month it only partly covers, so read the session count rather than the absence of an asterisk. ") +
-        "Hover any cell for the sessions actually behind it, against the sessions that month could have had."
+          ? ` An asterisk marks a partial month${
+              reasons.length > 0 ? ` (${reasons.join("; ")})` : ""
+            }.`
+          : "") +
+        " Hover a cell for the sessions behind it."
       }
-      empty={rows.length === 0}
+      // One month is a single cell beside eleven empty ones; the grid starts
+      // earning its space with a second month.
+      empty={rows.length < 2}
     >
       <div className="scroll-x">
         <table className="w-full min-w-[540px] text-caption">
@@ -545,7 +528,7 @@ function DrawdownEpisodes({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Worst drawdowns"
-      note="A single maximum-drawdown number hides whether it was one bad week or nine months under water."
+      note="Each decline from a peak, its depth and how long it lasted."
       empty={rows.length === 0}
     >
       <div className="scroll-x">

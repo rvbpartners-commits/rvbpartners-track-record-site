@@ -62,11 +62,9 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
           label="Outcomes"
           value={`${rt.winners} up of ${rt.round_trips}`}
           note={
-            rt.annualised_withheld
-              ? `hit rate withheld below ${rt.round_trips_needed_for_annualising} round trips`
-              : rt.hit_rate === null
-                ? undefined
-                : `hit rate ${pct(rt.hit_rate, 0)}`
+            !rt.annualised_withheld && rt.hit_rate !== null
+              ? `hit rate ${pct(rt.hit_rate, 0)}`
+              : undefined
           }
         />
       </dl>
@@ -82,17 +80,15 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
             {money(rt.funding_total_usd)}
           </span>
         </Row>
+        {/* A COST CARRIES NO SIGN. The shared formatter prefixes "+" to every
+            non-negative figure, which printed "Fees paid +0.7342 USD" — a fee
+            reading as income. */}
         <Row label="Fees paid">
-          <span className="tnum">{money(rt.fees_total_usd)}</span>
-        </Row>
-        <Row label="Annualised statistics">
-          {rt.annualised_withheld ? (
-            <span className="text-fg-muted">
-              withheld (n={rt.round_trips})
-            </span>
-          ) : (
-            <span>released</span>
-          )}
+          <span className="tnum">
+            {rt.fees_total_usd === null
+              ? "—"
+              : `${Math.abs(rt.fees_total_usd).toFixed(4)} USD`}
+          </span>
         </Row>
       </dl>
 
@@ -103,30 +99,11 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
           to fill rather than as a measure. The section grid gives both the
           same track. */}
       <p className="mt-6 text-small leading-relaxed text-fg-muted">
-        Each round trip is the <strong className="font-medium text-fg">sum of
-        both legs</strong>. The hedge account runs in hedging mode, so its half
-        appears only when a ticket settles, and not at all while that ticket
-        stays locked against an opposite one. Counted on one leg alone this
-        book reads negative; counted on both, it does not. The convention is set
-        out in the methodology and every snapshot carries the decomposition.
-      </p>
-      {/* "drawdown" is struck from this list deliberately: the realised
-          drawdown path and its episodes are published on this same page,
-          ungated, because they are statements of what happened. Naming a
-          withheld figure that the reader can see two panels below is the kind
-          of small contradiction that costs a record its credit. */}
-      <p className="mt-3 text-small leading-relaxed text-fg-muted">
-        Sharpe, volatility and every other annualised figure stay withheld below{" "}
-        {rt.round_trips_needed_for_annualising} round trips. On {rt.round_trips}{" "}
-        they would not be imprecise, they would be meaningless. Every daily
-        result and the drawdown path are realised series. They are not
-        annualised estimates, and they are published in full.
-      </p>
-      <p className="mt-3 text-small leading-relaxed text-fg-muted">
-        The net result above covers the closed round trips only. It is not the
-        same population as the cumulative result charted for this book, which is
-        the whole combined P&amp;L on every published day; the two are different
-        measurements and are not expected to be the same number.
+        Each round trip is the combined result of both legs. The net result
+        covers closed round trips only, so it differs from the cumulative result
+        charted above, which includes every published day. Annualised figures
+        for this account are published from{" "}
+        {rt.round_trips_needed_for_annualising} round trips.
       </p>
     </>
   );

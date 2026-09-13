@@ -176,8 +176,8 @@ export default async function Portfolio({
         {metrics?.as_of ? ` · statistics as of ${date(metrics.as_of)}` : ""}
         {typeof index.chain?.entries === "number"
           ? ` · ${index.chain.entries.toLocaleString("en-US")} chained records across all portfolios`
-          : ""}{" "}
-        · every metric computed by the desk, not the browser.
+          : ""}
+        .
       </p>
     </>
   );

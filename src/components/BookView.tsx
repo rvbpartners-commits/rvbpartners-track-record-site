@@ -15,9 +15,7 @@ import type {
 } from "@/lib/data";
 import { DATA_REPO_URL } from "@/lib/data";
 import {
-  NO_VALUE,
   date,
-  dateTime,
   marketTime,
   money,
   pct,
@@ -302,7 +300,15 @@ function BookView({
   const rejectedDrawnCount = intradayRaw.length - intraday.length;
   // Non-zero only where a capital event is declared, so every other book
   // renders exactly the header it rendered before.
-  const capitalFlow = meta?.capital_events?.cumulative_flow_usd ?? 0;
+  //
+  // A book that declares no capital events can still carry flows in its own
+  // nav.csv `flow` column — the real-capital book does (−$17.79 on 10 Sept), and
+  // its page showed a balance below its funding next to a positive return with
+  // nothing to reconcile the two. The published column is read as the fallback.
+  const navFlow = nav.reduce((s, p) => s + (p.flow ?? 0), 0);
+  const capitalFlow =
+    meta?.capital_events?.cumulative_flow_usd ??
+    (Math.abs(navFlow) >= 0.005 ? navFlow : 0);
   const capitalEvents = meta?.capital_events?.events ?? [];
   const capitalEventCount = capitalEvents.length;
 
@@ -438,26 +444,13 @@ function BookView({
             suffix. Stated here, so a reader landing on the twin's own page
             knows what they are looking at. */}
         {bundle.variantParentLabel && (
-          <p className="mt-2 text-small text-fg-faint">
-            Capital variant
-            {bundle.variantSize ? ` (${bundle.variantSize})` : ""} of{" "}
-            <span className="text-fg-muted">{bundle.variantParentLabel}</span>.
-            The pair is published to measure capital sensitivity, and both
-            books&rsquo; target weights are published in the index.
-            {laterStart !== null && (
-              <>
-                {" "}
-                <span className="text-fg-muted">
-                  It is not a single-variable experiment:
-                </span>{" "}
-                this book was funded {laterStart} day
-                {laterStart === 1 ? "" : "s"} after{" "}
-                {bundle.variantParentLabel}, so it covers a shorter window and
-                any gap between the two mixes account size with a different
-                measurement period. Compare the shapes, not the headline
-                difference.
-              </>
-            )}
+          <p className="mt-2 text-small text-fg-muted">
+            Capital twin of {bundle.variantParentLabel}, funded with{" "}
+            {money(summary.initial_capital, currency, 0)} and run with the same
+            strategies and weights to measure the effect of account size.
+            {laterStart !== null
+              ? ` It was funded ${laterStart} day${laterStart === 1 ? "" : "s"} later, so it covers a shorter period.`
+              : ""}
           </p>
         )}
 
@@ -500,7 +493,7 @@ function BookView({
                   <span className="block">
                     {capitalEventCount > 1
                       ? `net ${money(capitalFlow, currency, 0)} across ${capitalEventCount} capital movements, excluded from the return`
-                      : `after ${money(capitalFlow, currency, 0)} ${capitalFlow < 0 ? "removed from" : "added to"} the account, excluded from the return`}
+                      : `after ${money(Math.abs(capitalFlow), currency, Math.abs(capitalFlow) < 100 ? 2 : 0)} ${capitalFlow < 0 ? "withdrawn from" : "added to"} the account, excluded from the return`}
                   </span>
                 ) : null}
               </>
@@ -530,9 +523,9 @@ function BookView({
                  counts sharing one word. The chain has 17 entries; 16 of them
                  carry a measured return, because the first is the funding
                  anchor. Both are published, so both are named. */
-              observations !== null && observations !== summary.sessions
-                ? `${summary.sessions} snapshots · ${observations} marked sessions · ${money(summary.initial_capital, currency, 0)}`
-                : `${summary.sessions} sessions · ${money(summary.initial_capital, currency, 0)}`
+              observations !== null
+                ? `${observations} marked session${observations === 1 ? "" : "s"} · ${money(summary.initial_capital, currency, 0)} funded`
+                : `${money(summary.initial_capital, currency, 0)} funded`
             }
           />
         </dl>
@@ -541,58 +534,15 @@ function BookView({
             fields away. `source` says in the desk's own words that the reading
             is not chained evidence; `marked: false` says it is not an
             after-close mark. Neither reached the reader. */}
-        {rawLive && (
+        {/* A CURRENT reading is labelled as one. An old reading is not shown at
+            all: the marked figures lead, and a book that has genuinely stopped
+            publishing is flagged under its chart. The previous branch printed a
+            warning with a second return on every paper book each weekend,
+            because a Friday reading is "older than the publish" by Sunday. */}
+        {live && (
           <p className="mt-5 text-caption text-fg-faint leading-relaxed">
-            {live ? (
-              <>
-                Latest broker reading, {marketTime(rawLive.at, zone)}
-                {rawLive.marked ? "" : ", not an after-close mark"}
-                {rawLive.source ? `, from ${rawLive.source}` : ""}.
-              </>
-            ) : (
-              <>
-                {/* "BEFORE THE DATA ON THIS PAGE WAS PUBLISHED" NAMED NEITHER
-                    SIDE OF ITS OWN COMPARISON, and the footer of this same page
-                    prints a publish instant that MATCHES the reading to the
-                    minute — because a book that has stopped publishing carries
-                    a stale `published_at` too. The two sentences read as a flat
-                    contradiction. The comparison is against the RECORD's
-                    publish, which is the instant this payload was written, so
-                    that is the one printed. */}
-                <span className="text-warn-fg">
-                  The last broker reading for this book is dated{" "}
-                  {marketTime(rawLive.at, zone)}. It is the last reading this
-                  book produced, and it is older than this record&rsquo;s current
-                  publish
-                  {publishedAt ? ` (${dateTime(publishedAt)})` : ""}
-                  {summary.last_session
-                    ? `. Its last marked session is ${date(summary.last_session)}`
-                    : ""}
-                  .
-                </span>{" "}
-                It is not labelled live and does not lead the figures above:
-                those are the marked, chained ones. The reading itself was{" "}
-                {signedPct(rawLive.cumulative_return, 3)} on equity of{" "}
-                {money(rawLive.equity, currency, 2)}
-                {rawLive.source ? `, from ${rawLive.source}` : ""}.
-                {/* THE TWO FIGURES IN THAT SENTENCE ARE NOT ON ONE BASIS, and
-                    a reader who divides the equity by the funded capital gets a
-                    third number that matches neither. That is not an error: on
-                    a book with a leg quoted in another currency, the published
-                    curve converts that leg once per session and never revalues
-                    it, while a direct read of both accounts is at today's rate.
-                    The book publishes the convention; the page renders it
-                    rather than leaving the arithmetic to fail silently. */}
-                {meta?.fx?.note ? (
-                  <>
-                    {" "}
-                    The return and the equity there are not on the same basis, so
-                    one does not follow from the other by division:{" "}
-                    {prose(meta.fx.note)}.
-                  </>
-                ) : null}
-              </>
-            )}
+            Latest broker reading, {marketTime(live.at, zone)}
+            {live.marked ? "" : "; not yet marked"}.
           </p>
         )}
       </header>
@@ -605,62 +555,24 @@ function BookView({
           fetch, the whole banner vanished while the charts kept rendering — a
           withholding notice that disappears on a fetch error is not a gate. It
           fails closed now: no payload, no statistics, and the page says why. */}
+      {/* THE RULE, STATED ONCE, IN THE PAGE'S OWN VOICE. The ledger below marks
+          each annualised row with a dash rather than repeating the rule on every
+          row. */}
       {metrics === null ? (
         <Note tone="warn" className="mt-8">
-          <strong className="font-semibold">
-            The statistics for this portfolio could not be loaded.
-          </strong>{" "}
-          They are withheld rather than shown partially: the file that says which
-          figures this book is allowed to publish is the same file the figures
-          come from, and without it neither can be trusted. The equity curve
+          The statistics for this portfolio could not be loaded. The equity curve
           below is read from a separate file and is unaffected.
         </Note>
       ) : gate ? (
-        <Note tone="warn" className="mt-8">
-          <strong className="font-semibold">
-            Annualised statistics are withheld: {gate.have} of {gate.need}{" "}
-            {gateUnit}.
-          </strong>{" "}
-          {/* THE PROMISE IS CHECKED, NOT REPEATED. "Each keeps its row in the
-              ledger and names itself" is a claim about a different component,
-              and it was false by two: fifteen suppressed, thirteen rows. The
-              ledger now publishes the keys it renders, so the sentence either
-              holds or names the exceptions — it can no longer be quietly
-              falsified by the desk adding a name to `suppressed`. */}
-          {gate.suppressed?.length ? (
-            <>
-              {gate.suppressed.length} figures stay withheld until this account
-              has {gate.need} {gateUnit};{" "}
-              {unrenderedSuppressed.length === 0 ? (
-                <>each keeps its row in the ledger below and names itself.</>
-              ) : (
-                <>
-                  {gate.suppressed.length - unrenderedSuppressed.length} of them
-                  keep a row in the ledger below and name themselves, and the
-                  rest are named here:{" "}
-                  {unrenderedSuppressed.join(", ")}.
-                </>
-              )}
-            </>
-          ) : (
-            `Annualised figures stay withheld until this account has ${gate.need} ${gateUnit}.`
-          )}{" "}
-          On a handful of sessions they are not imprecise, they are meaningless.
-          What actually happened is not gated and is published below: every daily
-          return, and the realised drawdown path with its episodes. The ledger
-          row named &ldquo;Maximum drawdown&rdquo; is the single gated field from{" "}
-          <code>metrics.json</code>, not a second definition of that path.
-          {roundTrips && gate.unit !== "round_trips" ? (
-            <>
-              {" "}
-              This book also publishes its own, stricter bar: it counts in round
-              trips rather than sessions, and stands at{" "}
-              {roundTrips.round_trips} of{" "}
-              {roundTrips.round_trips_needed_for_annualising}. Both are unmet;
-              neither releases anything on its own.
-            </>
-          ) : null}
-        </Note>
+        <p className="mt-8 border-t hairline pt-5 text-body text-fg-muted">
+          Annualised statistics, such as the Sharpe ratio, volatility and annual
+          return, are published once an account has {gate.need} {gateUnit}; this
+          one has {gate.have}. Cumulative return, daily returns and the drawdown
+          path are shown in full below.
+          {unrenderedSuppressed.length > 0
+            ? ` Also withheld until then: ${unrenderedSuppressed.join(", ")}.`
+            : ""}
+        </p>
       ) : null}
 
       <Section
@@ -676,16 +588,19 @@ function BookView({
                     caption about a chart that is not there. Where they differ,
                     both are named — the divergence is a signal, not something to
                     reconcile away. */}
-                Broker account equity at 5-minute resolution: {points.length}{" "}
-                readings, not interpolation
+                {/* THE RESOLUTION IS THE BOOK'S OWN. "5-minute resolution" was
+                    hardcoded and printed on the real-capital book, which reads
+                    its equity once per round trip and at each close — 30
+                    readings over two days. */}
+                Account equity from {points.length} broker readings
+                {meta?.intraday_resolution && !/5.?min/i.test(meta.intraday_resolution)
+                  ? ` (${prose(meta.intraday_resolution)})`
+                  : " at 5-minute resolution"}
                 {typeof meta?.intraday_points === "number" &&
                 meta.intraday_points !== points.length
                   ? `; the published metadata counts ${meta.intraday_points}`
                   : ""}
-                . Dots are the official session NAV, read at the desk&rsquo;s
-                after-close mark; it sits a few basis points from the
-                broker&rsquo;s closing intraday figure and neither is adjusted
-                onto the other.
+                . Dots mark each session&rsquo;s official closing value.
               </>
             ) : (
               <>
@@ -695,8 +610,7 @@ function BookView({
             )}{" "}
             {showEquityBenchmark ? (
               <>
-                These accounts hold shorts and are not index-like: the benchmark
-                is context, not a comparison.{" "}
+                The S&amp;P 500 is shown for context.{" "}
                 {granular ? (
                   <>
                     {/* NAME THE ANCHOR. The index line is measured from SPY's
@@ -725,27 +639,18 @@ function BookView({
                     line and the annual rate printed in the ledger are not the
                     same statement, and the page must not weld them together.
                     The rate is named as what it is: a published field. */}
-                The only comparator drawn is the cash line this book publishes.
-                Its accrual grid is this book&rsquo;s own calendar, not the
-                trading-day grid the paper desk uses, and the rule is stated in
-                this book&rsquo;s own methodology note. Read the line against
-                that note rather than against the annual risk-free rate published
-                beside it
-                {metrics ? ` (${pct(metrics.risk_free_annual)})` : ""}, which is
-                a separate published field. An equity index is not the
-                opportunity cost of a book that holds offsetting positions on two
-                venues and aims to be neutral to the market.
+                The comparison line is cash, accrued on this account&rsquo;s own
+                calendar. An equity index is not a meaningful comparison for a
+                market-neutral book.
               </>
             )}
             {rejectedLabels.length ? (
               <>
                 {" "}
-                <strong className="font-medium text-fg">
-                  {rejectedLabels.length} session
-                  {rejectedLabels.length === 1 ? "" : "s"} excluded
-                </strong>{" "}
-                from the intraday line. The broker feed contradicted the
-                published NAV: {rejectedLabels.join("; ")}.
+                {rejectedLabels.length} session
+                {rejectedLabels.length === 1 ? " is" : "s are"} excluded from the
+                intraday line because the broker feed contradicted the published
+                closing value: {rejectedLabels.join("; ")}.
                 {rejectedDrawnCount > 0 ? (
                   <>
                     {" "}
@@ -761,18 +666,10 @@ function BookView({
             {capitalEventCount ? (
               <>
                 {" "}
-                <strong className="font-medium text-fg">
-                  {capitalEventCount} capital movement
-                  {capitalEventCount === 1 ? "" : "s"}
-                </strong>{" "}
-                {capitalEventCount === 1 ? "is" : "are"} excluded from this
-                curve, net {money(capitalFlow, currency, 0)}: assets{" "}
-                {capitalEventCount === 1
-                  ? "moved in or out of"
-                  : "left and re-entered"}{" "}
-                the account by acts that were not trades. Detail below the
-                chart; the raw broker equity is published unchanged in{" "}
-                <code>nav.csv</code>.
+                {capitalEventCount} capital movement
+                {capitalEventCount === 1 ? " is" : "s are"} excluded from this
+                curve, net {money(capitalFlow, currency, 0)}; each is listed below
+                the chart.
               </>
             ) : null}
           </>
@@ -855,13 +752,10 @@ function BookView({
             written and hashed with a cumulative return of{" "}
             {signedPct(snapshotMismatch.chained, 4)}; the ledger and this
             page&rsquo;s header publish {signedPct(snapshotMismatch.published, 4)}
-            , which is the corrected figure. The record is deliberately{" "}
-            <strong className="font-medium text-fg">not amended</strong>: it
-            says what was known when it was written, its hash still verifies,
-            and a record that can be rewritten after the fact is not a record.
-            Both numbers are published: the chained one in{" "}
+            , which is the corrected figure. Chained records are never amended,
+            so both numbers are published: the chained one in{" "}
             <code>snapshots/</code>, the corrected one in{" "}
-            <code>metrics.json</code>. Neither is hidden behind the other.
+            <code>metrics.json</code>.
           </p>
         )}
         {lastSession && (
@@ -896,21 +790,15 @@ function BookView({
             ) : (
               "Next point at the next close."
             )}
-            {sessionClose ? (
-              <span className="block text-caption text-fg-faint mt-1">
-                {sessionClose.note}. Nothing intraday and provisional is drawn
-                here: this record publishes what is settled.
-              </span>
-            ) : null}
             {openAtLast ? (
               <span className="block text-caption text-fg-faint mt-1">
-                The book carried an open position past this close
+                A position was still open at this close
                 {openAtLast.tickets === 1
-                  ? " (1 unmatched ticket"
-                  : ` (${openAtLast.tickets} unmatched tickets`}
+                  ? " (1 ticket"
+                  : ` (${openAtLast.tickets} tickets`}
                 , net {openAtLast.net_volume > 0 ? "+" : ""}
-                {openAtLast.net_volume}). It is disclosed, not marked: its result
-                will appear on the session it is closed out against, not this one.
+                {openAtLast.net_volume}); its result appears on the session it
+                closes.
               </span>
             ) : null}
           </p>
@@ -971,11 +859,9 @@ function BookView({
               ))}
               <p className="text-fg-faint">
                 The curve measures the return on the capital actually managed.
-                Nothing is hidden and nothing is rewritten: the raw broker
-                equity stays in <code>nav.csv</code> beside the flow, the
-                multiplier and the adjusted index, so the unadjusted curve is
-                drawn from the same file. The full evidence for each movement is
-                inside the write-once, hash-chained snapshot for its session.
+                The raw broker equity stays in <code>nav.csv</code> beside each
+                adjustment, and the evidence for each movement is in the chained
+                snapshot for its session.
               </p>
             </div>
           </details>
@@ -987,32 +873,18 @@ function BookView({
           title="Daily and cumulative result"
           note={
             <>
-              The combined result of both legs, in {currency}
-              {sessionClose ? `, on the book's own trading day (close ${sessionClose.label})` : ""}
-              .{" "}
-              {/* THE CALENDAR CONVENTION IS THE BOOK'S, NOT THIS FILE'S. The
-                  sentence hardcoded here said "weekends are flat rather than
-                  interpolated" and rendered on the one book whose published
-                  series has non-zero Saturday and Sunday rows, and whose own
-                  methodology says so in terms. The published convention is
-                  rendered instead; a caption in this repository cannot go stale
-                  against the data if it comes from the data. */}
-              {meta?.convention?.calendar ? (
-                <>{prose(meta.convention.calendar)}. </>
-              ) : (
-                <>
-                  Every calendar day is a row: a day with no trade is a bar of
-                  zero, never a missing one, and a day the book did not execute
-                  can still carry a non-zero value. Nothing is interpolated and
-                  nothing is carried onto the next day.{" "}
-                </>
-              )}
-              The percentage toggle shows the running total as the desk publishes
-              it, against the capital at inception
+              {/* The calendar rule is the book's own and is set out in its
+                  methodology note (linked under Account); this caption states
+                  only what holds for any such book. */}
+              The combined result of both legs, in {currency}, one row per day of
+              this account&rsquo;s own calendar
+              {sessionClose ? ` (day ends ${sessionClose.label})` : ""}. The
+              percentage view is the running total against the capital at
+              inception
               {meta?.initial_capital
                 ? ` (${money(meta.initial_capital, currency, 2)})`
                 : ""}
-              ; it is a reading axis, not the compounded return published above.
+              , not the compounded return above.
             </>
           }
         >
@@ -1032,13 +904,7 @@ function BookView({
                   publish it under the same gate that withholds a Sharpe. The
                   claim is dropped, and the hit rate is shown as the count it
                   honestly is. */}
-              This book&rsquo;s unit of account is the round trip, not the session,
-              so a session-based denominator would measure the calendar rather
-              than the strategy. Most of what follows is a count
-              or a measured duration, publishable on a handful of observations
-              because it describes what happened rather than estimating a
-              distribution; anything that does estimate one is withheld under the
-              same bar as the statistics above.
+              This account is measured in round trips rather than sessions.
             </>
           }
         >
@@ -1050,14 +916,13 @@ function BookView({
         title="Statistics"
         note={
           <>
-            Every figure here is computed by the firm&rsquo;s{" "}
-            <span className="tnum">rvb.metrics</span> module and published as
-            data; no statistic in this section is calculated in your browser.
-            Sharpe, Sortino and Calmar are excess of the 3-month Treasury yield
+            Computed by the firm&rsquo;s metrics module and published as data.
+            Sharpe, Sortino and Calmar are measured in excess of the 3-month
+            Treasury yield
             {metrics
               ? ` (${pct(metrics.risk_free_annual)}, ${metrics.risk_free_source})`
               : ""}
-            . A withheld figure keeps its row and says why.
+            . A dash marks a figure not yet published.
           </>
         }
       >
@@ -1093,46 +958,25 @@ function BookView({
           title="Exposure"
           note={
             <>
-              Every figure below is published data, computed by the desk. The
-              instrument, the venues and the size are not published, and will
-              not be: they are the strategy.
+              Published data, computed by the desk. The instrument, venues and
+              position size are not published.
             </>
           }
         >
           <ExposureSection exposure={exposure} />
         </Section>
-      ) : (
+      ) : (summary.categories?.length ?? 0) > 0 ||
+        (detail?.categories?.length ?? 0) > 0 ? (
       <Section
         title="Composition and holdings"
         note={
           <>
-            {/* THE CLAIM HAD TO MATCH THE TABLE. "Profit is reported per
-                category so a per-symbol line is not the trade record" reads as
-                a withholding, and the table underneath publishes each
-                position's quantity, its cost basis and its mark — from which a
-                per-symbol open result is one subtraction away. Dropping a
-                column would not have made the claim true either, because cost
-                basis and market value are both load-bearing. So the page states
-                what is actually protected, which is the thing that matters and
-                is genuinely never published: WHICH STRATEGY holds the position.
-                A style is not a strategy, and the positions are visible. */}
-            Grouped by the category of strategy holding them: the style is
-            published, the strategies are not. That is the whole of what is
-            withheld here, and it is withheld completely: no strategy identity
-            appears in any published file. The positions themselves are not
-            withheld. Each row carries its quantity, its cost basis and its
-            mark, so an individual holding&rsquo;s open result is a subtraction
-            a reader can do. P&amp;L is TOTALLED per category rather than per
-            symbol because the category is the unit the attribution model
-            produces, and that split is a model that does not sum to the book;
-            account-level equity above is exact and is read from the broker.{" "}
-            <strong className="font-medium text-fg">
-              A target weight is the plan, not the position.
-            </strong>{" "}
-            A sleeve declared in the table below can hold nothing on a given
-            session, and the desk&rsquo;s attribution can be missing a sleeve that
-            demonstrably held a position. The two tables answer different
-            questions and are not two views of one number.
+            Positions are grouped by the category of strategy holding them;
+            individual strategies are not named. Each position shows its
+            quantity, cost basis and mark. Profit and loss by category is an
+            attribution model, while the account equity above is read from the
+            broker. A target weight is the plan, not the position, so the two
+            tables answer different questions.
           </>
         }
       >
@@ -1215,14 +1059,12 @@ function BookView({
             <span className="tnum text-fg">
               {money(reconciliationGap.gap, currency)}
             </span>
-            . The NAV and every return on this page come from the broker&rsquo;s
-            own equity and are unaffected; what disagrees is our record of which
-            positions make it up. It is published rather than reconciled away,
-            and it is the desk&rsquo;s to resolve.
+            . The account value and every return on this page are read from the
+            broker and are unaffected; the difference is in the position record.
           </p>
         )}
       </Section>
-      )}
+      ) : null}
 
       <Section title="Account">
         <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-small">
@@ -1266,15 +1108,15 @@ function BookView({
               PREVIOUS section, so under a bare label it reads as a published
               field. /portfolios prints the same total and names it a sum twice.
               Grouped, like every other count on the site. */}
-          <Line label="Strategies, summed">
-            <span className="tnum">
-              {summary.categories && summary.categories.length > 0
-                ? summary.categories
-                    .reduce((s, c) => s + c.strategies, 0)
-                    .toLocaleString("en-US")
-                : NO_VALUE}
-            </span>
-          </Line>
+          {summary.categories && summary.categories.length > 0 ? (
+            <Line label="Strategies">
+              <span className="tnum">
+                {summary.categories
+                  .reduce((s, c) => s + c.strategies, 0)
+                  .toLocaleString("en-US")}
+              </span>
+            </Line>
+          ) : null}
           {summary.paths?.methodology ? (
             <Line label="Methodology">
               <a
@@ -1304,12 +1146,7 @@ function BookView({
             {bundle.chain.recordedOn
               ? ` on ${date(bundle.chain.recordedOn)}`
               : " later"}
-            , after the sessions they describe
-            {bundle.chain.backfilled === bundle.chain.records - 1
-              ? "; only the last was recorded on its own day"
-              : ""}
-            . That is published, not inferred: every entry carries the day it
-            was recorded beside the session it covers, and{" "}
+            , after the sessions they describe. Each entry in{" "}
             <a
               className="text-accent hover:underline"
               href={`${DATA_REPO_URL}/blob/main/CHAIN.jsonl`}
@@ -1318,10 +1155,7 @@ function BookView({
             >
               <code>CHAIN.jsonl</code>
             </a>{" "}
-            prints both columns. A timestamp proof bounds a record from above
-            only, so a record written in a batch carries a proof for the day it
-            was stamped rather than for its session. That is why the recording
-            date is published rather than left to be assumed zero.
+            records both dates.
           </p>
         )}
       </Section>

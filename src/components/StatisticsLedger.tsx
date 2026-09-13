@@ -69,7 +69,9 @@ export function StatisticsLedger({
   const v = metrics?.values ?? {};
   const gate = metrics?.insufficient_history;
   const s = analytics?.summary ?? {};
-  const held = gate ? `withheld · ${gate.have}/${gate.need}` : undefined;
+  // A dash, not "withheld · 24/60" repeated on fifteen rows. The rule is stated
+  // once, above the chart, with this book's own count.
+  const held = gate ? "—" : undefined;
   const hasDrawdownPath =
     (analytics?.drawdown ?? []).some((d) => d.drawdown !== null) ||
     (analytics?.drawdown_episodes ?? []).length > 0;
@@ -159,7 +161,7 @@ export function StatisticsLedger({
       withheld: v.max_drawdown === null ? held : undefined,
       note:
         v.max_drawdown === null && hasDrawdownPath
-          ? "the realised path is published below, ungated"
+          ? "the drawdown path is shown below"
           : undefined,
       sign: v.max_drawdown ?? null,
     },
