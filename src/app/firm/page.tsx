@@ -2,15 +2,12 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { GatedLink } from "@/components/GatedLink";
-import { AccountDisclosureText } from "@/components/AccountDisclosure";
-import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
 import {
   CONTACT_EMAIL,
   SITE_ORIGIN,
   getIndex,
   getResearch,
-  type BookSummary,
 } from "@/lib/data";
 import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
 import { NO_VALUE, date } from "@/lib/format";
@@ -81,10 +78,6 @@ export default async function FirmPage() {
   const books = index?.books ?? [];
   // Derived, never asserted — the same expression the masthead and the footer
   // use, so a book withheld from the index rewrites this page's account
-  // sentence in the same breath as theirs. Today every published book is paper
-  // and this is `false`; the branch stays because it is what keeps the sentence
-  // true on the day that changes.
-  const hasLive = books.some((b) => b.capital_at_risk);
   // `?? null`, never `?? 60`. A failed fetch must not let this page state a
   // threshold as fact; the `gated` definition below drops the number and keeps
   // the definition instead.
@@ -101,11 +94,6 @@ export default async function FirmPage() {
       .sort()
       .at(-1) ?? null;
 
-  // The books withholding their annualised statistics right now: a filter over
-  // a published boolean, printed as a list of NAMES. No count of them is
-  // rendered anywhere — "n of m" is an aggregation, and this page does not make
-  // one.
-  const gatedBooks = books.filter((b) => b.annualised_gated);
 
   // WHAT EVIDENCES EACH STEP OF THE PIPELINE. One published figure per step,
   // read from the file the step's own sentence links to, so the schematic
@@ -163,11 +151,8 @@ export default async function FirmPage() {
         RVB Partners is a systematic trading firm in France.
       </h1>
       <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
-        This site is the public register of what we trade, how it was tested,
-        and what we refused. This page is the short account of the company
-        publishing it: what it does, what it does not do, and the identifiers
-        that let you check both against a third party&rsquo;s record rather than
-        against our word.
+        The company behind this record: what it does, how it is registered, and
+        the terms used across the site.
       </p>
 
       {/* ─── 2. WHAT THE COMPANY DOES ───────────────────────────────────────
@@ -181,8 +166,7 @@ export default async function FirmPage() {
         note={
           index ? (
             <>
-              Read from the published index. Every figure on this site is
-              computed by the desk before it is published, never derived here.
+              Read from the published index.
             </>
           ) : undefined
         }
@@ -208,28 +192,6 @@ export default async function FirmPage() {
           on its way to an account. What that produces is published here,
           session by session, as it is marked.
         </p>
-        {/* THE SAME COMPONENT THE FOOTER RENDERS ON THE OTHER PAGES, not a copy
-            of its sentence. The footer's copy is gated to
-            /methodology, /disclosures and /verify, so on this route the
-            disqualifier appears only if the page places it — and it belongs
-            here, in the paragraph that says what the company trades on, not
-            underneath it. Rendering the component rather than retyping the
-            sentence is what stops the two from drifting apart.
-
-            The spacing above the rule is the grid's, not this block's: inside
-            the measure track `* + *` owns the rhythm, and an `mt-` here would
-            be one more local override of a decision made once. */}
-        <div className="border-t hairline pt-5">
-          {index ? (
-            <AccountDisclosureText hasLive={hasLive} />
-          ) : (
-            <Note tone="warn">
-              The published index could not be read just now, so this page is
-              not describing the accounts from it. Each portfolio states what
-              kind of account it is in its own header.
-            </Note>
-          )}
-        </div>
       </Section>
 
       {/* ─── 3. WHAT IT DOES NOT DO, AND WHO ELSE RECORDS THAT ─────────────
@@ -252,49 +214,12 @@ export default async function FirmPage() {
           PROP, not JSX text, and an entity in a prop is a coin-flip on the
           toolchain that decodes it. */}
       <Section
-        title="What it does not do"
-        gloss="And the register’s record of it"
-        note={
-          <>
-            The three negatives are ours. The quoted purpose is the
-            register&rsquo;s record of the same thing, and these are the four
-            strings you would search on to read that filing yourself.
-          </>
-        }
-        aside={
-          <MarginList
-            rows={[
-              {
-                label: "Registry",
-                value: `R.C.S. ${ENTITY.rcs.registry}`,
-                literal: true,
-              },
-              {
-                label: "Register number",
-                value: ENTITY.rcs.number,
-                literal: true,
-              },
-              {
-                label: "File no.",
-                value: ENTITY.rcs.managementNumber,
-                literal: true,
-              },
-              {
-                label: "European identifier",
-                value: ENTITY.rcs.euid,
-                literal: true,
-              },
-            ]}
-          />
-        }
+        title="Registered activity"
+        gloss="As filed"
       >
         <p className="text-body text-fg-muted">
-          <span className="text-fg">
-            The company manages no third-party money and is not authorised to.
-          </span>{" "}
-          It sells nothing. Nothing on this site is investment advice, an offer,
-          or a solicitation to buy or sell any financial instrument, and nothing
-          on it is an invitation to invest.
+          The company trades its own capital. It manages no third-party money and
+          sells nothing.
         </p>
         <p className="text-body text-fg-muted">
           The corporate purpose filed at the register, in the words it was filed
@@ -318,13 +243,8 @@ export default async function FirmPage() {
         </figure>
 
         <p className="text-body text-fg-muted">
-          <em>En compte propre</em> (for its own account) is the whole of the
-          registered activity. The conditions attached to every figure published
-          here are set out under{" "}
-          <Link href="/disclosures" className="text-accent hover:underline">
-            disclosures
-          </Link>
-          , and the full legal notice is at{" "}
+          <em>En compte propre</em>, for its own account, is the whole of the
+          registered activity. The full legal notice is at{" "}
           <Link href="/legal" className="text-accent hover:underline">
             legal
           </Link>
@@ -348,14 +268,7 @@ export default async function FirmPage() {
         gloss="The short form"
         note={
           <>
-            Every value in this section is transcribed from the company&rsquo;s{" "}
-            <em>extrait Kbis</em> and appears in French on the register, where
-            it can be checked. The full notice is at{" "}
-            <Link href="/legal" className="text-accent hover:underline">
-              legal
-            </Link>
-            : hosting, intellectual property, personal data and the terms this
-            site is published on.
+            Transcribed from the company&rsquo;s <em>extrait Kbis</em>.
           </>
         }
       >
@@ -378,8 +291,7 @@ export default async function FirmPage() {
                 <>
                   <span className="tnum">{ENTITY.capital}</span>
                   <Gloss>
-                    variable, minimum {ENTITY.capitalMinimum}: the form exists
-                    so the figure can move
+                    variable
                   </Gloss>
                 </>
               ),
@@ -454,13 +366,6 @@ export default async function FirmPage() {
       <Section
         title="Officers"
         gloss="As entered on the register"
-        note={
-          <>
-            The register records these names under these titles. This site adds
-            nothing to them: no roles, no responsibilities, no biographies, no
-            headcount.
-          </>
-        }
       >
         <Rows
           rows={[
@@ -501,26 +406,12 @@ export default async function FirmPage() {
       <Section
         title="Vocabulary"
         gloss="Eight terms, defined once"
-        note={
-          index && books.length > 0 ? (
-            <>
-              The rule under <em>gated</em>, applied: the portfolios whose
-              annualised figures are withheld in the index as it stands now.
-              Their pages print a dash where those figures would be.
-            </>
-          ) : undefined
-        }
-        aside={
-          index && books.length > 0 ? (
-            <GatedBooks books={gatedBooks} />
-          ) : undefined
-        }
       >
         <dl className="space-y-7">
           <Term id="rvb-partners" term="RVB Partners">
             The company. It is registered in Paris under the identifiers above,
             and it is the party accountable for everything published on this
-            site: the figures, the method and the refusals alike.
+            site.
           </Term>
 
           <Term id="the-desk" term="The desk">
@@ -535,7 +426,8 @@ export default async function FirmPage() {
           <Term id="paper-account" term="A paper account">
             A real broker account trading live market prices with simulated
             money. The orders and fills are the broker&rsquo;s; the money is
-            not. Every account on this site is one. A simulated fill is only as
+            not. Each portfolio&rsquo;s page states whether its account is a
+            paper account or trades the firm&rsquo;s own capital. A simulated fill is only as
             good as the market data it was simulated against, and each record
             names the feed it used; the limits that puts on these results are
             stated under{" "}
@@ -576,9 +468,8 @@ export default async function FirmPage() {
           </Term>
 
           <Term id="gated" term="Gated">
-            A statistic withheld because there is not enough history to compute
-            it honestly. Annualised figures (a Sharpe ratio, a volatility, an
-            annual return) are withheld until a book has{" "}
+            Annualised figures (a Sharpe ratio, a volatility, an annual return)
+            are published once a portfolio has{" "}
             {/* THE THRESHOLD IS READ FROM THE PUBLISHED INDEX, never typed
                 here. It is one number in one file, and a copy of it in this
                 repository is a number that can disagree with the gate it
@@ -591,11 +482,9 @@ export default async function FirmPage() {
             ) : (
               "the published minimum number of marked sessions"
             )}
-            . On a handful of sessions those figures are not imprecise
-            estimates, they are meaningless ones. Each book publishes the exact
-            list of names it is suppressing and its page renders a dash in their
-            place. What happened is shown from day one: cumulative return, the
-            daily returns, the realised drawdown path.
+            ; until then a portfolio&rsquo;s page shows a dash in their place.
+            What has happened — cumulative return, daily returns, the drawdown
+            path — is shown from the first session.
           </Term>
 
           <Term id="attributed" term="Attributed">
@@ -628,14 +517,6 @@ export default async function FirmPage() {
       <Section
         title="How the work is organised"
         gloss="And where each step is evidenced"
-        note={
-          index || research ? (
-            <>
-              One published figure per step, read from the file that step&rsquo;s
-              own sentence links to.
-            </>
-          ) : undefined
-        }
         aside={
           index || research ? <StepEvidence rows={stepEvidence} /> : undefined
         }
@@ -653,19 +534,18 @@ export default async function FirmPage() {
             .
           </Step>
           <Step n={2} name="Catalogue">
-            What survived and what did not are both kept on record. Each
-            headline is then re-derived against the whole book&rsquo;s effective
-            number of trials rather than its own grid, and how many cleared the
-            nominal bar, how many that correction demoted and how many are
-            presented as an edge are published as counts on the same{" "}
+            Each strategy&rsquo;s result is re-measured against the whole
+            book&rsquo;s effective number of trials rather than its own grid, and
+            the counts, how many clear the bar and how many are presented, are
+            published on the same{" "}
             <GatedLink href="/research" available={hasResearch}>
               research
             </GatedLink>{" "}
             page.
           </Step>
           <Step n={3} name="Portfolios">
-            Surviving strategies are combined into portfolios, each with its own
-            broker account and its own page under{" "}
+            Presented strategies are combined into the paper portfolios, each
+            with its own broker account and its own page under{" "}
             <Link href="/portfolios" className="text-accent hover:underline">
               portfolios
             </Link>
@@ -676,12 +556,14 @@ export default async function FirmPage() {
                 given here, and inventing a second one would contradict the
                 published disclosure. */}
             . Holdings are published by strategy category and weight, never by
-            strategy name: the catalogue is the work.
+            strategy name.
           </Step>
           <Step n={4} name="The desk">
-            The desk runs each portfolio on a fixed daily cycle: stage after the
-            close, execute at the next open, mark after the close that follows.
-            The cost and timing rules are the same ones the research used. The
+            The desk runs each paper portfolio on a fixed daily cycle: stage
+            after the close, execute at the next open, mark after the close that
+            follows, under the same cost and timing rules the research used. The
+            real-capital portfolio trades continuously across two venues, as its
+            own page describes. The
             conventions, and the biases they do not remove, are set out under{" "}
             <Link href="/methodology" className="text-accent hover:underline">
               methodology
@@ -691,7 +573,7 @@ export default async function FirmPage() {
           <Step n={5} name="The published record">
             Every marked session is snapshotted, hashed, chained to the session
             before it and timestamped, then published to a public repository.
-            You do not need our cooperation to check any of it:{" "}
+            Anyone can check it:{" "}
             <Link href="/verify" className="text-accent hover:underline">
               verify
             </Link>{" "}
@@ -707,8 +589,7 @@ export default async function FirmPage() {
           gloss and nothing else, which is what an empty third track is for. */}
       <Section title="How to reach us" gloss="One address">
         <p className="text-body text-fg-muted">
-          Anything about this record (a figure that does not reconcile, a check
-          that fails, a passage that is unclear) goes to{" "}
+          For anything about this record, write to{" "}
           <a
             href={`mailto:${CONTACT_EMAIL}`}
             className="text-accent hover:underline"
@@ -767,48 +648,6 @@ function MarginList({ rows }: { rows: MarginRow[] }) {
   );
 }
 
-/** THE WITHHOLDING RULE, APPLIED, in the margin beside the rule itself.
- *
- *  A list of names and a stamp, never a count: how many books are gated out of
- *  how many is an aggregation, and it is also the least useful form of the
- *  fact. What a reader wants to know is WHICH portfolio is withholding, and how
- *  much history it has, both of which are published fields.
- *
- *  The oxide is spent here exactly as the palette reserves it — on a fact that
- *  disqualifies figures near it — and on nothing else in this file. */
-function GatedBooks({ books }: { books: BookSummary[] }) {
-  return (
-    <div>
-      <h3 className="text-label font-semibold uppercase tracking-[0.16em] text-fg-faint">
-        Annualised statistics withheld
-      </h3>
-      {books.length === 0 ? (
-        <p className="mt-3 border-t hairline pt-3 text-caption leading-relaxed text-fg-muted">
-          No portfolio is withholding its annualised statistics.
-        </p>
-      ) : (
-        <ul className="mt-3 border-t hairline">
-          {books.map((b) => (
-            <li key={b.book} className="border-b hairline py-2.5">
-              <span className="block text-small leading-snug text-fg">
-                {b.label}
-              </span>
-              <span className="mt-1.5 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                <span className="text-label font-semibold uppercase tracking-[0.16em] text-oxide">
-                  Withheld
-                </span>
-                <span className="text-caption leading-snug text-fg-faint">
-                  <span className="tnum">{int(b.marked_sessions)}</span> marked
-                  sessions
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
 
 /** THE PIPELINE'S RECEIPTS, one per step, ruled into a column.
  *
