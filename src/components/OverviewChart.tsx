@@ -21,7 +21,13 @@ import {
 // One entry per PORTFOLIO, not per published book: a capital variant borrows its
 // parent's colour and is drawn softer (see lib/variants), so the pair reads as one
 // idea at two sizes rather than as two unrelated portfolios.
-export const SERIES_COLOURS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"];
+export const SERIES_COLOURS = [
+  "var(--s1)",
+  "var(--s2)",
+  "var(--s3)",
+  "var(--s4)",
+  "var(--s5)",
+];
 
 export type OverviewSeries = {
   book: string;
@@ -57,10 +63,20 @@ const fmtDay = (iso: string) =>
  */
 function buildRows(series: OverviewSeries[]): Row[] {
   const byInstant = new Map<string, Row>();
+  const baseOf = new Map<string, number>();
+  const own = new Map<
+    string,
+    {
+      points: { t: string; session: string; equity: number }[];
+      sessionIndex: Map<string, number>;
+      sessions: number;
+    }
+  >();
 
   for (const s of series) {
     const base = s.nav.length > 0 ? s.nav[0].equity_adj : 0;
     if (!base) continue;
+    baseOf.set(s.book, base);
 
     // The adjusted index, not the raw broker equity: a capital movement that is
     // not a trade has no place on a performance line. Identical for every book
@@ -87,18 +103,47 @@ function buildRows(series: OverviewSeries[]): Row[] {
       && derniereIntraday >= derniereMarque
         ? s.intraday.map((p) => ({
             t: p.timestamp,
+            session: p.session_date,
             equity: p.equity * factorFor(p.session_date),
           }))
-        : s.nav.map((p) => ({ t: p.date, equity: p.equity_adj }));
+        : s.nav.map((p) => ({ t: p.date, session: p.date, equity: p.equity_adj }));
 
     for (const p of points) {
       const row = byInstant.get(p.t) ?? { t: p.t };
       row[s.book] = p.equity / base - 1;
       byInstant.set(p.t, row);
     }
+    own.set(s.book, {
+      points: [...points].sort((a, b) => (a.t < b.t ? -1 : 1)),
+      sessionIndex: new Map(s.nav.map((p, i) => [p.date, i])),
+      sessions: s.nav.length,
+    });
   }
 
-  return [...byInstant.values()].sort((a, b) => (a.t < b.t ? -1 : 1));
+  const rows = [...byInstant.values()].sort((a, b) => (a.t < b.t ? -1 : 1));
+
+  // ONE AXIS, MANY CLOCKS. The axis is the union of every account's instants, so
+  // a row often belongs to another account: a real-capital reading at 00:37 UTC,
+  // or a paper bar the real-capital account has no reading for. Left empty, those
+  // rows cut every other line into pieces. Between two of an account's own
+  // readings, a row takes the last reading at or before it. Only across a
+  // session the account never marked does the line break, because that is a
+  // period it did not measure.
+  for (const [book, { points, sessionIndex, sessions }] of own) {
+    let i = 0;
+    for (const row of rows) {
+      while (i + 1 < points.length && points[i + 1].t <= row.t) i++;
+      if (row[book] !== undefined) continue;
+      const before = points[i];
+      const after = points[i + 1];
+      if (!before || !after || before.t > row.t) continue;
+      const from = sessionIndex.get(before.session) ?? sessions;
+      const to = sessionIndex.get(after.session) ?? sessions;
+      if (to - from <= 1) row[book] = before.equity / baseOf.get(book)! - 1;
+    }
+  }
+
+  return rows;
 }
 
 function OverviewTooltip({

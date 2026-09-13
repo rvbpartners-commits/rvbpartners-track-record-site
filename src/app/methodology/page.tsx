@@ -255,19 +255,15 @@ export default async function MethodologyPage() {
               <MarginRows
                 rows={[
                   {
-                    k: "Broker equity, flow adjusted",
+                    k: "Columns",
                     v: (
                       <>
                         <Em>equity</Em>, <Em>flow</Em>, <Em>adj_factor</Em>,{" "}
-                        <Em>equity_adj</Em>. The last is the index every
+                        <Em>equity_adj</Em>. The last is the series every
                         published metric is computed on and every curve is drawn
                         from.
                       </>
                     ),
-                  },
-                  {
-                    k: "Unitised",
-                    v: "No flow columns at all. A deposit buys units at that day’s price, so it moves the balance and never the price.",
                   },
                 ]}
               />
@@ -282,25 +278,13 @@ export default async function MethodologyPage() {
             curve measures the return on the capital actually managed rather than
             on the size of the account.
           </p>
-          {/* THE FOUR-COLUMN CLAIM WAS FALSE OF ONE BOOK, and it was stated of
-              "each book". The paper desk's files carry equity, flow, adj_factor
-              and equity_adj; the real-capital book's nav.csv carries date,
-              equity, cash and daily_return, because it handles capital
-              movements by unitisation — a deposit buys units at the day's
-              price, so it moves equity and never the unit price, which is the
-              same time-weighted treatment reached a different way. Its own
-              snapshots say so. The convention is stated as what it is, and the
-              exception is named rather than papered over by a plural. */}
           <p>
-            On the paper accounts, capital events are carried in four columns of
-            each <Em>nav.csv</Em>: <Em>equity</Em> exactly as the broker reported
-            it, <Em>flow</Em>, <Em>adj_factor</Em> and <Em>equity_adj</Em>. An
-            account that has never had a movement has an <Em>adj_factor</Em> of 1
-            and identical equity columns. A portfolio that reconstructs its own
-            curve rather than reading a broker&rsquo;s equity uses unitisation
-            instead, so its <Em>nav.csv</Em> carries no flow columns. Where a
-            portfolio has had a movement, its page lists each event with its
-            date, amount and evidence, and the full evidence sits in the
+            Capital events are carried in four columns of each portfolio&rsquo;s{" "}
+            <Em>nav.csv</Em>: <Em>equity</Em> as reported, <Em>flow</Em>,{" "}
+            <Em>adj_factor</Em> and <Em>equity_adj</Em>. A portfolio that has
+            never had a movement has an <Em>adj_factor</Em> of 1 and identical
+            equity columns. Where a portfolio has had a movement, its page lists
+            each event with its date and amount, and the full evidence sits in the
             write-once snapshot for that session.
           </p>
           <p>

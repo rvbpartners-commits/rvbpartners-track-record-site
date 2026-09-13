@@ -112,7 +112,7 @@ export default async function FirmPage() {
       n: 2,
       name: "Catalogue",
       value: int(research?.deflation?.survive_book_level),
-      label: "survive the book-level correction",
+      label: "clear the whole-catalogue correction",
     },
     {
       n: 3,
@@ -460,11 +460,9 @@ export default async function FirmPage() {
           </Term>
 
           <Term id="backfilled" term="Backfilled">
-            A record that joined the chain later than the session it describes.
+            A record added to the chain later than the session it describes.
             The chain stamps the day each record was recorded beside the session
-            it covers, so where there is a gap between the two it is published
-            rather than assumed to be zero. The verify table prints both
-            columns, and a timestamp proof bounds a record from above only.
+            it covers, and the verify table prints both dates.
           </Term>
 
           <Term id="gated" term="Gated">
@@ -492,13 +490,12 @@ export default async function FirmPage() {
             measured. The broker nets the desk&rsquo;s orders, so one net fill
             is attributed back to the strategies whose intents contributed to
             it, pro-rata by requested size; a different rule would give
-            different numbers from the same fills. Book-level figures are read
-            from the broker and never reconstructed from the attribution. The
-            attribution does not add up to the book, which{" "}
+            different numbers from the same fills. Account-level figures are read
+            from the broker and do not depend on the attribution; see{" "}
             <Link href="/methodology" className="text-accent hover:underline">
               methodology
-            </Link>{" "}
-            states in full.
+            </Link>
+            .
           </Term>
         </dl>
       </Section>
@@ -525,9 +522,8 @@ export default async function FirmPage() {
           <Step n={1} name="Research">
             Every strategy is built and tested inside the framework that will
             later execute it, and every backtest, sweep and grid cell is written
-            to an append-only ledger, because a result means nothing without the
-            number of things that were tried to find it. Those counts are
-            published under{" "}
+            to an append-only ledger, so each result can be judged against how
+            much was searched to find it. Those counts are published under{" "}
             <GatedLink href="/research" available={hasResearch}>
               research
             </GatedLink>
@@ -535,7 +531,7 @@ export default async function FirmPage() {
           </Step>
           <Step n={2} name="Catalogue">
             Each strategy&rsquo;s result is re-measured against the whole
-            book&rsquo;s effective number of trials rather than its own grid, and
+            catalogue&rsquo;s effective number of trials rather than its own grid, and
             the counts, how many clear the bar and how many are presented, are
             published on the same{" "}
             <GatedLink href="/research" available={hasResearch}>
