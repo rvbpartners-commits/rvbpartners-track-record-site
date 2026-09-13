@@ -76,7 +76,9 @@ export default async function Portfolio({
       getNav(summary.book),
       getBenchmark(summary.book),
       getIntraday(summary.book),
-      getBenchmarkIntraday(summary.book),
+      // Every published book, because SPY's raw price is pooled across their
+      // files (see getBenchmarkIntraday).
+      getBenchmarkIntraday(summary.book, index.books.map((b) => b.book)),
       // Absente pour la plupart des books, et c'est une reponse : une serie
       // vide veut dire « non publiee », jamais « plate ».
       getDaily(summary.book),

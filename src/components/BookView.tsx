@@ -699,23 +699,16 @@ function BookView({
                 is context, not a comparison.{" "}
                 {granular ? (
                   <>
-                    {/* NAME THE ANCHOR. Two portfolio pages draw a line
-                        labelled identically — "S&P 500 · price, 5-minute" —
-                        that ends on two different numbers, because each is
-                        rebased on the first bar of the book it sits under and
-                        the books start on different days. Unnamed, that reads
-                        as two contradictory measurements of one index. One
-                        clause removes the whole objection. */}
-                    The index line here is a 5-minute <em>price</em> path:
-                    dividends are not applied intraday and it is rebased on{" "}
-                    <strong className="font-medium text-fg">
-                      this book&rsquo;s first published bar
-                      {points.length > 0 ? `, ${date(points[0].date)}` : ""}
-                    </strong>
-                    , so it will not end where the daily total-return series in{" "}
-                    <code>benchmark.csv</code> ends. The same index line on
-                    another portfolio&rsquo;s page is rebased on that
-                    book&rsquo;s own start, not this one.
+                    {/* NAME THE ANCHOR. The index line is measured from SPY's
+                        level when this account was funded — the same moment its
+                        own curve starts from — so every account funded on the
+                        same day draws the same line, and a twin funded later
+                        draws its own. */}
+                    The index line is SPY&rsquo;s 5-minute price, measured from
+                    its level when this account was funded
+                    {summary.inception ? `, ${date(summary.inception)}` : ""}.
+                    Dividends are not applied intraday, so it ends a few basis
+                    points from the daily total-return series.
                   </>
                 ) : (
                   <>

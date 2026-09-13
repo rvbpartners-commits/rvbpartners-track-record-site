@@ -781,17 +781,83 @@ export async function getNav(book: string): Promise<NavPoint[]> {
   );
 }
 
+/** SPY's raw 5-minute price, pooled across every published book's file.
+ *
+ *  SPY is one instrument with one tape, so a bar is the same price whichever
+ *  book's file carries it — every shared timestamp agrees across the files. What
+ *  differs between them is which bars have a raw price at all: rows a one-off
+ *  publisher migration could not recover a price for kept an empty `spy_close`,
+ *  and different books lost different days. Pooling fills a bar missing from one
+ *  file with the same bar from another; a bar no file carries stays missing. */
+async function getSpyTape(books: string[]): Promise<Map<string, number>> {
+  const texts = await Promise.all(
+    books.map((b) => getText(`books/${b}/benchmark_intraday.csv`)),
+  );
+  const tape = new Map<string, number>();
+  for (const text of texts) {
+    if (!text) continue;
+    for (const r of parseCsv(text)) {
+      const level = num(r.spy_close);
+      if (r.timestamp && level !== null && !tape.has(r.timestamp)) {
+        tape.set(r.timestamp, level);
+      }
+    }
+  }
+  return tape;
+}
+
+/** SPY's level when this account was funded: the first row of its daily
+ *  `benchmark.csv`, dated at inception and carrying `spy_cum` 0. It is the same
+ *  moment the account's own curve is measured from (its opening capital), so the
+ *  two lines on a portfolio's chart start together. A first row that is not a
+ *  zero is not an anchor, and none is invented. */
+async function getSpyAnchor(book: string): Promise<number | null> {
+  const text = await getText(`books/${book}/benchmark.csv`);
+  if (!text) return null;
+  const first = parseCsv(text)[0];
+  if (!first) return null;
+  const level = num(first.spy_close);
+  return level !== null && level > 0 && num(first.spy_cum) === 0 ? level : null;
+}
+
 /** Benchmarks on the same instants as the intraday equity, so both series span
- *  the axis instead of being joined across three points. */
+ *  the axis instead of being joined across three points.
+ *
+ *  THE SPY LINE IS REBASED HERE, FROM RAW PRICES, ON ONE RULE: the price at that
+ *  bar divided by the price when the account was funded, minus one. It used to be
+ *  the published `spy_cum` column, which was anchored on whichever bar happened
+ *  to be first with a price when the publisher migrated the files — so four
+ *  accounts funded on the same day showed three different S&P 500 returns at the
+ *  same minute (16:00 ET on 11 Sept: −1.19% on two, −1.15% on two, and −1.44% on
+ *  the twins, against −1.15% and −1.74% on this rule). The raw price was right in
+ *  every file; only the base was not. The data repository's README gives the
+ *  remedy itself: rebase `spy_close` for any other anchor.
+ *
+ *  Accounts funded on the same day now draw the identical line. A capital twin,
+ *  funded later at a different SPY level, draws a different one — correctly, it
+ *  measures a different window. A bar with no raw price in any file draws no
+ *  index point rather than an estimated one, and a book that publishes no equity
+ *  benchmark at an instant (empty `spy_cum`) still draws none. */
 export async function getBenchmarkIntraday(
   book: string,
+  books: string[],
 ): Promise<Map<string, { spy: number | null; cash: number | null }>> {
-  const text = await getText(`books/${book}/benchmark_intraday.csv`);
+  const [text, tape, anchor] = await Promise.all([
+    getText(`books/${book}/benchmark_intraday.csv`),
+    getSpyTape(books),
+    getSpyAnchor(book),
+  ]);
   const out = new Map<string, { spy: number | null; cash: number | null }>();
   if (!text) return out;
   for (const r of parseCsv(text)) {
     if (!r.timestamp) continue;
-    out.set(r.timestamp, { spy: num(r.spy_cum), cash: num(r.cash_cum) });
+    const publishes = num(r.spy_cum) !== null;
+    const level = tape.get(r.timestamp);
+    const spy =
+      publishes && anchor !== null && level !== undefined
+        ? level / anchor - 1
+        : null;
+    out.set(r.timestamp, { spy, cash: num(r.cash_cum) });
   }
   return out;
 }
