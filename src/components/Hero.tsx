@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { HeroGround } from "@/components/HeroGround";
+
 /**
  * THE HERO — a full-bleed opening band: the claim, what the firm is, and two
  * ways in.
@@ -49,6 +51,13 @@ import Link from "next/link";
  * that is the point: one dark screen at the top of a white document reads as
  * a cover. Repeated anywhere else it would just be a second theme.
  *
+ * IT HAS A GROUND UNDER IT. `HeroGround` paints a wireframe relief into the
+ * band — the shape of a search over a parameter space, not a measurement of
+ * anything, and the only drawing on this site that is not read from the
+ * published record. Its own file says why at length. The copy sits above it in
+ * the stacking order and the drawing is extinguished under the type, so the
+ * band reads exactly as it did before if the canvas never paints.
+ *
  * IT DOES NOT CARRY THE MARK. The masthead directly above it does, and on
  * this page the two sat 136px apart at 13px and 46px — the same logo twice on
  * one screen, which is what made the pair read as two competing bands rather
@@ -63,8 +72,20 @@ import Link from "next/link";
  */
 export function Hero() {
   return (
-    <section className="ground-ink relative left-1/2 -mt-8 w-screen -translate-x-1/2 bg-[#0c0d0e] text-[#f2f0ec] lg:-mt-10">
-      <div className="mx-auto max-w-[var(--column)] px-5 sm:px-8 lg:px-12 pt-14 pb-14 lg:pt-20 lg:pb-18">
+    <section className="ground-ink relative left-1/2 -mt-8 w-screen -translate-x-1/2 overflow-hidden bg-[#0c0d0e] text-[#f2f0ec] lg:-mt-10">
+      <HeroGround />
+      {/* ROOM FOR THE GROUND BELOW THE COPY. The headline is capped at 19
+          characters and the lede at 62, so under about 1,200px the copy fills
+          the band and the drawing has nowhere to be except underneath the type,
+          where it is extinguished. The extra bottom padding is the strip the
+          horizon runs across — the landscape seen from further off. Once the
+          band is wide enough for the copy and a landscape side by side, the
+          padding goes back to what the prose wants. `data-hero-copy` is how the
+          drawing finds the type it must keep clear of. */}
+      <div
+        data-hero-copy
+        className="relative mx-auto max-w-[var(--column)] px-5 sm:px-8 lg:px-12 pt-14 pb-28 lg:pt-20 xl:pb-18"
+      >
         <h1 className="max-w-[19ch] text-display font-semibold">
           Systematic trading, built on research and verifiable in public.
         </h1>
