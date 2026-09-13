@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { ChainDiagram } from "@/components/ChainDiagram";
 import { Next } from "@/components/Next";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
@@ -18,7 +19,6 @@ import {
   getIndex,
   getMeta,
   getSupersededChain,
-  type ChainEntry,
 } from "@/lib/data";
 import { NO_VALUE, date, dateTime, prose, shortHash } from "@/lib/format";
 
@@ -478,6 +478,35 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         </Section>
       )}
 
+      {/* THE MECHANISM, DRAWN, BEFORE THE FOUR CHECKS DESCRIBE IT.
+          The link between two records was published as a stacked box of six
+          hash lines in the margin: correct, and not a diagram — a reader had to
+          be told in words that the string on one row was the string on another.
+          Three records side by side, with the shared field on the same line of
+          each box, is the picture the site's central claim needs, and it is the
+          one drawing on this site that explains a mechanism rather than
+          reporting a figure.
+
+          `wide`, and rendered only when the chain actually resolves a link: on
+          a record whose predecessor is not published there is nothing to draw,
+          and an empty frame would be worse than the paragraph it replaced. */}
+      {linked && linkedPrev && (
+        <Section
+          id="how-it-links"
+          wide
+          title="How one record holds the one before it"
+          gloss="Read from the chain, on every request."
+        >
+          <ChainDiagram
+            head={linked}
+            prev={linkedPrev}
+            genesis={genesisFor(linked.book)}
+            label={labelFor(linked.book)}
+            records={countOf(linked.book)}
+          />
+        </Section>
+      )}
+
       <Section
         title="The four checks"
         gloss="What each one proves, and in which direction."
@@ -486,17 +515,6 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             The first two are what the clone check above runs. The third is a
             stamp beside each file. The fourth is yours to run, on the curve.
           </>
-        }
-        aside={
-          linked && linkedPrev ? (
-            <ChainDrawing
-              head={linked}
-              prev={linkedPrev}
-              genesis={genesisFor(linked.book)}
-              label={labelFor(linked.book)}
-              records={countOf(linked.book)}
-            />
-          ) : null
         }
       >
         <ol className="space-y-5 sm:space-y-6 text-small leading-relaxed">
@@ -1135,122 +1153,5 @@ function Rests({ on, what }: { on: string; what: string }) {
       <dt className="text-caption font-medium text-fg">{on}</dt>
       <dd className="text-caption leading-snug text-fg-muted">{what}</dd>
     </div>
-  );
-}
-
-/**
- * THE CHAIN, DRAWN, WITH TWO REAL RECORDS IN IT.
- *
- * The four checks are seventy lines of prose describing a structure that is
- * three boxes and an arrow. This is that structure, and it is not an
- * illustration: the hashes are the two newest records in the published chain
- * that link to each other, so the twelve characters printed as the upper
- * record's `prev_hash` are literally the twelve printed as the lower record's
- * `hash`. A reader can find both rows in the table below and check that they
- * match — which is the whole argument of the page, in a figure that fits in
- * the margin. The genesis line holds to the same rule: it is the book's own
- * first row, passed in, and the block is omitted when there is no such row.
- *
- * Hashes are set in the mono because they are literals to be compared
- * character by character. Nothing else here is.
- */
-function ChainDrawing({
-  head,
-  prev,
-  genesis,
-  label,
-  records,
-}: {
-  head: ChainEntry;
-  prev: ChainEntry;
-  /** The drawn book's first record, or null if the current chain holds none. */
-  genesis: ChainEntry | null;
-  label: string;
-  records: number;
-}) {
-  return (
-    <div>
-      <p className="text-label uppercase text-fg-faint">
-        How one record is held
-      </p>
-      <div className="mt-2 border hairline">
-        <div className="border-b hairline px-3 py-2.5">
-          <p className="text-label uppercase text-fg-faint">
-            Newest linked record
-          </p>
-          <p className="mt-1 text-small tabular-nums text-fg">
-            {date(head.session_date)} · {label}
-          </p>
-          <HashLine field="hash" value={shortHash(head.hash)} />
-          <HashLine field="prev_hash" value={shortHash(head.prev_hash)} strong />
-        </div>
-        <p className="border-b hairline px-3 py-1.5 text-caption text-fg-muted">
-          ↓ the same twelve characters
-        </p>
-        <div className="border-b hairline px-3 py-2.5">
-          <p className="text-label uppercase text-fg-faint">
-            The session before
-          </p>
-          <p className="mt-1 text-small tabular-nums text-fg">
-            {date(prev.session_date)}
-          </p>
-          <HashLine field="hash" value={shortHash(prev.hash)} strong />
-        </div>
-        <div className="px-3 py-2.5">
-          {genesis && (
-            <>
-              <p className="text-label uppercase text-fg-faint">
-                First record
-              </p>
-              <HashLine
-                field="prev_hash"
-                value={shortHash(genesis.prev_hash)}
-              />
-            </>
-          )}
-          <p
-            className={`text-caption text-fg-muted ${genesis ? "mt-1.5" : ""}`}
-          >
-            <span className="tabular-nums text-fg">{records}</span> records in
-            its chain, each holding the one before it.
-          </p>
-        </div>
-      </div>
-      <p className="mt-2 text-caption leading-relaxed text-fg-muted">
-        Every file also has a <span className="mono">.ots</span> timestamp
-        proof beside it.
-      </p>
-    </div>
-  );
-}
-
-/** A field name and its value, both literals, in the one place on this page
- *  where the monospace is the point: the two `strong` lines are meant to be
- *  compared character by character, and a proportional face would not line
- *  them up. */
-function HashLine({
-  field,
-  value,
-  strong = false,
-}: {
-  field: string;
-  value: string;
-  strong?: boolean;
-}) {
-  return (
-    <p className="mt-1 flex items-baseline justify-between gap-2 text-caption">
-      <span className="mono shrink-0 text-fg-faint">{field}</span>
-      {/* `min-w-0 break-words`, because a hash has no space in it to break at.
-          The margin track is 296px at full width but only about 140px at the
-          `lg` breakpoint itself, and a twelve-character literal that cannot
-          wrap would run straight out of the column there. */}
-      <span
-        className={`mono min-w-0 break-words text-right ${
-          strong ? "text-fg" : "text-fg-muted"
-        }`}
-      >
-        {value}
-      </span>
-    </p>
   );
 }

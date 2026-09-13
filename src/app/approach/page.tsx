@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Next } from "@/components/Next";
+import { PipelineRail } from "@/components/PipelineRail";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
 import { SITE_ORIGIN, getIndex, getResearch } from "@/lib/data";
@@ -255,19 +256,7 @@ export default async function ApproachPage() {
           gloss="Six steps, and most ideas stop at the second."
           wide
         >
-          <ol className="grid gap-x-10 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
-            {PIPELINE.map((s) => (
-              <li key={s.n} className="border-t hairline pt-4">
-                <span className="text-label tnum text-fg-faint">{s.n}</span>
-                <h3 className="mt-2 text-subhead font-semibold text-fg">
-                  {s.name}
-                </h3>
-                <p className="mt-2 text-small leading-relaxed text-fg-muted">
-                  {s.body}
-                </p>
-              </li>
-            ))}
-          </ol>
+          <PipelineRail steps={PIPELINE} />
         </Section>
 
         <Section

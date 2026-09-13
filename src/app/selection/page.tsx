@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CatalogueMosaic } from "@/components/CatalogueMosaic";
 import { Next } from "@/components/Next";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
@@ -113,8 +114,21 @@ export default async function SelectionPage() {
         </Note>
       ) : (
         <>
+          {/* THE PROPORTION FIRST, THE BREAKDOWN AFTER. The tier grid answers
+              "how many of each" and cannot answer "how much of this is
+              presented", because a proportion read off eight cells is a
+              proportion nobody reads. One bar, then the table that details it. */}
           <Section
             first
+            wide
+            id="to-scale"
+            title="Every entry, to scale"
+            gloss="Four verdicts, one bar."
+          >
+            <CatalogueMosaic byTier={byTier} presented={presented} />
+          </Section>
+
+          <Section
             title="The catalogue"
             aside={<TierGrid tiers={tiers} verdicts={verdicts} byTier={byTier} total={tierTotal} />}
           >

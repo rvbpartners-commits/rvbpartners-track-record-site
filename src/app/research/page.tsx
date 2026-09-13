@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Next } from "@/components/Next";
+import { SearchFunnel } from "@/components/SearchFunnel";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
 import { DATA_REPO_URL, SITE_ORIGIN, getResearch } from "@/lib/data";
@@ -158,32 +159,30 @@ export default async function ResearchPage() {
         </div>
       </Section>
 
-      <Section id="the-bar" title="The bar">
+      {/* THE THREE COUNTS ON ONE SCALE. They were three separate figures in
+          three boxes, which is the one shape that hides the fact that they are
+          nested: 284 is a subset of 829 and 13 is a subset of 284, and a reader
+          had to divide in their head to see it. Drawn, the argument of this
+          page takes a second rather than a paragraph. `wide`, because a bar
+          chart is not a sentence and has no business inside a reading measure. */}
+      <Section id="the-bar" title="The bar" wide>
         <p className="text-body text-fg-muted">
           Search enough and something will look significant by chance. So every
           result is measured twice: on its own, and against the whole
           catalogue&rsquo;s search. The second is the bar a strategy must clear
-          to be promoted.
+          to be promoted, and clearing the first is not, by itself, evidence of
+          an edge.
         </p>
-        <div className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
-          <Figure
-            value={int(d.clear_nominal_bar)}
-            label={`Clear the standard bar (α = ${d.alpha})`}
-            note="Significant on their own results."
-          />
-          <Figure
-            value={int(d.survive_book_level)}
-            label="Clear the whole-catalogue bar"
-            note="Significant after correcting for every trial run."
+        <div className="mt-2">
+          <SearchFunnel
+            researched={s.strategies_researched}
+            nominal={d.clear_nominal_bar}
+            survivors={d.survive_book_level}
+            alpha={d.alpha}
+            expectedFalse={d.expected_false_positives_at_alpha}
+            effectiveTrials={s.effective_independent_trials}
           />
         </div>
-        <p className="text-body text-fg-muted">
-          The difference is the point of the correction. At α = {d.alpha},
-          chance alone would produce about{" "}
-          {int(d.expected_false_positives_at_alpha)} false positives among{" "}
-          {int(s.effective_independent_trials)} effective trials, so clearing
-          the standard bar is not, by itself, evidence of an edge.
-        </p>
         {d.gross_sharpe_fallback_rows !== undefined && (
           <p className="text-small leading-relaxed text-fg-muted">
             {int(d.gross_sharpe_fallback_rows)} of the rows in this correction use
