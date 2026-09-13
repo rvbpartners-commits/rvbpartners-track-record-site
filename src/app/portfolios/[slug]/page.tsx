@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { BookPage, type BookBundle } from "@/components/BookView";
+import { Next } from "@/components/Next";
 import { Note } from "@/components/Note";
 import {
   bookSlug,
@@ -189,6 +190,32 @@ export default async function Portfolio({
           : ""}
         .
       </p>
+
+      {/* WHERE A READER GOES FROM A DOSSIER. Three questions, and they are the
+          three this page raises rather than three routes that happen to exist:
+          is any of this true (verify), what do these numbers mean
+          (methodology), and what else is there (portfolios). */}
+      <Next
+        items={[
+          {
+            href: `/verify?book=${encodeURIComponent(summary.book)}#snapshots`,
+            label: "Verify this portfolio",
+            question:
+              "Every snapshot in this book's chain, with its hash and its timestamp.",
+          },
+          {
+            href: "/methodology",
+            label: "How these figures are produced",
+            question:
+              "The return convention, the benchmark, and what is withheld until when.",
+          },
+          {
+            href: "/portfolios",
+            label: "Every portfolio",
+            question: "The other accounts in the record, and how they differ.",
+          },
+        ]}
+      />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Section } from "@/components/Section";
 import { DATA_REPO_URL } from "@/lib/data";
+import { NAV } from "@/lib/nav";
 
 /**
  * THE ADDRESS DID NOT RESOLVE, and that is the only question this page
@@ -59,34 +60,23 @@ import { DATA_REPO_URL } from "@/lib/data";
  *  characterisation written here, which is how two surfaces end up describing
  *  the same page differently.
  *
- *  `/research` and `/selection` are listed unconditionally. The masthead drops
- *  them while the research summary is unpublished, because a primary navigation
- *  item with nothing behind it is a promise the record cannot keep; this page
- *  cannot make that check without a fetch, and a fetch here is the one thing it
- *  may not do. Both pages state their own absence honestly if it comes to that,
- *  which is the acceptable version of the trade. */
+ *  IT IS NO LONGER TYPED HERE. This array was the FOURTH hand-written copy of
+ *  the site's route list — after the masthead, the footer and the sitemap — and
+ *  it is the copy nobody would ever notice going stale, because a 404 page is
+ *  by definition reached by accident. It listed eight routes on a site that has
+ *  eleven. It is read from `lib/nav` now, in that file's own order, with the
+ *  front page prepended because the navigation sits on it rather than in it.
+ *
+ *  `/research` and `/selection` are listed unconditionally, which is why this
+ *  calls `NAV` rather than `visibleNav`. The masthead drops them while the
+ *  research summary is unpublished, because a primary navigation item with
+ *  nothing behind it is a promise the record cannot keep; this page cannot make
+ *  that check without a fetch, and a fetch here is the one thing it may not do.
+ *  Both pages state their own absence honestly if it comes to that, which is
+ *  the acceptable version of the trade. */
 const CONTENTS: { href: string; gloss: string }[] = [
   { href: "/", gloss: "The front page of the register." },
-  {
-    href: "/firm",
-    gloss: "The company publishing it, and the register’s entry for it.",
-  },
-  { href: "/portfolios", gloss: "Every published portfolio, each at its own address." },
-  { href: "/research", gloss: "How much was searched to produce what is published." },
-  {
-    href: "/selection",
-    gloss: "How the strategy catalogue is graded, and what it presents.",
-  },
-  {
-    href: "/verify",
-    gloss: "Every snapshot, its hash, and the checks you can run yourself.",
-  },
-  { href: "/methodology", gloss: "How every published number is produced." },
-  { href: "/disclosures", gloss: "The conditions attached to every figure here." },
-  {
-    href: "/legal",
-    gloss: "Company identification, hosting, and the terms this site is published on.",
-  },
+  ...NAV.map((item) => ({ href: item.href, gloss: item.question })),
 ];
 
 /** The files a reader who leaves this site opens first, named exactly as the

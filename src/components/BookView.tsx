@@ -415,10 +415,35 @@ function BookView({
     (x) => x.session === lastSession,
   );
 
+  // THE CONTENTS OF THIS PAGE, DERIVED FROM WHAT IT WILL ACTUALLY DRAW.
+  // Four of the seven parts below are conditional on the payload — a book with
+  // no daily grid, no round trips or no exposure block simply does not render
+  // them — so a hardcoded row of six anchors would be a set of links into
+  // nothing on exactly the books that publish least. Each entry is guarded by
+  // the same expression that guards its section; when one moves, both move.
+  // `exposure` and the composition block are mutually exclusive by
+  // construction below, which is why they share one entry.
+  const hasComposition =
+    (summary.categories?.length ?? 0) > 0 ||
+    (detail?.categories?.length ?? 0) > 0;
+  const contents = [
+    { id: "at-a-glance", label: "At a glance" },
+    { id: "performance", label: "Performance" },
+    daily.length > 0 ? { id: "daily", label: "Daily result" } : null,
+    roundTrips ? { id: "round-trips", label: "Round trips" } : null,
+    { id: "risk", label: "Risk" },
+    exposure
+      ? { id: "exposure", label: "Exposure" }
+      : hasComposition
+        ? { id: "holdings", label: "Holdings" }
+        : null,
+    { id: "evidence", label: "Evidence" },
+  ].filter((part): part is { id: string; label: string } => part !== null);
+
   return (
     <>
       {/* Identity row — the account header of a ledger page. */}
-      <header className="mt-8 border-b hairline pb-6">
+      <header id="at-a-glance" className="mt-8 border-b hairline pb-6 scroll-mt-8">
         <h1 className="text-heading sm:text-title font-semibold tracking-tight leading-tight">
           {summary.label}
         </h1>
@@ -544,6 +569,39 @@ function BookView({
         )}
       </header>
 
+      {/* ─── WHAT IS ON THIS PAGE, AND IN WHAT ORDER ──────────────────────
+          NOTHING IS HIDDEN AND NOTHING IS MOVED. The page carries the whole
+          record — the curve, the daily grid, every statistic the desk
+          publishes, the exposure, the holdings and the chained evidence — and
+          that volume is the firm's strongest asset, not a problem to be
+          solved by a "show more" control.
+
+          What it did not have was a SHAPE. An investor reading the first
+          screen and a quant looking for the drawdown table were given the
+          same undifferentiated scroll, and neither could tell how far in the
+          thing they wanted was. Six anchors cost nothing, remove nothing, and
+          turn one long page into a document with parts: executive reading,
+          analytical reading, forensic reading, same data.
+
+          Rendered as ordinary links to ordinary ids: no JavaScript, no
+          accordion, and every one of them citable. A reader can send someone
+          else straight to this book's risk table. */}
+      <nav
+        aria-label="Sections of this portfolio"
+        className="mt-6 -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x"
+      >
+        <ul className="flex min-w-max items-baseline gap-x-6 gap-y-2 text-small">
+          <li className="text-fg-faint">On this page</li>
+          {contents.map((part) => (
+            <li key={part.id}>
+              <a href={`#${part.id}`} className="text-accent hover:underline">
+                {part.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
       {/* THE GATE, FROM THE BOOK'S OWN PAYLOAD.
           Both numbers used to be wrong in the same direction: the threshold was
           the index-wide one rather than this book's, and the list of withheld
@@ -573,7 +631,8 @@ function BookView({
       ) : null}
 
       <Section
-        title="Cumulative return"
+        id="performance"
+        title="Performance"
         first
         note={
           <>
@@ -847,6 +906,7 @@ function BookView({
 
       {daily.length > 0 && (
         <Section
+          id="daily"
           title="Daily and cumulative result"
           note={
             <>
@@ -871,6 +931,7 @@ function BookView({
 
       {roundTrips && (
         <Section
+          id="round-trips"
           title="Round trips"
           note={
             <>
@@ -890,7 +951,8 @@ function BookView({
       )}
 
       <Section
-        title="Statistics"
+        id="risk"
+        title="Risk and statistics"
         note={
           <>
             Computed by the firm&rsquo;s metrics module and published as data.
@@ -932,6 +994,7 @@ function BookView({
 
       {exposure ? (
         <Section
+          id="exposure"
           title="Exposure"
           note={
             <>
@@ -945,6 +1008,7 @@ function BookView({
       ) : (summary.categories?.length ?? 0) > 0 ||
         (detail?.categories?.length ?? 0) > 0 ? (
       <Section
+        id="holdings"
         title="Composition and holdings"
         note={
           <>
@@ -1042,7 +1106,7 @@ function BookView({
       </Section>
       ) : null}
 
-      <Section title="Account">
+      <Section id="evidence" title="Account and evidence">
         <dl className="grid sm:grid-cols-2 gap-x-14 gap-y-3 text-small">
           <Line label="Type">{accountLabel}</Line>
           <Line label="Reference">

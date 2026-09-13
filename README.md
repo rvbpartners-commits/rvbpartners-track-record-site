@@ -1,9 +1,18 @@
 # RVB — track record site
 
 The public site at **[rvbpartners.fr](https://rvbpartners.fr)**.
-It renders the
+
+It is two halves. **The record** — `/portfolios`, `/research`, `/selection`,
+`/verify`, `/methodology`, `/disclosures` — renders the
 [track-record data repository](https://github.com/rvbpartners-commits/rvbpartners-track-record-data)
-and does nothing else.
+and nothing else. **The firm** — `/firm`, `/team`, `/approach`, `/contact` — is
+the company's own prose, written in this repository, and carries no figure the
+data repository does not publish.
+
+The split is the whole information architecture: the evidence is the second half
+of a document rather than the whole of one. `src/lib/nav.ts` is the single list
+every surface reads — the masthead, the footer, the sitemap and the 404 page —
+so a route cannot appear in one and be forgotten in the others.
 
 > **Paper accounts and real capital.** Some portfolios in this record are
 > broker-simulated paper accounts, in which no capital is at risk and fills are
@@ -21,6 +30,12 @@ the browser cannot produce a number the data does not contain.
 
 It follows that `null` is never zero. A withheld or missing value renders as
 absence — a break in the chart, a dash, or an explicit *withheld · N/60*.
+
+The rule binds the firm pages too. `/approach` states what the firm optimises
+for and hangs published counts beside it; `/team` derives its roster from
+`ENTITY.officers` — the register transcription — so it cannot name anyone the
+Kbis does not. Prose is allowed to describe; it is not allowed to produce a
+figure.
 
 ## Stack
 

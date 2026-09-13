@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GatedLink } from "@/components/GatedLink";
 import { AccountDisclosureText } from "@/components/AccountDisclosure";
+import { Next } from "@/components/Next";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
 import {
@@ -461,7 +462,7 @@ export default async function Portfolios() {
           <div className="scroll-x">
             <table className="w-full text-small">
               <thead>
-                <tr className="text-left text-fg-faint">
+                <tr className="text-left">
                   <Th>Portfolio</Th>
                   <Th>Account</Th>
                   <Th align="right">Funded with</Th>
@@ -496,23 +497,20 @@ export default async function Portfolios() {
 
                   return (
                     <tr key={b.book} className="border-t hairline align-top">
-                      <td className="py-3 pr-6">
+                      <td className="py-3.5 pr-6">
                         {/* Indented and tied to the row above with a rule:
                             a twin is not another portfolio, it is one of the
                             books above at a different size. */}
-                        <div className={parent ? "pl-5" : ""}>
+                        <div className={parent ? "border-l hairline pl-4" : ""}>
+                          {/* THE NAME IS THE PRIMARY CELL AND WAS SET LIKE
+                              EVERY OTHER ONE. Seven columns at one size is a
+                              grid a reader has to scan rather than read; the
+                              thing being listed goes up a step so the eye can
+                              find the rows before it reads the figures. */}
                           <Link
                             href={`/portfolios/${bookSlug(b)}`}
-                            className="text-small text-accent hover:underline"
+                            className="text-body font-medium text-accent hover:underline"
                           >
-                            {parent && (
-                              <span
-                                aria-hidden="true"
-                                className="mr-1.5 text-fg-faint"
-                              >
-                                └
-                              </span>
-                            )}
                             {b.label}
                           </Link>
                           {notes.length > 0 && (
@@ -525,19 +523,19 @@ export default async function Portfolios() {
                           )}
                         </div>
                       </td>
-                      <td className="py-3 pr-6 whitespace-nowrap">
+                      <td className="py-3.5 pr-6 whitespace-nowrap">
                         <KindBadge book={b} />
                       </td>
-                      <td className="py-3 pr-6 text-right tnum whitespace-nowrap">
+                      <td className="py-3.5 pr-6 text-right tnum whitespace-nowrap">
                         {money(b.initial_capital, "USD", 0)}
                       </td>
-                      <td className="py-3 pr-6 text-right tnum whitespace-nowrap">
+                      <td className="py-3.5 pr-6 text-right tnum whitespace-nowrap">
                         {date(b.inception)}
                       </td>
-                      <td className="py-3 pr-6 text-right tnum">
+                      <td className="py-3.5 pr-6 text-right tnum">
                         {int(b.marked_sessions)}
                       </td>
-                      <td className="py-3 pr-6 text-right">
+                      <td className="py-3.5 pr-6 text-right">
                         <span className="tnum">{int(roster)}</span>
                         {cats.length > 0 && (
                           <div className="mt-1 text-caption leading-snug text-fg-faint">
@@ -547,7 +545,7 @@ export default async function Portfolios() {
                           </div>
                         )}
                       </td>
-                      <td className="py-3 text-right whitespace-nowrap">
+                      <td className="py-3.5 text-right whitespace-nowrap">
                         <span className={`tnum ${colour}`}>
                           {signedPct(b.cumulative_return)}
                         </span>
@@ -557,7 +555,13 @@ export default async function Portfolios() {
                             today, so this renders nothing — and does not have
                             to be remembered on the day one is. */}
                         {b.stale && (
-                          <div className="mt-1 text-label tnum text-fg-faint">
+                          /* `text-caption`, not `text-label`. The scale
+                             reserves the label step for uppercase eyebrows and
+                             section marks; a dated qualifier under a figure is
+                             neither, and at 10.5px with 0.15em of tracking it
+                             was the last piece of console type left in this
+                             table. */
+                          <div className="mt-1 text-caption tnum text-fg-faint">
                             as of {date(b.stale_since)}
                           </div>
                         )}
@@ -596,6 +600,28 @@ export default async function Portfolios() {
         </Section>
       )}
 
+      <Next
+        items={[
+          {
+            href: "/verify",
+            label: "Verify the record",
+            question:
+              "Re-derive any figure above from a clone of the public repository.",
+          },
+          {
+            href: "/methodology",
+            label: "How the figures are produced",
+            question:
+              "The return convention, the benchmark, and what is withheld until when.",
+          },
+          {
+            href: "/approach",
+            label: "How these portfolios are built",
+            question:
+              "What the firm optimises for, and how a strategy becomes a funded account.",
+          },
+        ]}
+      />
     </div>
   );
 }
@@ -681,14 +707,32 @@ function MarginPair({
 function KindBadge({ book }: { book: BookSummary }) {
   const label = accountKindLabel(book);
   return (
-    <span className="inline-block border hairline px-1.5 py-px align-middle text-label leading-[1.5] text-fg-faint">
+    <span className="inline-block border hairline px-1.5 py-px align-middle text-caption leading-[1.6] text-fg-faint">
       {label}
     </span>
   );
 }
 
-/** Column head. Set in the figure face in small caps like every other index on
- *  the site: a table header is something read off a file, not the firm talking. */
+/**
+ * Column head, set the way every other table on this site sets one.
+ *
+ * IT WAS THE ONE PLACE THE SITE STILL LOOKED LIKE A TERMINAL. The register —
+ * the single table this page exists for, and the first table most readers ever
+ * see here — carried its seven column names at `text-label`: 10.5px, uppercase,
+ * tracked at 0.14em on top of the scale's own 0.15em. That treatment is correct
+ * for an eyebrow above a section, which is what `text-label` is for, and it is
+ * the reserved size for exactly that. Spent on a row of column names it stops
+ * reading as a table and starts reading as a console dump, which is the one
+ * register this firm should not be writing in: the argument of the page is that
+ * these are ACCOUNTS.
+ *
+ * The snapshot register on /verify had it right all along — `text-caption`,
+ * sentence case, `--fg-faint`, no added tracking — so this is not a new
+ * treatment, it is the site's own, finally applied on both of its tables. The
+ * box-drawing glyph that marked a capital twin went with it: the row already
+ * says "Capital twin of ..." in words underneath, and a `└` is a picture of a
+ * file tree.
+ */
 function Th({
   children,
   align = "left",
@@ -698,7 +742,7 @@ function Th({
 }) {
   return (
     <th
-      className={`pb-3 text-label font-medium uppercase tracking-[0.14em] ${
+      className={`pb-3 text-caption font-normal text-fg-faint ${
         align === "right" ? "pr-6 text-right last:pr-0" : "pr-6"
       }`}
     >

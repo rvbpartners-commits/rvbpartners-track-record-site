@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Next } from "@/components/Next";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
 import {
+  CONTACT_EMAIL,
   DATA_BASE,
   DATA_REPO,
   DATA_REPO_URL,
+  LINKEDIN_URL,
   MAINTAINER_AVATAR,
   MAINTAINER_URL,
   SITE_REPO_URL,
@@ -310,7 +313,14 @@ export default async function VerifyPage({
             that it was never restarted, so restarts are declared separately. A
             timestamp shows that a file existed by a given block, not how much
             earlier. The hash chain, timestamps, signed commits and branch
-            ruleset are used together for that reason.
+            ruleset are used together for that reason. None of it is a check on
+            the account itself: the files show what was published about a
+            portfolio, not that an account exists at a venue or holds what it
+            says. That check is set out below, under{" "}
+            <a href="#venues" className="text-accent hover:underline">
+              verifying at the venue
+            </a>
+            .
           </Note>
         </div>
       </Section>
@@ -540,6 +550,115 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             }
           />
         </ol>
+      </Section>
+
+      {/* THE CHECK THE PUBLISHED FILES CANNOT MAKE. Everything above checks
+          the RECORD: that nothing was edited, that no session was dropped,
+          that each file existed by a given block. A reader who accepts all of
+          it is still entitled to ask whether the accounts are there. The three
+          venues answer that differently — one publicly, two on a credential
+          the firm issues — so they are stated separately rather than as one
+          reassurance. */}
+      <Section
+        id="venues"
+        title="Verifying at the venue"
+        gloss="The one check a clone cannot make."
+        note={
+          <>
+            Two of the three need a credential from the firm, issued so that it
+            can read and cannot trade. The first needs nothing.
+          </>
+        }
+        aside={
+          <div>
+            <p className="text-label uppercase text-fg-faint">
+              What each check rests on
+            </p>
+            <dl className="mt-2 border-t hairline">
+              <Rests on="On-chain venue" what="A public ledger." />
+              <Rests
+                on="Read-only API key"
+                what="A credential the firm issues, scoped so it cannot trade."
+              />
+              <Rests
+                on="Investor password"
+                what="A credential the firm issues, read-only by design of the platform."
+              />
+            </dl>
+          </div>
+        }
+      >
+        <p className="text-small leading-relaxed text-fg-muted">
+          The published files show that what was published has not changed. They
+          say nothing about the accounts behind them. That is a separate check,
+          and it differs by venue.
+        </p>
+
+        <ol className="space-y-5 sm:space-y-6 text-small leading-relaxed">
+          <Check
+            n={1}
+            title="On-chain, and public"
+            body={
+              <>
+                The real-capital portfolio trades in part through a HyperLiquid
+                vault, where every order, execution and liquidation is recorded
+                on-chain and final in one block. That vault&rsquo;s positions and
+                its full trade history can be read from HyperLiquid&rsquo;s
+                public API or from a block explorer. The vault address is given
+                on request and will be published beside that portfolio&rsquo;s
+                record, so the check needs nothing from the firm.
+              </>
+            }
+          />
+          <Check
+            n={2}
+            title="Read-only access at the paper broker"
+            body={
+              <>
+                The paper accounts run at Alpaca, which has no public ledger but
+                issues scoped credentials. An API key created with the{" "}
+                <Code>Read only</Code> scope across Accounts, Trading and Data
+                shows positions and the full execution history, and cannot place,
+                amend or cancel an order. It is the broker answering, not a report
+                the firm produces.
+              </>
+            }
+          />
+          <Check
+            n={3}
+            title="Investor access at the real-capital broker"
+            body={
+              <>
+                The other venue of the real-capital portfolio is IC Markets,
+                where MetaTrader issues an <em>investor password</em>. It opens
+                the account read-only — positions, order history and equity as
+                the platform holds them — and the platform refuses to place an
+                order on it.
+              </>
+            }
+          />
+        </ol>
+
+        <p className="text-small leading-relaxed text-fg-muted">
+          The two read-only accesses are provided on request, at{" "}
+          <a
+            className="text-accent hover:underline"
+            href={`mailto:${CONTACT_EMAIL}`}
+          >
+            {CONTACT_EMAIL}
+          </a>{" "}
+          or on{" "}
+          <a
+            className="text-accent hover:underline"
+            href={LINKEDIN_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            LinkedIn
+          </a>
+          . Neither credential can trade, and neither replaces the checks above:
+          they answer a different question.
+        </p>
       </Section>
 
       {/* The heading names the set it counts: records in the current chains.
@@ -851,6 +970,29 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
           </p>
         </div>
       </Section>
+
+      <Next
+        items={[
+          {
+            href: "/methodology",
+            label: "Read the methodology",
+            question:
+              "How each number you just checked was produced: the conventions, and what is withheld.",
+          },
+          {
+            href: "/portfolios",
+            label: "Back to the portfolios",
+            question:
+              "Every account in the record, with its kind, its history and its return.",
+          },
+          {
+            href: "/disclosures",
+            label: "The conditions attached",
+            question:
+              "What a verified record still does not establish, stated per portfolio.",
+          },
+        ]}
+      />
     </>
   );
 }

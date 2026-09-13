@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Next } from "@/components/Next";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
 import { DATA_REPO_URL, SITE_ORIGIN, getResearch } from "@/lib/data";
@@ -9,7 +10,12 @@ import { date } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Selection",
+  // "Selection" NAMES FOUR DIFFERENT THINGS to a reader who has not read the
+  // page — asset selection, strategy selection, portfolio selection,
+  // statistical selection — and the one it means is the one they cannot guess.
+  // The route keeps its address, because changing a path breaks every link
+  // ever shared to it for no reader's benefit; only the label moves.
+  title: "Strategy selection",
   description:
     "How the strategy catalogue is graded, tier by tier, and which strategies that grading presents.",
   alternates: { canonical: `${SITE_ORIGIN}/selection` },
@@ -94,7 +100,7 @@ export default async function SelectionPage() {
 
   return (
     <div className="pt-2 lg:pt-6">
-      <h1 className="text-title">Selection</h1>
+      <h1 className="text-title">Strategy selection</h1>
       <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
         How the strategy catalogue is graded, and what that grading presents.
         {research ? <> Figures as of {date(research.generated_at)}.</> : null}
@@ -172,6 +178,23 @@ export default async function SelectionPage() {
           </Section>
         </>
       )}
+
+      <Next
+        items={[
+          {
+            href: "/methodology",
+            label: "How the figures are produced",
+            question:
+              "The return convention, the metric definitions, and what is withheld until when.",
+          },
+          {
+            href: "/portfolios",
+            label: "See what survived",
+            question:
+              "The portfolios the presented strategies are traded on, account by account.",
+          },
+        ]}
+      />
     </div>
   );
 }

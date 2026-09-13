@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { GatedLink } from "@/components/GatedLink";
+import { Next } from "@/components/Next";
 import { Section } from "@/components/Section";
 import {
   CONTACT_EMAIL,
@@ -35,11 +36,19 @@ import { NO_VALUE, date } from "@/lib/format";
  * whole site on 2026-09-08; the vocabulary section below is where the two
  * surviving nouns are defined, once, so no page has to define them again.
  *
- * NO ROLES, NO BIOGRAPHIES, NO HEADCOUNT. The officers appear exactly as the
- * legal notice lists them — three names under two registered titles — because
- * that is what the register records. Anything beyond it would be this site
- * inventing an org chart, on the one site whose entire premise is that nothing
- * on it is invented.
+ * NO ROLES, NO BIOGRAPHIES, NO HEADCOUNT — ON THIS PAGE. The officers appear
+ * exactly as the legal notice lists them: three names under two registered
+ * titles, because that is what the register records. Anything beyond it would
+ * be this page inventing an org chart, on the one site whose entire premise is
+ * that nothing on it is invented.
+ *
+ * That rule is right for a transcription and it left the site unable to say
+ * who works here at all, which is the first thing anyone asks about an
+ * investment firm. The answer is a SEPARATE PAGE, not a looser rule: /team says
+ * what each officer is responsible for, and it derives its roster from the same
+ * `ENTITY.officers` this section prints, so it cannot name anyone the register
+ * does not. The transcript stays a transcript; the introduction gets its own
+ * address.
  *
  * WHAT IS IN THE MARGIN. The page used to spend two payloads on one number (the
  * annualised threshold) and print prose across half a column, so the section
@@ -384,6 +393,18 @@ export default async function FirmPage() {
             },
           ]}
         />
+        {/* The register says who holds which title. It does not say what any
+            of them does, and this section is not the place to start: it is a
+            transcription. The page that answers it derives its roster from
+            these same two fields. */}
+        <p className="mt-5 text-small leading-relaxed text-fg-muted">
+          These are the titles the register records. What each officer is
+          responsible for inside the firm is set out on the{" "}
+          <Link href="/team" className="text-accent hover:underline">
+            team page
+          </Link>
+          .
+        </p>
       </Section>
 
       {/* ─── 6. VOCABULARY ─────────────────────────────────────────────────
@@ -592,9 +613,38 @@ export default async function FirmPage() {
           >
             {CONTACT_EMAIL}
           </a>
+          . What the firm can and cannot answer &mdash; and the read-only
+          access it provides to anyone checking the record &mdash; is set out
+          on the{" "}
+          <Link href="/contact" className="text-accent hover:underline">
+            contact page
+          </Link>
           .
         </p>
       </Section>
+
+      <Next
+        items={[
+          {
+            href: "/team",
+            label: "Meet the team",
+            question:
+              "Who answers for the research, the framework and the published record.",
+          },
+          {
+            href: "/approach",
+            label: "How we invest",
+            question:
+              "What the firm optimises for, and how a strategy becomes a funded portfolio.",
+          },
+          {
+            href: "/portfolios",
+            label: "See the portfolios",
+            question:
+              "Every published account, its kind, its history and its return.",
+          },
+        ]}
+      />
     </div>
   );
 }

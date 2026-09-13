@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Next } from "@/components/Next";
 import { Section } from "@/components/Section";
 import { slugLabel } from "@/lib/format";
 import {
@@ -222,6 +223,29 @@ export default async function DisclosuresPage() {
           third-party money and offers no product to the public.
         </p>
       </Section>
+
+      <Next
+        items={[
+          {
+            href: "/verify",
+            label: "Verify the record",
+            question:
+              "Re-derive every published number yourself, from a clone of the public repository.",
+          },
+          {
+            href: "/methodology",
+            label: "How the figures are produced",
+            question:
+              "The conventions each of these conditions qualifies, stated in full.",
+          },
+          {
+            href: "/portfolios",
+            label: "See the portfolios",
+            question:
+              "Each account states the disclosures that apply to it on its own page.",
+          },
+        ]}
+      />
     </>
   );
 }

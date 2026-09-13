@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Next } from "@/components/Next";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
 import { DATA_REPO_URL, SITE_ORIGIN, getResearch } from "@/lib/data";
@@ -91,7 +92,34 @@ export default async function ResearchPage() {
     <div className="pt-2 lg:pt-6">
       <Masthead asOf={r.generated_at} />
 
-      <Section first title="How much was searched">
+      {/* WHY THIS PAGE EXISTS, BEFORE THE FIRST FIGURE.
+          The page opened on 528,527 and left a reader who does not already
+          know what multiple testing is to work out why a trading firm would
+          publish the size of its own search at all. To that reader the number
+          reads as a boast, which is the exact opposite of what it is. Two
+          sentences fix it, and they have to come first: a qualification is
+          worth nothing once the figure has been read. */}
+      <Section
+        first
+        id="why"
+        title="Why publish the search"
+        gloss="The denominator, not just the numerator."
+      >
+        <p className="text-body text-fg-muted">
+          A strategy cannot be evaluated apart from the number of ideas tested
+          before it. Run a thousand backtests and the best of them will look
+          remarkable whether or not anything was found, so a result quoted
+          without its search is a result that cannot be judged.
+        </p>
+        <p className="text-body text-fg-muted">
+          RVB therefore publishes not only what survived, but the scale of the
+          search that produced it — and corrects every result for it. The figures
+          below are that search. They are not an achievement; they are the
+          denominator the rest of this record is measured against.
+        </p>
+      </Section>
+
+      <Section id="how-much" title="How much was searched">
         <div className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
           <Figure
             value={int(s.recorded_trials)}
@@ -130,7 +158,7 @@ export default async function ResearchPage() {
         </div>
       </Section>
 
-      <Section title="The bar">
+      <Section id="the-bar" title="The bar">
         <p className="text-body text-fg-muted">
           Search enough and something will look significant by chance. So every
           result is measured twice: on its own, and against the whole
@@ -165,18 +193,18 @@ export default async function ResearchPage() {
         )}
       </Section>
 
-      <Section title="Selection">
+      <Section id="selection" title="Strategy selection">
         <p className="text-body text-fg-muted">
           How the catalogue is graded, tier by tier, and what that grading
           presents, is set out under{" "}
           <Link href="/selection" className="text-accent hover:underline">
-            selection
+            strategy selection
           </Link>
           . Both pages read the same published file.
         </p>
       </Section>
 
-      <Section title="Source">
+      <Section id="source" title="Source">
         <p className="text-small leading-relaxed text-fg-muted">
           Every figure on this page is read from{" "}
           <a
@@ -190,6 +218,29 @@ export default async function ResearchPage() {
           , generated {date(r.generated_at)}.
         </p>
       </Section>
+
+      <Next
+        items={[
+          {
+            href: "/selection",
+            label: "How the catalogue is graded",
+            question:
+              "Tier by tier, what the grading presents and what it refuses.",
+          },
+          {
+            href: "/portfolios",
+            label: "See what survived",
+            question:
+              "The portfolios these strategies are traded on, and what each has returned.",
+          },
+          {
+            href: "/methodology",
+            label: "How the figures are produced",
+            question:
+              "The return convention, the metric definitions, and what is withheld.",
+          },
+        ]}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { SITE_ORIGIN, bookSlug, getIndex, getResearch } from "@/lib/data";
+import { visibleNav } from "@/lib/nav";
 
 // Generated per request, like every page it lists. A sitemap fixed at deploy
 // time freezes the portfolio list at whatever the payload said that morning —
@@ -53,10 +54,10 @@ function when(value: string | null | undefined): Date | undefined {
  * both, and a number nobody reads is still a number this file would have to
  * justify.
  *
- * The static routes are listed in the masthead's order — identity, what is
- * traded, the denominator, what was refused, how to check it, the reference,
- * the caveats, the legal notice. Crawlers do not care; a reader opening
- * /sitemap.xml gets the register's own contents order rather than a shuffle.
+ * The static routes come out of `lib/nav` in that file's own order — the firm,
+ * then the record, then the legal notice. Crawlers do not care; a reader
+ * opening /sitemap.xml gets the site's contents order rather than a shuffle,
+ * and this file can no longer describe a different site from the masthead.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Neither fetch depends on the other, and both fail soft to null — a sitemap
@@ -77,23 +78,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // surface making the promise to machines rather than to readers.
   const hasResearch = research !== null;
 
-  const routes: MetadataRoute.Sitemap = [
-    { url: abs("/"), lastModified: record },
-    { url: abs("/firm") },
-    { url: abs("/portfolios"), lastModified: record },
-    ...(hasResearch
-      ? [
-          { url: abs("/research"), lastModified: searched },
-          // Counts from research.json, the index, and the books' own metrics:
-          // it changed when the later of the two payloads did.
-          { url: abs("/selection"), lastModified: searched },
-        ]
-      : []),
-    { url: abs("/verify"), lastModified: record },
-    { url: abs("/methodology") },
-    { url: abs("/disclosures"), lastModified: record },
-    { url: abs("/legal") },
-  ];
+  // THE ROUTE LIST IS NOT TYPED HERE. It used to be: a hand-written array of
+  // the same nine addresses `lib/nav` already holds, in the file that module's
+  // own comment names as the surface that forgot the gate. Two copies of one
+  // list is how the gate was forgotten the first time, and adding /team,
+  // /approach and /contact to a masthead would have left this file describing
+  // a smaller site than the one it serves — silently, because a sitemap that
+  // is merely incomplete still validates and still serves.
+  //
+  // `dated` carries the second rule with it. A route whose CONTENT comes from
+  // the published record is dated by that record's clock; a route that is
+  // prose carries no `<lastmod>` at all, because a page rendered at request
+  // time has no honest date for when this repository last changed.
+  const routes: MetadataRoute.Sitemap = visibleNav(hasResearch).map((item) => ({
+    url: abs(item.href),
+    lastModified:
+      item.dated === "record"
+        ? record
+        : item.dated === "research"
+          ? searched
+          : undefined,
+  }));
+  // The front page is not a navigation item — it is what the navigation sits
+  // on — so it is the one address this file still names.
+  routes.unshift({ url: abs("/"), lastModified: record });
 
   // ONE ENTRY PER PUBLISHED PORTFOLIO, DERIVED — never a list typed here. A
   // hardcoded set of slugs goes stale the moment a book is added, renamed or

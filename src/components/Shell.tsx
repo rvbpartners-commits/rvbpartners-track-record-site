@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { getIndex, getResearch } from "@/lib/data";
 import { date } from "@/lib/format";
-import { visibleNav } from "@/lib/nav";
+import { mastheadNav } from "@/lib/nav";
 import { Mark } from "./Mark";
 import { NavLinks } from "./NavLinks";
 import { Footer } from "./Footer";
@@ -44,7 +44,7 @@ export async function Shell({ children }: { children: ReactNode }) {
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
   const hasLive = (index?.books ?? []).some((b) => b.capital_at_risk);
   const hasResearch = research !== null;
-  const nav = visibleNav(hasResearch).map(({ href, label }) => ({ href, label }));
+  const nav = mastheadNav(hasResearch).map(({ href, label }) => ({ href, label }));
 
   // HOW CURRENT THE RECORD IS, read off the books rather than off the clock.
   // `published_at` is when the publisher last RAN, which is not the same claim
@@ -170,7 +170,7 @@ export async function Shell({ children }: { children: ReactNode }) {
       >
         {children}
       </main>
-      <Footer hasLive={hasLive} />
+      <Footer hasLive={hasLive} hasResearch={hasResearch} />
     </div>
   );
 }

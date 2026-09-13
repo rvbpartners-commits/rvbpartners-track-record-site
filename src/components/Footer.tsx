@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/data";
+import { navGroup, type NavItem } from "@/lib/nav";
 import { AccountDisclosure } from "./AccountDisclosure";
 
 /** The account disclosure sits here at body size and full contrast, first in the
@@ -17,13 +18,24 @@ import { AccountDisclosure } from "./AccountDisclosure";
  *  It is also hidden on the portfolio pages, where each book states its own
  *  kind in its own header. See `AccountDisclosure`.
  *
- *  THE FOOTER IS NOT A SECOND CONTENTS. It carried eight links back into the
- *  site — the firm, selection, disclosures, methodology, verify, plus both
- *  repositories — every one of which the masthead already offers on every page,
- *  and none of which a reader comes to a footer looking for. A footer is where
- *  the standing obligations live: who to write to, where the company is
- *  identified, what is stored about you, and where the firm can be found
- *  elsewhere. That is what is left.
+ *  THE FOOTER IS A SECOND CONTENTS AGAIN, AND THIS TIME IT HAS A REASON TO BE.
+ *  It carried eight links back into the site and they were struck out on the
+ *  grounds that the masthead already offered every one of them. That argument
+ *  held while the masthead WAS the whole site: seven routes, all of them in the
+ *  row at the top.
+ *
+ *  It stopped holding the moment the site grew a half the masthead does not
+ *  carry. `/selection`, `/disclosures` and `/contact` are published pages with
+ *  no seat in the contents row — deliberately, because a contents row with ten
+ *  items is not a contents row. A footer is where a reader looks for exactly
+ *  that: everything else, grouped, at the end of the document.
+ *
+ *  So the columns mirror the document's own split rather than repeating the
+ *  masthead in a smaller size — THE FIRM (who we are, what we believe, how to
+ *  reach us) and THE RECORD (what is traded, how it was searched, how to check
+ *  it) — and both are read from `lib/nav`, so a route can never appear in one
+ *  surface and be forgotten in the other. The standing obligations keep the
+ *  last row to themselves.
  *
  *  `/legal` STAYS, and it is the one internal link that has to. A French
  *  company publishing a website must make its mentions légales reachable
@@ -32,7 +44,19 @@ import { AccountDisclosure } from "./AccountDisclosure";
  *  site stores nothing at all: an absent cookie notice and a cookie notice
  *  saying there are none read very differently to someone checking.
  */
-export function Footer({ hasLive }: { hasLive: boolean }) {
+export function Footer({
+  hasLive,
+  hasResearch,
+}: {
+  hasLive: boolean;
+  /** Gates `/selection` in the footer exactly as it is gated in the masthead
+   *  and in the sitemap. A footer that links a page rendering nothing is the
+   *  reason the gate now lives in one file. */
+  hasResearch: boolean;
+}) {
+  const firm = navGroup("firm", hasResearch);
+  const record = navGroup("record", hasResearch);
+
   return (
     <footer className="mt-16">
       {/* THE CLOSING BAND. The page opens on ink and now closes on it, so the
@@ -65,18 +89,36 @@ export function Footer({ hasLive }: { hasLive: boolean }) {
           any financial instrument.
         </p>
 
+        {/* THE CONTENTS, GROUPED THE WAY THE DOCUMENT IS.
+            The firm's name and its one line lead, because a footer that opens
+            on a column of links is a sitemap; one that opens on who published
+            the page is a colophon, which is what this is. */}
+        <div className="mt-10 border-t hairline pt-8 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p className="text-small font-semibold text-fg">RVB Partners</p>
+            <p className="mt-2 text-small leading-relaxed text-fg-muted">
+              Systematic trading, built on research and verifiable in public.
+            </p>
+          </div>
+          <FooterColumn heading="Firm" items={firm} />
+          <FooterColumn heading="Record" items={record} />
+          <div>
+            <p className="text-label font-medium uppercase tracking-[0.14em] text-fg-faint">
+              Legal
+            </p>
+            <ul className="mt-3 space-y-2">
+              {/* Legally required of a French company publishing a website
+                  (LCEN art. 6-III). */}
+              <FooterLink href="/legal">Legal notice</FooterLink>
+              <FooterLink href="/legal#cookies">Cookies</FooterLink>
+            </ul>
+          </div>
+        </div>
+
         <nav
-          aria-label="Legal and contact"
-          className="mt-8 pt-6 border-t hairline flex flex-wrap items-center gap-x-7 gap-y-3 text-small text-fg-muted"
+          aria-label="Contact and legal"
+          className="mt-10 pt-6 border-t hairline flex flex-wrap items-center gap-x-7 gap-y-3 text-small text-fg-muted"
         >
-          {/* Legally required of a French company publishing a website
-              (LCEN art. 6-III). */}
-          <Link href="/legal" className="hover:text-fg transition-colors">
-            Legal notice
-          </Link>
-          <Link href="/legal#cookies" className="hover:text-fg transition-colors">
-            Cookies
-          </Link>
           <a
             href={LINKEDIN_URL}
             className="hover:text-fg transition-colors"
@@ -97,5 +139,53 @@ export function Footer({ hasLive }: { hasLive: boolean }) {
         </nav>
       </div>
     </footer>
+  );
+}
+
+/** One column of routes, read from the navigation list rather than typed here.
+ *
+ *  A column that renders nothing is not rendered at all: with `research.json`
+ *  withheld the record column loses two of its entries, and an empty heading
+ *  over an empty list is the same broken promise the gate exists to prevent. */
+function FooterColumn({
+  heading,
+  items,
+}: {
+  heading: string;
+  items: readonly NavItem[];
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <p className="text-label font-medium uppercase tracking-[0.14em] text-fg-faint">
+        {heading}
+      </p>
+      <ul className="mt-3 space-y-2">
+        {items.map((item) => (
+          <FooterLink key={item.href} href={item.href}>
+            {item.label}
+          </FooterLink>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function FooterLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="text-small text-fg-muted hover:text-fg transition-colors"
+      >
+        {children}
+      </Link>
+    </li>
   );
 }
