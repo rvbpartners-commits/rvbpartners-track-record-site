@@ -6,6 +6,7 @@ import { slugLabel } from "@/lib/format";
 import {
   CONTACT_EMAIL,
   REPO_URL,
+  SITE_ORIGIN,
   getFeedByAccountKind,
   getIndex,
   type BookSummary,
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
   title: "Disclosures",
   description:
     "The terms on which the portfolios and figures on this site should be read.",
+  alternates: { canonical: `${SITE_ORIGIN}/disclosures` },
 };
 
 /** Who a disclosure applies to, in the words the rest of the site uses. */

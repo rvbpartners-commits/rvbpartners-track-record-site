@@ -156,7 +156,7 @@ export async function Shell({ children }: { children: ReactNode }) {
               page and a screen reader announcing "navigation" twice tells a
               reader nothing about which one they are in. */}
           <nav
-            aria-label="Sections of the register"
+            aria-label="Main sections"
             className="border-y hairline -mx-5 sm:mx-0 px-5 sm:px-0 scroll-x"
           >
             <NavLinks items={nav} />

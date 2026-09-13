@@ -90,7 +90,21 @@ export function AnalyticsCharts({
           .
         </p>
       )}
-      <div className="mt-10 grid xl:grid-cols-2 gap-x-12 gap-y-10">
+      {/* `[&>*]:min-w-0` IS LOAD-BEARING, and without it this grid was the one
+          place on the site that scrolled the whole page sideways.
+
+          A grid item's `min-width` is `auto`, which floors the track at the
+          item's content-based minimum. The monthly heatmap's table carries
+          `min-w-[540px]` so it can be read at all, and although it sits inside
+          a `scroll-x` container the floor still reached the track: the single
+          column came out 540px wide on a 390px phone, every other panel
+          stretched to match, and the document itself became 560px wide. Nothing
+          was clipped, so it looked fine in a screenshot; the page simply slid
+          under the reader's thumb.
+
+          Zeroing the minimum lets the track take the width it is given and puts
+          the overflow back where it belongs, inside the table's own scroller. */}
+      <div className="mt-10 grid xl:grid-cols-2 gap-x-12 gap-y-10 [&>*]:min-w-0">
       <DailyBars analytics={analytics} />
       <DrawdownPath analytics={analytics} />
       <Rolling
@@ -118,7 +132,7 @@ export function AnalyticsCharts({
       <Distribution analytics={analytics} />
       <Quantiles analytics={analytics} />
       <MonthlyHeatmap analytics={analytics} />
-        <div className="xl:col-span-2">
+        <div className="xl:col-span-2 min-w-0">
           <DrawdownEpisodes analytics={analytics} />
         </div>
       </div>
@@ -144,7 +158,7 @@ function Plot({
   // with boxes; the rule for annualised figures is stated once, above.
   if (held || empty) return null;
   return (
-    <figure className="m-0">
+    <figure className="m-0 min-w-0">
       <figcaption>
         <h3 className="text-small font-semibold tracking-tight">{title}</h3>
         {note && (

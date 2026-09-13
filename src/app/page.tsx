@@ -43,15 +43,18 @@ function int(n: number | null | undefined): string {
     : n.toLocaleString("en-US");
 }
 
-/** The six dimensions, in the order /approach argues them. Names only: this is
- *  the trailer, and the page that explains each one is one link away. */
-const DIMENSIONS = [
-  { name: "Return", line: "Net of costs, after an execution delay." },
-  { name: "Risk", line: "Quoted excess of the risk-free rate." },
+/** The six standards, in the order /approach argues them. Names and one line
+ *  each: this is the short form, and the page that sets out each one is a link
+ *  away. They are STANDARDS APPLIED TO A PROCESS, not six investment
+ *  objectives ranked against each other, and the wording has to keep saying so
+ *  or "Diversification" reads as a promise about outcomes. */
+const STANDARDS = [
+  { name: "Return", line: "Measured net of costs, after an execution delay." },
+  { name: "Risk", line: "Quoted in excess of the risk-free rate." },
   { name: "Robustness", line: "Re-measured against every trial recorded." },
-  { name: "Diversification", line: "The portfolio is the product." },
-  { name: "Execution", line: "The same logic research measured." },
-  { name: "Evidence", line: "Re-derivable by someone who does not trust us." },
+  { name: "Diversification", line: "Portfolios of strategies, not single strategies." },
+  { name: "Execution", line: "The same logic research measured, on the account." },
+  { name: "Evidence", line: "Every figure re-derivable from published files." },
 ];
 
 export default async function Home() {
@@ -91,6 +94,11 @@ export default async function Home() {
     .sort()
     .at(-1);
 
+  // THE SAME SIX NAMES /approach USES, in the same order. The front page used
+  // to run Research, Challenge, Select, Deploy, Verify while /approach ran
+  // Research, Validation, Selection, Portfolio, Live execution, Monitoring —
+  // two vocabularies for one process, which reads as two processes. Six cells
+  // also fill a three-track grid exactly, where five left a hole.
   const steps = [
     {
       n: "01",
@@ -101,29 +109,36 @@ export default async function Home() {
     },
     {
       n: "02",
-      head: "Challenge",
-      body: "Each result is measured again against every trial the firm has ever recorded. Search enough and something looks significant by chance.",
+      head: "Validation",
+      body: "Each result is put through the anti-overfit battery, then measured again against every trial the firm has recorded. Most results stop here.",
       href: research !== null ? "/research#the-bar" : null,
       cta: "The bar",
     },
     {
       n: "03",
-      head: "Select",
-      body: "What survives is graded and filed by verdict. Nothing the grading rejects is presented as an edge anywhere on this site.",
+      head: "Selection",
+      body: "What survives is graded and filed by verdict. Nothing the grading rejects is presented as a result anywhere on this site.",
       href: research !== null ? "/selection" : null,
       cta: "How the catalogue is graded",
     },
     {
       n: "04",
-      head: "Deploy",
-      body: "Survivors are assembled into fixed portfolios: a committed set of strategies and weights, traded on their own account and not re-chosen between sessions.",
+      head: "Portfolio",
+      body: "Surviving strategies are assembled into a fixed portfolio: a committed set of strategies and target weights, not re-chosen between sessions.",
       href: "/portfolios" as string | null,
       cta: "The portfolios",
     },
     {
       n: "05",
-      head: "Verify",
-      body: "Each account is marked after its close, then hashed, chained to the session before it and timestamped, so a published figure cannot change.",
+      head: "Live execution",
+      body: "The portfolio is funded on its own broker account and traded by the desk, which re-uses the research path rather than re-implementing it.",
+      href: "/approach#pipeline" as string | null,
+      cta: "How a result becomes a portfolio",
+    },
+    {
+      n: "06",
+      head: "Monitoring",
+      body: "Each account is marked after its close, the session is hashed into a chain and timestamped, and the live result is measured against the simulation behind it.",
       href: "/verify" as string | null,
       cta: "Check the record",
     },
@@ -154,8 +169,8 @@ export default async function Home() {
           RVB is a research-driven systematic trading firm. Research, strategy
           development and production infrastructure sit inside one team and one
           codebase, so a result found in research runs on an account without
-          being rebuilt on the way — and the difference between the two is
-          itself measured.
+          being rebuilt on the way. The difference between the simulated result
+          and the live one is measured.
         </p>
         <Link
           href="/team"
@@ -173,13 +188,15 @@ export default async function Home() {
         <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
           Beyond return
         </h2>
-        <p className="mt-6 max-w-[70ch] text-subhead text-fg">
-          We do not optimise for return alone. A strategy that earns well on
-          paper and cannot survive its own search, its own costs or its own
-          execution is not an edge — it is a description of the past.
+        <p className="mt-6 max-w-[74ch] text-subhead text-fg">
+          Return is one of six standards a result is held to, and the six are
+          applied at every stage rather than checked at the end. A strategy that
+          earns well on paper but does not survive the search that found it, the
+          costs of trading it, or the execution it would require, is not carried
+          into a portfolio.
         </p>
         <ul className="mt-8 grid gap-x-10 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-          {DIMENSIONS.map((d) => (
+          {STANDARDS.map((d) => (
             <li key={d.name} className="border-t hairline pt-3">
               <span className="block text-body font-semibold text-fg">
                 {d.name}
@@ -203,7 +220,7 @@ export default async function Home() {
         <h2 className="text-label font-medium uppercase tracking-[0.15em] text-fg-faint">
           How we work
         </h2>
-        <ol className="mt-8 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-5">
+        <ol className="mt-8 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {steps.map((s) => (
             <li key={s.n}>
               <span className="text-label tnum text-fg-faint">{s.n}</span>
@@ -252,30 +269,30 @@ export default async function Home() {
           </dl>
         )}
 
-        <p className="mt-9 max-w-[70ch] text-subhead text-fg">
-          The point is not how much we found. It is how much we rejected.
+        <p className="mt-9 max-w-[74ch] text-subhead text-fg">
+          A result cannot be judged apart from the number of ideas tested before
+          it, so the firm publishes the size of its search alongside what
+          survived it.
         </p>
         <p className="mt-3 max-w-[74ch] text-body text-fg-muted">
           {presented !== null && presented !== undefined ? (
             <>
               Of everything searched, {int(presented)} catalogue entries are
-              presented as a result at all &mdash; and only the figure above
-              clears the correction for the search that found them.{" "}
+              presented as a result at all, and only the figure above clears the
+              correction for the search that found them.{" "}
             </>
           ) : null}
-          A strategy cannot be judged apart from the number of ideas tested
-          before it, so the firm publishes the denominator as well as the
-          numerator{research !== null ? (
+          Every backtest, sweep and grid cell is recorded in an append-only
+          ledger, and each result is deflated by how much was searched before
+          it.{research !== null ? (
             <>
-              {" \u2014 "}
+              {" "}
               <Link href="/research" className="text-accent hover:underline">
-                every figure, and how the correction is applied
+                Every figure, and how the correction is applied
               </Link>
               {"."}
             </>
-          ) : (
-            "."
-          )}
+          ) : null}
         </p>
 
         {/* The account statement, beside the figures it qualifies, with the one

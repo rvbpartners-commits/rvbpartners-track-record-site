@@ -7,6 +7,7 @@ import { Stamp } from "@/components/Stamp";
 import {
   DATA_REPO_URL,
   REPO_URL,
+  SITE_ORIGIN,
   bookSlug,
   getFeedByAccountKind,
   getIndex,
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
     "How every published number is produced: sources, return convention, " +
     "metric definitions, benchmark, what the fills cost, and the biases that " +
     "are known but unmeasured.",
+  alternates: { canonical: `${SITE_ORIGIN}/methodology` },
 };
 
 /**

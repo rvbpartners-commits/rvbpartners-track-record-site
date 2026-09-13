@@ -70,3 +70,33 @@ export const REGISTERED_ADDRESS = [
   `${ENTITY.registeredOffice.postcode} ${ENTITY.registeredOffice.city}`,
   ENTITY.registeredOffice.country,
 ].join(", ");
+
+/**
+ * An officer's name as a reader should see it.
+ *
+ * The Kbis prints one surname with a DOUBLED hyphen, which is the French
+ * civil-registry convention for a composite surname. Transcribed exactly, as
+ * everything in `ENTITY` is: the register's own string is what a reader
+ * checking Infogreffe will find, and rewriting it here would be the one
+ * inaccuracy this file exists to prevent.
+ *
+ * On the page it reads as damage. "Garcia--Baron" is indistinguishable from a
+ * typing error or from a stray dash, and it appeared on the two pages whose
+ * whole job is to identify the company accurately. So the registry string
+ * stays in the data and the ordinary spelling is what is printed, with /legal
+ * stating the registry's form beneath it where the register is the subject.
+ *
+ * NOT `format.prose`: that turns `--` into a colon, which would render the
+ * surname as "Garcia: Baron".
+ */
+export function officerDisplay(name: string): string {
+  return name.replace(/--/g, "-");
+}
+
+/** The officers whose registered name differs from the printed one, so a page
+ *  can state the registry's spelling without hardcoding a surname. */
+export function officersWithDoubledHyphen(): string[] {
+  return [ENTITY.officers.president, ...ENTITY.officers.generalManagers].filter(
+    (n) => n.includes("--"),
+  );
+}

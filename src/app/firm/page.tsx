@@ -10,7 +10,7 @@ import {
   getIndex,
   getResearch,
 } from "@/lib/data";
-import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
+import { ENTITY, REGISTERED_ADDRESS, officerDisplay } from "@/lib/entity";
 import { NO_VALUE, date } from "@/lib/format";
 
 /**
@@ -156,42 +156,48 @@ export default async function FirmPage() {
           the first section, outside the grid that owns the measure, so there is
           no track to inherit a width from. Everything inside a section below
           takes its width from the grid. */}
-      <h1 className="max-w-[24ch] text-title sm:text-title">
-        RVB Partners is a systematic trading firm in France.
-      </h1>
-      <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
-        The company behind this record: what it does, how it is registered, and
-        the terms used across the site.
-      </p>
+      {/* THE FOUR PUBLISHED FACTS MOVED UP HERE, out of the first section's
+          margin, and they solved two things at once. Beside a two-line lede the
+          right half of the header was empty for its full height; under a
+          four-line paragraph the same four facts made the first section's
+          margin track taller than its prose, so the section closed on 200px of
+          nothing in the left column. One move, no new content: the header is
+          occupied across its width, and the section below it is prose at the
+          full measure with no margin to out-run. */}
+      {/* `items-start`, NOT `items-end`. Bottom-aligning the two blocks made
+          the taller one (four ruled facts) start about 90px above the title, so
+          the page began with a gap where every other page begins with its h1.
+          Both columns start at the same top edge; the facts simply run lower,
+          which is what a rule underneath is for. */}
+      <div className="grid gap-x-11 gap-y-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,var(--margin))] lg:items-start">
+        <div>
+          <h1 className="max-w-[24ch] text-title sm:text-title">
+            RVB Partners is a systematic trading firm in France.
+          </h1>
+          <p className="mt-5 max-w-[68ch] text-body text-fg-muted">
+            The company behind this record: what it does, how it is registered,
+            and the terms used across the site.
+          </p>
+        </div>
+        {index && (
+          <MarginList
+            rows={[
+              { label: "Portfolios published", value: int(books.length) },
+              { label: "Chained records", value: int(index.chain?.entries) },
+              { label: "Newest marked session", value: date(currentTo) },
+              { label: "Index published", value: date(index.published_at) },
+            ]}
+          />
+        )}
+      </div>
 
       {/* ─── 2. WHAT THE COMPANY DOES ───────────────────────────────────────
-          The margin carries what the paragraph is an account OF: how many
-          portfolios are published, how many records are in the chain, how far
-          the record runs. Selections over published fields, not metrics. */}
-      <Section
-        first
-        title="What the company does"
-        gloss="In one paragraph"
-        note={
-          index ? (
-            <>
-              Read from the published index.
-            </>
-          ) : undefined
-        }
-        aside={
-          index ? (
-            <MarginList
-              rows={[
-                { label: "Portfolios published", value: int(books.length) },
-                { label: "Chained records", value: int(index.chain?.entries) },
-                { label: "Newest marked session", value: date(currentTo) },
-                { label: "Index published", value: date(index.published_at) },
-              ]}
-            />
-          ) : undefined
-        }
-      >
+          NO MARGIN, AND THE REASON IS WHERE IT WENT. The four published figures
+          this paragraph is an account OF are in the page header now, beside the
+          title, because a four-row margin beside a four-line paragraph made the
+          section close on an empty left column. Hanging anything else here
+          would be filling a track rather than annotating a paragraph. */}
+      <Section first title="What the company does" gloss="In one paragraph">
         <p className="text-body text-fg-muted">
           RVB Partners researches systematic trading strategies and trades them
           on its own accounts. Research and execution are not two systems: a
@@ -378,14 +384,14 @@ export default async function FirmPage() {
       >
         <Rows
           rows={[
-            { label: "President", value: ENTITY.officers.president },
+            { label: "President", value: officerDisplay(ENTITY.officers.president) },
             {
               label: "General managers",
               value: (
                 <>
                   {ENTITY.officers.generalManagers.map((name) => (
                     <span key={name} className="block">
-                      {name}
+                      {officerDisplay(name)}
                     </span>
                   ))}
                 </>

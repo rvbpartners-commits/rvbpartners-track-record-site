@@ -40,7 +40,8 @@ export default function ContactPage() {
           Contact
         </h1>
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
-          One address, read by the people who do the work.
+          One address. Enquiries are answered by the officers named on the team
+          page.
         </p>
       </header>
 
@@ -68,9 +69,8 @@ export default function ContactPage() {
             >
               {CONTACT_EMAIL}
             </a>
-            . The firm has one address and it is not a queue: research,
-            verification and press all arrive in the same inbox and are answered
-            by the people named on the{" "}
+            . Research, verification and press enquiries all arrive at the
+            same address and are answered by the officers named on the{" "}
             <Link href="/team" className="text-accent hover:underline">
               team page
             </Link>
@@ -93,12 +93,12 @@ export default function ContactPage() {
         <Section
           id="verification"
           title="Verifying the record"
-          gloss="Most of it needs nothing from us."
+          gloss="What a clone can check, and what it cannot."
         >
           <p>
-            Every published figure can be re-derived from the public data
-            repository without our cooperation, and the commands to do it are
-            set out under{" "}
+            Every published figure can be re-derived independently from the
+            public data repository, and the commands to do it are set out
+            under{" "}
             <Link href="/verify" className="text-accent hover:underline">
               verify
             </Link>
@@ -115,8 +115,8 @@ export default function ContactPage() {
 
         <Section
           id="capital"
-          title="What we cannot help with"
-          gloss="Stated before you write, not after."
+          title="Third-party capital"
+          gloss="What the firm cannot act on."
         >
           <p className="text-small leading-relaxed text-fg-muted">
             RVB Partners trades its own capital. It manages no third-party money,

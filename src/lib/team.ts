@@ -32,10 +32,18 @@ import { ENTITY } from "@/lib/entity";
  * `format.prose` would turn `--` into a colon, which is why neither surface may
  * be run through it.
  *
- * FOUR LINES EACH, AND NO CAREER HISTORY. What a reader needs is what each
- * person is responsible for inside the system the rest of this site documents,
- * not where they studied. Anything longer is a biography, and a biography is a
- * claim this record cannot verify.
+ * WHAT EACH PERSON DOES, NOT WHAT EACH PERSON IS. A description here names
+ * responsibilities inside the system the rest of this site documents. It does
+ * not name qualities: "leads research excellence" describes nobody's job, and
+ * "drives innovation" is a sentence a reader cannot check against anything.
+ * Where someone studied is likewise not a fact this record can verify, so it
+ * is not published.
+ *
+ * AND THE SPLIT IS NOT THREE SILOS. Two of the three work the whole chain from
+ * research through to a funded, monitored account; the third builds the
+ * framework both of them measure with. Writing that as "strategies / strategy /
+ * code" would be tidier and wrong, so two profiles deliberately carry the same
+ * area.
  */
 export type Member = {
   /** Exactly as the register carries it. The key this file looks up by. */
@@ -56,30 +64,32 @@ type Profile = Pick<Member, "display" | "area" | "description">;
 const PROFILES: Record<string, Profile> = {
   "Finn Van Den Bosch": {
     display: "Finn Van Den Bosch",
-    area: "Research and production",
+    area: "Research, portfolios and production",
     description:
-      "Works on the strategies that enter the catalogue, and on what it takes " +
-      "to move one from a measured result to a funded account: the validation " +
-      "it has to survive, the weight it is given, and the conditions under " +
-      "which it is retired.",
+      "Works across the full chain: researching strategies, developing and " +
+      "validating them, deciding which enter a portfolio and at what weight, " +
+      "funding that portfolio on its own account, and following it once it is " +
+      "live.",
   },
   "Elias Garcia--Baron": {
     display: "Elias Garcia-Baron",
-    area: "Research and production",
+    area: "Research, portfolios and production",
     description:
-      "Works across the catalogue and the portfolios that trade it, and on the " +
-      "tooling the firm searches with. A strategy is not finished when it " +
-      "backtests well; it is finished when the same logic runs on an account " +
-      "and the difference between the two is measured.",
+      "Works across the same chain: strategy research and development, " +
+      "validation, portfolio construction, going live and monitoring. Also " +
+      "builds the internal tooling the firm searches with, including the " +
+      "retrieval system used to work through the literature and the firm's " +
+      "own past results.",
   },
   "Florian Rizzo": {
     display: "Florian Rizzo",
-    area: "Infrastructure and architecture",
+    area: "Framework and measurement",
     description:
-      "Owns the framework research and the desk share — one metrics module, " +
-      "one accounting engine, one execution path — and the systems that " +
-      "publish this record. It is what makes a live figure comparable to the " +
-      "backtest that argued for it.",
+      "Builds and maintains the framework that research and the live desk " +
+      "share: the single module every metric is computed by, the accounting " +
+      "engine that turns target weights into returns, and the publishing " +
+      "chain behind this track record, so a live figure and the backtest " +
+      "behind it are computed on the same definitions.",
   },
 };
 

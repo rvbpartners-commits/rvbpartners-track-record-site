@@ -13,6 +13,7 @@ import {
   MAINTAINER_AVATAR,
   MAINTAINER_URL,
   SITE_REPO_URL,
+  SITE_ORIGIN,
   getChain,
   getIndex,
   getMeta,
@@ -31,6 +32,7 @@ export const metadata: Metadata = {
   description:
     "Every published snapshot with its hash, its commit, and its " +
     "OpenTimestamps proof, so a stranger can re-derive every number.",
+  alternates: { canonical: `${SITE_ORIGIN}/verify` },
 };
 
 /** How many chain records one page of the register shows.
@@ -618,9 +620,9 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                 The paper accounts run at Alpaca, which has no public ledger but
                 issues scoped credentials. An API key created with the{" "}
                 <Code>Read only</Code> scope across Accounts, Trading and Data
-                shows positions and the full execution history, and cannot place,
-                amend or cancel an order. It is the broker answering, not a report
-                the firm produces.
+                shows positions and the full execution history, and cannot
+                place, amend or cancel an order. The figures come from the
+                broker rather than from a report the firm produces.
               </>
             }
           />

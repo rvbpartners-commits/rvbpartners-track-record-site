@@ -71,10 +71,9 @@ export function Hero() {
 
         <p className="mt-7 max-w-[62ch] text-subhead text-[#b9b4ab]">
           RVB Partners is a systematic trading firm in France, trading its own
-          capital. It builds diversified portfolios of systematic strategies —
+          capital. It builds diversified portfolios of systematic strategies,
           and publishes what it trades, how each strategy was tested, and a
-          hash-chained record anyone can check against the firm&rsquo;s own
-          claims.
+          hash-chained record that can be checked independently.
         </p>
 
         {/* COLOURS INLINE, NOT AS UTILITIES. The band sets a light text colour
@@ -85,11 +84,16 @@ export function Hero() {
             rendered the main call to action as an empty rectangle. An inline
             style is not a preference here; it is the only way to state the
             override so that nothing can reorder it. */}
-        <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-3">
+        {/* FULL WIDTH WHILE THEY ARE STACKED. Below `sm` the two buttons wrap
+            onto separate lines and each took its own text width, so the pair
+            sat as two ragged left-aligned blocks of different lengths. They
+            share an edge now, and go back to sitting side by side at their own
+            widths as soon as there is room. */}
+        <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4">
           <Link
             href="/portfolios"
             style={{ background: "#f2f0ec", color: "#0c0d0e" }}
-            className="inline-flex items-center gap-2.5 px-6 py-3.5 text-small font-medium transition-opacity hover:opacity-90"
+            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 text-small font-medium transition-opacity hover:opacity-90"
           >
             Explore the portfolios
             <span aria-hidden="true">→</span>
@@ -97,7 +101,7 @@ export function Hero() {
           <Link
             href="/approach"
             style={{ borderColor: "#3a3a37", color: "#f2f0ec" }}
-            className="inline-flex items-center gap-2.5 border px-6 py-3.5 text-small font-medium transition-colors hover:bg-white/5"
+            className="inline-flex items-center justify-center gap-2.5 border px-6 py-3.5 text-small font-medium transition-colors hover:bg-white/5"
           >
             How we invest
           </Link>

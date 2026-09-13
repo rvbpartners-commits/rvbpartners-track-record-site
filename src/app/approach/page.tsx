@@ -41,16 +41,24 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_ORIGIN}/approach` },
 };
 
-/** The six dimensions, and where each one is already evidenced on this site.
- *  A dimension with no page behind it would be a claim, which is what this
- *  page exists not to make. */
-const DIMENSIONS: { name: string; body: string; href: string; cite: string }[] = [
+/** The six standards, and where each is already visible in the record.
+ *
+ *  A standard with no page behind it is a claim, which is what this page
+ *  exists not to make. `cite` is the link, `href` the anchor it lands on.
+ *
+ *  THEY ARE STANDARDS, NOT OBJECTIVES. Calling them "dimensions" of
+ *  performance put diversification and evidence beside return as though a
+ *  reader were being promised six outcomes. They are six things a result is
+ *  held to at each stage of the process, which is both what the firm actually
+ *  does and the weaker, checkable claim.
+ */
+const STANDARDS: { name: string; body: string; href: string; cite: string }[] = [
   {
     name: "Return",
     body:
-      "The first dimension, and the one every other line here exists to " +
-      "qualify. It is measured net of costs and after a one-bar execution " +
-      "delay, never on the weights a strategy wished it had held.",
+      "Measured net of costs and after a one-bar execution delay, on the " +
+      "weights a strategy actually held rather than the ones it would have " +
+      "wanted. The other five standards qualify this one.",
     href: "/methodology#returns",
     cite: "How a return is defined",
   },
@@ -58,8 +66,8 @@ const DIMENSIONS: { name: string; body: string; href: string; cite: string }[] =
     name: "Risk",
     body:
       "A return is quoted against what it cost to earn. Sharpe, Sortino and " +
-      "Calmar are published excess of the risk-free rate, because interest on " +
-      "cash is not an edge — and a strategy that loses to cash says so.",
+      "Calmar are published in excess of the risk-free rate, so a strategy " +
+      "that returns less than cash is recorded as doing so.",
     href: "/methodology#metrics",
     cite: "What is computed, and what is withheld",
   },
@@ -75,28 +83,29 @@ const DIMENSIONS: { name: string; body: string; href: string; cite: string }[] =
   {
     name: "Diversification",
     body:
-      "The portfolio is the product; a strategy is a component of one. Ideas " +
-      "are clustered into families by correlation and by shared code, so a " +
-      "sweep of forty variants counts as what it is rather than as forty " +
-      "independent edges.",
+      "The unit the firm funds is a portfolio; a strategy is one component " +
+      "of it. Ideas are clustered into families by correlation and by shared " +
+      "code, so a sweep of forty variants counts as one family rather than " +
+      "as forty independent results.",
     href: "/portfolios",
     cite: "The published portfolios",
   },
   {
     name: "Execution",
     body:
-      "A strategy that cannot be traded is not a strategy. The same logic that " +
-      "was measured in research is what runs on the account, through the same " +
-      "engine, and the difference between the two is itself measured.",
+      "A strategy is measured on the costs and delays it would actually " +
+      "meet. The same logic that was measured in research runs on the " +
+      "account, through the same engine, and the difference between the two " +
+      "is measured.",
     href: "/methodology#costs",
     cite: "What a fill costs",
   },
   {
     name: "Evidence",
     body:
-      "Every published figure has to be re-derivable by someone who does not " +
-      "trust us. That constrains what can be claimed, which is the point: a " +
-      "number nobody can check is a number nobody should weigh.",
+      "Every published figure has to be re-derivable by a reader who does " +
+      "not trust the firm. That constrains what can be claimed: a number " +
+      "that cannot be checked is not presented as a result.",
     href: "/verify",
     cite: "How to check the record",
   },
@@ -149,10 +158,10 @@ export default async function ApproachPage() {
           Approach
         </h1>
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
-          RVB builds diversified portfolios of systematic strategies. What
-          follows is what the firm optimises for, how an idea becomes a funded
-          account, and which markets it trades today — each of them checkable
-          against a page of this record rather than asserted here.
+          RVB builds diversified portfolios of systematic strategies. This page
+          sets out the standards a result is held to, how an idea becomes a
+          funded account, and which markets the firm trades today. Each section
+          links to the page where the claim can be checked.
         </p>
       </header>
 
@@ -167,24 +176,25 @@ export default async function ApproachPage() {
           wide
           id="beyond-return"
           title="Beyond return"
-          gloss="Return is one dimension of six."
+          gloss="Six standards, applied at every stage."
           note={
             <>
-              Each dimension links to the page where it is already visible.
-              Nothing on this list is a policy the record cannot be checked
-              against.
+              These are standards applied to a process, not six investment
+              objectives ranked against one another. Each links to the page
+              where it is already visible in the record.
             </>
           }
         >
           <p>
-            We do not optimise for return alone. A strategy that earns well on
-            paper and cannot survive its own search, its own costs, or its own
-            execution is not an edge — it is a description of the past. So a
-            result is judged on six dimensions at once, and a failure on any of
-            them is enough to stop it.
+            The six below are applied throughout research, selection and
+            execution rather than checked once at the end, and a failure against
+            any one of them is enough to stop a result. A strategy that earns
+            well on paper but does not survive the search that found it, the
+            costs of trading it, or the execution it would require, is not
+            carried into a portfolio.
           </p>
           <ul className="mt-2 grid gap-x-10 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
-            {DIMENSIONS.map((d) => (
+            {STANDARDS.map((d) => (
               <li key={d.name} className="border-t hairline pt-4">
                 <h3 className="text-subhead font-semibold text-fg">{d.name}</h3>
                 <p className="mt-2 text-small leading-relaxed text-fg-muted">
@@ -203,8 +213,8 @@ export default async function ApproachPage() {
 
         <Section
           id="rejection"
-          title="What the search is for"
-          gloss="The count that matters is the one we threw away."
+          title="Why the search is published"
+          gloss="The denominator behind every result."
           aside={
             <MarginBlock label="The search, as published">
               <Fact
@@ -228,15 +238,14 @@ export default async function ApproachPage() {
         >
           <p>
             Search enough and something will look significant by chance. That is
-            not a risk to be managed at the end; it is the central problem of
-            systematic research, and the only defence is to count every search
-            and correct for it.
+            the central problem of systematic research, and the only defence is
+            to count every search and correct each result for it.
           </p>
           <p>
-            So the firm publishes the denominator, not just the numerator. Every
-            backtest, sweep and grid cell goes into an append-only ledger, and a
-            strategy&rsquo;s result is deflated by how much was searched before
-            it. The point is not how much we found. It is how much we rejected.
+            Every backtest, sweep and grid cell is recorded in an append-only
+            ledger, and a strategy&rsquo;s result is deflated by how much was
+            searched before it. The size of the search is published alongside
+            what survived it, so a reader can apply the same correction.
           </p>
         </Section>
 
@@ -263,15 +272,16 @@ export default async function ApproachPage() {
 
         <Section
           id="diversification"
-          title="The portfolio is the product"
-          gloss="A strategy is a component of one."
+          title="Portfolio construction"
+          gloss="The unit the firm builds and funds."
         >
           <p>
-            A firm built around one strategy is exposed to one thing being
-            wrong. The unit RVB builds and funds is a portfolio: a committed set
-            of strategies and target weights, assembled from the surviving
+            The unit RVB builds and funds is a portfolio: a committed set of
+            strategies and target weights, assembled from the surviving
             catalogue and traded on its own account until it is deliberately
-            changed.
+            changed. A single strategy is a component of a portfolio rather
+            than something the firm runs on its own, which limits how much any
+            one result can matter.
           </p>
           <p>
             That is also why the research counts ideas in families rather than
@@ -326,23 +336,23 @@ export default async function ApproachPage() {
             </div>
           </div>
           <p>
-            What the firm is building is a research platform that adapts to a
-            market rather than a business built around one. The framework, the
-            validation battery and the desk are market-agnostic by
-            construction — a new asset class is a data seam and a cost model, not
-            a second firm.
+            The framework, the validation battery and the desk are not specific
+            to an asset class, so extending the research platform to a new
+            market is a matter of a data source and a cost model rather than a
+            separate research process.
           </p>
         </Section>
 
         <Section
           id="objective"
-          title="Where this is going"
-          gloss="An objective, stated as one."
+          title="Long-term objective"
+          gloss="An ambition, not a current activity."
         >
           <p>
-            Our long-term objective is to build an institutional investment
-            platform around a diversified portfolio of systematic strategies.
-            That is a direction, and it is written here as one.
+            RVB&rsquo;s long-term objective is to build an institutional
+            investment platform around a diversified portfolio of systematic
+            strategies. That is a direction of travel; it describes no current
+            activity, and the paragraph below is what holds today.
           </p>
           <Note tone="warn" className="mt-1">
             The firm trades its own capital. It manages no third-party money, is

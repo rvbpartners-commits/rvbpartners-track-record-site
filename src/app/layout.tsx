@@ -72,6 +72,13 @@ export const metadata: Metadata = {
   // performance claims is not something to chase, so the site is discoverable
   // but not promoted.
   robots: { index: true, follow: true },
+  // EVERY OTHER ROUTE DECLARES ONE AND THE FRONT PAGE DID NOT. `metadataBase`
+  // pins the host but does not emit a <link rel="canonical">, so the one
+  // address most likely to be reached with a tracking query or a trailing
+  // variant was the one with nothing telling a crawler which form is the page.
+  // Declared here rather than on the route: a layout canonical is inherited by
+  // any route that does not set its own.
+  alternates: { canonical: SITE_ORIGIN },
   openGraph: {
     title: "RVB Partners · public register",
     description:

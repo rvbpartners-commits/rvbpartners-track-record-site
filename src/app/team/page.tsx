@@ -44,10 +44,9 @@ export default function TeamPage() {
           Team
         </h1>
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
-          RVB is built as a research team, not around a single strategy or a
-          single researcher. Research, strategy development and production
-          infrastructure sit inside one group and one codebase, which is what
-          lets a result found in research be run on an account without being
+          RVB is a research team of three. Research, strategy development and
+          production infrastructure sit inside one group and one codebase, so a
+          result found in research can be run on an account without being
           rebuilt on the way.
         </p>
       </header>
@@ -60,7 +59,7 @@ export default function TeamPage() {
           first
           id="officers"
           title="Who does what"
-          gloss="The officers, and the part each answers for."
+          gloss="The officers, and what each is responsible for."
         >
           <ul className="mt-1 grid gap-x-10 gap-y-9 lg:grid-cols-3">
             {members.map((m) => (
@@ -86,8 +85,8 @@ export default function TeamPage() {
 
         <Section
           id="how"
-          title="How the work is divided"
-          gloss="Three areas, one codebase."
+          title="How the team works"
+          gloss="Shared responsibilities, one codebase."
           aside={
             <MarginBlock label="The three areas">
               <Area
@@ -95,36 +94,35 @@ export default function TeamPage() {
                 what="Finding ideas, testing them, and recording every test."
               />
               <Area
-                name="Strategy development"
-                what="Turning a surviving result into something that can be traded, weighted and retired."
+                name="Portfolios"
+                what="Selecting what survives, setting weights, funding the account and monitoring it."
               />
               <Area
-                name="Production"
-                what="The framework, the desk, and the systems that publish this record."
+                name="Framework"
+                what="The metrics module, the accounting engine and the publishing chain."
               />
             </MarginBlock>
           }
         >
           <p>
-            The work is distributed rather than owned. Every portfolio published
+            The work is shared rather than owned. Every portfolio published
             on this site was built collectively: no portfolio is one person&rsquo;s
             idea run on one person&rsquo;s account, and no strategy enters a
             portfolio without being measured against everything else the firm
             has already searched.
           </p>
           <p>
-            What keeps that honest is that there is only one instrument. The
-            same metrics module computes a Sharpe ratio in research and on the
+            There is one instrument behind both halves of that. The same
+            metrics module computes a Sharpe ratio in research and on the
             desk, the same accounting engine applies the same execution delay
             and the same cost treatment to both, and the live path re-uses the
-            research path rather than re-implementing it. Two people can
-            disagree about a strategy; they cannot see two different numbers for
-            the same returns.
+            research path rather than re-implementing it. Two people looking at
+            the same returns therefore see the same numbers.
           </p>
           <p>
             Every change to the framework, the catalogue and this site is
-            versioned and reviewed. That is not a process claim — it is why the
-            published record can be re-derived at all.
+            versioned and reviewed, which is what makes the published record
+            re-derivable.
           </p>
         </Section>
 
@@ -134,8 +132,8 @@ export default function TeamPage() {
             is what the third track exists not to be. */}
         <Section
           id="scale"
-          title="What the firm is, at this size"
-          gloss="Stated rather than implied."
+          title="Size and scope"
+          gloss="What the firm does, and does not, do."
         >
           <p className="text-small leading-relaxed text-fg-muted">
             RVB Partners is a small firm trading its own capital. It manages no

@@ -9,7 +9,7 @@ import {
   SITE_ORIGIN,
   SITE_REPO_URL,
 } from "@/lib/data";
-import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
+import { ENTITY, REGISTERED_ADDRESS, officerDisplay, officersWithDoubledHyphen } from "@/lib/entity";
 import { date } from "@/lib/format";
 
 /**
@@ -202,10 +202,28 @@ export default function LegalNotice() {
       >
         <Rows
           rows={[
-            { label: "President", value: ENTITY.officers.president },
+            {
+              label: "President",
+              value: officerDisplay(ENTITY.officers.president),
+            },
             {
               label: "General managers",
-              value: ENTITY.officers.generalManagers.join(" · "),
+              value: (
+                <>
+                  {ENTITY.officers.generalManagers.map(officerDisplay).join(" · ")}
+                  {/* The register prints a composite surname with a doubled
+                      hyphen. The names above are set the ordinary way, and the
+                      register's own spelling is given here so a reader checking
+                      Infogreffe finds the string they will see there. Derived
+                      from the transcription, never typed. */}
+                  {officersWithDoubledHyphen().length > 0 && (
+                    <Gloss>
+                      as registered:{" "}
+                      {officersWithDoubledHyphen().join(" · ")}
+                    </Gloss>
+                  )}
+                </>
+              ),
             },
           ]}
         />

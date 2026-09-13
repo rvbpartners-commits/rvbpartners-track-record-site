@@ -380,24 +380,26 @@ export default async function Portfolios() {
           The real-capital portfolio is a separate two-venue strategy, described
           on its own page.
         </p>
+        {/* ─── THE ACCOUNT STATEMENT, AHEAD OF THE FIRST FIGURE ───────────
+            The same component the home page places above its stamp band and
+            the other pages carry in their footer: one sentence, one source, so
+            the placements cannot drift apart. It stays above the table and
+            above the chart, because a disqualifier a reader reaches after
+            scrolling past the returns has already failed at its job.
+
+            IT NO LONGER HAS A RULED SECTION TO ITSELF. One sentence between two
+            rules, with a section's full spacing above and below it, cost about
+            150px of chrome on the way to the chart and read as a fourth part of
+            the page. Attached to the sentence that says what a portfolio is, it
+            is the qualification of that sentence, at the same size and the same
+            contrast, in the place a reader is already looking.
+
+            Rendered only when the index actually loaded: the sentence is
+            DERIVED from the portfolios listed below it, so with none there is
+            nothing it can honestly say, and the failure is reported once in the
+            section that was going to hold the figures. */}
+        {loaded && <AccountDisclosureText hasLive={hasLive} />}
       </Section>
-
-      {/* ─── THE ACCOUNT STATEMENT, AHEAD OF THE FIRST FIGURE ─────────────
-          The same component the home page places above its stamp band and the
-          other pages carry in their footer — one sentence, one source, so the
-          placements cannot drift apart. It sits here, above the table and above
-          the reserved chart below, because a disqualifier a reader reaches
-          after scrolling past the returns has already failed at its job.
-
-          Rendered only when the index actually loaded: the sentence is DERIVED
-          from the books listed below it, so with no books there is nothing it
-          can honestly say — and the failure is then reported once, in the
-          section that was going to hold the figures, rather than twice. */}
-      {loaded && (
-        <div className="mt-12 lg:mt-16 border-t hairline pt-6">
-          <AccountDisclosureText hasLive={hasLive} />
-        </div>
-      )}
 
       {/* ─── THE RECORD ──────────────────────────────────────────────────
           Moved here from the home page. It sits BELOW the account statement
@@ -459,8 +461,20 @@ export default async function Portfolios() {
       {/* THE REGISTER, at the width of the page rather than of the measure. */}
       {loaded && index && (
         <div className="mt-7">
+          {/* A FLOOR UNDER THE TABLE, SO IT SCROLLS INSTEAD OF CRUSHING.
+              `w-full` alone made seven columns fit a 390px phone by squeezing
+              the one column that carries words: "RVB-GROWTH-AGG" broke across
+              three lines and a twin's description came out as nine ragged
+              ones. The scroller was already here and had nothing to do, since
+              the table never exceeded the viewport.
+
+              700px is chosen against the layout rather than picked: from the
+              `sm` breakpoint up the column is at least 704px wide, so the table
+              still fills its width and never scrolls on a tablet or a desktop.
+              Below it, the register scrolls sideways in place, which is the one
+              thing this site does let data do. */}
           <div className="scroll-x">
-            <table className="w-full text-small">
+            <table className="w-full min-w-[700px] text-small">
               <thead>
                 <tr className="text-left">
                   <Th>Portfolio</Th>
