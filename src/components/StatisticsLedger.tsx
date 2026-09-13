@@ -60,13 +60,11 @@ export function StatisticsLedger({
   analytics,
   currency = "USD",
   nav,
-  sessions,
 }: {
   metrics: MetricsPayload | null;
   analytics: AnalyticsPayload | null;
   currency?: string;
   nav: number | null;
-  sessions: number;
 }) {
   const v = metrics?.values ?? {};
   const gate = metrics?.insufficient_history;
@@ -83,8 +81,7 @@ export function StatisticsLedger({
       value: signedPct(v.cumulative_return ?? null, 3),
       sign: v.cumulative_return ?? null,
     },
-    { label: "Sessions published", value: String(sessions) },
-    { label: "Observations", value: v.n_obs === null ? "—" : String(v.n_obs) },
+    { label: "Marked sessions", value: v.n_obs === null ? "—" : String(v.n_obs) },
   ];
 
   const performance: Row[] = [

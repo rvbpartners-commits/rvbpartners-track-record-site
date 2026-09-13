@@ -52,13 +52,14 @@ export function Hero({
     <section className="ground-ink relative left-1/2 -mt-8 w-screen -translate-x-1/2 bg-[#0c0d0e] text-[#f2f0ec] lg:-mt-10">
       <div className="mx-auto max-w-[var(--column)] px-5 sm:px-8 lg:px-12 pt-14 pb-14 lg:pt-20 lg:pb-16">
         <h1 className="max-w-[19ch] text-display font-semibold">
-          Systematic strategies, tested against how results deceive.
+          Systematic trading, built on research and verifiable in public.
         </h1>
 
         <p className="mt-7 max-w-[58ch] text-subhead text-[#b9b4ab]">
-          RVB Partners is a systematic trading firm in France. It trades its own
-          capital and no one else&rsquo;s. This site is the public register of
-          what we trade, how it was tested, and what we refused.
+          RVB Partners is a systematic trading firm in France, trading its own
+          capital. This site publishes what the firm trades and how each
+          strategy was tested, and its performance record can be checked
+          against a public, hash-chained history.
         </p>
 
         {/* COLOURS INLINE, NOT AS UTILITIES. The band sets a light text colour

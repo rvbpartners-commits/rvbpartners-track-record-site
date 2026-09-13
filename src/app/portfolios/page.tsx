@@ -608,7 +608,7 @@ export default async function Portfolios() {
                         {date(b.inception)}
                       </td>
                       <td className="py-3 pr-6 text-right tnum">
-                        {int(b.sessions)}
+                        {int(b.marked_sessions)}
                       </td>
                       <td className="py-3 pr-6 text-right">
                         <span className="tnum">{int(roster)}</span>
@@ -793,7 +793,7 @@ export default async function Portfolios() {
                   <MarginPair
                     key={b.book}
                     label={b.label}
-                    value={int(b.sessions)}
+                    value={int(b.marked_sessions)}
                     figure
                   />
                 ))}

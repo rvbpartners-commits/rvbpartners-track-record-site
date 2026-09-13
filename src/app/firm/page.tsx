@@ -798,7 +798,7 @@ function GatedBooks({ books }: { books: BookSummary[] }) {
                   Withheld
                 </span>
                 <span className="text-caption leading-snug text-fg-faint">
-                  <span className="tnum">{int(b.sessions)}</span> marked
+                  <span className="tnum">{int(b.marked_sessions)}</span> marked
                   sessions
                 </span>
               </span>

@@ -1032,10 +1032,9 @@ function BookView({
                   publish it under the same gate that withholds a Sharpe. The
                   claim is dropped, and the hit rate is shown as the count it
                   honestly is. */}
-              This book&rsquo;s unit of account is the round trip, not the session:
-              it executed on {summary.sessions > 0 ? `${meta?.active_sessions ?? "a few"} of ${summary.sessions}` : "a few"}{" "}
-              published sessions, so a session-based denominator would measure the
-              calendar rather than the strategy. Most of what follows is a count
+              This book&rsquo;s unit of account is the round trip, not the session,
+              so a session-based denominator would measure the calendar rather
+              than the strategy. Most of what follows is a count
               or a measured duration, publishable on a handful of observations
               because it describes what happened rather than estimating a
               distribution; anything that does estimate one is withheld under the
@@ -1074,7 +1073,6 @@ function BookView({
             analytics={analytics}
             currency={currency}
             nav={last?.equity ?? null}
-            sessions={summary.sessions}
           />
         )}
         {/* One denominator per book. The chart frames used to read their own

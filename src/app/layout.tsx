@@ -3,7 +3,6 @@ import { IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { SITE_ORIGIN } from "@/lib/data";
 import { Shell } from "@/components/Shell";
-import { PrivacyNotice } from "@/components/PrivacyNotice";
 
 /* TWO FAMILIES, AND THE SPLIT IS THE WHOLE LOOK.
  *
@@ -94,7 +93,6 @@ export default function RootLayout({
         {/* Mounted by the LAYOUT, not by a page: the notice has to survive a
             soft navigation, and that is also what lets it remember a dismissal
             without storing anything in the reader's browser. */}
-        <PrivacyNotice />
       </body>
     </html>
   );

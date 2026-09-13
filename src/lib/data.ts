@@ -113,7 +113,16 @@ export type BookSummary = {
   tagline_en: string | null;
   inception: string;
   last_session: string;
+  /** The publisher's session count. It is the number of CHAINED SNAPSHOTS, which
+   *  for the paper books includes the snapshot taken at funding — so it runs one
+   *  ahead of the sessions actually marked, and not on every book (the real-
+   *  capital book's count excludes its funding row). Never print it as a count of
+   *  marked sessions: use `marked_sessions`. */
   sessions: number;
+  /** Sessions actually marked — the count the 60-session gate itself uses,
+   *  read from the book's metrics file. Attached at the data boundary by
+   *  `getIndex`; null when that file cannot be read. */
+  marked_sessions?: number | null;
   /** Sessions on which the book actually executed. Counted from executions,
    *  never from non-zero returns: funding accrues while a position is held
    *  without any order being placed. */
@@ -733,7 +742,20 @@ export async function getIndex(): Promise<IndexPayload | null> {
     (d) => !d.applies_to || d.applies_to === "all" || kinds.has(d.applies_to),
   );
 
-  return { ...index, books, disclosures };
+  // ONE COUNT OF MARKED SESSIONS FOR THE WHOLE SITE. Three pages printed the
+  // snapshot count above as "marked sessions" — 25 on /firm and /portfolios for
+  // a book the 60-session gate counts at 24 on /refused and on its own page.
+  // The gate's numerator is the count that means what the words say, so every
+  // page reads it from here.
+  const marked = await Promise.all(
+    books.map(async (b) => {
+      const m = await getMetrics(b.book);
+      return m?.insufficient_history?.have ?? m?.values?.n_obs ?? null;
+    }),
+  );
+  const withMarked = books.map((b, i) => ({ ...b, marked_sessions: marked[i] }));
+
+  return { ...index, books: withMarked, disclosures };
 }
 
 export async function getMetrics(book: string): Promise<MetricsPayload | null> {
