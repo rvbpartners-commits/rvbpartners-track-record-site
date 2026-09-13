@@ -40,8 +40,8 @@ export default function ContactPage() {
           Contact
         </h1>
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
-          One address. Enquiries are answered by the officers named on the team
-          page.
+          The firm keeps one address, for research, verification and press
+          enquiries alike.
         </p>
       </header>
 
@@ -69,8 +69,7 @@ export default function ContactPage() {
             >
               {CONTACT_EMAIL}
             </a>
-            . Research, verification and press enquiries all arrive at the
-            same address and are answered by the officers named on the{" "}
+            . Enquiries are answered by the officers named on the{" "}
             <Link href="/team" className="text-accent hover:underline">
               team page
             </Link>
