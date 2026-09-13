@@ -12,6 +12,7 @@ import {
 import {
   type BookCategory,
   type BookSummary,
+  accountKindLabel,
   bookSlug,
   getIndex,
   getResearch,
@@ -678,9 +679,7 @@ function MarginPair({
  * is wanted.
  */
 function KindBadge({ book }: { book: BookSummary }) {
-  const label =
-    book.account_kind_label ??
-    (book.capital_at_risk ? "Capital at risk" : "Paper (broker-simulated)");
+  const label = accountKindLabel(book);
   return (
     <span className="inline-block border hairline px-1.5 py-px align-middle text-label leading-[1.5] text-fg-faint">
       {label}

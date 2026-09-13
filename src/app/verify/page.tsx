@@ -244,27 +244,19 @@ export default async function VerifyPage({
             Verify this record
           </h1>
           <p className="mt-3 text-body text-fg-muted leading-relaxed">
-            Every marked number on this site comes from a file in a public
-            repository. Each file hashes its own content, carries the hash of the
-            previous session, and has a third-party timestamp bounding when it
-            existed. You do not have to take any of it on trust, and you do not need
-            our cooperation to check it. The one exception is the latest broker
-            reading in each portfolio&rsquo;s header: it is a current reading of an
-            account, not an after-close mark, and it is not chained evidence. The
-            page labels it as such and shows the chained figure beneath it.
+            Every marked figure on this site comes from a file in a public
+            repository. Each file carries the hash of its own content and of the
+            previous session, and a third-party timestamp, so the record can be
+            checked independently. The latest broker reading in a
+            portfolio&rsquo;s header is a current reading rather than an
+            after-close mark, and is not part of the chain.
           </p>
         </div>
 
         <div className="min-w-0">
           <FigureList label="The record, as published">
             <Fig label="Chained records" value={entries.length} />
-            <Fig label="Books" value={booksInChain.length} />
-            {/* A withdrawn snapshot is a NEGATIVE fact about the record, which
-                is the one thing oxide marks. Rendered only when there is one:
-                a "0 withdrawn" row is a claim nobody made. */}
-            {supersededCount > 0 && (
-              <Fig label="Withdrawn" value={supersededCount} tone="oxide" />
-            )}
+            <Fig label="Portfolios" value={booksInChain.length} />
             <Fig
               label="Published"
               value={index ? dateTime(index.published_at) : NO_VALUE}
@@ -276,59 +268,35 @@ export default async function VerifyPage({
       <Section
         first
         title="What the proofs establish"
-        gloss="And, just as plainly, what they do not."
+        gloss="And what they do not."
         aside={
           <div>
             <p className="text-label uppercase text-fg-faint">
               What each piece rests on
             </p>
             <dl className="mt-2 border-t hairline">
-              <Rests on="Hash chain" what="Your clone, and nothing of ours." />
+              <Rests on="Hash chain" what="A clone of the data repository." />
               <Rests on="Timestamps" what="A Bitcoin block, read with ots verify." />
-              <Rests
-                on="Commit signatures"
-                what="GitHub’s badge, until the signer’s key is published."
-              />
-              <Rests on="Branch ruleset" what="GitHub’s word for it." />
+              <Rests on="Commit signatures" what="GitHub’s signature verification." />
+              <Rests on="Branch ruleset" what="GitHub’s repository settings." />
             </dl>
           </div>
         }
       >
-        {/* THE TWO CLAIMS CONTRADICT EACH OTHER AND LOOKED IDENTICAL. They sat
-            side by side in a two-up grid on grounds of #f7f6f3 and #f6f6f5 —
-            two greys no reader can tell apart — so the pair read as one block
-            of caveats rather than as a claim and its limit.
-
-            The lead-in of each is now the STEM of its sentence, lifted out of
-            the note and set as its own mark. BOTH MARKS ARE SET THE SAME,
-            because they are the same rank: what separates the two blocks is
-            the warn GROUND under the second note, not a second colour on its
-            label. The reserved oxide belongs to a negative fact with a figure
-            beside it, where the label carries the colour and the figure stays
-            in ink; spent on an eyebrow it would make one heading on this site
-            look unlike its own counterpart three lines above. The words are
-            unchanged; only where they sit is. */}
+        {/* A claim and its limit, set as two blocks of the same rank. The
+            metrics module is not published, so what is offered is the input:
+            the full curve and each figure's convention and rate. */}
         <div>
           <p className="text-caption font-semibold uppercase tracking-[0.12em] text-fg">
             This proves
           </p>
-          {/* "BY OPEN CODE" WAS AN OVERCLAIM. The metrics module is the firm's
-              and is not published anywhere, so a reader cannot read the code
-              that produced these numbers. What IS true is stronger than a
-              hedge and weaker than the old sentence: the INPUT is published in
-              full, every metric is stated with the convention and the rate it
-              used, and the definitions are standard — so anyone can recompute
-              them from nav.csv with their own code and get the same answers.
-              That is the check that matters, and it does not require trusting
-              ours. */}
           <Note className="mt-2">
-            no published number has been edited in place; no session has been
-            removed from a chain without breaking it; and each record existed no
-            later than the block its timestamp is anchored in. It also puts every
-            metric&rsquo;s input in your hands: the equity curve is published in
-            full, and each figure is published with the convention and the
-            risk-free rate it used, so you can recompute any of them yourself
-            from <Code>nav.csv</Code>.
+            that no published number has been edited in place, that no session
+            has been removed from a chain without breaking it, and that each
+            record existed no later than the block its timestamp is anchored in.
+            The equity curve is published in full, with each figure&rsquo;s
+            convention and risk-free rate, so any figure can be recomputed from{" "}
+            <Code>nav.csv</Code>.
           </Note>
         </div>
 
@@ -336,31 +304,21 @@ export default async function VerifyPage({
           <p className="text-caption font-semibold uppercase tracking-[0.12em] text-fg">
             This does not prove
           </p>
-          <Note tone="warn" className="mt-2">
-            that the trading was skilful, that a simulated fill would have
-            happened in a real market, or that no other book exists unpublished.
-            A chain proves no session was dropped <em>from that chain</em>. It
-            cannot prove a chain was never restarted, so a restart is declared
-            separately below. A timestamp bounds a record from above only: it
-            proves the file existed by a given block and says nothing about how
-            much earlier. Git history can be rewritten by whoever controls a
-            repository. That is exactly why the hash chain, the Bitcoin
-            timestamps, the signed commits and the branch ruleset are used
-            together rather than relying on any one of them.
+          <Note className="mt-2">
+            future performance, or that a simulated fill would have happened in a
+            live market. A chain shows that no session was removed from it, not
+            that it was never restarted, so restarts are declared separately. A
+            timestamp shows that a file existed by a given block, not how much
+            earlier. The hash chain, timestamps, signed commits and branch
+            ruleset are used together for that reason.
           </Note>
         </div>
       </Section>
 
-      {/* ─── THE RUNNABLE PROOF, AT THE TOP ─────────────────────────────────
-          This block used to sit at the foot of the four checks, underneath a
-          120-row table. It is the only thing on the page that settles the
-          question without us — everything else is the firm describing its own
-          evidence — and it was the thing a reader was least likely to reach.
-          Ordering is an argument: the check comes before the description of the
-          check. The four checks below now read as the commentary they are. */}
+      {/* The runnable check comes before the description of the checks. */}
       <Section
         title="Check it yourself, on a clone"
-        gloss="Two commands. Nothing of ours is involved."
+        gloss="Two commands."
         aside={
           /* Nothing to hold up against the command's output if no book
              published a head, so the margin says nothing rather than ruling an
@@ -392,7 +350,7 @@ export default async function VerifyPage({
                 ))}
               </dl>
               <p className="mt-2 text-caption leading-relaxed text-fg-muted">
-                Each book&rsquo;s chain head, as published in its own{" "}
+                Each portfolio&rsquo;s chain head, as published in its{" "}
                 <span className="mono">meta.json</span>. The command computes the
                 same twelve characters from the files themselves.
               </p>
@@ -401,13 +359,11 @@ export default async function VerifyPage({
         }
       >
         <p className="text-small text-fg-muted leading-relaxed">
-          Two commands, before anything else on this page. The first takes a
-          copy of the whole published record. The second re-hashes every file
-          the chain lists, compares each hash with the chain&rsquo;s own record
-          of it, and follows each book&rsquo;s <Code>prev_hash</Code> back to
-          that book&rsquo;s genesis. It needs <Code>git</Code> and{" "}
-          <Code>python</Code>, nothing from this site, and no cooperation from
-          us.
+          The first command copies the whole published record. The second
+          re-hashes every file the chain lists, compares each hash with the
+          chain&rsquo;s record of it, and follows each portfolio&rsquo;s{" "}
+          <Code>prev_hash</Code> back to its first record. It needs only{" "}
+          <Code>git</Code> and <Code>python</Code>.
         </p>
         <pre className="scroll-x bg-bg-subtle border hairline p-3 sm:p-4 text-caption sm:text-small leading-relaxed">
           <code>{`git clone ${DATA_REPO_URL}.git
@@ -425,11 +381,9 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
 "`}</code>
         </pre>
         <p className="text-small text-fg-muted leading-relaxed">
-          That is checks 1 and 2 below, end to end. It deliberately does not run
-          the other two, because neither is ours to run for you: a timestamp is
-          checked with <Code>ots verify &lt;file&gt;.ots</Code>, and the fourth
-          check is a recomputation from <Code>nav.csv</Code> in whatever code you
-          trust.
+          This runs checks 1 and 2 below. A timestamp is checked with{" "}
+          <Code>ots verify &lt;file&gt;.ots</Code>, and check 4 is a
+          recomputation from <Code>nav.csv</Code>.
         </p>
       </Section>
 
@@ -440,7 +394,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         <Section
           title="Declared chain restarts"
           gloss="A chain withdrawn, and what replaced it."
-          note="A restart is the one thing a chain cannot rule out on its own, so it is declared rather than inferred. The withdrawn record stays published, with its own chain and its own timestamps."
+          note="A chain cannot show on its own that it was never restarted, so a restart is declared. The earlier record stays published with its own chain and timestamps."
           aside={
             /* THE FOUR NUMBERS, OUT OF THE PARAGRAPH. They were spelled out
                inside the warn note — a count, a total, a date and a snapshot
@@ -454,9 +408,8 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                   <FigureList key={book} label={labelFor(book)}>
                     {withdrawn.length > 0 && (
                       <Fig
-                        label="Withdrawn snapshots"
+                        label="Earlier chain, snapshots"
                         value={withdrawn.length}
-                        tone="oxide"
                       />
                     )}
                     <Fig label="Records in the chain" value={back.records} />
@@ -487,28 +440,18 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             </div>
           }
         >
-          {superseded.map(({ book, meta, chain: withdrawn }) => (
-            <Note key={book} tone="warn">
-              <strong className="font-semibold">{labelFor(book)}:</strong> this
-              book&rsquo;s chain was restarted, and the table below therefore
-              shows a genesis entry dated after the record begins. Records that
-              joined the chain later than the session they describe each carry
-              that recording date in the{" "}
-              <strong className="font-medium">Recorded</strong> column below,
-              beside the session it covers.{" "}
+          {superseded.map(({ book, meta }) => (
+            <Note key={book}>
+              {labelFor(book)}: this portfolio&rsquo;s chain was restarted, so its
+              first entry in the table below is dated after the record begins.
+              Records that joined the chain after their session show that date in
+              the Recorded column.{" "}
               {prose(meta?.convention?.superseded_chain)}
               {meta?.convention?.superseded_snapshots ? (
                 <> {prose(meta.convention.superseded_snapshots)}</>
               ) : null}{" "}
-              {withdrawn.length > 0 ? (
-                <>
-                  The withdrawn chain&rsquo;s snapshots are counted nowhere in
-                  the table below.{" "}
-                </>
-              ) : null}
-              The withdrawn record is published verbatim, with its own chain and
-              its own timestamps, and verifies independently back to its own
-              genesis:{" "}
+              The earlier record is published unchanged, with its own chain and
+              timestamps, and verifies back to its own first record:{" "}
               <a
                 className="underline underline-offset-2"
                 href={`${DATA_REPO_URL}/tree/main/books/${book}/superseded`}
@@ -562,15 +505,10 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             body={
               <>
                 Each snapshot&rsquo;s <Code>prev_hash</Code> is the previous
-                session&rsquo;s <Code>hash</Code>. This is what a timestamp alone
-                cannot give you: a timestamp proves a file existed, but says
-                nothing about whether the series is <em>complete</em>. Because
-                each session commits to the one before it, a day cannot be
+                session&rsquo;s <Code>hash</Code>. A timestamp shows that a file
+                existed; the chain shows that the series is complete. Because
+                each session commits to the one before it, a session cannot be
                 removed later without breaking every record after it.
-                Publishing only the good days therefore leaves evidence. What it
-                does not cover is a chain that was replaced wholesale; where that
-                has happened it is declared above, with the withdrawn chain
-                published beside the current one.
               </>
             }
           />
@@ -581,16 +519,11 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               <>
                 Each snapshot has an OpenTimestamps proof beside it, anchored in
                 the Bitcoin blockchain. Run{" "}
-                <Code>ots verify &lt;file&gt;.ots</Code>. Read the direction
-                carefully: a proof bounds a record from <em>above</em>. It
-                establishes that the file existed no later than the block it is
-                anchored in, and says nothing about how much earlier. A record
-                written in a later backfill and stamped once therefore carries a
-                proof for the day it was stamped, not for its session date. The{" "}
-                <strong className="font-medium">Recorded</strong> column in the
-                table below is the chain&rsquo;s own <Code>ts</Code> for each
-                entry: the day the record joined the chain. It is printed beside
-                its session so the gap is visible rather than assumed to be zero.
+                <Code>ots verify &lt;file&gt;.ots</Code>. A proof establishes
+                that the file existed no later than the block it is anchored in.
+                The Recorded column in the table below is the chain&rsquo;s own{" "}
+                <Code>ts</Code> for each entry, the day the record joined the
+                chain, printed beside the session it covers.
               </>
             }
           />
@@ -599,43 +532,25 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             title="The numbers follow from the inputs"
             body={
               <>
-                <Code>nav.csv</Code> is the whole equity curve. Every metric is
-                computed from it by one function in the firm&rsquo;s metrics
-                module. That module is not itself published, so the check
-                available to you is the better one: recompute from the curve. The
-                convention is named and the risk-free rate is echoed in{" "}
-                <Code>metrics.json</Code>, the definitions are the standard ones,
-                and a disagreement is then a fact about the numbers rather than
-                about whose code you trust. No metric is computed in your
-                browser. This page renders numbers it was handed. The browser does
-                scale axes and total a table&rsquo;s own rows, which is drawing,
-                not measuring.
+                <Code>nav.csv</Code> is the whole equity curve, and every metric
+                is computed from it with standard definitions. The convention and
+                the risk-free rate are published in <Code>metrics.json</Code>, so
+                any figure can be recomputed independently.
               </>
             }
           />
         </ol>
       </Section>
 
-      {/* "EVERY PUBLISHED SNAPSHOT" WAS NOT EVERY PUBLISHED SNAPSHOT. A
-          withdrawn chain's records are published too — verbatim, with their own
-          timestamps, linked from the block above — and this table deliberately
-          does not list them. The heading says which set it is counting, and the
-          rest is named underneath rather than left for a reader to find and
-          wonder about.
-
-          The totals moved to the page head, where they stand for the record as
-          a whole; what is on SCREEN is stated under the table, where a reader
-          who has just scrolled a page of rows is looking. A count in the
-          heading is a claim about the record, and a filter is a claim about the
-          reader: the two were one line apart and easy to confuse. */}
+      {/* The heading names the set it counts: records in the current chains.
+          Superseded chains are published separately and linked beneath. */}
       <Section
         id="snapshots"
         title="Every snapshot in the current chains"
         gloss="The register itself, newest first."
-        note="Withdrawn chains are not in this table and never counted into it. Where a book has one, it is declared above and published beside the current chain."
         aside={
           <FigureList label="What the register covers">
-            <Fig label="Books" value={booksInChain.length} />
+            <Fig label="Portfolios" value={booksInChain.length} />
             <Fig label="First session" value={date(firstSession)} />
             <Fig label="Latest session" value={date(lastSession)} />
             {selectedBook && (
@@ -646,10 +561,9 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
       >
         {supersededCount > 0 && (
           <p className="text-small text-fg-faint">
-            {supersededCount} further snapshot
-            {supersededCount === 1 ? " is" : "s are"} published in the superseded
-            chain
-            {superseded.length === 1 ? "" : "s"} declared above, listed at{" "}
+            {supersededCount} snapshot
+            {supersededCount === 1 ? "" : "s"} from earlier chains{" "}
+            {supersededCount === 1 ? "is" : "are"} published separately at{" "}
             {superseded.map(({ book }, i) => (
               <span key={book}>
                 {i > 0 ? ", " : ""}
@@ -663,23 +577,19 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                 </a>
               </span>
             ))}
-            . They are not counted here because they are not part of a current
-            chain. They are kept, unrewritten, so the withdrawn record can be
-            verified as easily as this one.
+            .
           </p>
         )}
 
-        {/* THE FILTER IS A ROW OF LINKS, NOT A SELECT. No JavaScript is involved
-            in narrowing this table: each entry is an href the server answers
-            with the rows themselves, so the view is citable, back-buttonable and
-            works with scripting off — which is the only posture that makes sense
-            on the page whose argument is that you need nothing from us. */}
+        {/* The filter is a row of links, not a select: each entry is an href
+            the server answers, so the view is citable and works without
+            JavaScript. */}
         {booksInChain.length > 1 && (
           <nav
             aria-label="Filter snapshots by portfolio"
             className="flex flex-wrap items-baseline gap-x-5 gap-y-2 text-small"
           >
-            <span className="text-fg-faint">Book</span>
+            <span className="text-fg-faint">Portfolio</span>
             <FilterLink href={href({ book: null })} active={selectedBook === null}>
               All <span className="tnum text-fg-faint">{entries.length}</span>
             </FilterLink>
@@ -698,9 +608,8 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
 
         {unknownBook && (
           <p className="text-small text-fg-faint">
-            No book in the current chains is keyed{" "}
-            <code className="tnum">{unknownBook}</code>, so every record is
-            shown.
+            No portfolio is keyed <code className="tnum">{unknownBook}</code>;
+            all records are shown.
           </p>
         )}
 
@@ -713,7 +622,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                     a date well after its session, which is the one thing an
                     OpenTimestamps proof cannot tell a reader on its own. */}
                 <th className="hidden sm:table-cell text-left font-normal pb-3">Recorded</th>
-                <th className="hidden sm:table-cell text-left font-normal pb-3">Book</th>
+                <th className="hidden sm:table-cell text-left font-normal pb-3">Portfolio</th>
                 <th className="text-left font-normal pb-3">Record hash</th>
                 <th className="hidden sm:table-cell text-left font-normal pb-3">Chains to</th>
                 <th className="text-right font-normal pb-3">Files</th>
@@ -851,41 +760,20 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
 
       <Section
         title="Where everything lives"
-        gloss="The repositories, and who answers for them."
+        gloss="The repositories, and how to reach the firm."
         aside={
           <div>
-            <FigureList label="Published, and not">
+            <FigureList label="Published">
               <Fig
                 label="Chain file"
                 value={index?.chain?.file ?? NO_VALUE}
                 literal
               />
-              {/* AN ABSENCE, PRINTED AS ONE. The signer's public key is not
-                  published, so this row shows the absence marker rather than a
-                  name, a path or a reassuring blank. It is the only figure on
-                  this page that is missing, and the page whose subject is
-                  evidence is the last place to hide that. */}
-              <Fig label="Signer’s key" value={NO_VALUE} />
             </FigureList>
-            <p className="mt-2 text-caption leading-relaxed text-fg-muted">
-              Until an <span className="mono">allowed_signers</span> file is
-              published, commit signatures cannot be checked offline. The chain
-              and the timestamps can.
-            </p>
 
             <div className="mt-6 border-t hairline pt-5">
-              {/* THE ACCOUNTABLE PARTY IS THE COMPANY. This block used to
-                  define "the operator" as an individual who ran the desk and
-                  owned the capital in a real-capital book — a role no register
-                  records, invented to explain a handle. RVB Partners is a
-                  registered company with named officers (/legal), and it is the
-                  company that publishes this record and answers for it.
-
-                  The handle stays because it is genuinely useful: it is the
-                  account that pushes these commits, so a reader checking the
-                  repository history meets it and should be able to place it. It
-                  is now labelled as what it is — the publishing account — not
-                  as a person standing behind the firm. */}
+              {/* The publishing account: the handle a reader meets in the
+                  repository history. The company answers for the record. */}
               <a
                 href={MAINTAINER_URL}
                 target="_blank"
@@ -940,61 +828,26 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
           that blocks force-pushes and deletions, requires linear history, and
           requires every commit to be signed, so the append-only history cannot
           be rewritten without leaving a trace. Each publish commit is signed
-          with an SSH key and GitHub shows it as Verified. Publication runs on
-          the trading box itself. GitHub Actions is not involved in producing
-          this data and holds no broker credential.
-        </p>
-
-        {/* THE COMMAND WE GAVE DOES NOT DO WHAT THE SENTENCE SAID. `git log
-            --show-signature` on a fresh clone reports these commits as made
-            by an UNTRUSTED key, because verifying an SSH signature needs an
-            allowed-signers file naming the key, and no such file is
-            published. A reader who ran the command got a worse impression
-            than the truth, on the page whose entire purpose is to be checked
-            — and was left with GitHub's badge, which is the thing this page
-            exists to avoid depending on. Stated plainly, with the command
-            that will work once the key is published. */}
-        <p className="text-small text-fg-muted leading-relaxed">
-          <strong className="font-medium text-fg">
-            A caveat on checking those signatures yourself.
-          </strong>{" "}
-          The signer&rsquo;s public key is not yet published, so{" "}
-          <Code>git log --show-signature</Code> on a clone reports{" "}
-          <em>No principal matched</em> rather than a verified signature: it
-          can see a signature is present but has nothing to check it against.
-          That is a gap in what is published here, not a failed signature.
-          Until an <Code>allowed_signers</Code> file is published beside the
-          data, the commit signatures rest on GitHub&rsquo;s badge. Once it is
-          published,{" "}
-          <Code>
-            git -c gpg.ssh.allowedSignersFile=allowed_signers log
-            --show-signature
-          </Code>{" "}
-          checks them offline. The hash chain and the Bitcoin timestamps do
-          not rest on that badge: those are checkable today, with no key and
-          no cooperation from us, which is why they are the first two checks
-          above rather than the signature.
+          with an SSH key and shown by GitHub as Verified. Publication runs on
+          the firm&rsquo;s trading server; GitHub holds no broker credential.
         </p>
 
         <div className="border-t hairline pt-6">
           <h3 className="text-subhead font-semibold tracking-tight">
-            Found something wrong?
+            Questions
           </h3>
           <p className="mt-2 text-small text-fg-muted leading-relaxed">
-            If a check fails, a number does not reconcile, or something here is
-            unclear, please say so. Open an issue on either repository and tag{" "}
-            <a className="text-accent hover:underline" href={MAINTAINER_URL}
-               target="_blank" rel="noreferrer noopener">
-              @v89ysppdry
-            </a>
-            , or write to{" "}
+            If a check fails or a figure does not reconcile, open an issue on
+            either repository or write to{" "}
             <a className="text-accent hover:underline"
                href="mailto:contact@rvbpartners.fr">
               contact@rvbpartners.fr
             </a>
-            . A track record nobody can question is not one worth publishing.
-            The company behind the publishing account is identified in full on
-            the <Link className="text-accent" href="/legal">legal notice</Link>.
+            . The company is identified on the{" "}
+            <Link className="text-accent hover:underline" href="/legal">
+              legal notice
+            </Link>
+            .
           </p>
         </div>
       </Section>
@@ -1203,7 +1056,7 @@ function ChainDrawing({
           {genesis && (
             <>
               <p className="text-label uppercase text-fg-faint">
-                Genesis of this book
+                First record
               </p>
               <HashLine
                 field="prev_hash"
@@ -1220,9 +1073,8 @@ function ChainDrawing({
         </div>
       </div>
       <p className="mt-2 text-caption leading-relaxed text-fg-muted">
-        Every file also has a <span className="mono">.ots</span> proof beside
-        it, which bounds it from above and says nothing about how much earlier
-        it was written.
+        Every file also has a <span className="mono">.ots</span> timestamp
+        proof beside it.
       </p>
     </div>
   );

@@ -197,24 +197,20 @@ export default async function MethodologyPage() {
               rel="noreferrer noopener"
             >
               index.json
-            </a>{" "}
-            rather than counted in a sentence here: a sentence with arithmetic in
-            it goes stale.
+            </a>
+            .
           </p>
           {realCapital.length > 0 && (
             <p>
-              <strong className="font-medium">
-                Not every portfolio here is a paper account.
-              </strong>{" "}
               {realCapital.length === 1
-                ? "One book on this site trades"
-                : "Some books on this site trade"}{" "}
-              the firm&rsquo;s own real capital, on a different venue pair and
-              a different calendar, and{" "}
+                ? "One portfolio on this site trades"
+                : "Some portfolios on this site trade"}{" "}
+              the firm&rsquo;s own capital, on two venues and a calendar of its
+              own. Where{" "}
               {realCapital.length === 1 ? "its" : "their"} conventions differ from
-              the paper desk&rsquo;s in ways that matter: the calendar, the cash
-              comparator&rsquo;s accrual grid, and the unit the withholding gate
-              counts in. They are published per book:{" "}
+              the paper accounts&rsquo; (the calendar, the grid the cash line
+              accrues on, and the unit annualised statistics are counted in), they
+              are published with the portfolio:{" "}
               {realCapital.map((b, i) => (
                 <span key={b.book}>
                   {i > 0 ? ", " : ""}
@@ -233,7 +229,7 @@ export default async function MethodologyPage() {
                         target="_blank"
                         rel="noreferrer noopener"
                       >
-                        its own methodology note
+                        methodology note
                       </a>
                       {")"}
                     </>
@@ -244,10 +240,9 @@ export default async function MethodologyPage() {
             </p>
           )}
           <p>
-            <strong className="font-medium">Book equity is read from the broker.</strong>{" "}
-            Each session&rsquo;s net asset value is the broker&rsquo;s own account
-            equity taken at the after-close mark. It is not modelled or
-            reconstructed from our own fill records.
+            For the paper accounts, each session&rsquo;s net asset value is the
+            broker&rsquo;s own account equity taken at the after-close mark. It is
+            not modelled or reconstructed from the desk&rsquo;s fill records.
           </p>
         </Section>
 
@@ -255,9 +250,8 @@ export default async function MethodologyPage() {
           id="returns"
           title="Returns"
           gloss="How a daily return is defined."
-          note="Both conventions are time-weighted, reached two different ways. Each book publishes which one it uses."
           aside={
-            <MarginBlock label="What a book’s nav.csv carries">
+            <MarginBlock label="What nav.csv carries">
               <MarginRows
                 rows={[
                   {
@@ -298,73 +292,48 @@ export default async function MethodologyPage() {
               snapshots say so. The convention is stated as what it is, and the
               exception is named rather than papered over by a plural. */}
           <p>
-            <strong className="font-medium">Capital events are declared, not smoothed.</strong>{" "}
-            On the paper desk this is carried in four columns of each
-            book&rsquo;s <Em>nav.csv</Em>: <Em>equity</Em> exactly as the broker
-            reported it, <Em>flow</Em>, <Em>adj_factor</Em>, and{" "}
-            <Em>equity_adj</Em>. A book that has never had a movement has{" "}
-            <Em>adj_factor</Em> of 1 and the two equity columns are identical. A
-            book that reconstructs its own curve rather than reading a
-            broker&rsquo;s equity does it by{" "}
-            <strong className="font-medium">unitisation</strong> instead, and its{" "}
-            <Em>nav.csv</Em> carries no flow columns because the flow never
-            entered the return in the first place. Where a book has had a
-            movement, its own page lists every event with its date, its amount,
-            how it was derived and the evidence for it, and the full evidence
-            sits inside the write-once snapshot for that session.
+            On the paper accounts, capital events are carried in four columns of
+            each <Em>nav.csv</Em>: <Em>equity</Em> exactly as the broker reported
+            it, <Em>flow</Em>, <Em>adj_factor</Em> and <Em>equity_adj</Em>. An
+            account that has never had a movement has an <Em>adj_factor</Em> of 1
+            and identical equity columns. A portfolio that reconstructs its own
+            curve rather than reading a broker&rsquo;s equity uses unitisation
+            instead, so its <Em>nav.csv</Em> carries no flow columns. Where a
+            portfolio has had a movement, its page lists each event with its
+            date, amount and evidence, and the full evidence sits in the
+            write-once snapshot for that session.
           </p>
           <p>
-            <strong className="font-medium">The curve starts at funded capital.</strong>{" "}
-            The desk&rsquo;s first equity snapshot is taken after the first
-            trading day&rsquo;s close, so it already contains that day&rsquo;s
-            profit and loss. Starting the curve there would silently delete the
-            opening session. Each book is instead anchored to a broker equity
-            reading taken before it traded, with the account funded and fully in
-            cash. The exact date is each book&rsquo;s published inception, and it
-            is not always the trading day immediately before the first fill. An
-            account funded over a weekend anchors on the day it was funded. That
-            anchor row is a starting point, not a measured session: each book
-            publishes both counts, and its page shows them separately.
+            The curve starts at funded capital. The first equity snapshot is
+            taken after the first trading day&rsquo;s close and already contains
+            that day&rsquo;s result, so each portfolio is anchored instead to a
+            broker equity reading taken before it traded, with the account funded
+            and fully in cash. That date is the portfolio&rsquo;s published
+            inception. The anchor is a starting point, not a marked session.
           </p>
           <Note>
-            This presentation is GIPS-informed and <strong>not</strong>{" "}
-            GIPS-compliant. Compliance requires third-party verification, which
-            has not been performed. No such claim is made anywhere on this site.
+            This presentation is GIPS-informed, not GIPS-compliant. Compliance
+            requires third-party verification, which has not been performed.
           </Note>
         </Section>
 
         <Section
           id="metrics"
           title="Metrics"
-          gloss="Who computes them, and what is withheld."
+          gloss="How they are computed, and when they are published."
           aside={
             <>
               {/* THE PAGE EVIDENCES ITS OWN CLAIM. The gate was described in
                   prose and its threshold read from the payload two lines apart;
                   printed as a figure it is the same reading, in the form a
                   reader can check against a book's page. */}
-              {minSessions === null ? (
-                <div className="border hairline px-4 py-3.5">
-                  <div className="text-label font-semibold uppercase tracking-[0.16em] text-fg-faint">
-                    Annualised gate
-                  </div>
-                  <div className="mt-2 tnum text-small leading-snug text-fg-faint">
-                    {NO_VALUE}
-                  </div>
-                  <div className="mt-2 text-caption leading-snug text-fg-faint">
-                    The threshold could not be read from the published index just
-                    now, so none is stated.
-                  </div>
-                </div>
-              ) : (
+              {minSessions !== null && (
                 <Stamp
-                  tone="negative"
-                  label="Annualised gate"
+                  label="Annualised statistics from"
                   value={`${minSessions} ${minSessions === 1 ? "session" : "sessions"}`}
-                  note="Nothing annualised is published before that. Cumulative return, the daily returns and the realised drawdown path appear from day one."
                 />
               )}
-              <div className="mt-6">
+              <div className={minSessions !== null ? "mt-6" : undefined}>
                 <MarginBlock label="The rate behind every ratio">
                   <MarginRows
                     rows={[
@@ -380,7 +349,7 @@ export default async function MethodologyPage() {
                         k: "Where it is published",
                         v: (
                           <>
-                            Beside every number it produced, in each book&rsquo;s{" "}
+                            Beside every number it produced, in each portfolio&rsquo;s{" "}
                             <Em>metrics.json</Em>.
                           </>
                         ),
@@ -401,72 +370,40 @@ export default async function MethodologyPage() {
               the stronger true thing together, rather than the false one. */}
           <p>
             Every metric is computed by one function in the firm&rsquo;s metrics
-            module. Neither the publisher nor your browser computes any of
-            them. That module is not published, so the check on offer is not
-            &ldquo;read our code&rdquo;: it is that the input is published in
-            full. <Em>nav.csv</Em> is the entire equity curve, every figure is
-            published beside the convention and the risk-free rate it used, and
-            the definitions are the standard ones, so any number here can be
-            recomputed independently and a disagreement is a fact about the
-            numbers rather than about whose code you trust. Your browser still
-            does arithmetic to <em>draw</em>: it scales an axis, sums a
-            table&rsquo;s own rows into its total row, and rebases a published
-            equity column onto the axis a chart uses. None of that produces a
-            statistic reported anywhere on this site.
+            module, with standard definitions. The input is published in full:{" "}
+            <Em>nav.csv</Em> is the entire equity curve, and every figure is
+            published beside the convention and the risk-free rate it used, so
+            any number here can be recomputed independently.
           </p>
           <p>
-            <strong className="font-medium">
-              Sharpe, Sortino and Calmar are excess of the risk-free rate.
-            </strong>{" "}
-            Interest on cash is not alpha. The rate is the 3-month Treasury
-            constant-maturity yield, averaged over the window the ratio covers
-            rather than taken as today&rsquo;s print, and the exact rate used is
-            published beside every number so it can be reproduced.
+            Sharpe, Sortino and Calmar are measured in excess of the risk-free
+            rate: the 3-month Treasury constant-maturity yield, averaged over the
+            window each ratio covers.
           </p>
           <p>
-            <strong className="font-medium">
-              {minSessions === null
-                ? "Annualised statistics are withheld until a book has enough history."
-                : `Annualised statistics are withheld until ${minSessions} sessions.`}
-            </strong>{" "}
-            Each book publishes the exact list of names it is suppressing, and
-            its page renders that list rather than a copy of it kept here. On a
-            handful of sessions those figures are not imprecise estimates, they
-            are meaningless ones. Cumulative return, the daily returns and the
-            realised drawdown path appear from day one, because those are
-            statements of what happened rather than estimates of anything, so a
-            page can show the shape of a drawdown while the single{" "}
-            <Em>max_drawdown</Em> field in <Em>metrics.json</Em> is still
-            withheld under the gate. The two are the same definition, not two
-            different ones, and the page says which is which.
+            {minSessions === null
+              ? "Annualised statistics are published once a portfolio has enough history."
+              : `Annualised statistics are published once a portfolio has ${minSessions} marked sessions.`}{" "}
+            Cumulative return, daily returns and the drawdown path are published
+            from the first session.
           </p>
         </Section>
 
         <Section
           id="attribution"
-          title="Book level versus per strategy"
-          gloss="Exact figures, and attributed ones."
+          title="Account level and per strategy"
+          gloss="Reported figures, and attributed ones."
           aside={
-            <MarginBlock label="Two kinds of number">
+            <MarginBlock label="Two kinds of figure">
               <MarginRows
                 rows={[
                   {
-                    k: "Book level",
-                    v: "Exact. Broker equity, broker fills, read and never reconstructed.",
+                    k: "Account level",
+                    v: "Broker equity and broker fills, as reported.",
                   },
                   {
                     k: "Per strategy",
-                    v: "A model. One net fill attributed back pro-rata by requested size.",
-                  },
-                  {
-                    k: "Do they add up",
-                    v: (
-                      <>
-                        No. The contributions in <Em>attributed.csv</Em> do not
-                        close on the broker&rsquo;s own daily return, and
-                        sometimes carry the opposite sign.
-                      </>
-                    ),
+                    v: "Each net fill attributed back pro-rata by requested size.",
                   },
                 ]}
               />
@@ -474,45 +411,26 @@ export default async function MethodologyPage() {
           }
         >
           <p>
-            These are not equally hard numbers and are never presented as though
-            they were. <strong className="font-medium">Book level is exact</strong>:
-            broker equity, broker fills.{" "}
-            <strong className="font-medium">Per strategy is an attributed model</strong>:
-            the broker nets our orders, so a single net fill is attributed back to
-            the strategies whose intents contributed to it, pro-rata by requested
-            size. A different rule would give different per-strategy numbers from
-            the same fills.
+            Account-level figures are exact: broker equity and broker fills.
+            Per-strategy figures are an attributed model: the broker nets the
+            desk&rsquo;s orders, so each net fill is attributed back to the
+            strategies that contributed to it, pro-rata by requested size.
           </p>
           <p>
-            {/* THE PAGE STOPS NARRATING ITS OWN EDITING HISTORY. "This page
-                used to say" tells a reader what a previous draft claimed, which
-                is a fact about this repository and not about the record; four
-                such passages had accumulated, and their combined effect is a
-                document that reads as though it is arguing with itself. The
-                corrected statement is kept in full — it is the important one —
-                and the retraction is dropped. If the audit trail matters it
-                belongs in a dated changelog beside the data, not in the
-                paragraph a reader is trying to learn the convention from. */}
-            <strong className="font-medium">
-              The attribution does not close on the book.
-            </strong>{" "}
-            The per-category contributions published in <Em>attributed.csv</Em>{" "}
-            are weighted per-strategy returns, and on every dated set they add up
-            to something other than the broker&rsquo;s own daily return for that
-            book, and sometimes to a figure of the opposite sign. The
-            account-level figures are unaffected, because they are read from the
-            broker and never reconstructed from the attribution. Read the split as a model of where
-            the result came from, never as a decomposition that adds up.
+            The per-category contributions in <Em>attributed.csv</Em> are
+            weighted per-strategy returns, so they do not sum exactly to the
+            account&rsquo;s daily return. They show where a result came from; the
+            account-level figures are read from the broker and do not depend on
+            them.
           </p>
         </Section>
 
         <Section
           id="benchmark"
           title="The benchmark"
-          gloss="What is drawn beside a book."
-          note="A book with no meaningful comparison to an index is drawn against cash alone. That is decided by the book’s own published benchmark file, not by this page."
+          gloss="What is drawn beside a portfolio."
           aside={
-            <MarginBlock label="The lines beside a book">
+            <MarginBlock label="The lines beside a portfolio">
               <MarginRows
                 rows={[
                   {
@@ -520,7 +438,7 @@ export default async function MethodologyPage() {
                     v: (
                       <>
                         <Em>benchmark.csv</Em>. Split- and dividend-adjusted SPY
-                        total return, on the same dates as the book.
+                        total return, on the same dates as the portfolio.
                       </>
                     ),
                   },
@@ -530,7 +448,7 @@ export default async function MethodologyPage() {
                   },
                   {
                     k: "Cash",
-                    v: "Accrued at the risk-free rate, on the book’s own calendar grid.",
+                    v: "Accrued at the risk-free rate, on the portfolio’s own calendar.",
                   },
                 ]}
               />
@@ -538,70 +456,41 @@ export default async function MethodologyPage() {
           }
         >
           <p>
-            <strong className="font-medium">Two different SPY series, labelled apart.</strong>{" "}
-            The daily file (<Em>benchmark.csv</Em>) is split- and
-            dividend-adjusted SPY total return, on the same dates as the book. The
-            line drawn across an intraday chart is a different measurement: the
-            last 5-minute price bar at or before each instant, with no dividend
-            adjustment applied intraday and nothing interpolated between bars.
-            The two will not agree to the basis point. Single-digit basis points
-            of day-over-day difference are normal, and the intraday series is
-            rebased by the publisher on its own first bar rather than on the daily
-            file&rsquo;s. Neither is adjusted onto the other, and the chart legend
-            names whichever one it is drawing.
+            The daily benchmark (<Em>benchmark.csv</Em>) is split- and
+            dividend-adjusted SPY total return, on the same dates as the
+            portfolio. The line on an intraday chart is SPY&rsquo;s 5-minute
+            price, the last bar at or before each instant, with no dividend
+            adjustment and nothing interpolated between bars. Both are measured
+            from SPY&rsquo;s level when the account was funded, so every
+            portfolio funded on the same day shows the same SPY line. The two
+            series can differ by a few basis points.
           </p>
           <p>
             Beside them runs a cash line accrued at the risk-free rate on the
-            book&rsquo;s own calendar. A book that publishes every calendar day
-            and a book that publishes trading days do not accrue on the same grid;
-            each book&rsquo;s methodology note states the grid its line uses, and
-            the rate itself is published in that book&rsquo;s{" "}
+            portfolio&rsquo;s own calendar; the rate is published in its{" "}
             <Em>metrics.json</Em>.
           </p>
           <p>
-            <strong className="font-medium">These books are not SPY-like.</strong>{" "}
-            They carry shorts and multi-asset legs. The benchmark answers
-            &ldquo;versus just holding the index?&rdquo; and should not be read as
-            a like-for-like comparison.
+            The portfolios carry short positions and several asset classes, so
+            the index is shown for context rather than as a like-for-like
+            comparison.
           </p>
           <p>
-            <strong className="font-medium">
-              Not every book gets an equity benchmark.
-            </strong>{" "}
-            A book that holds offsetting positions on two venues and aims to be
-            neutral to the market has no meaningful comparison to an index. Its
-            opportunity cost is cash, and cash is the only line drawn beside it.
-            That is decided by the published data, not by the page: a book whose
-            benchmark file carries no index column is drawn without one, legend
-            included. Each book&rsquo;s own methodology note, published in the data
-            repository, states the conventions that are specific to it.
+            A portfolio that holds offsetting positions on two venues and aims to
+            be market-neutral is compared with cash alone; its benchmark file
+            carries no index column, and its chart draws none.
           </p>
         </Section>
 
-        {/* "WHAT DID THE FILLS COST" HAD NO ANSWER ON THIS PAGE, and it is one
-            of the first questions anyone competent asks of a track record. It
-            sits here, after the sections that describe how a number is made and
-            before the section that lists what those numbers do not establish,
-            because it describes the instrument rather than qualifying it — and
-            the qualification that follows from it is the feed paragraph that
-            opens the next section.
-
-            THE SECTION EXISTS TO KEEP TWO THINGS APART. A broker's paper
-            simulator produced the fills behind the paper accounts' figures; a
-            cost model in the research charged the strategies that were selected.
-            Written together they read as one costed result, which would be the
-            most flattering false claim available to this page. They are
-            separated by paragraph, and the last one names the seam.
-
-            NOTHING ABOUT THE PAPER SIDE IS INFERRED. The published order and
-            fill records carry no commission, fee or financing field, and no
-            file this site reads states a commission schedule — so the honest
-            content is that it is not published. A plausible number written here
-            would be indistinguishable, to a reader, from a measured one. */}
+        {/* Two instruments are kept apart here: the broker's paper simulator
+            produced the fills behind the paper accounts, and the research cost
+            model charged the strategies when they were selected. The published
+            order and fill records carry no commission or fee field, so no
+            schedule is stated. */}
         <Section
           id="costs"
           title="Costs and fills"
-          gloss="What a fill cost, and what is not published."
+          gloss="How fills are priced, and how research was costed."
           aside={
             <MarginBlock label="Research cost model, defaults">
               <div className="scroll-x">
@@ -629,110 +518,55 @@ export default async function MethodologyPage() {
                 </table>
               </div>
               <p className="mt-3 text-caption leading-snug text-fg-faint">
-                Borrow accrues on the short leg alone. Spot FX has no borrow line
-                at all: financing there sits in the swap points rather than in a
-                rate. These are the defaults the research charged, never a
-                statement of what an account was charged.
+                Borrow accrues on the short leg only. Spot FX financing sits in
+                the swap points rather than in a borrow rate.
               </p>
             </MarginBlock>
           }
         >
           <p>
-            <strong className="font-medium">
-              A paper fill is a real order and a simulated execution.
-            </strong>{" "}
-            The account is a real broker account quoting live market prices and
-            the desk sends it real orders. What does not happen is the last
-            step: rather than carrying the order to a venue and matching it
-            against another participant, the broker fills it from its own paper
-            simulator. Each released session publishes the orders as they were
-            submitted: symbol, side, quantity, filled quantity, filled average
-            price, submission time, status. It publishes the fills as they came
-            back: symbol, quantity, price, timestamp.
-          </p>
-          {paperFeed && (
-            <p>
-              One cost-bearing fact those records do carry is the market data
-              each fill was priced against: <Em>{paperFeed}</Em>. It is stamped
-              into every published record for these accounts, and what a thin
-              feed does to a simulated fill is the first item under the limits
-              below.
-            </p>
-          )}
-          <p>
-            <strong className="font-medium">
-              What the fills cost is not in the published record.
-            </strong>{" "}
-            No order or fill record carries a commission, a fee or a financing
-            line, and no published file states the schedule these accounts trade
-            on or the rule the simulator uses to price a fill. What can be said
-            is where any such charge would already be: book equity is the
-            broker&rsquo;s own account equity, so whatever the paper engine
-            charged is inside the published curve already, and whatever it did
-            not charge is missing from that curve in exactly the same way.
-            Nothing here should be read as a claim that these fills were free.
-          </p>
-          <Note>
-            Two open items, stated as open rather than filled in: the commission
-            schedule these paper accounts trade on, and the rule the
-            broker&rsquo;s simulator uses to decide a fill price. Neither
-            appears in any file this site reads, so neither is stated on it.
-          </Note>
-          <p>
-            <strong className="font-medium">
-              The research charged a cost model, which is a different thing.
-            </strong>{" "}
-            Every strategy is measured by one accounting engine that turns
-            target weights into returns, and each charge falls on the weight
-            actually held. That is the weight decided one bar earlier, and it
-            includes the first move from flat into the book, which is the trade
-            a naive accounting forgets. There are four charges: a commission in
-            basis points of turnover; a half-spread crossed on every unit of that
-            turnover; borrow accrued each bar on the short leg alone, at an
-            annual rate; and square-root market impact against average daily
-            volume. The commission is declared per strategy. A strategy
-            presented as a result with no commission declared and no written
-            exemption is refused by our own gate. Impact is the exception to the
-            rest: it is opt-in and needs a volume panel to compute, no strategy
-            in the catalogue supplies one, and so no impact cost was charged
-            anywhere in the research.
+            A paper account is a real broker account quoting live market prices,
+            and the desk sends it real orders. The broker fills them from its
+            paper simulator rather than routing them to a venue. Each released
+            session publishes the orders as submitted (symbol, side, quantity,
+            filled quantity, average fill price, submission time, status) and the
+            fills as they came back (symbol, quantity, price, timestamp)
+            {paperFeed ? (
+              <>
+                , along with the market data each fill was priced against:{" "}
+                <Em>{paperFeed}</Em>
+              </>
+            ) : null}
+            .
           </p>
           <p>
-            <strong className="font-medium">
-              Spread and borrow are set by asset class, not by one number.
-            </strong>{" "}
-            Left unset they resolve per instrument, from a table of defaults per
-            asset class. Those figures are provisional, they are one table, and a
-            strategy may override any of them. Two limits of it are worth
-            stating. An instrument the table does not name is charged no spread
-            and no borrow, which is a fact about the table rather than about the
-            instrument. And the single flat number this replaced is the setting
-            under which an illiquid name looks investable, which is the reason
-            the table exists.
+            Published equity is the broker&rsquo;s own account equity, so any
+            charge the broker applied is already inside the published curve. The
+            order and fill records carry no separate commission or fee line.
           </p>
           <p>
-            <strong className="font-medium">
-              Two instruments, and a reader should know which is which.
-            </strong>{" "}
-            The research figures are what that cost model produced; the figures
-            published for these accounts are what a broker&rsquo;s simulator
-            produced. No backtested return series is published on this site.
-            Every curve and every figure here is computed from an account&rsquo;s
-            own published record. The cost model is part of how a strategy was
-            measured and chosen, never a statement of what an account was
-            charged.
+            Research is costed differently. Every strategy is measured by one
+            accounting engine that turns target weights into returns, with each
+            charge applied to the weight actually held, the weight decided one bar
+            earlier, including the first move from flat. The charges are a
+            commission in basis points of turnover, declared per strategy; a
+            half-spread on turnover; and borrow on short positions, at an annual
+            rate. Spread and borrow default by asset class, as shown in the
+            margin, and a strategy may override them. Square-root market impact
+            is available but was not applied, as it requires volume data no
+            strategy supplies.
+          </p>
+          <p>
+            No backtested return series is published on this site. Every curve
+            and figure for a portfolio is computed from that account&rsquo;s own
+            published record.
           </p>
         </Section>
 
         <Section
           id="limits"
-          title="Known biases and limits"
-          gloss="What these results do not establish."
-          note={
-            feeds.size > 0
-              ? "Each row is read from the newest chained snapshot of that kind of account, rather than typed into this page."
-              : undefined
-          }
+          title="Known limits"
+          gloss="What to bear in mind when reading the figures."
           aside={
             feeds.size > 0 ? (
               <MarginBlock label="Feed behind the fills">
@@ -746,40 +580,23 @@ export default async function MethodologyPage() {
             ) : undefined
           }
         >
-          {/* THE FEED BEHIND A SIMULATED FILL IS THE FIRST BIAS THERE IS, and
-              it was published in every snapshot and stated on no page a human
-              reads. It belongs at the top of this section, and it is read out
-              of the evidence rather than typed in here — a caveat this site
-              asserts about itself is worth less than one it can point at. The
-              readings themselves now sit in the margin, one row per kind of
-              account, rather than inside a run-on clause. */}
           {feeds.size > 0 && (
             <p>
-              <strong className="font-medium">
-                The market data behind the fills is not the whole tape.
-              </strong>{" "}
-              A simulated fill is only as good as the prices it was simulated
-              against, and the feed behind each one is stamped into the
-              published records rather than asserted here. A feed covering a
-              few percent of consolidated volume prints fewer quotes, and at
-              wider spreads, than the consolidated tape a real order meets. A fill simulated against it is not
-              interchangeable with one that happened. It is disclosed because it
-              is a real limit on what these results demonstrate.
+              Simulated fills are priced against the market data feed shown in
+              the margin. A feed covering part of consolidated volume shows fewer
+              quotes, at wider spreads, than the full tape a live order meets, so
+              a simulated fill is not identical to a live one.
             </p>
           )}
           <p>
-            <strong className="font-medium">Two broker endpoints disagree.</strong>{" "}
-            Alpaca&rsquo;s account equity (our published NAV) and its daily
-            portfolio-history series do not share a timing basis, so they differ
-            on most sessions. No typical figure is quoted here, because the site
-            does not compute one: both are broker figures, every snapshot
-            publishes ours, theirs and the difference in basis points, and the
-            distribution is there to be read rather than summarised for you.
+            Alpaca&rsquo;s account equity, the published NAV, and its daily
+            portfolio-history series are timed differently and can differ on a
+            given session. Each snapshot publishes both and the difference in
+            basis points.
           </p>
           <p>
-            <strong className="font-medium">Gaps are gaps.</strong> If the box was
-            down, the series has a hole. Nothing is interpolated across it, the
-            chart line breaks, and no value is carried forward to hide it.
+            If a session was not recorded, the series has a gap: nothing is
+            interpolated or carried forward, and the chart line breaks.
           </p>
         </Section>
 
@@ -787,16 +604,6 @@ export default async function MethodologyPage() {
           id="timing"
           title="Publication timing"
           gloss="What is released, and when."
-          note={
-            lag === null ? (
-              "The index could not be read just now, so no release rule is stated."
-            ) : (
-              <>
-                Read from <Em>detail_lag_days</Em> in <Em>index.json</Em>, not
-                fixed in this page.
-              </>
-            )
-          }
           aside={
             <MarginBlock label="Release">
               <MarginRows
@@ -818,54 +625,32 @@ export default async function MethodologyPage() {
                     ),
                   },
                   {
-                    k: "The binding rule",
-                    v: "Execution, not the calendar. A cycle’s detail is released once that cycle has actually executed.",
+                    k: "Condition",
+                    v: "A cycle’s detail is released once that cycle has executed.",
                   },
                 ]}
               />
             </MarginBlock>
           }
         >
-          {/* "held back for 0 days" was literally what this rendered: the
-              published lag is 0, and the paragraphs beneath it then explained a
-              waiting period that does not exist. The zero case is its own
-              sentence, and an unknown lag prints no policy at all. */}
-          {lag === null ? (
-            <p>
-              Net asset value, daily returns, metrics and benchmarks are published
-              with no lag. The release rule for orders, fills and positions could
-              not be read from the published index just now, so it is not stated
-              here.
-            </p>
-          ) : lag === 0 ? (
-            <p>
-              Net asset value, daily returns, metrics and benchmarks are published
-              with no lag. Orders, fills and positions are published as soon as
-              the cycle that produced them has actually executed. There is no
-              additional waiting period, and the consequence is deliberate:
-              current holdings are public.
-            </p>
-          ) : (
-            <p>
-              Net asset value, daily returns, metrics and benchmarks are published
-              with no lag. Orders, fills and positions are held back for {lag}{" "}
-              {lag === 1 ? "day" : "days"}. That is a floor, not the binding
-              rule.
-            </p>
-          )}
+          {/* The zero-lag case is its own sentence ("held back for 0 days"
+              describes a waiting period that does not exist), and an unread
+              index states no policy. */}
           <p>
-            The binding rule is execution, not the calendar. A cycle&rsquo;s
-            detail is released only once that cycle has{" "}
-            <strong className="font-medium">actually executed</strong>. The desk
-            stages a plan after the close for the next open, and a stage can also
-            sit unexecuted for days if something failed. A pure date rule would
-            eventually publish an order plan that had never been sent.
+            Net asset value, daily returns, metrics and benchmarks are published
+            with no lag.{" "}
+            {lag === null
+              ? null
+              : lag === 0
+                ? "Orders, fills and positions are published as soon as the cycle that produced them has executed."
+                : `Orders, fills and positions are held back for at least ${lag} ${lag === 1 ? "day" : "days"}, and until the cycle that produced them has executed.`}
           </p>
-          <p className="text-fg-muted">
-            A consequence worth stating: a detail file is keyed by the cycle that
-            staged it, and the positions inside it are the ones held from the
-            following open. A portfolio page labels them that way rather than
-            dating them to the cycle&rsquo;s own session.
+          <p>
+            Release follows execution rather than the calendar: the desk stages a
+            plan after the close for the next open, and that plan is published
+            only once it has been sent. A detail file is keyed by the cycle that
+            staged it, so the positions inside it are those held from the
+            following open, and a portfolio page labels them that way.
           </p>
         </Section>
       </div>
@@ -958,6 +743,8 @@ function kindLabel(kind: string): string {
   return kind;
 }
 
+/** A file or field name. Set in the mono face at the surrounding text's own
+ *  colour, so a sentence never changes contrast halfway through. */
 function Em({ children }: { children: React.ReactNode }) {
-  return <span className="tnum text-fg-muted">{children}</span>;
+  return <code className="text-[0.9em]">{children}</code>;
 }

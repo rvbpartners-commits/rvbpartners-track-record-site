@@ -37,7 +37,7 @@ export type PortfolioOption = {
 function AccountTag({ live, label }: { live?: boolean; label?: string | null }) {
   return (
     <span className="inline-block border hairline px-1.5 py-px text-label leading-[1.5] align-middle text-fg-faint">
-      {label ?? (live ? "Real capital (live test)" : "Paper (broker-simulated)")}
+      {label ?? (live ? "Real capital" : "Paper account")}
     </span>
   );
 }
@@ -94,9 +94,7 @@ export function PortfolioSelect({
           <span className="block text-caption text-fg-faint leading-tight mt-0.5">
             Portfolio ·{" "}
             {current.kindLabel ??
-              (current.capitalAtRisk
-                ? "Real capital (live test)"
-                : "Paper (broker-simulated)")}
+              (current.capitalAtRisk ? "Real capital" : "Paper account")}
           </span>
         </span>
         <span className="ml-auto text-fg-faint text-label">
@@ -152,12 +150,7 @@ export function PortfolioSelect({
                     {(isVariant ? size : o.tagline) && (
                       <span className="block text-caption text-fg-faint truncate mt-0.5">
                         {isVariant
-                          ? // "Same strategies and weights" invited the reader
-                            // to read the two returns above and below each
-                            // other as a capital effect. The twins were funded
-                            // later than the books they copy, so the pair also
-                            // differs in measurement window.
-                            `Same strategies and weights, funded with $${size}, but started later, so the two returns cover different windows`
+                          ? `Same strategies, funded with $${size}`
                           : o.tagline}
                       </span>
                     )}

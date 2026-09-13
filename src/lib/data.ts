@@ -707,6 +707,16 @@ function accountKind(b: BookSummary): string {
   return b.account_kind ?? (b.capital_at_risk ? "real_capital" : "paper");
 }
 
+/** The account badge in the site's own words. Decided by the published kind,
+ *  never by a name; the payload's badge wording is not reused. */
+export function accountKindLabel(b: {
+  account_kind?: string;
+  capital_at_risk?: boolean;
+}): string {
+  const kind = b.account_kind ?? (b.capital_at_risk ? "real_capital" : "paper");
+  return kind === "real_capital" ? "Real capital" : "Paper account";
+}
+
 export async function getIndex(): Promise<IndexPayload | null> {
   const index = await getJson<IndexPayload>("index.json");
   if (!index) return null;
@@ -871,15 +881,33 @@ export async function getBenchmarkIntraday(
   ]);
   const out = new Map<string, { spy: number | null; cash: number | null }>();
   if (!text) return out;
-  for (const r of parseCsv(text)) {
-    if (!r.timestamp) continue;
+  // THE CASH LINE CARRIES THE SAME MIGRATION FAULT. Accrual at a non-negative
+  // rate never falls, yet the published `cash_cum` restarts at 0 on the first
+  // bar the migration re-anchored, so the line dropped back to zero mid-record.
+  // A fall is read as a restart and the new segment is compounded onto the
+  // level reached before it.
+  let carried = 0;
+  let previous: number | null = null;
+  const rows = parseCsv(text)
+    .filter((r) => r.timestamp)
+    .sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
+  for (const r of rows) {
     const publishes = num(r.spy_cum) !== null;
     const level = tape.get(r.timestamp);
     const spy =
       publishes && anchor !== null && level !== undefined
         ? level / anchor - 1
         : null;
-    out.set(r.timestamp, { spy, cash: num(r.cash_cum) });
+    const raw = num(r.cash_cum);
+    let cash: number | null = null;
+    if (raw !== null) {
+      if (previous !== null && raw < previous - 1e-12) {
+        carried = (1 + carried) * (1 + previous) - 1;
+      }
+      previous = raw;
+      cash = (1 + carried) * (1 + raw) - 1;
+    }
+    out.set(r.timestamp, { spy, cash });
   }
   return out;
 }

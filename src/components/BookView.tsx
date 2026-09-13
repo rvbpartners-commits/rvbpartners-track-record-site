@@ -13,7 +13,7 @@ import type {
   NavPoint,
   SnapshotRecord,
 } from "@/lib/data";
-import { DATA_REPO_URL } from "@/lib/data";
+import { DATA_REPO_URL, accountKindLabel } from "@/lib/data";
 import {
   date,
   marketTime,
@@ -80,22 +80,24 @@ export type BookBundle = {
  *  reading whatever the field is named. */
 const LIVE_MAX_AGE_HOURS = 36;
 
-/**
- * Evidence fields that are prose written for a reader, rendered under the
- * capital movement they belong to.
- *
- * An `evidence` object is a bag of whatever the desk recorded — quantities,
- * endpoint responses, timestamps, prices — and dumping it would be noise. These
- * three are sentences, and they are the ones a sceptic needs: what the net of a
- * pair of movements actually IS, whether the broker later changed its own
- * story, and what was deliberately left inside the return. Absent keys render
- * nothing, so a book publishing none of them shows exactly what it shows today.
- */
-const NARRATIVE_EVIDENCE: [key: string, label: string][] = [
-  ["net_of_the_two_events", "Net of the two movements"],
-  ["broker_restated_its_own_history", "The broker has since restated its own history"],
-  ["not_included_here", "Not treated as a flow"],
-];
+/** One line for a declared capital movement, built from its published kind
+ *  and evidence fields. */
+function describeMovement(e: {
+  kind?: string;
+  amount_usd: number;
+  evidence?: Record<string, unknown> | null;
+}): string {
+  const symbol = e.evidence?.symbol;
+  const qty = e.evidence?.qty;
+  if (e.kind === "broker_adjustment" && typeof symbol === "string" && typeof qty === "number") {
+    const shares = qty.toLocaleString("en-US", { maximumFractionDigits: 6 });
+    return `${shares} ${symbol} ${e.amount_usd < 0 ? "removed" : "returned"} by the broker without a transaction`;
+  }
+  if (e.kind === "deposit") return "Deposit";
+  if (e.kind === "withdrawal") return "Withdrawal";
+  if (e.kind === "broker_adjustment") return "Broker adjustment";
+  return e.amount_usd < 0 ? "Withdrawal" : "Deposit";
+}
 
 /**
  * Is the published `live` block actually current?
@@ -396,12 +398,7 @@ function BookView({
     return { held, invested, gap, session: r.as_of_nav_session ?? null };
   })();
 
-  const accountLabel =
-    meta?.account_kind_label ??
-    summary.account_kind_label ??
-    (summary.capital_at_risk
-      ? "Real capital (live test)"
-      : "Paper (broker-simulated)");
+  const accountLabel = accountKindLabel(summary);
   // Jusqu'ou va la courbe, lu dans la donnee. « Pourquoi les trades de cette
   // nuit ne sont pas dessus ? » est une question d'etiquette absente, pas un
   // bug : le site trace des seances CLOSES. L'heure de cloture vient du book —
@@ -640,8 +637,8 @@ function BookView({
                     same statement, and the page must not weld them together.
                     The rate is named as what it is: a published field. */}
                 The comparison line is cash, accrued on this account&rsquo;s own
-                calendar. An equity index is not a meaningful comparison for a
-                market-neutral book.
+                calendar; an equity index is not a like-for-like comparison for a
+                market-neutral portfolio.
               </>
             )}
             {rejectedLabels.length ? (
@@ -661,15 +658,6 @@ function BookView({
                     impossible.
                   </>
                 ) : null}
-              </>
-            ) : null}
-            {capitalEventCount ? (
-              <>
-                {" "}
-                {capitalEventCount} capital movement
-                {capitalEventCount === 1 ? " is" : "s are"} excluded from this
-                curve, net {money(capitalFlow, currency, 0)}; each is listed below
-                the chart.
               </>
             ) : null}
           </>
@@ -761,7 +749,7 @@ function BookView({
         {lastSession && (
           <p className="mt-4 text-small text-fg-muted">
             Last point: session of{" "}
-            <span className="text-fg">{date(lastSession)}</span>
+            {date(lastSession)}
             {sessionClose ? ` (close ${sessionClose.label})` : ""}.{" "}
             {/* "Next point at the next close" is a promise, and it was being
                 made on a book that had published nothing for five days. Where
@@ -804,67 +792,56 @@ function BookView({
           </p>
         )}
 
-        {/* Folded, not hidden, and not shouted.
-            A declared adjustment has to be readable on the chart it changes: an
-            adjustment a reader must go hunting for is one they are entitled to
-            be suspicious of. But this was a warn-toned banner sitting above the
-            curve, and after the broker reversed itself the two movements net to
-            0.1% of the book. A permanent alarm over a resolved bookkeeping
-            round-trip is its own kind of dishonesty: it makes the page look
-            wounded and it spends, on a footnote, the attention reserved for
-            things a reader must not miss. So the claim goes in the rail with
-            the chart's other caveats, and the evidence goes here, one click
-            away, in full. Native <details>: no state, and it opens with
-            JavaScript off. */}
+        {/* Each declared movement, one row: what it was, read from the
+            published kind and evidence fields, and a link to the chained
+            snapshot that carries the full evidence. */}
         {capitalEvents.length ? (
-          <details className="mt-4 text-small text-fg-muted">
-            <summary className="cursor-pointer text-fg-faint hover:text-fg">
-              {capitalEvents.length} capital movement
-              {capitalEvents.length === 1 ? "" : "s"} excluded from the return
-            </summary>
-            <div className="mt-3 space-y-3 border-l hairline pl-4">
-              {capitalEvents.map((e) => (
-                <div key={e.date}>
-                  <span className="text-fg tnum">{date(e.date)}</span>{" "}
-                  <span className="text-fg tnum">
-                    {money(e.amount_usd, currency, 2)}
-                  </span>
-                  <span className="block mt-1">{prose(e.reason_en)}</span>
-                  <span className="block mt-1 text-fg-faint">
-                    Derived as {prose(e.derivation)}.
-                  </span>
-                  {/* THE TWO THINGS A READER MOST NEEDS WERE INSIDE THE
-                      EVIDENCE AND ON NO PAGE: what the net exclusion actually
-                      is (not just its dollar amount, but WHICH price move it
-                      is and why the account did not participate in it), and
-                      that the broker has since restated its own history as
-                      though nothing was ever missing. Both are published, in
-                      the desk's own words, per event. Rendering them is the
-                      difference between a declared adjustment and one a reader
-                      has to go digging for — and leaving the retraction only
-                      in the JSON is what damages credibility, not the
-                      adjustment itself. Named keys only: this renders the
-                      desk's narrative fields, never a dump of an evidence
-                      object whose shape the site does not control. */}
-                  {NARRATIVE_EVIDENCE.map(([key, label]) => {
-                    const value = e.evidence?.[key];
-                    return typeof value === "string" && value.length > 0 ? (
-                      <span key={key} className="block mt-1 text-fg-faint">
-                        <span className="text-fg-muted">{label}:</span>{" "}
-                        {prose(value)}
-                      </span>
-                    ) : null;
-                  })}
-                </div>
-              ))}
-              <p className="text-fg-faint">
-                The curve measures the return on the capital actually managed.
-                The raw broker equity stays in <code>nav.csv</code> beside each
-                adjustment, and the evidence for each movement is in the chained
-                snapshot for its session.
-              </p>
+          <div className="mt-6">
+            <h3 className="text-small font-semibold tracking-tight">
+              Capital movements excluded from the return
+            </h3>
+            <div className="scroll-x mt-3">
+              <table className="w-full sm:min-w-[520px] text-small">
+                <thead>
+                  <tr className="border-b hairline text-left text-caption text-fg-faint">
+                    <th className="pb-2 pr-4 font-normal">Date</th>
+                    <th className="pb-2 pr-4 font-normal">Movement</th>
+                    <th className="pb-2 pr-4 text-right font-normal">Amount</th>
+                    <th className="pb-2 text-right font-normal">Evidence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {capitalEvents.map((e) => (
+                    <tr key={e.date} className="border-b hairline">
+                      <td className="py-2.5 pr-4 tnum whitespace-nowrap">
+                        {date(e.date)}
+                      </td>
+                      <td className="py-2.5 pr-4 text-fg-muted">
+                        {describeMovement(e)}
+                      </td>
+                      <td className="py-2.5 pr-4 text-right tnum whitespace-nowrap">
+                        {money(e.amount_usd, currency, 2)}
+                      </td>
+                      <td className="py-2.5 text-right whitespace-nowrap">
+                        <a
+                          className="text-accent hover:underline"
+                          href={`${DATA_REPO_URL}/blob/main/books/${summary.book}/snapshots/${e.date}.json`}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                        >
+                          Snapshot
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </details>
+            <p className="mt-3 text-caption text-fg-muted">
+              Raw broker equity stays in <code>nav.csv</code> beside each
+              adjustment.
+            </p>
+          </div>
         ) : null}
       </Section>
 
@@ -975,8 +952,7 @@ function BookView({
             individual strategies are not named. Each position shows its
             quantity, cost basis and mark. Profit and loss by category is an
             attribution model, while the account equity above is read from the
-            broker. A target weight is the plan, not the position, so the two
-            tables answer different questions.
+            broker.
           </>
         }
       >
@@ -1125,7 +1101,7 @@ function BookView({
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                this book&rsquo;s own note
+                Methodology note
               </a>
             </Line>
           ) : null}
@@ -1141,8 +1117,8 @@ function BookView({
             declared. Counted from the chain, never asserted. */}
         {bundle.chain && bundle.chain.backfilled > 0 && (
           <p className="mt-6 text-small text-fg-faint leading-relaxed">
-            {bundle.chain.backfilled} of this book&rsquo;s{" "}
-            {bundle.chain.records} chained records joined the chain
+            {bundle.chain.backfilled} of this portfolio&rsquo;s{" "}
+            {bundle.chain.records} chained records were added to the chain
             {bundle.chain.recordedOn
               ? ` on ${date(bundle.chain.recordedOn)}`
               : " later"}

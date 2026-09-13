@@ -90,13 +90,6 @@ export default function LegalNotice() {
         first
         title="The company"
         gloss="Publisher of this site"
-        note={
-          <>
-            Each translated value carries the filed French beneath it. The
-            register will show a reader the French wording, so that is the
-            wording that has to match; the English is there to be read.
-          </>
-        }
         aside={
           <dl className="space-y-2.5">
             <Fact term="Activity began" value={date(ENTITY.activityStarted)} />
@@ -106,11 +99,6 @@ export default function LegalNotice() {
               qualifier={`Greffe de ${ENTITY.rcs.registry}.`}
             />
             <Fact term="Financial year ends" value={ENTITY.fiscalYearEnd} />
-            <Fact
-              term="Share capital"
-              value={ENTITY.capital}
-              qualifier={`Variable. The statutory minimum is ${ENTITY.capitalMinimum}.`}
-            />
           </dl>
         }
       >
@@ -189,9 +177,7 @@ export default function LegalNotice() {
             The space above it is the measure track's, not this element's. */}
         <p className="text-small leading-relaxed text-fg-faint">
           The registered office is a domiciliation address provided by{" "}
-          {ENTITY.domiciliation.name} (RCS {ENTITY.domiciliation.rcs}). It is
-          the company&rsquo;s legal address; it is not a place of business open
-          to the public.
+          {ENTITY.domiciliation.name} (RCS {ENTITY.domiciliation.rcs}).
         </p>
       </Section>
 
@@ -199,13 +185,6 @@ export default function LegalNotice() {
       <Section
         title="Officers"
         gloss="Who runs the company"
-        note={
-          <>
-            Every officer here is entered on the register, and the filing can be
-            read without asking us. The two identifiers below are what return
-            it.
-          </>
-        }
         aside={
           <dl className="space-y-2.5">
             <Fact
@@ -217,15 +196,6 @@ export default function LegalNotice() {
               term="File no."
               value={ENTITY.rcs.managementNumber}
               literal
-            />
-            {/* An explicit statement of what was left out, because the
-                alternative is a reader assuming this is everything the
-                register holds about these three people. `entity.ts` makes the
-                same point in a comment nobody outside this repository reads. */}
-            <Fact
-              term="Not carried here"
-              value="Dates and places of birth, nationalities"
-              qualifier="Recorded by the register for every officer. This page publishes what identifies the company."
             />
           </dl>
         }
@@ -245,14 +215,6 @@ export default function LegalNotice() {
       <Section
         title="Hosting"
         gloss="Where this site is served from"
-        note={
-          <>
-            Naming the host is an obligation of the publisher, not of the host.
-            Neither company has any part in what this site says, and neither is
-            asked to check it. Both are United States companies, which is why
-            the addresses given for them are American.
-          </>
-        }
         aside={
           <dl className="space-y-2.5">
             <Fact term="This site" value={SITE_HOST} literal />
@@ -311,13 +273,6 @@ export default function LegalNotice() {
       <Section
         title="Purpose"
         gloss="What this site is, and is not"
-        note={
-          <>
-            The paragraph here is the company&rsquo;s own claim. The corporate
-            purpose filed at the register is a third party&rsquo;s record of the
-            same thing, and it can be read without asking us.
-          </>
-        }
         /* THE FOUR NEGATIVES, AS A LIST. Not a restatement for its own sake:
            the paragraph makes them in passing, inside a sentence about
            methodology, and a reader who came to this page to find out whether
@@ -342,10 +297,7 @@ export default function LegalNotice() {
             other page asserts "no third-party money is managed here" in the
             firm's own voice. Here it is a third party's record of it. */}
         <p className="text-body text-fg-muted">
-          <span className="text-fg">
-            {ENTITY.name} trades its own capital and no one else&rsquo;s.
-          </span>{" "}
-          That is not only a statement by the company. Its registered corporate
+          {ENTITY.name} trades its own capital. Its registered corporate
           purpose, as filed, is{" "}
           <em lang="fr">{ENTITY.purpose.replace(/\.$/, "")}</em>: the purchase
           and sale of financial products for its own account. The company does
@@ -375,7 +327,7 @@ export default function LegalNotice() {
       {/* ─── PROPRIÉTÉ INTELLECTUELLE ─────────────────────────────────── */}
       <Section
         title="Intellectual property"
-        gloss="What is owned, and what is open"
+        gloss="What is owned, and what is public"
         aside={
           <dl className="space-y-2.5">
             <Fact
@@ -401,7 +353,6 @@ export default function LegalNotice() {
                 </a>
               }
               literal
-              qualifier="Public, for the same reason the record is."
             />
           </dl>
         }
@@ -409,8 +360,8 @@ export default function LegalNotice() {
         <p className="text-body text-fg-muted">
           The name {ENTITY.name}, the {ENTITY.short} mark and the editorial
           content of this site belong to the company. The published record
-          itself is deliberately open. Every figure, series and snapshot in it
-          is served from{" "}
+          itself is public: every figure, series and snapshot in it is served
+          from{" "}
           <a
             href={DATA_REPO_URL}
             className="text-accent hover:underline"
@@ -428,8 +379,7 @@ export default function LegalNotice() {
           >
             source of this site
           </a>{" "}
-          is public for the same reason. A record nobody can copy is a record
-          nobody can check.
+          is public as well.
         </p>
       </Section>
 
@@ -438,13 +388,6 @@ export default function LegalNotice() {
         id="cookies"
         title="Personal data and cookies"
         gloss="Privacy"
-        note={
-          <>
-            This is written from what the site does, not from a template. If an
-            analytics script, an embed or a cookie is ever added, this section
-            is the first thing that has to change.
-          </>
-        }
         /* The footer links here. A reader arriving at `#cookies` wants the
            answer, and on a wide screen it is now the first thing level with the
            heading rather than the fourth line of a paragraph. The terms are set
@@ -475,11 +418,10 @@ export default function LegalNotice() {
             describing a store the site does not have is the one kind of
             inaccuracy here that is not a matter of taste. */}
         <p className="text-body text-fg-muted">
-          <span className="text-fg">This site sets no cookies</span> and carries
+          This site sets no cookies and carries
           no analytics, no advertising and no third-party tracking. It stores
           nothing in your browser: no cookie, no <code>localStorage</code>{" "}
-          entry, no <code>sessionStorage</code> entry. Reading it leaves nothing
-          behind on your machine and sends nothing to us.
+          entry, no <code>sessionStorage</code> entry.
         </p>
         <p className="text-body text-fg-muted">
           Writing to us at{" "}
