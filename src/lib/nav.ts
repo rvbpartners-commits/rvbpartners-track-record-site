@@ -6,11 +6,11 @@
  * check any of it, then the reference, then the standing caveats.
  *
  * IT LIVES HERE BECAUSE THE GATE WAS ONLY HONOURED ONCE. `/research` and
- * `/refused` render nothing without `research.json`, so the masthead filters
+ * `/selection` render nothing without `research.json`, so the masthead filters
  * them out when that file is absent — a primary navigation item with nothing
  * behind it is a promise the record cannot keep. But the masthead was the only
  * surface that knew. The home page's contents list was a second hardcoded array
- * of the same seven routes, the footer linked `/refused` unconditionally, and
+ * of the same seven routes, the footer linked `/selection` unconditionally, and
  * `sitemap.xml` emitted both — while already holding the payload that would
  * have told it not to. With the file gone, one surface kept the promise and
  * three advertised it anyway.
@@ -33,40 +33,39 @@ export const NAV: readonly NavItem[] = [
   {
     href: "/firm",
     label: "The firm",
-    question:
-      "Who is RVB Partners, and what can you check without taking our word for it?",
+    question: "The company, its registered details, and the terms used on the site.",
   },
   {
     href: "/portfolios",
     label: "Portfolios",
-    question: "What accounts exist, what is in each, and how do they differ?",
+    question: "Every published portfolio, its account and its record.",
   },
   {
     href: "/research",
     label: "Research",
     needsResearch: true,
-    question: "How much was searched to produce what is published?",
+    question: "How much was searched, and the bar every result is measured against.",
   },
   {
-    href: "/refused",
-    label: "Refused",
+    href: "/selection",
+    label: "Selection",
     needsResearch: true,
-    question: "Most of what we tested did not work. This is the count.",
+    question: "How the strategy catalogue is graded, and what it presents.",
   },
   {
     href: "/verify",
     label: "Verify",
-    question: "How can a stranger prove this record was not edited?",
+    question: "Every snapshot, and the checks anyone can run on the record.",
   },
   {
     href: "/methodology",
     label: "Methodology",
-    question: "By what conventions is every number here produced?",
+    question: "How every published figure is produced.",
   },
   {
     href: "/disclosures",
     label: "Disclosures",
-    question: "What must be held in mind before believing any of it?",
+    question: "The conditions attached to the figures on this site.",
   },
 ];
 

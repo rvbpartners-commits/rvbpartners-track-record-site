@@ -65,10 +65,9 @@ export const metadata: Metadata = {
   // "Live" survives only where it means continuously updated, and never beside
   // "track record".
   description:
-    "The public register of RVB Partners: what we trade, how it was tested, " +
-    "and what we refused. Every portfolio shown is a broker-simulated paper " +
-    "account. Each published number is hash-chained, timestamped, and " +
-    "reproducible from open data.",
+    "RVB Partners is a systematic trading firm in France. Its portfolios, how " +
+    "each strategy was tested, and a hash-chained, timestamped record anyone " +
+    "can verify.",
   // These are paper accounts with a short history. Ranking a page that makes
   // performance claims is not something to chase, so the site is discoverable
   // but not promoted.

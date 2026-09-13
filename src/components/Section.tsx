@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
  * THE SITE'S ONE SECTION. Rail, measure, margin.
  *
  * WHAT IT REPLACES. Seven pages each carried their own private `Section`
- * function — `/firm`, `/legal`, `/portfolios`, `/refused`, `/research`, the 404
+ * function — `/firm`, `/legal`, `/portfolios`, `/selection`, `/research`, the 404
  * page and `/methodology` — six of them byte-identical and the seventh a
  * different design entirely. Meanwhile this file existed, implemented a
  * two-column grid, and was imported by exactly one consumer. So the site had

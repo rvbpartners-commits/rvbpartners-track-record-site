@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/mentions-legales", destination: "/legal", permanent: true },
+      // /refused became /selection; the old address was public for a week.
+      { source: "/refused", destination: "/selection", permanent: true },
     ];
   },
 

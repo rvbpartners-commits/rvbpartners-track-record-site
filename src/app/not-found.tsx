@@ -59,7 +59,7 @@ import { DATA_REPO_URL } from "@/lib/data";
  *  characterisation written here, which is how two surfaces end up describing
  *  the same page differently.
  *
- *  `/research` and `/refused` are listed unconditionally. The masthead drops
+ *  `/research` and `/selection` are listed unconditionally. The masthead drops
  *  them while the research summary is unpublished, because a primary navigation
  *  item with nothing behind it is a promise the record cannot keep; this page
  *  cannot make that check without a fetch, and a fetch here is the one thing it
@@ -74,8 +74,8 @@ const CONTENTS: { href: string; gloss: string }[] = [
   { href: "/portfolios", gloss: "Every published portfolio, each at its own address." },
   { href: "/research", gloss: "How much was searched to produce what is published." },
   {
-    href: "/refused",
-    gloss: "What did not survive, and what this record cannot prove about itself.",
+    href: "/selection",
+    gloss: "How the strategy catalogue is graded, and what it presents.",
   },
   {
     href: "/verify",

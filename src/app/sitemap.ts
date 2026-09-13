@@ -29,13 +29,6 @@ function when(value: string | null | undefined): Date | undefined {
   return Number.isNaN(at.getTime()) ? undefined : at;
 }
 
-/** The later of the dates a page actually draws on. A page fed by two published
- *  files changed when the second of them changed. */
-function newest(...values: (Date | undefined)[]): Date | undefined {
-  const known = values.filter((d): d is Date => d !== undefined);
-  if (known.length === 0) return undefined;
-  return new Date(Math.max(...known.map((d) => d.getTime())));
-}
 
 /**
  * THE ROUTES OF THIS SITE, AND WHEN EACH LAST CHANGED.
@@ -77,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const record = when(index?.published_at);
   const searched = when(research?.generated_at);
 
-  // THE SAME GATE THE MASTHEAD APPLIES. /research and /refused render nothing
+  // THE SAME GATE THE MASTHEAD APPLIES. /research and /selection render nothing
   // without research.json, and this file emitted both unconditionally while
   // already holding the payload that says so — two lines above, for `searched`.
   // A sitemap is a list of addresses a crawler is told exist, so it was the one
@@ -93,7 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           { url: abs("/research"), lastModified: searched },
           // Counts from research.json, the index, and the books' own metrics:
           // it changed when the later of the two payloads did.
-          { url: abs("/refused"), lastModified: newest(record, searched) },
+          { url: abs("/selection"), lastModified: searched },
         ]
       : []),
     { url: abs("/verify"), lastModified: record },

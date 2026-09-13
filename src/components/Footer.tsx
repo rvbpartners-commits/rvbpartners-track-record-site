@@ -18,7 +18,7 @@ import { AccountDisclosure } from "./AccountDisclosure";
  *  kind in its own header. See `AccountDisclosure`.
  *
  *  THE FOOTER IS NOT A SECOND CONTENTS. It carried eight links back into the
- *  site — the firm, refused, disclosures, methodology, verify, plus both
+ *  site — the firm, selection, disclosures, methodology, verify, plus both
  *  repositories — every one of which the masthead already offers on every page,
  *  and none of which a reader comes to a footer looking for. A footer is where
  *  the standing obligations live: who to write to, where the company is

@@ -744,7 +744,7 @@ export async function getIndex(): Promise<IndexPayload | null> {
 
   // ONE COUNT OF MARKED SESSIONS FOR THE WHOLE SITE. Three pages printed the
   // snapshot count above as "marked sessions" — 25 on /firm and /portfolios for
-  // a book the 60-session gate counts at 24 on /refused and on its own page.
+  // a book the 60-session gate counts at 24 on its own page.
   // The gate's numerator is the count that means what the words say, so every
   // page reads it from here.
   const marked = await Promise.all(

@@ -279,9 +279,8 @@ export default async function Portfolios() {
         <div>
           <h1 className="text-title">Portfolios</h1>
           <p className="mt-5 text-body text-fg-muted">
-            Every portfolio RVB Partners publishes, what kind of account each
-            one is, and how they differ from one another. Each has its own page,
-            where the curve, the holdings and the chained evidence for it live.
+            Every portfolio RVB Partners publishes. Each has its own page with the
+            full record: the curve, the holdings and the chained evidence.
           </p>
         </div>
         {loaded && (

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 /**
  * A reference to a route that is not always there.
  *
- * `/research` and `/refused` render nothing without `research.json`, and the
+ * `/research` and `/selection` render nothing without `research.json`, and the
  * masthead drops them when it is absent. Prose links to them are the same
  * promise made in a sentence: three of them sit mid-paragraph on /firm and
  * /portfolios, and with the file gone they sent a reader who had just been told
