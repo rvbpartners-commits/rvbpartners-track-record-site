@@ -182,13 +182,6 @@ export default async function Portfolios() {
   // note disappears by itself on the day every book is drawn.
   const drawnIds = new Set(drawn.map((b) => b.book));
   const undrawn = books.filter((b) => !drawnIds.has(b.book));
-  const undrawnNote = undrawn.length
-    ? `Capital variants are not drawn: each one repeats a line already on the chart at a different size. ${
-        undrawn.length === 1 ? "It is" : "They are"
-      } listed in the table below and ${
-        undrawn.length === 1 ? "has its own page" : "each has its own page"
-      }.`
-    : "";
 
   // A LINE ON THIS CHART CAN HAVE AN EXCLUSION IN IT. Where a drawn book has
   // declared capital movements its curve measures the capital actually managed
@@ -198,13 +191,11 @@ export default async function Portfolios() {
     ({ meta }) => (meta?.capital_events?.events?.length ?? 0) > 0,
   );
   const capitalNote = withEvents.length
-    ? `${withEvents
-        .map(({ summary }) => summary.label)
-        .join(", ")} ${
-        withEvents.length === 1 ? "is" : "are"
-      } drawn with declared capital movements excluded, so ${
-        withEvents.length === 1 ? "that line measures" : "those lines measure"
-      } the return on the capital actually managed rather than the size of the account. Every movement is listed with its date, its amount and its evidence on the portfolio\u2019s own page.`
+    ? `${withEvents.map(({ summary }) => summary.label).join(", ")} ${
+        withEvents.length === 1 ? "excludes its" : "exclude their"
+      } declared capital movements, which are listed on ${
+        withEvents.length === 1 ? "its page" : "their pages"
+      }.`
     : "";
 
   // The parent of each row, preferring the publisher's own statement of the
@@ -216,6 +207,27 @@ export default async function Portfolios() {
     if (!name || !published.has(name)) return null;
     return books.find((x) => x.book === name) ?? null;
   };
+
+  // WHAT IS NOT DRAWN, BY NAME OF KIND. The note used to explain only the
+  // capital twins, so with the real-capital portfolio also left off the chart a
+  // reader counting seven portfolios found four lines and one unexplained gap.
+  const undrawnTwins = undrawn.filter((b) => parentOfRow(b) !== null).length;
+  const undrawnReal = undrawn.filter(
+    (b) => b.capital_at_risk && parentOfRow(b) === null,
+  ).length;
+  const undrawnParts = [
+    undrawnTwins > 0 ? (undrawnTwins === 1 ? "the capital twin" : "the capital twins") : null,
+    undrawnReal > 0
+      ? undrawnReal === 1
+        ? "the real-capital portfolio"
+        : "the real-capital portfolios"
+      : null,
+  ].filter((s): s is string => s !== null);
+  const undrawnNote = undrawnParts.length
+    ? `${undrawnParts.join(" and ").replace(/^./, (c) => c.toUpperCase())} ${
+        undrawnTwins + undrawnReal === 1 ? "is" : "are"
+      } not drawn; every portfolio is listed below.`
+    : "";
 
   const twins = books
     .map((b) => {
@@ -242,13 +254,9 @@ export default async function Portfolios() {
   const allTenths =
     twins.length > 0 &&
     twins.every((t) => t.ratio !== null && Math.abs(t.ratio - 10) < 1e-9);
-  const allMatched = twins.length > 0 && twins.every((t) => t.matched);
+  const laterTwins =
+    twins.length > 0 && twins.every(({ twin, parent }) => twin.inception > parent.inception);
 
-  // Whether any annualised statistic could be shown at all. Read off the books'
-  // own gate flags, never from a session count compared against the threshold
-  // here: the record publishes what the gate counts in, and this page is not
-  // entitled to re-decide it.
-  const allGated = loaded && books.every((b) => b.annualised_gated);
 
   return (
     <div className="pt-2 lg:pt-6">
@@ -320,8 +328,7 @@ export default async function Portfolios() {
       </div>
 
       <Section
-        title="What a portfolio is here"
-        gloss="Before the figures"
+        title="What a portfolio is"
         aside={
           loaded && index ? (
             /* THE REGISTER'S OWN SHAPE, beside the definition of what is in it.
@@ -361,32 +368,17 @@ export default async function Portfolios() {
           ) : undefined
         }
       >
-        <div className="space-y-4 text-body text-fg-muted">
-          <p>
-            A portfolio here is a fixed roster of strategies held at target
-            weights and traded on one broker account by the desk. The record
-            calls it a <span className="text-fg">book</span>. Its members are
-            assembled out of the research catalogue, the same catalogue whose
-            search and deflation are set out
-            under{" "}
-            <GatedLink href="/research" available={hasResearch}>
-              research
-            </GatedLink>
-            . The roster is fixed: the desk stages orders towards those weights,
-            marks the account after each close and archives the result, and the
-            book itself is not re-chosen between marks.
-          </p>
-          <p>
-            Each book has its own account, its own funding and its own chain of
-            marked sessions, which is why they are listed here as separate
-            records rather than added into one.{" "}
-            <span className="text-fg">
-              None of them is offered to anyone.
-            </span>{" "}
-            The company trades its own account; this page is a register, not a
-            menu.
-          </p>
-        </div>
+        <p className="text-body text-fg-muted">
+          A portfolio is a fixed set of strategies held at target weights and
+          traded on its own broker account. The strategies are drawn from the{" "}
+          <GatedLink href="/research" available={hasResearch}>
+            research
+          </GatedLink>{" "}
+          catalogue, the set is not re-chosen between sessions, and each
+          portfolio&rsquo;s description names the objective it was selected for.
+          The real-capital portfolio is a separate two-venue strategy, described
+          on its own page.
+        </p>
       </Section>
 
       {/* ─── THE ACCOUNT STATEMENT, AHEAD OF THE FIRST FIGURE ─────────────
@@ -414,7 +406,7 @@ export default async function Portfolios() {
           a rising line on the apex domain makes the site's opening job "show
           the returns", which is the reading order of a pitch. */}
       {loaded && index && series.length > 0 && (
-        <Section title="The record" gloss="Every drawn account, rebased" wide>
+        <Section title="The record" wide>
           {/* ONE CHILD OF THE MEASURE, deliberately. The grid sets the rhythm
               between the parts of a section at 1rem; the chart, its legend and
               the qualifications are one part, and their own spacing is set
@@ -425,60 +417,12 @@ export default async function Portfolios() {
               <OverviewLegend series={series} />
             </div>
 
-            {/* THE FIVE QUALIFICATIONS, BROKEN OUT. They used to run together
-                in a single 12px paragraph under the chart on the home page,
-                which is where a caveat goes to be skipped. Each is now its own
-                ruled note at a size a reader can actually read.
-
-                ONE COLUMN INSIDE THE MEASURE. Two columns of a 33rem track are
-                two columns of about 250px, which is where a four-sentence
-                caveat becomes a ladder. The pair survives from `sm` to `lg`,
-                where the section is still the full width of the page. */}
-            <div className="mt-8 grid gap-px border hairline bg-hairline sm:grid-cols-2 lg:grid-cols-1">
-              {[
-                [
-                  "Simulated fills",
-                  "Every line is a broker-simulated paper account. No capital is at risk in any of them.",
-                ],
-                [
-                  "Not every account is drawn",
-                  undrawnNote,
-                ],
-                [
-                  "Rebased, not comparable in size",
-                  "Cumulative return since each account was funded, rebased on its own opening equity, so accounts funded with different capital can share an axis. Each line begins at that account\u2019s first traded session.",
-                ],
-                [
-                  "No benchmark is drawn here",
-                  "There is no index on this chart. A benchmark appears on a portfolio\u2019s own page, named, against that book\u2019s own dates. Past performance is not indicative of future results.",
-                ],
-                [
-                  "Declared capital movements",
-                  capitalNote,
-                ],
-              ]
-                .filter(([, body]) => Boolean(body))
-                // An odd number of notes leaves a hole in a two-column grid, and
-                // an empty ruled cell reads as a note that failed to load. The
-                // last one spans the row instead.
-                .map(([head, body], i, all) => (
-                  <div
-                    key={head as string}
-                    className={`bg-bg p-4 ${
-                      i === all.length - 1 && all.length % 2 === 1
-                        ? "sm:col-span-2 lg:col-span-1"
-                        : ""
-                    }`}
-                  >
-                    <div className="text-label uppercase tracking-[0.14em] text-fg-faint">
-                      {head}
-                    </div>
-                    <p className="mt-2 text-small leading-relaxed text-fg-muted">
-                      {body}
-                    </p>
-                  </div>
-                ))}
-            </div>
+            <p className="mt-6 text-small leading-relaxed text-fg-muted">
+              Each line is an account&rsquo;s return since it was funded,
+              measured on its own opening capital, so accounts of different
+              sizes share one axis.{undrawnNote ? ` ${undrawnNote}` : ""}
+              {capitalNote ? ` ${capitalNote}` : ""}
+            </p>
           </div>
         </Section>
       )}
@@ -495,31 +439,14 @@ export default async function Portfolios() {
       <Section
         id="portfolios"
         title="The portfolios"
-        gloss="One row per portfolio"
         wide
-        note="Nothing in the table below is annualised and nothing in it is ranked. Every figure is published as it stands, except the strategy count, which is the sum of the book’s own per-category counts and is named as one."
       >
         {loaded && index ? (
-          <div className="space-y-2 text-small leading-relaxed text-fg-faint">
-            <p>
-              <span className="text-fg-muted">Return</span> is cumulative since
-              the account was funded, as published by the desk. It is not
-              annualised, and covers a different window for each book.{" "}
-              <span className="text-fg-muted">Funded with</span> is the capital
-              the account was opened with, which on a simulated account is
-              simulated capital.{" "}
-              <span className="text-fg-muted">Sessions</span> is the count of
-              sessions published for that book, each one marked after its own
-              close.
-            </p>
-            <p>
-              <span className="text-fg-muted">Strategies</span> is the sum of
-              the per-category counts the record publishes for the book; the
-              categories are listed beneath it. Holdings are published by
-              category and no strategy is named anywhere in this record. That is
-              why this column is a count and never a list.
-            </p>
-          </div>
+          <p className="text-small leading-relaxed text-fg-muted">
+            Return is cumulative since the account was funded and covers a
+            different period for each portfolio. Strategies is the number of
+            strategies held, by category.
+          </p>
         ) : (
           <Note tone="warn">
             The published index could not be read, so no portfolio is listed
@@ -539,7 +466,7 @@ export default async function Portfolios() {
                   <Th>Account</Th>
                   <Th align="right">Funded with</Th>
                   <Th align="right">Opened</Th>
-                  <Th align="right">Sessions</Th>
+                  <Th align="right">Marked sessions</Th>
                   <Th align="right">Strategies</Th>
                   <Th align="right">Return</Th>
                 </tr>
@@ -644,59 +571,6 @@ export default async function Portfolios() {
         </div>
       )}
 
-      {/* ─── HOW THESE WERE CHOSEN ────────────────────────────────────────
-          The selection objective is NOT withheld: every book publishes it in
-          its own `tagline_en`, which the table above prints verbatim. This
-          section says so in words rather than enumerating the objectives here,
-          because an enumeration written into this file goes stale against the
-          payload and the payload is the thing a reader can check. */}
-      {/* Guarded on the index, because its first sentence points AT the table:
-          "printed against its name above" is a promise, and with no rows above
-          it there is nothing to point at. */}
-      {/* THE SECTION IS ABOUT THE TAGLINES AND SHOWED NONE OF THEM. They are
-          published per book, the table above prints them in a row of small
-          print, and the section arguing that the criterion is published rather
-          than withheld left the reader to take that on trust. The margin lists
-          them verbatim, read off the payload: a book that publishes no line
-          gets the absence marker, because "no line published" and "a blank
-          line" are not the same fact. */}
-      {loaded && (
-        <Section
-          title="How these were chosen"
-          gloss="What each book was selected for"
-          aside={
-            <MarginList label="The published line">
-              {books.map((b) => (
-                <MarginPair
-                  key={b.book}
-                  label={b.label}
-                  value={prose(b.tagline_en) || NO_VALUE}
-                />
-              ))}
-            </MarginList>
-          }
-        >
-          <div className="space-y-4 text-body text-fg-muted">
-            <p>
-              Each book carries a one-line description, published with the
-              record and printed against its name above. That line is not
-              decoration: it names the objective the book&rsquo;s roster was
-              selected for. All of them are drawn from the same catalogue; what
-              differs between them is what the selection was aiming at. The
-              criterion is published rather than withheld, so a reader can see
-              what an account was built to do before looking at what it has
-              done.
-            </p>
-            <p>
-              The selection happened once, when the book was constructed, and
-              the roster has been fixed since. Nothing on this page re-ranks
-              them afterwards, and the objective a book was selected for is a
-              statement about how it was built, never a prediction of what it
-              will do.
-            </p>
-          </div>
-        </Section>
-      )}
 
       {/* ─── THE CAPITAL TWINS ────────────────────────────────────────────
           Rendered only where the payload actually has a pair. The prose is
@@ -705,145 +579,23 @@ export default async function Portfolios() {
           experiment the data has stopped running. */}
       {twins.length > 0 && (
         <Section
-          title="The capital twins"
-          gloss={twins.length === 1 ? "One pair" : `${twins.length} pairs`}
-          wide
+          title="Capital twins"
         >
-          {/* Three columns fit the measure; a minimum width keeps them from
-              crushing into each other on a phone, where the section is the
-              full width of the screen and this table is the only wide thing
-              in it. */}
-          <div className="scroll-x">
-            <table className="w-full min-w-[22rem] text-small">
-              <thead>
-                <tr className="text-left text-fg-faint">
-                  <Th>Pair</Th>
-                  <Th align="right">Funded with</Th>
-                  <Th align="right">Opened</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {twins.map(({ twin, parent }) => (
-                  // Two rows per pair, the twin beneath the book it copies, so
-                  // the two figures that differ sit directly above one another.
-                  <TwinRows key={twin.book} parent={parent} twin={twin} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="space-y-4 text-body text-fg-muted">
-            <p>
-              A twin is not another portfolio. It is one of the books above run
-              at a smaller size, so that the pair measures capital sensitivity
-              and nothing else.
-              {allTenths
-                ? " The smaller size is a tenth of the capital, in every pair here."
-                : ""}
-              {allMatched
-                ? " The category counts and weights published for the two sides of each pair are identical, which is what makes a pair one experiment rather than two ideas."
-                : ""}
-            </p>
-            <p>
-              {/* THE PART THAT IS EASY TO MISS, AND THE REASON THE DATES ARE IN
-                  THE TABLE ABOVE. The twins were funded later than the books
-                  they copy, so the two returns do not cover the same window and
-                  the difference between them is not a capital effect alone. */}
-              They were not opened on the same day. The dates above are the
-              record&rsquo;s own, and the twin&rsquo;s return covers a shorter
-              window than its parent&rsquo;s. The gap between their two returns
-              in the index above is therefore a difference of capital{" "}
-              <em>and</em> of measurement window. Read a pair as one experiment
-              with two readings, never as two records to rank against each
-              other.
-            </p>
-          </div>
+          <p className="text-body text-fg-muted">
+            {twins.map(({ twin }) => twin.label).join(" and ")}{" "}
+            {twins.length === 1 ? "runs" : "run"} the same strategies and weights
+            as {twins.length === 1 ? "its parent" : "their parents"}
+            {allTenths ? " at a tenth of the capital" : " at a smaller size"}, to
+            measure the effect of account size.
+            {laterTwins
+              ? ` ${twins.length === 1 ? "It" : "They"} opened later, so ${
+                  twins.length === 1 ? "its return covers" : "their returns cover"
+                } a shorter period.`
+              : ""}
+          </p>
         </Section>
       )}
 
-      {/* ─── WHAT THIS PAGE IS NOT ──────────────────────────────────────────
-          THE MARGIN CARRIES THE TWO PUBLISHED FIGURES THE PARAGRAPH IS ABOUT:
-          the bar the record holds every annualised statistic behind, and what
-          each book has marked so far. Both are fields of the index, printed as
-          published and set against one another as a reader can read them. No
-          shortfall is subtracted and no fraction of the bar is worked out here:
-          that would be this page deciding how close a book is to a gate the
-          record alone is entitled to open. The eyebrow carries the oxide,
-          because a withheld statistic is a negative fact; the counts stay in
-          the page's own ink, because a number drawn in a warning colour reads
-          as a warning rather than as a number. */}
-      <Section
-        title="What this page is not"
-        gloss="The limits of the list"
-        aside={
-          allGated && index ? (
-            <div>
-              <p className="text-label font-semibold uppercase tracking-[0.16em] text-oxide">
-                Annualised: withheld
-              </p>
-              <p className="mt-2 text-caption leading-snug text-fg-muted">
-                The record publishes no annualised figure for a book under{" "}
-                <span className="tnum text-fg">
-                  {int(index.min_sessions_for_annualised)}
-                </span>{" "}
-                marked sessions. Marked so far, per book:
-              </p>
-              <dl className="mt-3 border-t hairline">
-                {books.map((b) => (
-                  <MarginPair
-                    key={b.book}
-                    label={b.label}
-                    value={int(b.marked_sessions)}
-                    figure
-                  />
-                ))}
-              </dl>
-            </div>
-          ) : undefined
-        }
-      >
-        <div className="space-y-4 text-body text-fg-muted">
-          <p>
-            <span className="text-fg">It is not a ranking.</span> The rows
-            follow the order the record publishes them in, with each capital
-            twin moved beneath the book it copies; nothing here is sorted by
-            result and none of these books is the best of the others. The
-            returns cover different windows and different funding, which is
-            exactly the comparison a league table would invite and this one does
-            not support.
-          </p>
-          {allGated && index && (
-            <p>
-              There is no annualised return and no risk statistic on this page.
-              The record withholds every annualised figure until a book has{" "}
-              <span className="tnum">
-                {int(index.min_sessions_for_annualised)}
-              </span>{" "}
-              marked sessions, and every book listed here is still under that
-              bar. What the last column carries is a cumulative return since
-              funding, which is not a rate of return and cannot be read as one.
-            </p>
-          )}
-          <p>
-            No benchmark is compared on this page, and nothing on it is
-            investment advice, an offer, or a solicitation. Past performance is
-            not indicative of future results. What each figure means and how it
-            is computed is set out under{" "}
-            <Link href="/methodology" className="text-accent hover:underline">
-              methodology
-            </Link>
-            , the conditions attached to it under{" "}
-            <Link href="/disclosures" className="text-accent hover:underline">
-              disclosures
-            </Link>
-            , and the steps for checking any of it yourself under{" "}
-            <Link href="/verify" className="text-accent hover:underline">
-              verify
-            </Link>
-            .
-          </p>
-        </div>
-      </Section>
     </div>
   );
 }
@@ -912,55 +664,6 @@ function MarginPair({
   );
 }
 
-/** The two rows of one capital pair. A fragment rather than a component with a
- *  wrapper, because a `<tbody>` may only contain rows. */
-function TwinRows({
-  parent,
-  twin,
-}: {
-  parent: BookSummary;
-  twin: BookSummary;
-}) {
-  return (
-    <>
-      <tr className="border-t hairline">
-        <td className="py-3 pr-6">
-          <Link
-            href={`/portfolios/${bookSlug(parent)}`}
-            className="text-accent hover:underline"
-          >
-            {parent.label}
-          </Link>
-        </td>
-        <td className="py-3 pr-6 text-right tnum whitespace-nowrap">
-          {money(parent.initial_capital, "USD", 0)}
-        </td>
-        <td className="py-3 text-right tnum whitespace-nowrap">
-          {date(parent.inception)}
-        </td>
-      </tr>
-      <tr>
-        <td className="py-3 pr-6 pl-5">
-          <Link
-            href={`/portfolios/${bookSlug(twin)}`}
-            className="text-accent hover:underline"
-          >
-            <span aria-hidden="true" className="mr-1.5 text-fg-faint">
-              └
-            </span>
-            {twin.label}
-          </Link>
-        </td>
-        <td className="py-3 pr-6 text-right tnum whitespace-nowrap">
-          {money(twin.initial_capital, "USD", 0)}
-        </td>
-        <td className="py-3 text-right tnum whitespace-nowrap">
-          {date(twin.inception)}
-        </td>
-      </tr>
-    </>
-  );
-}
 
 /**
  * Paper or real capital, on EVERY row rather than only on an exception.
