@@ -107,7 +107,7 @@ export default function TeamPage() {
         >
           <p>
             The work is distributed rather than owned. Every portfolio published
-            on this site was built collectively: no book is one person&rsquo;s
+            on this site was built collectively: no portfolio is one person&rsquo;s
             idea run on one person&rsquo;s account, and no strategy enters a
             portfolio without being measured against everything else the firm
             has already searched.

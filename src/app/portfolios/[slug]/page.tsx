@@ -201,7 +201,7 @@ export default async function Portfolio({
             href: `/verify?book=${encodeURIComponent(summary.book)}#snapshots`,
             label: "Verify this portfolio",
             question:
-              "Every snapshot in this book's chain, with its hash and its timestamp.",
+              "Every snapshot in this portfolio's chain, with its hash and its timestamp.",
           },
           {
             href: "/methodology",

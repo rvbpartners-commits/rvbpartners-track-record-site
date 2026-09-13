@@ -302,7 +302,7 @@ export default async function ApproachPage() {
               </h3>
               <ul className="mt-3 border-t hairline">
                 <Market name="US markets" what="Equities and ETFs, on paper accounts at a US broker." />
-                <Market name="Crypto" what="Including the book that trades the firm's own real capital." />
+                <Market name="Crypto" what="Including the portfolio that trades the firm's own real capital." />
               </ul>
               <p className="mt-3 text-caption leading-relaxed text-fg-muted">
                 Every account behind these is listed, with its kind and its

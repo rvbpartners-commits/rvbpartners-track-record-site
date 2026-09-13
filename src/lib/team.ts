@@ -67,7 +67,7 @@ const PROFILES: Record<string, Profile> = {
     display: "Elias Garcia-Baron",
     area: "Research and production",
     description:
-      "Works across the catalogue and the books that trade it, and on the " +
+      "Works across the catalogue and the portfolios that trade it, and on the " +
       "tooling the firm searches with. A strategy is not finished when it " +
       "backtests well; it is finished when the same logic runs on an account " +
       "and the difference between the two is measured.",
