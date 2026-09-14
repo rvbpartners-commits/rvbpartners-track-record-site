@@ -313,8 +313,7 @@ export default async function VerifyPage({
           <Note className="mt-2">
             future performance, or that a simulated fill would have happened in a
             live market. A chain shows that no session has been removed since its
-            first record, not what preceded that record. A
-            timestamp shows that a file existed by a given block, not how much
+            first record. A timestamp shows that a file existed by a given block, not how much
             earlier. The hash chain, timestamps, signed commits and branch
             ruleset are used together for that reason.
           </Note>
