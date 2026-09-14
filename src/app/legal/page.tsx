@@ -197,7 +197,7 @@ export default function LegalNotice() {
       {/* ─── DIRECTION ────────────────────────────────────────────────── */}
       <Section
         title="Officers"
-        gloss="Who runs the company"
+        gloss="Who runs the company, and who directs this publication"
         aside={
           <dl className="space-y-2.5">
             <Fact
@@ -238,6 +238,10 @@ export default function LegalNotice() {
                 </>
               ),
             },
+            {
+              label: "Publication director",
+              value: officerDisplay(ENTITY.publicationDirector),
+            },
           ]}
         />
       </Section>
@@ -273,7 +277,9 @@ export default function LegalNotice() {
               value: (
                 <>
                   {ENTITY.host.name}
-                  <Gloss>{ENTITY.host.address}</Gloss>
+                  <Gloss>
+                    {ENTITY.host.address} · {ENTITY.host.phone}
+                  </Gloss>
                 </>
               ),
             },

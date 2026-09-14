@@ -54,12 +54,14 @@ export const ENTITY = {
     president: "Finn Van Den Bosch",
     generalManagers: ["Elias Garcia--Baron", "Florian Rizzo"],
   },
-  /* There is no `publicationDirector` field, and its absence is deliberate
-   * rather than an oversight — do not add one back as a bugfix. The company's
-   * officers are listed above and rendered on /legal. */
+  /** Directeur de la publication (LCEN art. 6-III), named by the company.
+   *  Spelled as the register spells the officer, so /legal can print both. */
+  publicationDirector: "Elias Garcia--Baron",
   host: {
     name: "Vercel Inc.",
     address: "340 S Lemon Ave #4133, Walnut, CA 91789, United States",
+    /** As listed for this address in Vercel's Privacy Shield registration. */
+    phone: "+1 559 288 7060",
     url: "https://vercel.com",
   },
 } as const;
