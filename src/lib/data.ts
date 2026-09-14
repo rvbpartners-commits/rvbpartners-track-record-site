@@ -443,6 +443,10 @@ export type CapitalEvents = {
 };
 
 export type BookMeta = {
+  /** SPY's unadjusted close at funding, which the publisher measures the
+   *  intraday `spy_cum` from. Present once the publisher writes it; the site
+   *  then reads the published series rather than correcting it. */
+  benchmark_intraday_anchor?: { spy_close: number; as_of: string } | null;
   book: string;
   account_ref: string | null;
   account_number: string | null;
@@ -898,11 +902,16 @@ export async function getBenchmarkIntraday(
   book: string,
   books: string[],
 ): Promise<Map<string, { spy: number | null; cash: number | null }>> {
-  const [text, tape, anchor] = await Promise.all([
+  const [text, tape, anchor, meta] = await Promise.all([
     getText(`books/${book}/benchmark_intraday.csv`),
     getSpyTape(books),
     getSpyAnchor(book),
+    getMeta(book),
   ]);
+  // Once the publisher measures `spy_cum` from the funding-day traded price
+  // itself (and says so in meta), the published column is the line to draw.
+  const publisherAnchored =
+    typeof meta?.benchmark_intraday_anchor?.spy_close === "number";
   const out = new Map<string, { spy: number | null; cash: number | null }>();
   if (!text) return out;
   // THE CASH LINE CARRIES THE SAME MIGRATION FAULT. Accrual at a non-negative
@@ -918,8 +927,9 @@ export async function getBenchmarkIntraday(
   for (const r of rows) {
     const publishes = num(r.spy_cum) !== null;
     const level = tape.get(r.timestamp);
-    const spy =
-      publishes && anchor !== null && level !== undefined
+    const spy = publisherAnchored
+      ? num(r.spy_cum)
+      : publishes && anchor !== null && level !== undefined
         ? level / anchor - 1
         : null;
     const raw = num(r.cash_cum);
