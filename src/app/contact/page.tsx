@@ -92,7 +92,7 @@ export default function ContactPage() {
         <Section
           id="verification"
           title="Verifying the record"
-          gloss="What a clone can check, and what it cannot."
+          gloss="Checking the published figures."
         >
           <p>
             Every published figure can be re-derived independently from the
@@ -101,28 +101,23 @@ export default function ContactPage() {
             <Link href="/verify" className="text-accent hover:underline">
               verify
             </Link>
-            . Write only for what a clone cannot give you: read-only access at
-            the venue itself, which the same page explains and which is provided
-            on request.
+            . Read-only access at the venue itself, described on the same page,
+            is provided on request.
           </p>
           <p className="text-small leading-relaxed text-fg-muted">
-            If you are a regulator, counsel, or a reader who has found something
-            on this site that is wrong, say so at the address above. A correction
-            is published as a correction; nothing here is quietly edited.
+            To report an error on this site, write to the address above.
           </p>
         </Section>
 
         <Section
           id="capital"
           title="Third-party capital"
-          gloss="What the firm cannot act on."
+          gloss="Investment enquiries."
         >
           <p className="text-small leading-relaxed text-fg-muted">
-            RVB Partners trades its own capital. It manages no third-party money,
-            is not authorised to, and is not raising any. Nothing on this site is
-            investment advice, an offer, or a solicitation, and an enquiry about
-            investing in the firm or in one of these portfolios cannot be
-            answered with anything other than this paragraph. The conditions
+            RVB Partners trades its own capital, manages no third-party money
+            and is not raising capital. Nothing on this site is investment
+            advice, an offer, or a solicitation. The conditions
             attached to every figure published here are set out under{" "}
             <Link href="/disclosures" className="text-accent hover:underline">
               disclosures

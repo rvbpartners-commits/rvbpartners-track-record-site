@@ -70,7 +70,7 @@ const STANDARDS: { name: string; body: string; href: string; cite: string }[] = 
       "Calmar are published in excess of the risk-free rate, so a strategy " +
       "that returns less than cash is recorded as doing so.",
     href: "/methodology#metrics",
-    cite: "What is computed, and what is withheld",
+    cite: "How the metrics are computed, and when they are published",
   },
   {
     name: "Robustness",
@@ -104,9 +104,8 @@ const STANDARDS: { name: string; body: string; href: string; cite: string }[] = 
   {
     name: "Evidence",
     body:
-      "Every published figure has to be re-derivable by a reader who does " +
-      "not trust the firm. That constrains what can be claimed: a number " +
-      "that cannot be checked is not presented as a result.",
+      "Every published figure can be re-derived from public files, and " +
+      "what is presented as a result is limited to what can be checked.",
     href: "/verify",
     cite: "How to check the record",
   },
@@ -127,7 +126,7 @@ const PIPELINE: { n: string; name: string; body: string }[] = [
   {
     n: "03",
     name: "Selection",
-    body: "What survives is graded and filed by verdict. Nothing the grading rejects is presented as an edge anywhere, on any surface.",
+    body: "What survives is graded and filed by verdict. Nothing the grading rejects is presented as an edge.",
   },
   {
     n: "04",
@@ -142,7 +141,7 @@ const PIPELINE: { n: string; name: string; body: string }[] = [
   {
     n: "06",
     name: "Monitoring",
-    body: "Each account is marked after its close, the session is hashed into a chain, and the live result is measured against the simulation that argued for it.",
+    body: "Each account is marked after its close, the session is hashed into a chain, and the live result is measured against the simulation behind it.",
   },
 ];
 
@@ -180,9 +179,7 @@ export default async function ApproachPage() {
           gloss="Six standards, applied at every stage."
           note={
             <>
-              These are standards applied to a process, not six investment
-              objectives ranked against one another. Each links to the page
-              where it is already visible in the record.
+              Each links to the page where it is visible in the record.
             </>
           }
         >
@@ -267,8 +264,8 @@ export default async function ApproachPage() {
           <p>
             The unit RVB builds and funds is a portfolio: a committed set of
             strategies and target weights, assembled from the surviving
-            catalogue and traded on its own account until it is deliberately
-            changed. A single strategy is a component of a portfolio rather
+            catalogue and traded on its own account until the firm changes
+            it. A single strategy is a component of a portfolio rather
             than something the firm runs on its own, which limits how much any
             one result can matter.
           </p>
@@ -335,20 +332,17 @@ export default async function ApproachPage() {
         <Section
           id="objective"
           title="Long-term objective"
-          gloss="An ambition, not a current activity."
+          gloss="Where the firm is heading."
         >
           <p>
             RVB&rsquo;s long-term objective is to build an institutional
             investment platform around a diversified portfolio of systematic
-            strategies. That is a direction of travel; it describes no current
-            activity, and the paragraph below is what holds today.
+            strategies.
           </p>
-          <Note tone="warn" className="mt-1">
-            The firm trades its own capital. It manages no third-party money, is
-            not authorised to, and nothing on this site is an offer, a
-            solicitation, or an invitation to invest. The accounts published here
-            are broker-simulated except where a portfolio states otherwise on its
-            own page.
+          <Note className="mt-1">
+            Today the firm trades its own capital and manages no third-party
+            money. Nothing on this site is an offer, a solicitation, or an
+            invitation to invest.
           </Note>
         </Section>
       </div>

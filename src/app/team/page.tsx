@@ -44,8 +44,8 @@ export default function TeamPage() {
           Team
         </h1>
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
-          RVB is a research team of three. Research, strategy development and
-          production infrastructure sit inside one group and one codebase, so a
+          Research, strategy development and production infrastructure sit
+          inside one team and one codebase at RVB, so a
           result found in research can be run on an account without being
           rebuilt on the way.
         </p>
@@ -136,10 +136,9 @@ export default function TeamPage() {
           gloss="What the firm does, and does not, do."
         >
           <p className="text-small leading-relaxed text-fg-muted">
-            RVB Partners is a small firm trading its own capital. It manages no
-            third-party money, employs no sales function, and makes no claim to
-            a size it does not have. The officers above are the people who do
-            the work; the register entry behind them is published in full on the{" "}
+            RVB Partners trades its own capital and manages no third-party
+            money. The officers above are the people who do the work; the
+            register entry behind them is published in full on the{" "}
             <a href="/legal" className="text-accent hover:underline">
               legal notice
             </a>

@@ -997,7 +997,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             href: "/methodology",
             label: "Read the methodology",
             question:
-              "How each number you just checked was produced: the conventions, and what is withheld.",
+              "How each number you just checked was produced, and when it is published.",
           },
           {
             href: "/portfolios",

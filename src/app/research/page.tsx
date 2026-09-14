@@ -236,7 +236,7 @@ export default async function ResearchPage() {
             href: "/methodology",
             label: "How the figures are produced",
             question:
-              "The return convention, the metric definitions, and what is withheld.",
+              "The return convention, the metric definitions, and when each figure is published.",
           },
         ]}
       />

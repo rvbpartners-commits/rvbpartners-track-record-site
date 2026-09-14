@@ -626,7 +626,7 @@ export default async function Portfolios() {
             href: "/methodology",
             label: "How the figures are produced",
             question:
-              "The return convention, the benchmark, and what is withheld until when.",
+              "The return convention, the benchmark, and when each figure is published.",
           },
           {
             href: "/approach",

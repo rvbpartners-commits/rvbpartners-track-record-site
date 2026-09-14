@@ -277,9 +277,9 @@ export default async function Home() {
         <p className="mt-3 max-w-[74ch] text-body text-fg-muted">
           {presented !== null && presented !== undefined ? (
             <>
-              Of everything searched, {int(presented)} catalogue entries are
-              presented as a result at all, and only the figure above clears the
-              correction for the search that found them.{" "}
+              {int(presented)} catalogue entries are presented as a result, and
+              the figure above is how many clear the correction for the whole
+              search.{" "}
             </>
           ) : null}
           Every backtest, sweep and grid cell is recorded in an append-only

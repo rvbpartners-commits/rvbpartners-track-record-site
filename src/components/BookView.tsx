@@ -625,7 +625,7 @@ function BookView({
           one has {gate.have}. Cumulative return, daily returns and the drawdown
           path are shown in full below.
           {unrenderedSuppressed.length > 0
-            ? ` Also withheld until then: ${unrenderedSuppressed.join(", ")}.`
+            ? ` Also published from then: ${unrenderedSuppressed.join(", ")}.`
             : ""}
         </p>
       ) : null}
