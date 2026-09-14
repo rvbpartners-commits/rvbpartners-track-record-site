@@ -21,6 +21,14 @@ export function signedPct(value: number | null | undefined, digits = 2): string 
   return `${sign}${(value * 100).toFixed(digits)}%`;
 }
 
+/** A percentage axis tick. A narrow axis drops to one decimal only from 1%
+ *  up: below that, ticks a quarter of a tenth apart all rounded to the same
+ *  label ("-0.1%, -0.1%, -0.1%") on a short record. */
+export function axisPct(value: number, narrow: boolean): string {
+  const digits = narrow && Math.abs(value) >= 0.01 ? 1 : 2;
+  return `${(value * 100).toFixed(digits)}%`;
+}
+
 export function ratio(value: number | null | undefined, digits = 2): string {
   if (value === null || value === undefined || !Number.isFinite(value)) {
     return NO_VALUE;

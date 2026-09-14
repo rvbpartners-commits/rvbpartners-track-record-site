@@ -312,8 +312,8 @@ export default async function VerifyPage({
           </p>
           <Note className="mt-2">
             future performance, or that a simulated fill would have happened in a
-            live market. A chain shows that no session was removed from it, not
-            that it was never restarted, so restarts are declared separately. A
+            live market. A chain shows that no session has been removed since its
+            first record, not what preceded that record. A
             timestamp shows that a file existed by a given block, not how much
             earlier. The hash chain, timestamps, signed commits and branch
             ruleset are used together for that reason.
@@ -400,7 +400,6 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         <Section
           title="Declared chain restarts"
           gloss="A chain withdrawn, and what replaced it."
-          note="A chain cannot show on its own that it was never restarted, so a restart is declared. The earlier record stays published with its own chain and timestamps."
           aside={
             /* THE FOUR NUMBERS, OUT OF THE PARAGRAPH. They were spelled out
                inside the warn note — a count, a total, a date and a snapshot
@@ -530,7 +529,8 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               <>
                 Each snapshot&rsquo;s <Code>prev_hash</Code> is the previous
                 session&rsquo;s <Code>hash</Code>. A timestamp shows that a file
-                existed; the chain shows that the series is complete. Because
+                existed; the chain shows that the series is complete from its
+                first record. Because
                 each session commits to the one before it, a session cannot be
                 removed later without breaking every record after it.
               </>
@@ -815,9 +815,8 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             {SITE_REPO_URL.replace("https://github.com/", "")}
           </a>
           . Both are public. Their <Code>main</Code> branches carry a ruleset
-          that blocks force-pushes and deletions, requires linear history, and
-          requires every commit to be signed, so the append-only history cannot
-          be rewritten without leaving a trace. Each publish commit is signed
+          that requires signed commits and linear history, and blocks deletion
+          and force-pushes. Each publish commit is signed
           with an SSH key and shown by GitHub as Verified. Publication runs on
           the firm&rsquo;s trading server; GitHub holds no broker credential.
         </p>

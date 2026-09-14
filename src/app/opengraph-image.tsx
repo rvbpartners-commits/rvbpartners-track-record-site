@@ -27,7 +27,7 @@ export default async function OgImage() {
   // an explicit display on any element with more than one child, and a subtitle
   // is a sentence rather than a layout.
   const subtitle = [
-    books > 0 ? `${books} portfolios` : null,
+    books > 0 ? `${books} ${books === 1 ? "portfolio" : "portfolios"}` : null,
     real ? "paper and real capital" : "broker-simulated paper accounts",
     "hash-chained, timestamped, verifiable from open data",
   ]

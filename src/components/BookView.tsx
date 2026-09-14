@@ -72,6 +72,8 @@ export type BookBundle = {
   /** The parent's inception. The twins were funded later than the books they
    *  copy, so the pair differs in measurement window as well as in capital. */
   variantParentInception?: string | null;
+  /** The earliest inception among the published paper books. */
+  paperRecordStart?: string | null;
 };
 
 /** How far behind the publish a broker reading may be and still be called
@@ -118,6 +120,12 @@ function liveIsFresh(at: string | undefined, publishedAt: string | undefined): b
   const published = new Date(publishedAt).getTime();
   if (Number.isNaN(read) || Number.isNaN(published)) return false;
   return published - read <= LIVE_MAX_AGE_HOURS * 3600 * 1000;
+}
+
+/** A plural unit published by the desk ("marked sessions", "round trips"),
+ *  made singular for a count of one. */
+function countUnit(n: number, unit: string): string {
+  return n === 1 ? unit.replace(/s$/, "") : unit;
 }
 
 /** The leading ISO date of a rejection label such as
@@ -357,6 +365,15 @@ function BookView({
   // put a comparison on the page the data explicitly refuses to make. It also
   // means the rule keeps working for the next such book without an edit here.
   const showEquityBenchmark = points.some((p) => p.spy !== null);
+  const showCash = points.some((p) => p.cash !== null);
+  // A MISSING INDEX COLUMN IS NOT A STRATEGY. A paper book whose first sessions
+  // have no SPY data draws no index line too, and was being called
+  // market-neutral for it. The word is used only where the book's own published
+  // description says it is hedged against the market.
+  const exposureStructure = (meta?.exposure ?? summary.exposure)?.structure ?? "";
+  const marketNeutral = /market[\s-]neutral|delta[\s-]hedged/i.test(
+    `${summary.tagline_en ?? ""} ${exposureStructure}`,
+  );
   const roundTrips = meta?.round_trips ?? null;
   // Un book qui publie `exposure` n'a pas de holdings a publier -- c'est la
   // donnee qui decide de la section, pas une liste de noms de books dans la
@@ -400,6 +417,9 @@ function BookView({
   })();
 
   const accountLabel = accountKindLabel(summary);
+  const isPaper =
+    (summary.account_kind ?? (summary.capital_at_risk ? "real_capital" : "paper")) ===
+    "paper";
   // Jusqu'ou va la courbe, lu dans la donnee. « Pourquoi les trades de cette
   // nuit ne sont pas dessus ? » est une question d'etiquette absente, pas un
   // bug : le site trace des seances CLOSES. L'heure de cloture vient du book —
@@ -462,6 +482,12 @@ function BookView({
         <p className="mt-3 inline-block border hairline px-1.5 py-px text-caption leading-[1.6] text-fg-faint">
           {accountLabel}
         </p>
+        {isPaper && bundle.paperRecordStart && (
+          <p className="mt-2 text-small text-fg-muted">
+            The paper portfolios&rsquo; published record begins on{" "}
+            {date(bundle.paperRecordStart)}.
+          </p>
+        )}
         {/* A capital twin is not a fifth portfolio, and the relationship was
             visible only in the collapsed selector — inferred there from a name
             suffix. Stated here, so a reader landing on the twin's own page
@@ -627,7 +653,11 @@ function BookView({
             ? gate.gates.map((g) => `${g.need} ${g.unit}`).join(" and ")
             : `${gate.need} ${gateUnit}`}
           ; this one has {observations ?? gate.have}{" "}
-          {gate.gates && gate.gates.length > 1 ? "marked sessions" : gateUnit}.
+          {countUnit(
+            observations ?? gate.have,
+            gate.gates && gate.gates.length > 1 ? "marked sessions" : gateUnit,
+          )}
+          .
           Cumulative return, daily returns and the drawdown path are shown in
           full below.
           {unrenderedSuppressed.length > 0
@@ -654,7 +684,8 @@ function BookView({
                     hardcoded and printed on the real-capital book, which reads
                     its equity once per round trip and at each close — 30
                     readings over two days. */}
-                Account equity from {points.length} broker readings
+                Account equity from {points.length} broker reading
+                {points.length === 1 ? "" : "s"}
                 {meta?.intraday_resolution && !/5.?min/i.test(meta.intraday_resolution)
                   ? ` (${prose(meta.intraday_resolution)})`
                   : " at 5-minute resolution"}
@@ -701,9 +732,11 @@ function BookView({
                     line and the annual rate printed in the ledger are not the
                     same statement, and the page must not weld them together.
                     The rate is named as what it is: a published field. */}
-                The comparison line is cash, accrued on this account&rsquo;s own
-                calendar; an equity index is not a like-for-like comparison for a
-                market-neutral portfolio.
+                {showCash
+                  ? marketNeutral
+                    ? "The comparison line is cash, accrued on this account’s own calendar; an equity index is not a like-for-like comparison for a market-neutral portfolio."
+                    : "The comparison line is cash, accrued on this account’s own calendar."
+                  : null}
               </>
             )}
             {rejectedLabels.length ? (
@@ -1134,11 +1167,13 @@ function BookView({
               last resort, not the first branch. */}
           <Line label="Equity resolution">
             {typeof meta?.intraday_points === "number" && meta.intraday_points > 0
-              ? `${meta.intraday_resolution} · ${meta.intraday_points} readings`
+              ? `${meta.intraday_resolution} · ${meta.intraday_points} reading${meta.intraday_points === 1 ? "" : "s"}`
               : (meta?.intraday_resolution ?? "daily")}
           </Line>
           <Line label="Record">
-            <span className="tnum">{summary.sessions} chained snapshots</span>
+            <span className="tnum">
+              {summary.sessions} chained snapshot{summary.sessions === 1 ? "" : "s"}
+            </span>
           </Line>
           {/* THE FEED BEHIND THE FILLS. It is stamped into every snapshot's
               disclosure block and reaches no other published file — not the

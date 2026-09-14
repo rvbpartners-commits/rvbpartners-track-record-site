@@ -464,9 +464,8 @@ export default async function MethodologyPage() {
             comparison.
           </p>
           <p>
-            A portfolio that holds offsetting positions on two venues and aims to
-            be market-neutral is compared with cash alone; its benchmark file
-            carries no index column, and its chart draws none.
+            A portfolio whose benchmark file carries no index data is compared
+            with cash alone, and its chart draws no index line.
           </p>
         </Section>
 

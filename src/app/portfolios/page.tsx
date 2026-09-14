@@ -21,6 +21,7 @@ import {
   getIntraday,
   getMeta,
   getNav,
+  paperRecordStart,
   SITE_ORIGIN,
 } from "@/lib/data";
 import { NO_VALUE, date, direction, money, prose, signedPct } from "@/lib/format";
@@ -151,6 +152,7 @@ export default async function Portfolios() {
   // the same filtered index this table lists from, so a book withheld from the
   // site cannot leave the prose describing an account no page can show.
   const hasLive = books.some((b) => b.capital_at_risk);
+  const paperStart = paperRecordStart(books);
 
   // ── THE OVERVIEW CURVE ────────────────────────────────────────────────────
   // `forOverview` is the one place that decides what may share a rebased axis:
@@ -447,6 +449,9 @@ export default async function Portfolios() {
       >
         {loaded && index ? (
           <p className="text-small leading-relaxed text-fg-muted">
+            {paperStart
+              ? `The paper portfolios’ published record begins on ${date(paperStart)}. `
+              : ""}
             Return is cumulative since the account was funded and covers a
             different period for each portfolio. Strategies is the number of
             strategies held, by category.

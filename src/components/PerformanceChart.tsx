@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ET_ZONE, type DisplayZone } from "@/lib/format";
+import { ET_ZONE, axisPct, type DisplayZone } from "@/lib/format";
 import { useNarrow } from "@/lib/useNarrow";
 
 export type ChartPoint = {
@@ -178,10 +178,10 @@ export function PerformanceChart({
           />
           <YAxis
             tickFormatter={(v: number) =>
-              `${(v * 100).toFixed(narrow ? 1 : 2)}%`}
+              axisPct(v, narrow)}
             tickLine={false}
             axisLine={false}
-            width={narrow ? 42 : 62}
+            width={narrow ? 46 : 62}
             tick={{ fill: "var(--fg-faint)", fontSize: narrow ? 10 : 11 }}
           />
           <Tooltip

@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import type { AnalyticsPayload, RollingPoint } from "@/lib/data";
 import { useNarrow } from "@/lib/useNarrow";
-import { date, pct, ratio, signedPct } from "@/lib/format";
+import { axisPct, date, pct, ratio, signedPct } from "@/lib/format";
 
 /**
  * The chart suite under the ledger, drawn from series the desk computed -
@@ -83,7 +83,8 @@ export function AnalyticsCharts({
           These panels cover {drawnObs} daily{" "}
           {drawnObs === 1 ? "return" : "returns"}
           {firstDrawn ? ` from ${date(firstDrawn)}` : ""}, a different window from
-          the {observations} sessions in the ledger above
+          the {observations} session{observations === 1 ? "" : "s"} in the
+          ledger above
           {typeof headline === "number"
             ? `, so the monthly figures will not compound exactly to the ${signedPct(headline, 3)} headline`
             : ""}
@@ -223,12 +224,14 @@ function DailyBars({ analytics }: { analytics: AnalyticsPayload }) {
           <BarChart data={data} margin={{ top: 4, right: 6, bottom: 0, left: 0 }}>
             <XAxis dataKey="date" tickFormatter={fmtDay} tickLine={false}
                    axisLine={false} tick={narrow ? axisNarrow : axis} minTickGap={narrow ? 52 : 30} />
-            <YAxis tickFormatter={(v: number) => `${(v * 100).toFixed(narrow ? 1 : 2)}%`}
-                   tickLine={false} axisLine={false} width={narrow ? 40 : 58} tick={narrow ? axisNarrow : axis} />
+            <YAxis tickFormatter={(v: number) => axisPct(v, narrow)}
+                   tickLine={false} axisLine={false} width={narrow ? 46 : 58} tick={narrow ? axisNarrow : axis} />
             <Tooltip content={<TinyTooltip format={(v) => signedPct(v ?? null, 3)} />}
                      cursor={{ fill: "var(--bg-subtle)" }} />
             <ReferenceLine y={0} stroke="var(--hairline)" />
-            <Bar dataKey="return" isAnimationActive={false}>
+            {/* A bar is a session, not the width of the panel: on a record of
+                one or two sessions an uncapped bar filled the whole plot. */}
+            <Bar dataKey="return" isAnimationActive={false} maxBarSize={28}>
               {data.map((d) => (
                 <Cell key={d.date}
                       fill={(d.return ?? 0) >= 0 ? "var(--up)" : "var(--down)"} />
@@ -261,8 +264,12 @@ function DrawdownPath({ analytics }: { analytics: AnalyticsPayload }) {
             </defs>
             <XAxis dataKey="date" tickFormatter={fmtDay} tickLine={false}
                    axisLine={false} tick={narrow ? axisNarrow : axis} minTickGap={narrow ? 52 : 30} />
-            <YAxis tickFormatter={(v: number) => `${(v * 100).toFixed(narrow ? 1 : 2)}%`}
-                   tickLine={false} axisLine={false} width={narrow ? 40 : 58} tick={narrow ? axisNarrow : axis} />
+            {/* A drawdown never rises above zero. Left to scale itself, a path
+                that has not yet fallen (every point 0) was drawn against an
+                axis running from 0% to 600%. */}
+            <YAxis tickFormatter={(v: number) => axisPct(v, narrow)}
+                   domain={[(min: number) => Math.min(min, -0.001), 0]}
+                   tickLine={false} axisLine={false} width={narrow ? 46 : 58} tick={narrow ? axisNarrow : axis} />
             <Tooltip content={<TinyTooltip format={(v) => pct(v ?? null, 3)} />}
                      cursor={{ stroke: "var(--hairline)" }} />
             <Area type="linear" dataKey="drawdown" stroke="var(--down)"
@@ -308,7 +315,7 @@ function Rolling({
             <YAxis
               tickFormatter={(v: number) =>
                 asPercent ? `${(v * 100).toFixed(1)}%` : v.toFixed(1)}
-              tickLine={false} axisLine={false} width={narrow ? 40 : 58} tick={narrow ? axisNarrow : axis} />
+              tickLine={false} axisLine={false} width={narrow ? 46 : 58} tick={narrow ? axisNarrow : axis} />
             <Tooltip content={<TinyTooltip format={(v) => format(v ?? null)} />}
                      cursor={{ stroke: "var(--hairline)" }} />
             <ReferenceLine y={0} stroke="var(--hairline)" />
@@ -357,7 +364,7 @@ function Distribution({ analytics }: { analytics: AnalyticsPayload }) {
                 ) : null
               }
             />
-            <Bar dataKey="count" isAnimationActive={false}>
+            <Bar dataKey="count" isAnimationActive={false} maxBarSize={40}>
               {data.map((d) => (
                 <Cell key={d.label}
                       fill={d.from >= 0 ? "var(--up)" : "var(--down)"} />
@@ -397,7 +404,7 @@ function Quantiles({ analytics }: { analytics: AnalyticsPayload }) {
                 {r.horizon}
                 <span className="text-fg-faint">
                   {" "}
-                  · {r.n} observations
+                  · {r.n} observation{r.n === 1 ? "" : "s"}
                   {r.partial_groups ? ` (${r.partial_groups} partial)` : ""}
                 </span>
               </span>

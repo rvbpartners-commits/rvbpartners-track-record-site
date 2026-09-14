@@ -134,7 +134,7 @@ export function StatisticsLedger({
         typeof v.positive_days === "number" &&
         typeof v.negative_days === "number" &&
         v.positive_days + v.negative_days < v.n_obs
-          ? `of ${v.n_obs} observations`
+          ? `of ${v.n_obs} observation${v.n_obs === 1 ? "" : "s"}`
           : undefined,
     },
     {

@@ -733,6 +733,18 @@ export function taglineOf(b: { tagline_en: string | null }): string | null {
   return t.length > 0 ? t : null;
 }
 
+/** The first day of the paper portfolios' published record: the earliest
+ *  inception among the paper books in the index. Null when no paper book is
+ *  published, and the sentence that uses it then does not render. */
+export function paperRecordStart(books: BookSummary[]): string | null {
+  const dates = books
+    .filter((b) => accountKind(b) === "paper")
+    .map((b) => b.inception)
+    .filter((d): d is string => typeof d === "string" && d.length > 0)
+    .sort();
+  return dates[0] ?? null;
+}
+
 export function accountKindLabel(b: {
   account_kind?: string;
   capital_at_risk?: boolean;

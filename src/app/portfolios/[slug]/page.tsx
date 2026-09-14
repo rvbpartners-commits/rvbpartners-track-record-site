@@ -18,6 +18,7 @@ import {
   getMeta,
   getNav,
   getSnapshot,
+  paperRecordStart,
 } from "@/lib/data";
 import { date, dateTime } from "@/lib/format";
 import { parentOf, variantSize } from "@/lib/variants";
@@ -141,6 +142,7 @@ export default async function Portfolio({
     // The pair does not share a start date, and the difference between them is
     // read as a capital effect unless the page says otherwise.
     variantParentInception: parent?.inception ?? null,
+    paperRecordStart: paperRecordStart(index.books),
   };
 
   // Le selecteur se contente de ce que l'index porte deja : un rendement par

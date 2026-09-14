@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import type { IntradayPoint, NavPoint } from "@/lib/data";
+import { axisPct } from "@/lib/format";
 import { useNarrow } from "@/lib/useNarrow";
 import {
   colourIndex,
@@ -239,10 +240,10 @@ export function OverviewChart({ series }: { series: OverviewSeries[] }) {
             minTickGap={narrow ? 56 : 24}
           />
           <YAxis
-            tickFormatter={(v: number) => `${(v * 100).toFixed(narrow ? 1 : 2)}%`}
+            tickFormatter={(v: number) => axisPct(v, narrow)}
             tickLine={false}
             axisLine={false}
-            width={narrow ? 42 : 58}
+            width={narrow ? 46 : 58}
             tick={{ fill: "var(--fg-faint)", fontSize: narrow ? 10 : 11 }}
           />
           <Tooltip
