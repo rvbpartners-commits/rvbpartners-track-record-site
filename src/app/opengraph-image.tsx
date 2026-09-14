@@ -9,7 +9,7 @@ import { INK, INK_FAINT, INK_FG, INK_MUTED, markDataUri } from "@/lib/brand";
  * cumulative return in a preview image is a claim made where none of the
  * caveats fit.
  */
-export const alt = "RVB Partners · public register";
+export const alt = "RVB Partners · Systematic trading";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -62,7 +62,7 @@ export default async function OgImage() {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ fontSize: 68, lineHeight: 1.05, letterSpacing: "-0.02em" }}>
-            Public register
+            Systematic trading, verifiable in public
           </div>
           <div style={{ display: "flex", fontSize: 30, color: INK_MUTED, lineHeight: 1.35, maxWidth: 900 }}>
             {subtitle}

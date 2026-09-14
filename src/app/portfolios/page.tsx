@@ -14,6 +14,7 @@ import {
   type BookCategory,
   type BookSummary,
   accountKindLabel,
+  taglineOf,
   bookSlug,
   getIndex,
   getResearch,
@@ -506,7 +507,7 @@ export default async function Portfolios() {
                   // one thing rather than as two columns of small print.
                   const notes = [
                     parent ? `Capital twin of ${parent.label}` : null,
-                    b.tagline_en ? prose(b.tagline_en) : null,
+                    taglineOf(b) ? prose(taglineOf(b)!) : null,
                   ].filter((n): n is string => n !== null);
 
                   return (

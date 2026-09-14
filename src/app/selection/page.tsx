@@ -88,7 +88,6 @@ export default async function SelectionPage() {
     : [];
   const tierTotal = (tier: string) =>
     Object.values(byTier?.[tier] ?? {}).reduce((s, n) => s + n, 0);
-  const entries = tiers.reduce((s, t) => s + tierTotal(t), 0);
   const sumVerdict = (verdict: string) =>
     tiers.reduce((s, t) => {
       const cell = byTier?.[t]?.[verdict];
@@ -139,12 +138,9 @@ export default async function SelectionPage() {
               deployable tiers are presented as an edge.
             </p>
             <p className="text-body text-fg-muted">
-              The catalogue holds {count(entries)} entries across its tiers. One
-              strategy can hold an entry in several tiers at once (its production
-              version, its original baseline and its optimised version), so
-              entries are not strategies:{" "}
-              {count(research?.search?.strategies_researched)} strategies were
-              researched.
+              Those entries cover{" "}
+              {count(research?.search?.strategies_researched)} researched
+              strategies.
             </p>
             {presented !== undefined && (
               <p className="text-body text-fg-muted">

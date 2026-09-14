@@ -103,42 +103,42 @@ export default async function Home() {
     {
       n: "01",
       head: "Research",
-      body: "Ideas are written as strategies in one standard shape and backtested in one framework, under one cost structure and one execution delay. Every run is recorded.",
+      body: "Every idea is backtested in one framework, under one cost model, and every run is recorded.",
       href: research !== null ? "/research" : null,
       cta: "How much was searched",
     },
     {
       n: "02",
       head: "Validation",
-      body: "Each result is put through the anti-overfit battery, then measured again against every trial the firm has recorded. Most results stop here.",
+      body: "Each result is tested for overfitting and corrected for everything the firm has searched.",
       href: research !== null ? "/research#the-bar" : null,
       cta: "The bar",
     },
     {
       n: "03",
       head: "Selection",
-      body: "What survives is graded and filed by verdict. Nothing the grading rejects is presented as a result anywhere on this site.",
+      body: "Only strategies that pass the grading are presented as a result.",
       href: research !== null ? "/selection" : null,
       cta: "How the catalogue is graded",
     },
     {
       n: "04",
       head: "Portfolio",
-      body: "Surviving strategies are assembled into a fixed portfolio: a committed set of strategies and target weights, not re-chosen between sessions.",
+      body: "Surviving strategies are combined into fixed portfolios at set target weights.",
       href: "/portfolios" as string | null,
       cta: "The portfolios",
     },
     {
       n: "05",
       head: "Live execution",
-      body: "The portfolio is funded on its own broker account and traded by the desk, which re-uses the research path rather than re-implementing it.",
+      body: "Each portfolio trades on its own account, through the same code research measured.",
       href: "/approach#pipeline" as string | null,
       cta: "How a result becomes a portfolio",
     },
     {
       n: "06",
       head: "Monitoring",
-      body: "Each account is marked after its close, the session is hashed into a chain and timestamped, and the live result is measured against the simulation behind it.",
+      body: "Every session is marked, hash-chained, timestamped and compared with its simulation.",
       href: "/verify" as string | null,
       cta: "Check the record",
     },
@@ -166,11 +166,10 @@ export default async function Home() {
           Who we are
         </h2>
         <p className="mt-6 max-w-[78ch] text-subhead text-fg">
-          RVB is a research-driven systematic trading firm. Research, strategy
-          development and production infrastructure sit inside one team and one
-          codebase, so a result found in research runs on an account without
-          being rebuilt on the way. The difference between the simulated result
-          and the live one is measured.
+          Research, strategy development and production infrastructure sit
+          inside one team and one codebase, so a result found in research runs
+          on an account without being rebuilt on the way, and the difference
+          between the simulated result and the live one is measured.
         </p>
         <Link
           href="/team"
@@ -277,8 +276,8 @@ export default async function Home() {
         <p className="mt-3 max-w-[74ch] text-body text-fg-muted">
           {presented !== null && presented !== undefined ? (
             <>
-              {int(presented)} catalogue entries are presented as a result, and
-              the figure above is how many clear the correction for the whole
+              {int(presented)} catalogue entries are presented as a result; the
+              figure above is how many clear the correction for the whole
               search.{" "}
             </>
           ) : null}
@@ -288,7 +287,7 @@ export default async function Home() {
             <>
               {" "}
               <Link href="/research" className="text-accent hover:underline">
-                Every figure, and how the correction is applied
+                See the research figures
               </Link>
               {"."}
             </>

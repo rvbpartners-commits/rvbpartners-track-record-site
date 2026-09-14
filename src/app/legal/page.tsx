@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Section } from "@/components/Section";
 import {
   CONTACT_EMAIL,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
   DATA_REPO_URL,
   SITE_HOST,
   SITE_ORIGIN,
@@ -158,13 +160,24 @@ export default function LegalNotice() {
               ),
             },
             {
-              label: "Contact",
+              label: "Email",
               value: (
                 <a
                   href={`mailto:${CONTACT_EMAIL}`}
                   className="text-accent hover:underline"
                 >
                   {CONTACT_EMAIL}
+                </a>
+              ),
+            },
+            {
+              label: "Telephone",
+              value: (
+                <a
+                  href={CONTACT_PHONE_HREF}
+                  className="text-accent hover:underline"
+                >
+                  {CONTACT_PHONE}
                 </a>
               ),
             },

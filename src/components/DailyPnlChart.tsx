@@ -38,10 +38,13 @@ import { useNarrow } from "@/lib/useNarrow";
  * percentage column gets no percentage toggle, rather than a derived one.
  */
 
-const fmtDay = (v: string) => {
-  const [, m, d] = v.split("-");
-  return `${d}/${m}`;
-};
+// The same day format as every other chart on the site ("10 Sept").
+const fmtDay = (v: string) =>
+  new Date(`${v.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    timeZone: "UTC",
+  });
 
 type Mode = "usd" | "pct";
 

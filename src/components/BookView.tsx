@@ -13,7 +13,7 @@ import type {
   NavPoint,
   SnapshotRecord,
 } from "@/lib/data";
-import { DATA_REPO_URL, accountKindLabel } from "@/lib/data";
+import { DATA_REPO_URL, accountKindLabel, feedLabel, taglineOf } from "@/lib/data";
 import {
   date,
   marketTime,
@@ -380,7 +380,8 @@ function BookView({
   // The market-data feed named in this book's own last chained record. A
   // string or nothing: an absent field is an absent field, and a book whose
   // fills were executed rather than simulated has no feed to disclose here.
-  const marketDataFeed = bundle.lastSnapshot?.disclosure?.market_data_feed;
+  const rawFeed = bundle.lastSnapshot?.disclosure?.market_data_feed;
+  const marketDataFeed = typeof rawFeed === "string" ? feedLabel(rawFeed) : rawFeed;
 
   // Material only. A healthy book leaves tens of dollars to rounding and mark
   // timing; a real divergence is orders of magnitude larger. The bar is a share
@@ -447,7 +448,7 @@ function BookView({
         <h1 className="text-heading sm:text-title font-semibold tracking-tight leading-tight">
           {summary.label}
         </h1>
-        <p className="mt-1.5 text-body text-fg-muted">{summary.tagline_en}</p>
+        <p className="mt-1.5 text-body text-fg-muted">{taglineOf(summary)}</p>
         {/* Le badge est une DONNEE du book, jamais une phrase en dur : celle qui
             enumerait « 6 comptes papier et 1 reel » est devenue fausse le jour
             ou un second book en capital reel est arrive.
@@ -621,9 +622,14 @@ function BookView({
       ) : gate ? (
         <p className="mt-8 border-t hairline pt-5 text-body text-fg-muted">
           Annualised statistics, such as the Sharpe ratio, volatility and annual
-          return, are published once an account has {gate.need} {gateUnit}; this
-          one has {gate.have}. Cumulative return, daily returns and the drawdown
-          path are shown in full below.
+          return, are published once an account has{" "}
+          {gate.gates && gate.gates.length > 1
+            ? gate.gates.map((g) => `${g.need} ${g.unit}`).join(" and ")
+            : `${gate.need} ${gateUnit}`}
+          ; this one has {observations ?? gate.have}{" "}
+          {gate.gates && gate.gates.length > 1 ? "marked sessions" : gateUnit}.
+          Cumulative return, daily returns and the drawdown path are shown in
+          full below.
           {unrenderedSuppressed.length > 0
             ? ` Also published from then: ${unrenderedSuppressed.join(", ")}.`
             : ""}
@@ -942,7 +948,8 @@ function BookView({
                   publish it under the same gate that withholds a Sharpe. The
                   claim is dropped, and the hit rate is shown as the count it
                   honestly is. */}
-              This account is measured in round trips rather than sessions.
+              A round trip is a position opened and closed, with both legs
+              combined.
             </>
           }
         >
@@ -956,12 +963,18 @@ function BookView({
         note={
           <>
             Computed by the firm&rsquo;s metrics module and published as data.
-            Sharpe, Sortino and Calmar are measured in excess of the 3-month
-            Treasury yield
-            {metrics
-              ? ` (${pct(metrics.risk_free_annual)}, ${metrics.risk_free_source})`
-              : ""}
-            . A dash marks a figure not yet published.
+            {gate ? (
+              " Annualised figures are added here once they are published."
+            ) : (
+              <>
+                {" "}Sharpe, Sortino and Calmar are measured in excess of the
+                3-month Treasury yield
+                {metrics
+                  ? ` (${pct(metrics.risk_free_annual)}, ${metrics.risk_free_source})`
+                  : ""}
+                .
+              </>
+            )}
           </>
         }
       >

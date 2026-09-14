@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Next } from "@/components/Next";
 import { Section } from "@/components/Section";
-import { CONTACT_EMAIL, LINKEDIN_URL, SITE_ORIGIN } from "@/lib/data";
+import {
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
+  LINKEDIN_URL,
+  SITE_ORIGIN,
+} from "@/lib/data";
 import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
 
 /**
@@ -18,17 +24,14 @@ import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
  * personal data the firm has no reason to hold, and /legal states this site
  * stores nothing at all. A mailto keeps that true.
  *
- * AND IT SAYS WHAT WILL NOT HAPPEN. The one enquiry this page must handle
- * honestly is the one it cannot accept: the firm is not authorised to manage
- * outside capital and is not raising any. Saying so here, where someone is
- * about to write, is worth more than saying it in a disclosure they will read
- * afterwards.
+ * It also states that the firm manages no outside capital and is not raising
+ * any, where someone is about to write.
  */
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "How to reach RVB Partners: general enquiries, requests to verify the " +
-    "published record, and the company's registered address.",
+    "How to reach RVB Partners: email, telephone, and the company's " +
+    "registered address.",
   alternates: { canonical: `${SITE_ORIGIN}/contact` },
 };
 
@@ -40,7 +43,7 @@ export default function ContactPage() {
           Contact
         </h1>
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
-          The firm keeps one address, for research, verification and press
+          One address and one number, for research, verification and press
           enquiries alike.
         </p>
       </header>
@@ -50,10 +53,11 @@ export default function ContactPage() {
           first
           id="enquiries"
           title="General enquiries"
-          gloss="Email, or LinkedIn."
+          gloss="Email, telephone or LinkedIn."
           aside={
             <MarginBlock label="Where the firm is">
               <Fact label="Registered office" value={REGISTERED_ADDRESS} />
+              <Fact label="Telephone" value={CONTACT_PHONE} />
               <Fact
                 label="RCS"
                 value={`${ENTITY.rcs.number} R.C.S. ${ENTITY.rcs.registry}`}
@@ -68,6 +72,13 @@ export default function ContactPage() {
               className="text-accent hover:underline"
             >
               {CONTACT_EMAIL}
+            </a>{" "}
+            or call{" "}
+            <a
+              href={CONTACT_PHONE_HREF}
+              className="text-accent hover:underline whitespace-nowrap"
+            >
+              {CONTACT_PHONE}
             </a>
             . Enquiries are answered by the officers named on the{" "}
             <Link href="/team" className="text-accent hover:underline">
@@ -101,8 +112,7 @@ export default function ContactPage() {
             <Link href="/verify" className="text-accent hover:underline">
               verify
             </Link>
-            . Read-only access at the venue itself, described on the same page,
-            is provided on request.
+            .
           </p>
           <p className="text-small leading-relaxed text-fg-muted">
             To report an error on this site, write to the address above.

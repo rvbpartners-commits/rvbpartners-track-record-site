@@ -244,7 +244,11 @@ export function StatisticsLedger({
   );
 }
 
-function Block({ title, rows }: { title: string; rows: Row[] }) {
+function Block({ title, rows: all }: { title: string; rows: Row[] }) {
+  // A figure not yet published is left out rather than printed as a dash; a
+  // block with nothing published yet is left out entirely.
+  const rows = all.filter((r) => !r.withheld);
+  if (rows.length === 0) return null;
   return (
     <section>
       <h3 className="text-small font-semibold tracking-tight border-b hairline pb-2">

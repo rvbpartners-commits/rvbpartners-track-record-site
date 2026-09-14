@@ -140,6 +140,20 @@ export function PerformanceChart({
     );
   }
 
+  // One tick per session, on that session's first point. Left to choose its
+  // own ticks over irregular instants, the axis printed the same day several
+  // times over.
+  const ticks: string[] = [];
+  {
+    let lastDay = "";
+    for (const p of data) {
+      if (p.date !== lastDay) {
+        ticks.push(p.t);
+        lastDay = p.date;
+      }
+    }
+  }
+
   return (
     <div className="w-full h-[220px] sm:h-[340px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -153,7 +167,10 @@ export function PerformanceChart({
 
           <XAxis
             dataKey="t"
-            tickFormatter={fmtDay}
+            ticks={ticks}
+            tickFormatter={(t: string) =>
+              fmtDay(data.find((p) => p.t === t)?.date ?? t)
+            }
             tickLine={false}
             axisLine={false}
             tick={{ fill: "var(--fg-faint)", fontSize: narrow ? 10 : 11 }}

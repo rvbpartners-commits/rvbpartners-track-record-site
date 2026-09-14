@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/data";
+import {
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
+  LINKEDIN_URL,
+} from "@/lib/data";
 import { navGroup, type NavItem } from "@/lib/nav";
 import { AccountDisclosure } from "./AccountDisclosure";
 
@@ -100,7 +105,7 @@ export function Footer({
               Systematic trading, built on research and verifiable in public.
             </p>
           </div>
-          <FooterColumn heading="Firm" items={firm} />
+          <FooterColumn heading="Company" items={firm} />
           <FooterColumn heading="Record" items={record} />
           <div>
             <p className="text-label font-medium uppercase tracking-[0.14em] text-fg-faint">
@@ -110,7 +115,7 @@ export function Footer({
               {/* Legally required of a French company publishing a website
                   (LCEN art. 6-III). */}
               <FooterLink href="/legal">Legal notice</FooterLink>
-              <FooterLink href="/legal#cookies">Cookies</FooterLink>
+              <FooterLink href="/legal#cookies">Privacy</FooterLink>
             </ul>
           </div>
         </div>
@@ -132,6 +137,12 @@ export function Footer({
             className="hover:text-fg transition-colors"
           >
             {CONTACT_EMAIL}
+          </a>
+          <a
+            href={CONTACT_PHONE_HREF}
+            className="hover:text-fg transition-colors whitespace-nowrap"
+          >
+            {CONTACT_PHONE}
           </a>
           <span className="w-full text-fg-faint sm:ml-auto sm:w-auto">
             &copy; {new Date().getFullYear()} RVB Partners

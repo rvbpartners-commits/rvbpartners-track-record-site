@@ -140,7 +140,7 @@ export default async function ResearchPage() {
             note="Strategies grouped by correlation and by shared code."
           />
           <Figure
-            value={int(s.effective_independent_trials)}
+            value={int(Math.round(s.effective_independent_trials))}
             label="Effective independent trials"
             note="The backtest count after collapsing repeated ideas: the number the correction below uses."
           />

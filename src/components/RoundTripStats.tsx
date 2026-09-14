@@ -87,7 +87,7 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
           <span className="tnum">
             {rt.fees_total_usd === null
               ? "—"
-              : `${Math.abs(rt.fees_total_usd).toFixed(4)} USD`}
+              : `${Math.abs(rt.fees_total_usd).toFixed(2)} USD`}
           </span>
         </Row>
       </dl>
@@ -99,11 +99,9 @@ export function RoundTripStats({ rt }: { rt: RoundTrips }) {
           to fill rather than as a measure. The section grid gives both the
           same track. */}
       <p className="mt-6 text-small leading-relaxed text-fg-muted">
-        Each round trip is the combined result of both legs. The net result
+        The net result
         covers closed round trips only, so it differs from the cumulative result
-        charted above, which includes every published day. Annualised figures
-        for this account are published from{" "}
-        {rt.round_trips_needed_for_annualising} round trips.
+        charted above, which includes every published day.
       </p>
     </>
   );
@@ -116,7 +114,7 @@ function colour(v: number | null) {
 
 function money(v: number | null) {
   if (v === null) return "—";
-  return `${v >= 0 ? "+" : ""}${v.toFixed(4)} USD`;
+  return `${v >= 0 ? "+" : ""}${v.toFixed(2)} USD`;
 }
 
 /** Minutes up to an hour, then hours. A median holding of "4260 s" is a number

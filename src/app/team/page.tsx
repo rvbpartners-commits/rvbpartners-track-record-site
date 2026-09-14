@@ -44,10 +44,8 @@ export default function TeamPage() {
           Team
         </h1>
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
-          Research, strategy development and production infrastructure sit
-          inside one team and one codebase at RVB, so a
-          result found in research can be run on an account without being
-          rebuilt on the way.
+          The officers of RVB Partners, and the part of the work each is
+          responsible for.
         </p>
       </header>
 
@@ -126,25 +124,6 @@ export default function TeamPage() {
           </p>
         </Section>
 
-        {/* NO MARGIN, AND THE REASON IS THE SECTION. Four lines and one
-            pointer: a figure hung beside them would be a figure repeated from
-            somewhere else on the site for the sake of filling a column, which
-            is what the third track exists not to be. */}
-        <Section
-          id="scale"
-          title="Size and scope"
-          gloss="What the firm does, and does not, do."
-        >
-          <p className="text-small leading-relaxed text-fg-muted">
-            RVB Partners trades its own capital and manages no third-party
-            money. The officers above are the people who do the work; the
-            register entry behind them is published in full on the{" "}
-            <a href="/legal" className="text-accent hover:underline">
-              legal notice
-            </a>
-            .
-          </p>
-        </Section>
       </div>
 
       <Next

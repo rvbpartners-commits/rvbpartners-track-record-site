@@ -91,10 +91,10 @@ export function Hero() {
         </h1>
 
         <p className="mt-7 max-w-[62ch] text-subhead text-[#b9b4ab]">
-          RVB Partners is a systematic trading firm in France, trading its own
-          capital. It builds diversified portfolios of systematic strategies,
-          and publishes what it trades, how each strategy was tested, and a
-          hash-chained record that can be checked independently.
+          RVB Partners is a French trading firm investing its own capital. It
+          builds diversified portfolios of systematic strategies and publishes
+          what it trades, how each strategy was tested, and a hash-chained
+          record that can be checked independently.
         </p>
 
         {/* COLOURS INLINE, NOT AS UTILITIES. The band sets a light text colour

@@ -35,6 +35,19 @@ export const MAINTAINER_AVATAR =
   "https://avatars.githubusercontent.com/u/247671242?v=4";
 /** One address, used by the footer and the landing page. */
 export const CONTACT_EMAIL = "contact@rvbpartners.fr";
+
+/** The firm's telephone number, as displayed and as dialled. */
+export const CONTACT_PHONE = "+33 7 68 47 79 08";
+export const CONTACT_PHONE_HREF = "tel:+33768477908";
+
+/** A market-data feed as displayed: the feed and its coverage, without the
+ *  vendor's plan name ("IEX (free tier, ~2-3% …)" reads "IEX (~2-3% …)"). */
+export function feedLabel(feed: string): string {
+  return feed
+    .replace(/free tier,\s*/i, "")
+    .replace(/\s*\(\s*free tier\s*\)/i, "")
+    .trim();
+}
 /** The firm's only social presence. Named here with the other canonical
  *  addresses so a page never types it out. */
 export const LINKEDIN_URL = "https://www.linkedin.com/company/rvb-partners/";
@@ -221,6 +234,8 @@ export type MetricsPayload = {
      *  every book counted in when the field did not exist. A book whose binding
      *  bar is round trips publishes it here so one gate governs one page. */
     unit?: string;
+    /** Every bar that governs the book, when more than one does. */
+    gates?: { have: number; need: number; met: boolean; unit: string }[];
   };
 };
 
@@ -709,6 +724,15 @@ function accountKind(b: BookSummary): string {
 
 /** The account badge in the site's own words. Decided by the published kind,
  *  never by a name; the payload's badge wording is not reused. */
+/** A book's description as displayed. The account kind is shown as its own
+ *  badge beside it, so a trailing "Real capital." in the published tagline is
+ *  not repeated. */
+export function taglineOf(b: { tagline_en: string | null }): string | null {
+  if (!b.tagline_en) return null;
+  const t = b.tagline_en.replace(/\s*(Real capital|Paper account)\.?\s*$/i, "").trim();
+  return t.length > 0 ? t : null;
+}
+
 export function accountKindLabel(b: {
   account_kind?: string;
   capital_at_risk?: boolean;
@@ -1062,7 +1086,7 @@ export async function getFeedByAccountKind(
       const snapshot = await getSnapshot(entry.file);
       const feed = snapshot?.disclosure?.market_data_feed;
       return typeof feed === "string" && feed.length > 0
-        ? ([kind, feed] as const)
+        ? ([kind, feedLabel(feed)] as const)
         : null;
     }),
   );

@@ -131,7 +131,12 @@ export function AnalyticsCharts({
       />
       <Distribution analytics={analytics} />
       <Quantiles analytics={analytics} />
-      <MonthlyHeatmap analytics={analytics} />
+      {/* Full width: twelve month columns need the whole row to be read
+          without scrolling. `empty:hidden` removes the cell when the heatmap
+          has nothing to draw. */}
+      <div className="xl:col-span-2 min-w-0 empty:hidden">
+        <MonthlyHeatmap analytics={analytics} />
+      </div>
         <div className="xl:col-span-2 min-w-0">
           <DrawdownEpisodes analytics={analytics} />
         </div>

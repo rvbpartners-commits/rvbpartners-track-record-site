@@ -314,11 +314,13 @@ export default async function ApproachPage() {
                 Areas of expansion
               </h3>
               <ul className="mt-3 border-t hairline">
-                <Market name="Commodities" what="Not traded today." />
-                <Market name="Electricity and power markets" what="Not traded today." />
-                <Market name="Further geographies" what="Including emerging and African markets. Not traded today." />
-                <Market name="Further instruments" what="Not traded today." />
+                <Market name="Commodities" />
+                <Market name="Electricity and power markets" />
+                <Market name="Further geographies" what="Including emerging and African markets." />
               </ul>
+              <p className="mt-3 text-caption leading-relaxed text-fg-muted">
+                None of these is traded today.
+              </p>
             </div>
           </div>
           <p>
@@ -404,13 +406,15 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Market({ name, what }: { name: string; what: string }) {
+function Market({ name, what }: { name: string; what?: string }) {
   return (
     <li className="border-b hairline py-2.5 last:border-b-0">
       <span className="block text-small font-medium text-fg">{name}</span>
-      <span className="block text-caption leading-snug text-fg-muted">
-        {what}
-      </span>
+      {what && (
+        <span className="block text-caption leading-snug text-fg-muted">
+          {what}
+        </span>
+      )}
     </li>
   );
 }

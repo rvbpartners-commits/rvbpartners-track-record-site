@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ChainDiagram } from "@/components/ChainDiagram";
 import { Next } from "@/components/Next";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
 import {
-  CONTACT_EMAIL,
   DATA_BASE,
   DATA_REPO,
   DATA_REPO_URL,
-  LINKEDIN_URL,
-  MAINTAINER_AVATAR,
-  MAINTAINER_URL,
   SITE_REPO_URL,
   SITE_ORIGIN,
   getChain,
@@ -188,7 +183,13 @@ export default async function VerifyPage({
   // no entry links to a visible predecessor (every chain one record long) there
   // is nothing to draw and the margin carries the note alone.
   const byHash = new Map(chain.map((e) => [e.hash, e] as const));
-  const linked = entries.find((e) => byHash.has(e.prev_hash)) ?? null;
+  // Drawn from the portfolio with the longest chain, so the example is a full
+  // record rather than whichever book happened to publish last.
+  const longest = [...ordered].sort((a, b) => countOf(b) - countOf(a))[0];
+  const linked =
+    entries.find((e) => e.book === longest && byHash.has(e.prev_hash)) ??
+    entries.find((e) => byHash.has(e.prev_hash)) ??
+    null;
   const linkedPrev = linked ? byHash.get(linked.prev_hash) ?? null : null;
   // And the drawn book's GENESIS ROW, found rather than typed. Every other
   // value in that figure is read from a ChainEntry, which is the point of it;
@@ -315,14 +316,7 @@ export default async function VerifyPage({
             that it was never restarted, so restarts are declared separately. A
             timestamp shows that a file existed by a given block, not how much
             earlier. The hash chain, timestamps, signed commits and branch
-            ruleset are used together for that reason. None of it is a check on
-            the account itself: the files show what was published about a
-            portfolio, not that an account exists at a venue or holds what it
-            says. That check is set out below, under{" "}
-            <a href="#venues" className="text-accent hover:underline">
-              verifying at the venue
-            </a>
-            .
+            ruleset are used together for that reason.
           </Note>
         </div>
       </Section>
@@ -572,115 +566,6 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
         </ol>
       </Section>
 
-      {/* THE CHECK THE PUBLISHED FILES CANNOT MAKE. Everything above checks
-          the RECORD: that nothing was edited, that no session was dropped,
-          that each file existed by a given block. A reader who accepts all of
-          it is still entitled to ask whether the accounts are there. The three
-          venues answer that differently — one publicly, two on a credential
-          the firm issues — so they are stated separately rather than as one
-          reassurance. */}
-      <Section
-        id="venues"
-        title="Verifying at the venue"
-        gloss="The one check a clone cannot make."
-        note={
-          <>
-            Two of the three need a credential from the firm, issued so that it
-            can read and cannot trade. The first needs nothing.
-          </>
-        }
-        aside={
-          <div>
-            <p className="text-label uppercase text-fg-faint">
-              What each check rests on
-            </p>
-            <dl className="mt-2 border-t hairline">
-              <Rests on="On-chain venue" what="A public ledger." />
-              <Rests
-                on="Read-only API key"
-                what="A credential the firm issues, scoped so it cannot trade."
-              />
-              <Rests
-                on="Investor password"
-                what="A credential the firm issues, read-only by design of the platform."
-              />
-            </dl>
-          </div>
-        }
-      >
-        <p className="text-small leading-relaxed text-fg-muted">
-          The published files show that what was published has not changed. They
-          say nothing about the accounts behind them. That is a separate check,
-          and it differs by venue.
-        </p>
-
-        <ol className="space-y-5 sm:space-y-6 text-small leading-relaxed">
-          <Check
-            n={1}
-            title="On-chain, and public"
-            body={
-              <>
-                The real-capital portfolio trades in part through a HyperLiquid
-                vault, where every order, execution and liquidation is recorded
-                on-chain and final in one block. That vault&rsquo;s positions and
-                its full trade history can be read from HyperLiquid&rsquo;s
-                public API or from a block explorer. The vault address is given
-                on request and will be published beside that portfolio&rsquo;s
-                record, so the check needs nothing from the firm.
-              </>
-            }
-          />
-          <Check
-            n={2}
-            title="Read-only access at the paper broker"
-            body={
-              <>
-                The paper accounts run at Alpaca, which has no public ledger but
-                issues scoped credentials. An API key created with the{" "}
-                <Code>Read only</Code> scope across Accounts, Trading and Data
-                shows positions and the full execution history, and cannot
-                place, amend or cancel an order. The figures come from the
-                broker rather than from a report the firm produces.
-              </>
-            }
-          />
-          <Check
-            n={3}
-            title="Investor access at the real-capital broker"
-            body={
-              <>
-                The other venue of the real-capital portfolio is IC Markets,
-                where MetaTrader issues an <em>investor password</em>. It opens
-                the account read-only — positions, order history and equity as
-                the platform holds them — and the platform refuses to place an
-                order on it.
-              </>
-            }
-          />
-        </ol>
-
-        <p className="text-small leading-relaxed text-fg-muted">
-          The two read-only accesses are provided on request, at{" "}
-          <a
-            className="text-accent hover:underline"
-            href={`mailto:${CONTACT_EMAIL}`}
-          >
-            {CONTACT_EMAIL}
-          </a>{" "}
-          or on{" "}
-          <a
-            className="text-accent hover:underline"
-            href={LINKEDIN_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            LinkedIn
-          </a>
-          . Neither credential can trade, and neither replaces the checks above:
-          they answer a different question.
-        </p>
-      </Section>
-
       {/* The heading names the set it counts: records in the current chains.
           Superseded chains are published separately and linked beneath. */}
       <Section
@@ -776,17 +661,8 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
                   <td className="hidden sm:table-cell py-2.5 pr-4 tnum text-fg-faint whitespace-nowrap">
                     {date(e.ts)}
                   </td>
-                  {/* The label a reader has actually seen, above the data slug
-                      the file is keyed by. Without the label this column was
-                      the only place on the site where a book is named
-                      `best_cagr`, and the map back lives in index.json. */}
                   <td className="hidden sm:table-cell py-2.5 pr-4 text-fg-muted">
                     {labelFor(e.book)}
-                    {labelOf.has(e.book) && (
-                      <span className="block text-caption text-fg-faint tnum">
-                        {e.book}
-                      </span>
-                    )}
                   </td>
                   <td className="py-2.5 pr-4 tnum text-fg-muted">
                     {shortHash(e.hash)}
@@ -911,32 +787,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             </FigureList>
 
             <div className="mt-6 border-t hairline pt-5">
-              {/* The publishing account: the handle a reader meets in the
-                  repository history. The company answers for the record. */}
-              <a
-                href={MAINTAINER_URL}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="flex items-center gap-3 group"
-              >
-                <Image
-                  src={`${MAINTAINER_AVATAR}&s=160`}
-                  alt=""
-                  width={40}
-                  height={40}
-                  unoptimized
-                  className="shrink-0 border hairline"
-                />
-                <span className="min-w-0">
-                  <span className="block text-small font-medium group-hover:underline">
-                    @v89ysppdry
-                  </span>
-                  <span className="block text-caption text-fg-muted">
-                    the account this record is published from
-                  </span>
-                </span>
-              </a>
-              <div className="mt-4 flex flex-col gap-y-2 text-small">
+              <div className="flex flex-col gap-y-2 text-small">
                 <a className="text-accent hover:underline"
                    href={`${DATA_REPO_URL}/issues/new`}
                    target="_blank" rel="noreferrer noopener">

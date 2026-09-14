@@ -31,60 +31,6 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_ORIGIN}/methodology` },
 };
 
-/**
- * THE PAGE, IN EIGHT LINES.
- *
- * One entry per section, in the page's own order, and every `rule` is a
- * sentence that already appears in the section it points at. That is the whole
- * discipline of this constant: an overview written independently of the page
- * becomes a second, shorter methodology that drifts from the first, and the
- * drift is invisible because nobody reads a summary against its source. These
- * are quotations, and they are meant to stay quotations.
- *
- * `id` must match the `id` of its Section or the anchor lands nowhere.
- */
-const PRINCIPLES: { id: string; name: string; rule: string }[] = [
-  {
-    id: "sources",
-    name: "Where the numbers come from",
-    rule: "For the paper accounts, each session's net asset value is the broker's own account equity taken at the after-close mark. It is not modelled or reconstructed from the desk's fill records.",
-  },
-  {
-    id: "returns",
-    name: "Returns",
-    rule: "Returns are time-weighted: a movement of money that is not a trade is excluded from the return and kept in the balance, so the curve measures the return on the capital actually managed rather than on the size of the account.",
-  },
-  {
-    id: "metrics",
-    name: "Metrics",
-    rule: "Every metric is computed by one function in the firm's metrics module, with standard definitions. The input is published in full, so any number here can be recomputed independently.",
-  },
-  {
-    id: "attribution",
-    name: "Account level and per strategy",
-    rule: "Account-level figures are exact: broker equity and broker fills. Per-strategy figures are an attributed model, and do not sum exactly to the account's daily return.",
-  },
-  {
-    id: "benchmark",
-    name: "The benchmark",
-    rule: "The portfolios carry short positions and several asset classes, so the index is shown for context rather than as a like-for-like comparison.",
-  },
-  {
-    id: "costs",
-    name: "Costs and fills",
-    rule: "Published equity is the broker's own account equity, so any charge the broker applied is already inside the published curve. Research is costed differently.",
-  },
-  {
-    id: "limits",
-    name: "Known limits",
-    rule: "If a session was not recorded, the series has a gap: nothing is interpolated or carried forward, and the chart line breaks.",
-  },
-  {
-    id: "timing",
-    name: "Publication timing",
-    rule: "Release follows execution rather than the calendar. Net asset value, daily returns, metrics and benchmarks are published with no lag.",
-  },
-];
 
 /**
  * THE RESEARCH COST MODEL'S DEFAULTS, as a table rather than as the twelve-line
@@ -196,57 +142,8 @@ export default async function MethodologyPage() {
           mid-air with it. The grid owns the measure now, and each Section owns
           the space above itself. */}
       <div className="text-body">
-        {/* THIRTY SECONDS, THEN THIRTY MINUTES.
-            This page is a specification and it is right to be one: eight
-            sections, several thousand words, every convention pinned down.
-            What it had no version of was the short one. A reader who wants to
-            know whether the equity is modelled or read off a broker had to find
-            that sentence inside the first section, and a reader who only wanted
-            to know that had to read the specification to get it.
-
-            So the principles are stated once, up front, each linking to the
-            section that argues it. Nothing is summarised away — every line here
-            is a sentence lifted from the section it points at, so the overview
-            cannot come to say something the page does not. It is a contents
-            page with the answers already on it. */}
         <Section
           first
-          id="in-short"
-          title="In short"
-          gloss="Eight principles, and where each is argued."
-        >
-          <ol className="grid gap-x-10 gap-y-5 sm:grid-cols-2">
-            {PRINCIPLES.map((p, i) => (
-              <li key={p.id} className="border-t hairline pt-3">
-                <a
-                  href={`#${p.id}`}
-                  className="text-small font-semibold text-fg hover:underline"
-                >
-                  <span className="tnum mr-2 text-fg-faint">{i + 1}</span>
-                  {p.name}
-                </a>
-                <p className="mt-1 text-small leading-relaxed text-fg-muted">
-                  {p.rule}
-                </p>
-              </li>
-            ))}
-          </ol>
-          <p className="text-small leading-relaxed text-fg-faint">
-            The full version of each, with the conventions and the exceptions,
-            follows below. The version kept beside the data is{" "}
-            <a
-              className="text-accent hover:underline"
-              href={`${REPO_URL}/blob/main/METHODOLOGY.md`}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              METHODOLOGY.md
-            </a>
-            .
-          </p>
-        </Section>
-
-        <Section
           id="sources"
           title="Where the numbers come from"
           gloss="The daily cycle, and who writes the public files."

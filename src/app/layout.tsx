@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   // redirecting hostname advertises that hostname as the canonical one.
   metadataBase: new URL(SITE_ORIGIN),
   title: {
-    default: "RVB Partners · public register",
+    default: "RVB Partners · Systematic trading",
     template: "%s · RVB",
   },
   // No portfolio count and no publishing cadence in here: both have already
@@ -65,9 +65,9 @@ export const metadata: Metadata = {
   // "Live" survives only where it means continuously updated, and never beside
   // "track record".
   description:
-    "RVB Partners is a systematic trading firm in France, building diversified " +
-    "portfolios of systematic strategies. How the firm researches and selects " +
-    "them, and a hash-chained, timestamped record anyone can verify.",
+    "RVB Partners is a French trading firm building diversified portfolios " +
+    "of systematic strategies on its own capital. How the firm researches and " +
+    "selects them, and a hash-chained, timestamped record anyone can verify.",
   // These are paper accounts with a short history. Ranking a page that makes
   // performance claims is not something to chase, so the site is discoverable
   // but not promoted.
@@ -80,10 +80,10 @@ export const metadata: Metadata = {
   // any route that does not set its own.
   alternates: { canonical: SITE_ORIGIN },
   openGraph: {
-    title: "RVB Partners · public register",
+    title: "RVB Partners · Systematic trading",
     description:
-      "Broker-simulated paper portfolios, hash-chained and timestamped. " +
-      "Verify every number yourself.",
+      "Systematic portfolios, researched in public and published as a " +
+      "hash-chained, timestamped record.",
     type: "website",
   },
   twitter: { card: "summary_large_image" },
