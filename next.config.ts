@@ -1,17 +1,31 @@
 import type { NextConfig } from "next";
 
+/* A CONTENT-SECURITY-POLICY WITHOUT A NONCE. Next's inline bootstrap scripts
+   need 'unsafe-inline' unless every request carries a nonce, so script-src
+   cannot be locked to hashes here. What this still does is refuse any script,
+   style, font, image or connection from another origin, plugins, <base>
+   rewriting, form posts elsewhere and framing by other sites. The site loads
+   nothing from a third party, so nothing legitimate is refused. Development
+   keeps 'unsafe-eval' for the dev server's hot reload. */
+const CSP = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'"}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
+
 const nextConfig: NextConfig = {
-  images: {
-    // The maintainer's GitHub avatar, shown beside the contact link on /verify.
-    // The only remote image the site loads.
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "avatars.githubusercontent.com",
-        pathname: "/u/**",
-      },
-    ],
-  },
+  // No `X-Powered-By: Next.js`: it tells a scanner which advisories to try.
+  poweredByHeader: false,
+  // No remote images. The GitHub avatar that needed an allowance is gone, and
+  // with none allowed the optimiser only ever processes the site's own files.
 
   /* The legal notice was published at /mentions-legales for a few hours before
      the site settled on English throughout. That address is already in the
@@ -25,21 +39,15 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  /* SECURITY HEADERS. The site shipped none of these — Vercel supplies HSTS
-   * and nothing else — which is a poor look on a register whose whole claim is
-   * that it can be checked. None of them changes what the site says; they
-   * change what a third party can do to a reader who is looking at it.
-   *
-   * A CSP is deliberately NOT here. It needs a per-request nonce for the
-   * inline script in <head>, and a nonce cannot come from a static config —
-   * it belongs in middleware, where the request exists. Adding a
-   * `script-src 'self'` line here would silently break that script.
-   */
+  /* SECURITY HEADERS. None of them changes what the site says; they change
+   * what a third party can do to a reader who is looking at it. The CSP is
+   * the nonce-free baseline defined above. */
   async headers() {
     return [
       {
         source: "/:path*",
         headers: [
+          { key: "Content-Security-Policy", value: CSP },
           /* HSTS WITHOUT `preload`, on purpose. Preloading is a submission to a
              list baked into browser binaries; removal takes months to
              propagate. Two years of enforced HTTPS is the same protection for
