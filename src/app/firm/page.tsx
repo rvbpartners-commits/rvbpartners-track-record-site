@@ -3,13 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Next } from "@/components/Next";
 import { Section } from "@/components/Section";
-import {
-  CONTACT_EMAIL,
-  CONTACT_PHONE,
-  CONTACT_PHONE_HREF,
-  SITE_ORIGIN,
-  getIndex,
-} from "@/lib/data";
+import { CONTACT_EMAIL, SITE_ORIGIN, getIndex } from "@/lib/data";
 import { ENTITY } from "@/lib/entity";
 import { NO_VALUE, date } from "@/lib/format";
 
@@ -147,7 +141,7 @@ export default async function FirmPage() {
         </dl>
       </Section>
 
-      <Section title="How to reach us" gloss="Email and telephone">
+      <Section title="How to reach us" gloss="One address">
         <p className="text-body text-fg-muted">
           Write to{" "}
           <a
@@ -155,13 +149,6 @@ export default async function FirmPage() {
             className="text-accent hover:underline"
           >
             {CONTACT_EMAIL}
-          </a>{" "}
-          or call{" "}
-          <a
-            href={CONTACT_PHONE_HREF}
-            className="text-accent hover:underline whitespace-nowrap"
-          >
-            {CONTACT_PHONE}
           </a>
           . Further details are on the{" "}
           <Link href="/contact" className="text-accent hover:underline">

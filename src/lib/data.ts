@@ -36,10 +36,6 @@ export const MAINTAINER_AVATAR =
 /** One address, used by the footer and the landing page. */
 export const CONTACT_EMAIL = "contact@rvbpartners.fr";
 
-/** The firm's telephone number, as displayed and as dialled. */
-export const CONTACT_PHONE = "+33 7 68 47 79 08";
-export const CONTACT_PHONE_HREF = "tel:+33768477908";
-
 /** A market-data feed as displayed: the feed and its coverage, without the
  *  vendor's plan name ("IEX (free tier, ~2-3% …)" reads "IEX (~2-3% …)"). */
 export function feedLabel(feed: string): string {

@@ -2,13 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Next } from "@/components/Next";
 import { Section } from "@/components/Section";
-import {
-  CONTACT_EMAIL,
-  CONTACT_PHONE,
-  CONTACT_PHONE_HREF,
-  LINKEDIN_URL,
-  SITE_ORIGIN,
-} from "@/lib/data";
+import { CONTACT_EMAIL, LINKEDIN_URL, SITE_ORIGIN } from "@/lib/data";
 import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
 
 /**
@@ -30,8 +24,7 @@ import { ENTITY, REGISTERED_ADDRESS } from "@/lib/entity";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "How to reach RVB Partners: email, telephone, and the company's " +
-    "registered address.",
+    "How to reach RVB Partners: email, and the company's registered address.",
   alternates: { canonical: `${SITE_ORIGIN}/contact` },
 };
 
@@ -43,7 +36,7 @@ export default function ContactPage() {
           Contact
         </h1>
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
-          One address and one number, for research, verification and press
+          The firm keeps one address, for research, verification and press
           enquiries alike.
         </p>
       </header>
@@ -53,11 +46,10 @@ export default function ContactPage() {
           first
           id="enquiries"
           title="General enquiries"
-          gloss="Email, telephone or LinkedIn."
+          gloss="Email or LinkedIn."
           aside={
             <MarginBlock label="Where the firm is">
               <Fact label="Registered office" value={REGISTERED_ADDRESS} />
-              <Fact label="Telephone" value={CONTACT_PHONE} />
               <Fact
                 label="RCS"
                 value={`${ENTITY.rcs.number} R.C.S. ${ENTITY.rcs.registry}`}
@@ -72,13 +64,6 @@ export default function ContactPage() {
               className="text-accent hover:underline"
             >
               {CONTACT_EMAIL}
-            </a>{" "}
-            or call{" "}
-            <a
-              href={CONTACT_PHONE_HREF}
-              className="text-accent hover:underline whitespace-nowrap"
-            >
-              {CONTACT_PHONE}
             </a>
             . Enquiries are answered by the officers named on the{" "}
             <Link href="/team" className="text-accent hover:underline">

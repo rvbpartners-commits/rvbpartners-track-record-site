@@ -1,11 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  CONTACT_EMAIL,
-  CONTACT_PHONE,
-  CONTACT_PHONE_HREF,
-  LINKEDIN_URL,
-} from "@/lib/data";
+import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/data";
 import { navGroup, type NavItem } from "@/lib/nav";
 import { AccountDisclosure } from "./AccountDisclosure";
 
@@ -137,12 +132,6 @@ export function Footer({
             className="hover:text-fg transition-colors"
           >
             {CONTACT_EMAIL}
-          </a>
-          <a
-            href={CONTACT_PHONE_HREF}
-            className="hover:text-fg transition-colors whitespace-nowrap"
-          >
-            {CONTACT_PHONE}
           </a>
           <span className="w-full text-fg-faint sm:ml-auto sm:w-auto">
             &copy; {new Date().getFullYear()} RVB Partners
