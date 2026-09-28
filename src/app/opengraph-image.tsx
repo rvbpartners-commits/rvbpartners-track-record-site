@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getIndex, SITE_HOST } from "@/lib/data";
+import { getIndex, publishedKinds, SITE_HOST } from "@/lib/data";
 import { INK, INK_FAINT, INK_FG, INK_MUTED, markDataUri } from "@/lib/brand";
 
 /**
@@ -22,13 +22,21 @@ export default async function OgImage() {
   // hash-chained, timestamped, verifiable from open data" with NO paper
   // qualification at all. The one place a reader meets this site before
   // deciding whether to open it was the one place the disclosure was optional.
-  const real = index?.books?.some((b) => b.capital_at_risk) ?? false;
+  // BOTH WAYS ROUND, for the same reason the sentence on the site is: "real"
+  // alone cannot say that no paper account is published, and this card would
+  // then read "paper and real capital" for a record holding one real-capital
+  // book (see publishedKinds).
+  const { hasLive, hasPaper } = publishedKinds(index?.books ?? []);
   // One string, not a set of conditional children: the image renderer requires
   // an explicit display on any element with more than one child, and a subtitle
   // is a sentence rather than a layout.
   const subtitle = [
     books > 0 ? `${books} ${books === 1 ? "portfolio" : "portfolios"}` : null,
-    real ? "paper and real capital" : "broker-simulated paper accounts",
+    hasLive && hasPaper
+      ? "paper and real capital"
+      : hasLive
+        ? "the firm\u2019s own capital"
+        : "broker-simulated paper accounts",
     "hash-chained, timestamped, verifiable from open data",
   ]
     .filter(Boolean)

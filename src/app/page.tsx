@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AccountDisclosureText } from "@/components/AccountDisclosure";
 import { Hero } from "@/components/Hero";
 import { Note } from "@/components/Note";
-import { CONTACT_EMAIL, getIndex, getResearch } from "@/lib/data";
+import { CONTACT_EMAIL, getIndex, getResearch, publishedKinds } from "@/lib/data";
 import { NO_VALUE, date } from "@/lib/format";
 
 /**
@@ -61,7 +61,7 @@ export default async function Home() {
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
 
   const books = index?.books ?? [];
-  const hasLive = books.some((b) => b.capital_at_risk);
+  const { hasLive, hasPaper } = publishedKinds(books);
 
   const tested = research?.search?.strategies_researched ?? null;
   const backtests = research?.search?.recorded_trials ?? null;
@@ -295,15 +295,28 @@ export default async function Home() {
         </p>
 
         {/* The account statement, beside the figures it qualifies, with the one
-            definition a reader needs to read them. */}
-        <div className="mt-10 grid gap-x-16 gap-y-8 border-t hairline pt-9 lg:grid-cols-2">
-          <p className="text-body text-fg-muted">
-            A paper account is a real broker account trading live market prices
-            with simulated money: the orders and the fills are the
-            broker&rsquo;s, the money is not.
-          </p>
-          <div className="lg:border-l hairline lg:pl-16">
-            <AccountDisclosureText hasLive={hasLive} />
+            definition a reader needs to read them.
+
+            THE DEFINITION IS CONDITIONAL, THE STATEMENT IS NOT. Defining a paper
+            account was unconditional, so a record holding only the real-capital
+            book explained paper trading beside figures that were all money at
+            risk. It renders when a paper account is published, and the statement
+            beside it — which names the kinds itself — carries the row alone
+            otherwise. */}
+        <div
+          className={`mt-10 grid gap-x-16 gap-y-8 border-t hairline pt-9 ${
+            hasPaper ? "lg:grid-cols-2" : ""
+          }`}
+        >
+          {hasPaper ? (
+            <p className="text-body text-fg-muted">
+              A paper account is a real broker account trading live market prices
+              with simulated money: the orders and the fills are the
+              broker&rsquo;s, the money is not.
+            </p>
+          ) : null}
+          <div className={hasPaper ? "lg:border-l hairline lg:pl-16" : ""}>
+            <AccountDisclosureText hasLive={hasLive} hasPaper={hasPaper} />
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getIndex, getResearch } from "@/lib/data";
+import { getIndex, getResearch, publishedKinds } from "@/lib/data";
 import { date } from "@/lib/format";
 import { mastheadNav } from "@/lib/nav";
 import { Mark } from "./Mark";
@@ -42,7 +42,7 @@ export async function Shell({ children }: { children: ReactNode }) {
   // payload for the same reason the footer disclosure is: a standing claim about
   // what the accounts ARE cannot be a constant once one of them changes.
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
-  const hasLive = (index?.books ?? []).some((b) => b.capital_at_risk);
+  const { hasLive, hasPaper } = publishedKinds(index?.books ?? []);
   const hasResearch = research !== null;
   const nav = mastheadNav(hasResearch).map(({ href, label }) => ({ href, label }));
 
@@ -58,10 +58,16 @@ export async function Shell({ children }: { children: ReactNode }) {
     .sort()
     .at(-1);
 
-  // The lead keeps its exact wording, paper qualifier included: it is a
-  // standing claim about what these accounts ARE, derived from the books, and
-  // it may never become a constant. Nor may either figure beside it.
-  const lead = hasLive ? "Public record" : "Public record · paper";
+  // The lead keeps its exact wording, qualifier included: it is a standing
+  // claim about what these accounts ARE, derived from the books, and it may
+  // never become a constant. Nor may either figure beside it. A record holding
+  // only the real-capital book says so rather than dropping the qualifier and
+  // reading like the mixed case.
+  const lead = hasLive
+    ? hasPaper
+      ? "Public record"
+      : "Public record · real capital"
+    : "Public record · paper";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -170,7 +176,7 @@ export async function Shell({ children }: { children: ReactNode }) {
       >
         {children}
       </main>
-      <Footer hasLive={hasLive} hasResearch={hasResearch} />
+      <Footer hasLive={hasLive} hasPaper={hasPaper} hasResearch={hasResearch} />
     </div>
   );
 }

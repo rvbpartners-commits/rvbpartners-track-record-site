@@ -745,6 +745,31 @@ export function paperRecordStart(books: BookSummary[]): string | null {
   return dates[0] ?? null;
 }
 
+/** Which kinds of money the published record actually holds, both ways round.
+ *
+ *  A SINGLE BOOLEAN COULD NOT SAY THIS, and that is how the site came to state
+ *  the wrong thing about real money. Every account-kind sentence was derived
+ *  from `hasLive` alone, which answers "is any book real capital?" — so a record
+ *  holding ONLY a real-capital book read "some portfolios here are paper
+ *  accounts; others trade the firm's own capital" (there were no paper ones),
+ *  and the home page went on defining a paper account beside figures that were
+ *  all money at risk. That state is not hypothetical: recreating the data
+ *  repository leaves RVB-MAKER-01 alone in it until the paper books publish
+ *  their first session.
+ *
+ *  Derived from `accountKind` so the two answers cannot disagree with the
+ *  account label printed on each row. */
+export function publishedKinds(books: BookSummary[]): {
+  hasLive: boolean;
+  hasPaper: boolean;
+} {
+  const kinds = books.map(accountKind);
+  return {
+    hasLive: kinds.includes("real_capital"),
+    hasPaper: kinds.includes("paper"),
+  };
+}
+
 export function accountKindLabel(b: {
   account_kind?: string;
   capital_at_risk?: boolean;

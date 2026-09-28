@@ -46,9 +46,13 @@ import { AccountDisclosure } from "./AccountDisclosure";
  */
 export function Footer({
   hasLive,
+  hasPaper,
   hasResearch,
 }: {
   hasLive: boolean;
+  /** Both flags, because "no paper account is published" is a state the site
+   *  must be able to say — see `publishedKinds`. */
+  hasPaper: boolean;
   /** Gates `/selection` in the footer exactly as it is gated in the masthead
    *  and in the sitemap. A footer that links a page rendering nothing is the
    *  reason the gate now lives in one file. */
@@ -79,7 +83,7 @@ export function Footer({
       </div>
 
       <div className="mx-auto max-w-[var(--column)] w-full px-5 sm:px-8 lg:px-12 py-10">
-        <AccountDisclosure hasLive={hasLive} />
+        <AccountDisclosure hasLive={hasLive} hasPaper={hasPaper} />
         {/* The line directly under the account statement, in the same
            measure as it: two disclaimers stacked with different right edges
            look like one of them was cut off. */}
