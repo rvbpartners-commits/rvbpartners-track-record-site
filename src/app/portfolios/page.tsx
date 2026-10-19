@@ -586,6 +586,11 @@ export default async function Portfolios() {
                             as of {date(b.stale_since)}
                           </div>
                         )}
+                        {b.closed_on && (
+                          <div className="mt-1 text-caption tnum text-fg-faint">
+                            closed {date(b.closed_on)}
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );

@@ -469,6 +469,12 @@ function BookView({
           {summary.label}
         </h1>
         <p className="mt-1.5 text-body text-fg-muted">{taglineOf(summary)}</p>
+        {summary.closed_on && (
+          <p className="mt-1.5 text-body text-fg-muted">
+            Closed on {date(summary.closed_on)}. The book has stopped trading, and
+            its record ends at that session.
+          </p>
+        )}
         {/* Le badge est une DONNEE du book, jamais une phrase en dur : celle qui
             enumerait « 6 comptes papier et 1 reel » est devenue fausse le jour
             ou un second book en capital reel est arrive.

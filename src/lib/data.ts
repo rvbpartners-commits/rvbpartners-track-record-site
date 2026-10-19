@@ -173,6 +173,10 @@ export type BookSummary = {
    *  appears once you are already looking at the stale book is not a flag. */
   stale?: boolean;
   stale_since?: string | null;
+  /** The session a book STOPPED on, published once the book is closed (its
+   *  capital withdrawn, its strategy stopped). Its record ends there and is
+   *  shown, not extended; absent or null while the book trades. */
+  closed_on?: string | null;
   /** The last session ANY book in this record published. Lets a page say what a
    *  stale book is stale AGAINST without counting anything itself. */
   record_last_session?: string | null;
