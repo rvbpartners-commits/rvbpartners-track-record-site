@@ -516,7 +516,9 @@ function BookView({
             Capital twin of {bundle.variantParentLabel},{" "}
             {summary.record_start ? "starting from" : "funded with"}{" "}
             {money(summary.initial_capital, currency, 0)} and run with the same
-            strategies and weights to measure the effect of account size.
+            strategies and weights to measure the effect of account size. At
+            this size a strategy that trades whole shares can size an order below
+            one share, and that order is not placed.
             {laterStart !== null
               ? ` It was funded ${laterStart} day${laterStart === 1 ? "" : "s"} later, so it covers a shorter period.`
               : ""}
