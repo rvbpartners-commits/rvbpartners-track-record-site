@@ -13,7 +13,13 @@ import type {
   NavPoint,
   SnapshotRecord,
 } from "@/lib/data";
-import { DATA_REPO_URL, accountKindLabel, feedLabel, taglineOf } from "@/lib/data";
+import {
+  DATA_REPO_URL,
+  accountKindLabel,
+  feedLabel,
+  recordStart,
+  taglineOf,
+} from "@/lib/data";
 import {
   date,
   marketTime,
@@ -383,6 +389,11 @@ function BookView({
   // Whole days between the parent's inception and this book's. Null when
   // either date is missing or unparseable — an unstated caveat is better than
   // a wrong number, and the sentence simply does not render.
+  // A record that starts after funding is measured from the account's value at
+  // the close before its first session, which held positions: not funded capital.
+  const startingCapital = summary.record_start
+    ? `from ${money(summary.initial_capital, currency, 0)} at the ${date(summary.inception)} close`
+    : `${money(summary.initial_capital, currency, 0)} funded`;
   const laterStart = (() => {
     const a = bundle.variantParentInception;
     const b = summary.inception;
@@ -488,7 +499,9 @@ function BookView({
         <p className="mt-3 inline-block border hairline px-1.5 py-px text-caption leading-[1.6] text-fg-faint">
           {accountLabel}
         </p>
-        {isPaper && bundle.paperRecordStart && (
+        {/* A book whose own record start is published states it in the
+            "Record from" field below; the sentence would say it twice. */}
+        {isPaper && bundle.paperRecordStart && !summary.record_start && (
           <p className="mt-2 text-small text-fg-muted">
             The paper portfolios&rsquo; published record begins on{" "}
             {date(bundle.paperRecordStart)}.
@@ -500,7 +513,8 @@ function BookView({
             knows what they are looking at. */}
         {bundle.variantParentLabel && (
           <p className="mt-2 text-small text-fg-muted">
-            Capital twin of {bundle.variantParentLabel}, funded with{" "}
+            Capital twin of {bundle.variantParentLabel},{" "}
+            {summary.record_start ? "starting from" : "funded with"}{" "}
             {money(summary.initial_capital, currency, 0)} and run with the same
             strategies and weights to measure the effect of account size.
             {laterStart !== null
@@ -555,7 +569,7 @@ function BookView({
             }
           />
           <Field
-            label="Since inception"
+            label={summary.record_start ? "Since record start" : "Since inception"}
             value={signedPct(live?.cumulative_return ?? cumulative, 3)}
             sign={live?.cumulative_return ?? cumulative}
             note={
@@ -571,16 +585,16 @@ function BookView({
             note={date(last?.date)}
           />
           <Field
-            label="Opened"
-            value={date(summary.inception)}
+            label={summary.record_start ? "Record from" : "Opened"}
+            value={date(recordStart(summary))}
             note={
               /* "17 sessions" and the gate's "16 of 60" are two different
                  counts sharing one word. The chain has 17 entries; 16 of them
                  carry a measured return, because the first is the funding
                  anchor. Both are published, so both are named. */
               observations !== null
-                ? `${observations} marked session${observations === 1 ? "" : "s"} · ${money(summary.initial_capital, currency, 0)} funded`
-                : `${money(summary.initial_capital, currency, 0)} funded`
+                ? `${observations} marked session${observations === 1 ? "" : "s"} · ${startingCapital}`
+                : startingCapital
             }
           />
         </dl>
@@ -718,7 +732,9 @@ function BookView({
                         same day draws the same line, and a twin funded later
                         draws its own. */}
                     The index line is SPY&rsquo;s 5-minute price, measured from
-                    its level when this account was funded
+                    {summary.record_start
+                      ? " its level at the close this account's record starts from"
+                      : " its level when this account was funded"}
                     {summary.inception ? `, ${date(summary.inception)}` : ""}.
                     Dividends are not applied intraday, so it ends a few basis
                     points from the daily total-return series.

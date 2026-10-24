@@ -292,12 +292,13 @@ export default async function MethodologyPage() {
             write-once snapshot for that session.
           </p>
           <p>
-            The curve starts at funded capital. The first equity snapshot is
-            taken after the first trading day&rsquo;s close and already contains
-            that day&rsquo;s result, so each portfolio is anchored instead to a
-            broker equity reading taken before it traded, with the account funded
-            and fully in cash. That date is the portfolio&rsquo;s published
-            inception. The anchor is a starting point, not a marked session.
+            The paper portfolios&rsquo; record starts with the 19 October 2026
+            session and is measured from each account&rsquo;s value at the desk&rsquo;s
+            mark of the 16 October close, so the first session&rsquo;s result is
+            inside it. The portfolios already held positions at that close, and
+            that value is shown as their starting capital. A portfolio funded
+            after that date starts instead from a broker equity reading taken
+            before it first traded, with the account fully in cash.
           </p>
           <Note>
             This presentation is GIPS-informed, not GIPS-compliant. Compliance
@@ -449,8 +450,9 @@ export default async function MethodologyPage() {
             portfolio. The line on an intraday chart is SPY&rsquo;s 5-minute
             price, the last bar at or before each instant, with no dividend
             adjustment and nothing interpolated between bars. Both are measured
-            from SPY&rsquo;s level when the account was funded, so every
-            portfolio funded on the same day shows the same SPY line. The two
+            from SPY&rsquo;s level on the date the portfolio&rsquo;s curve
+            starts from, so every portfolio starting on the same day shows the
+            same SPY line. The two
             series can differ by a few basis points.
           </p>
           <p>

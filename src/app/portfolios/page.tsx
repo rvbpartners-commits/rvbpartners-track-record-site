@@ -22,6 +22,7 @@ import {
   getMeta,
   getNav,
   paperRecordStart,
+  recordStart,
   publishedKinds,
   SITE_ORIGIN,
 } from "@/lib/data";
@@ -261,7 +262,8 @@ export default async function Portfolios() {
     twins.length > 0 &&
     twins.every((t) => t.ratio !== null && Math.abs(t.ratio - 10) < 1e-9);
   const laterTwins =
-    twins.length > 0 && twins.every(({ twin, parent }) => twin.inception > parent.inception);
+    twins.length > 0 &&
+    twins.every(({ twin, parent }) => recordStart(twin) > recordStart(parent));
 
 
   return (
@@ -318,8 +320,8 @@ export default async function Portfolios() {
             </span>
             <span className="mt-6 flex items-end justify-between gap-5">
               <span className="text-caption leading-snug text-[#b9b4ab]">
-                Every published account, what it was funded with, and when it
-                opened.
+                Every published account, the capital its record starts from,
+                and when it starts.
               </span>
               <span
                 aria-hidden="true"
@@ -348,15 +350,15 @@ export default async function Portfolios() {
                 figure
               />
               <MarginPair
-                label="Earliest opened"
+                label="Earliest record start"
                 value={
                   books
-                    .map((b) => b.inception)
+                    .map((b) => recordStart(b))
                     .filter(Boolean)
                     .sort()[0]
                     ? date(
                         books
-                          .map((b) => b.inception)
+                          .map((b) => recordStart(b))
                           .filter(Boolean)
                           .sort()[0],
                       )
@@ -425,8 +427,8 @@ export default async function Portfolios() {
             </div>
 
             <p className="mt-6 text-small leading-relaxed text-fg-muted">
-              Each line is an account&rsquo;s return since it was funded,
-              measured on its own opening capital, so accounts of different
+              Each line is an account&rsquo;s return since its record began,
+              measured on its own starting capital, so accounts of different
               sizes share one axis.{undrawnNote ? ` ${undrawnNote}` : ""}
               {capitalNote ? ` ${capitalNote}` : ""}
             </p>
@@ -453,8 +455,8 @@ export default async function Portfolios() {
             {paperStart
               ? `The paper portfolios’ published record begins on ${date(paperStart)}. `
               : ""}
-            Return is cumulative since the account was funded and covers a
-            different period for each portfolio. Strategies is the number of
+            Return is cumulative since each portfolio&rsquo;s record began.
+            Strategies is the number of
             strategies held, by category.
           </p>
         ) : (
@@ -486,8 +488,8 @@ export default async function Portfolios() {
                 <tr className="text-left">
                   <Th>Portfolio</Th>
                   <Th>Account</Th>
-                  <Th align="right">Funded with</Th>
-                  <Th align="right">Opened</Th>
+                  <Th align="right">Starting capital</Th>
+                  <Th align="right">Record from</Th>
                   <Th align="right">Marked sessions</Th>
                   <Th align="right">Strategies</Th>
                   <Th align="right">Return</Th>
@@ -551,7 +553,7 @@ export default async function Portfolios() {
                         {money(b.initial_capital, "USD", 0)}
                       </td>
                       <td className="py-3.5 pr-6 text-right tnum whitespace-nowrap">
-                        {date(b.inception)}
+                        {date(recordStart(b))}
                       </td>
                       <td className="py-3.5 pr-6 text-right tnum">
                         {int(b.marked_sessions)}

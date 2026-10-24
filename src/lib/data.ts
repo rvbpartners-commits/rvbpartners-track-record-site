@@ -121,6 +121,12 @@ export type BookSummary = {
   label: string;
   tagline_en: string | null;
   inception: string;
+  /** The first session of the published record, when the record starts at a
+   *  session the account reached already invested (the paper books: 2026-10-19).
+   *  `inception` is then the base close it is measured from, not a session of
+   *  the record, and `initial_capital` the account's value there, not what it was
+   *  funded with. Absent on a record that starts at funding. */
+  record_start?: string | null;
   last_session: string;
   /** The publisher's session count. It is the number of CHAINED SNAPSHOTS, which
    *  for the paper books includes the snapshot taken at funding — so it runs one
@@ -456,6 +462,9 @@ export type BookMeta = {
   account_type: string;
   inception: string;
   inception_anchored_to_funded_capital: boolean;
+  /** See `BookSummary.record_start`. */
+  record_start?: string | null;
+  record_base_session?: string | null;
   inception_note: string;
   last_session: string;
   sessions: number;
@@ -737,13 +746,19 @@ export function taglineOf(b: { tagline_en: string | null }): string | null {
   return t.length > 0 ? t : null;
 }
 
+/** When a book's published record begins: its first session when the record
+ *  starts after funding, its inception otherwise. */
+export function recordStart(b: { inception: string; record_start?: string | null }): string {
+  return b.record_start || b.inception;
+}
+
 /** The first day of the paper portfolios' published record: the earliest
- *  inception among the paper books in the index. Null when no paper book is
+ *  record start among the paper books in the index. Null when no paper book is
  *  published, and the sentence that uses it then does not render. */
 export function paperRecordStart(books: BookSummary[]): string | null {
   const dates = books
     .filter((b) => accountKind(b) === "paper")
-    .map((b) => b.inception)
+    .map((b) => recordStart(b))
     .filter((d): d is string => typeof d === "string" && d.length > 0)
     .sort();
   return dates[0] ?? null;

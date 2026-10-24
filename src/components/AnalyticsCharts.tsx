@@ -216,7 +216,7 @@ function DailyBars({ analytics }: { analytics: AnalyticsPayload }) {
   return (
     <Plot
       title="Daily returns"
-      note="Every session since inception."
+      note="Every session in the record."
       empty={data.length === 0}
     >
       <ChartBox>
