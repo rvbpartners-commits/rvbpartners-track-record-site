@@ -573,11 +573,15 @@ export default async function Portfolios() {
                           {signedPct(b.cumulative_return)}
                         </span>
                         {/* A RETURN LISTED BESIDE CURRENT ONES IS A CLAIM
-                            ABOUT TODAY. The publisher marks a book stale and
-                            names the session it stopped at; no book is stale
-                            today, so this renders nothing — and does not have
-                            to be remembered on the day one is. */}
-                        {b.stale && (
+                            ABOUT TODAY. The publisher marks a book stale when
+                            it falls behind the rest of the record, and names
+                            the session it stopped at; this renders only then,
+                            so it does not have to be remembered on the day one
+                            is. A closed book is never stale: it is dated by its
+                            closing session below, and an index written before
+                            the publisher learned that rule is read the same
+                            way rather than printing one date twice. */}
+                        {b.stale && !b.closed_on && (
                           /* `text-caption`, not `text-label`. The scale
                              reserves the label step for uppercase eyebrows and
                              section marks; a dated qualifier under a figure is

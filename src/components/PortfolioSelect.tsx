@@ -22,6 +22,9 @@ export type PortfolioOption = {
    *  Null on a current book AND on a stale book that publishes no date — the
    *  row then says it is stale without naming a session it was not given. */
   staleSince?: string | null;
+  /** The session a closed book closed on. Its return is final, and the row
+   *  dates it the way /portfolios does. */
+  closedOn?: string | null;
 };
 
 /** Paper or real capital, marked on EVERY row rather than only on the exception.
@@ -167,6 +170,11 @@ export function PortfolioSelect({
                     {o.staleSince !== null && o.staleSince !== undefined && (
                       <span className="block text-label text-fg-faint tnum mt-0.5">
                         as of {date(o.staleSince)}
+                      </span>
+                    )}
+                    {o.closedOn !== null && o.closedOn !== undefined && (
+                      <span className="block text-label text-fg-faint tnum mt-0.5">
+                        closed {date(o.closedOn)}
                       </span>
                     )}
                   </span>

@@ -160,7 +160,12 @@ export default async function Portfolio({
     // publisher marks a book stale and names the session it stopped at; the
     // selector was the one place a reader compares books, and it was the one
     // place that did not say.
-    staleSince: b.stale ? (b.stale_since ?? null) : null,
+    //
+    // A closed book is dated by its closing session instead. The publisher
+    // never marks it stale, so reading `stale` alone would list its final
+    // return beside the current ones with no date at all.
+    staleSince: b.stale && !b.closed_on ? (b.stale_since ?? null) : null,
+    closedOn: b.closed_on ?? null,
   }));
 
   return (

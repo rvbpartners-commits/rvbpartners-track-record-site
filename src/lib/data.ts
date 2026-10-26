@@ -181,7 +181,11 @@ export type BookSummary = {
   stale_since?: string | null;
   /** The session a book STOPPED on, published once the book is closed (its
    *  capital withdrawn, its strategy stopped). Its record ends there and is
-   *  shown, not extended; absent or null while the book trades. */
+   *  shown, not extended; absent or null while the book trades.
+   *
+   *  A closed book is never stale: the publisher leaves `stale` false once this
+   *  is set, and every surface that dates a stale book dates a closed one by
+   *  this field instead. */
   closed_on?: string | null;
   /** The last session ANY book in this record published. Lets a page say what a
    *  stale book is stale AGAINST without counting anything itself. */

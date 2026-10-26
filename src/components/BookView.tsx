@@ -281,7 +281,16 @@ function BookView({
   // instant, and one that did not is behind by however long it has been silent.
   // The page then stops promising "the next close" for a book that has stopped
   // producing closes.
+  //
+  // A CLOSED BOOK IS NOT BEHIND. Its record ends at its closing session by
+  // decision, and the publisher's index does not mark a book with `closed_on`
+  // stale. Measured on the clock it still read as a book that went silent:
+  // RVB-MAKER-01's `meta.json` was last written on 2026-10-20, so every later
+  // index put a warning under its chart saying it had published no session
+  // since while the record moved on. It gets its own line instead.
+  const closedOn = summary.closed_on ?? null;
   const bookBehind =
+    closedOn === null &&
     publishedAt !== undefined &&
     meta?.published_at !== undefined &&
     !liveIsFresh(meta.published_at, publishedAt);
@@ -480,10 +489,9 @@ function BookView({
           {summary.label}
         </h1>
         <p className="mt-1.5 text-body text-fg-muted">{taglineOf(summary)}</p>
-        {summary.closed_on && (
+        {closedOn && (
           <p className="mt-1.5 text-body text-fg-muted">
-            Closed on {date(summary.closed_on)}. The book has stopped trading, and
-            its record ends at that session.
+            Closed on {date(closedOn)}. The portfolio has stopped trading.
           </p>
         )}
         {/* Le badge est une DONNEE du book, jamais une phrase en dur : celle qui
@@ -877,8 +885,15 @@ function BookView({
                 made on a book that had published nothing for five days. Where
                 the book is behind the record's own publish, the page says the
                 record stops there instead — and nothing is carried forward to
-                fill the gap. */}
-            {bookBehind ? (
+                fill the gap. A closed book is neither: its record ends at its
+                closing session, and the line says that. */}
+            {closedOn ? (
+              lastSession === closedOn ? (
+                "The record ends here, at the session the portfolio closed on."
+              ) : (
+                `The portfolio closed on ${date(closedOn)}, and its record ends at that session.`
+              )
+            ) : bookBehind ? (
               <span className="text-warn-fg">
                 This portfolio has published no session since then, while the
                 rest of the record has moved on
