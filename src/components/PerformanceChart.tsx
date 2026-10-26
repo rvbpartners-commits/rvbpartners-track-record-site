@@ -105,11 +105,14 @@ function ChartTooltip({
  */
 /** The two SPY series are two different measurements and must not share a
  *  label. `benchmark.csv` is the split- and dividend-adjusted daily total
- *  return; `benchmark_intraday.csv` is the last 5-minute price bar at each
- *  instant, with no dividend adjustment applied intraday and its own base. They
- *  disagree on a session's own move by single-digit basis points, and calling
- *  both "SPY total return" is what made that look like an error rather than two
- *  conventions. */
+ *  return; `benchmark_intraday.csv` is the last 5-minute bar at each instant,
+ *  the same adjusted level as fetched and measured from the same base (the
+ *  intraday anchor is the daily file's own level on the base date). They differ
+ *  in what a point is, a 5-minute bar against the daily close, and so disagree
+ *  on a session's own move by single-digit basis points (0 to 2 bp at each
+ *  session end on best_cagr, 19 to 23 Oct 2026); calling both "SPY total
+ *  return" is what made that look like an error rather than two
+ *  measurements. */
 const SPY_DAILY = "S&P 500 (SPY, total return, official close)";
 const SPY_INTRADAY = "S&P 500 (SPY, price, 5-minute)";
 

@@ -740,14 +740,21 @@ function BookView({
                         level when this account was funded — the same moment its
                         own curve starts from — so every account funded on the
                         same day draws the same line, and a twin funded later
-                        draws its own. */}
-                    The index line is SPY&rsquo;s 5-minute price, measured from
+                        draws its own.
+
+                        The 5-minute bars are split- and dividend-adjusted as
+                        fetched, like the daily ones. The sentence here used to
+                        give "dividends are not applied intraday" as the reason
+                        the two series part by a few basis points; they part
+                        because a 5-minute bar is not the daily close. */}
+                    The index line is SPY&rsquo;s 5-minute price, adjusted like the
+                    daily series and measured from
                     {summary.record_start
                       ? " its level at the close this account's record starts from"
                       : " its level when this account was funded"}
-                    {summary.inception ? `, ${date(summary.inception)}` : ""}.
-                    Dividends are not applied intraday, so it ends a few basis
-                    points from the daily total-return series.
+                    {summary.inception ? `, ${date(summary.inception)}` : ""}. At
+                    a session&rsquo;s close it can differ by a few basis points
+                    from the daily series in <code>benchmark.csv</code>.
                   </>
                 ) : (
                   <>
@@ -1083,8 +1090,17 @@ function BookView({
           title="Exposure"
           note={
             <>
-              Published data, computed by the desk. The instrument, venues and
-              position size are not published.
+              {/* THE VENUES ARE IN THE RECORD. RVB-MAKER-01's source export
+                  names its portfolio and its columns with abbreviations of the
+                  two platforms, and the record publishes both as they are
+                  (`source_export.portfolio` in meta.json; the `source` field
+                  of venue_a_pnl.json and venue_b_pnl.json). "Venues ... are
+                  not published" was untrue, and the desk did not compute this
+                  book's figures: its own collector did. */}
+              Published data. The instruments and position sizes are not
+              published; the venues are named, abbreviated, only in the source
+              export&rsquo;s own identifiers, which the record publishes as they
+              are.
             </>
           }
         >

@@ -456,7 +456,7 @@ export default async function MethodologyPage() {
                   },
                   {
                     k: "Intraday",
-                    v: "The last 5-minute price bar at or before each instant. No dividend adjustment, nothing interpolated between bars.",
+                    v: "The last 5-minute bar at or before each instant, adjusted like the daily series. Nothing is interpolated between bars.",
                   },
                   {
                     k: "Cash",
@@ -467,15 +467,20 @@ export default async function MethodologyPage() {
             </MarginBlock>
           }
         >
+          {/* BOTH LINES ARE ADJUSTED. Every SPY bar the desk fetches, daily and
+              5-minute, is requested split- and dividend-adjusted, and both
+              files publish that level as `spy_close`; the intraday anchor is
+              the daily file's own level on the base date. This paragraph used
+              to say the intraday line carried no dividend adjustment. */}
           <p>
-            The daily benchmark (<Em>benchmark.csv</Em>) is split- and
-            dividend-adjusted SPY total return, on the same dates as the
-            portfolio. The line on an intraday chart is SPY&rsquo;s 5-minute
-            price, the last bar at or before each instant, with no dividend
-            adjustment and nothing interpolated between bars. Both are measured
-            from SPY&rsquo;s level on the date the portfolio&rsquo;s curve
-            starts from, so every portfolio starting on the same day shows the
-            same SPY line. The two
+            The daily benchmark (<Em>benchmark.csv</Em>) is SPY total return, on
+            the same dates as the portfolio. The line on an intraday chart is
+            SPY&rsquo;s 5-minute price, the last bar at or before each instant,
+            with nothing interpolated between bars. Both are drawn from
+            SPY&rsquo;s level as fetched, split- and dividend-adjusted, which each
+            file publishes as <Em>spy_close</Em>, and both are measured from that
+            level on the date the portfolio&rsquo;s curve starts from, so every
+            portfolio starting on the same day shows the same SPY line. The two
             series can differ by a few basis points.
           </p>
           <p>
@@ -600,11 +605,25 @@ export default async function MethodologyPage() {
               a simulated fill is not identical to a live one.
             </p>
           )}
+          {/* THE CROSS-CHECK STATES ITS OWN RULE. The block compared each NAV
+              with the broker's figure for the PREVIOUS session until the
+              publisher's 2026-10-25 change; a record written since carries
+              `basis` and `session_date`, and records are never rewritten to the
+              newer rule. "Each snapshot publishes both", for one session, was
+              true of neither kind. */}
           <p>
-            Alpaca&rsquo;s account equity, the published NAV, and its daily
-            portfolio-history series are timed differently and can differ on a
-            given session. Each snapshot publishes both and the difference in
-            basis points.
+            Each paper-account snapshot also publishes the broker&rsquo;s daily
+            portfolio-history figure beside the NAV, with the difference in
+            basis points. Both are broker figures, and neither is adjusted to
+            match the other. A record carrying <Em>basis</Em> compares the
+            session it names in <Em>session_date</Em>: its own, or the one
+            before when the broker had not yet served that figure. For the same
+            session the two differ when prices move after the official close,
+            because the desk marks after it. The first records, from 19 October
+            2026, carry no <Em>basis</Em> and compare the session&rsquo;s NAV
+            with the broker&rsquo;s figure for the previous session, so their
+            difference is mostly that session&rsquo;s own return; the Monday
+            records carry no broker figure.
           </p>
           <p>
             If a session was not recorded, the series has a gap: nothing is

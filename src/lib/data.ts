@@ -453,9 +453,13 @@ export type CapitalEvents = {
 };
 
 export type BookMeta = {
-  /** SPY's unadjusted close at funding, which the publisher measures the
-   *  intraday `spy_cum` from. Present once the publisher writes it; the site
-   *  then reads the published series rather than correcting it. */
+  /** SPY's level on the date the record is measured from (the funded day, or
+   *  the base close of a record that starts later), which the publisher
+   *  measures the intraday `spy_cum` from. It is the level as fetched, split-
+   *  and dividend-adjusted like both `spy_close` columns: the paper books'
+   *  763.335 is `benchmark.csv`'s own close for 2026-10-16. Present once the
+   *  publisher writes it; the site then reads the published series rather than
+   *  correcting it. */
   benchmark_intraday_anchor?: { spy_close: number; as_of: string } | null;
   book: string;
   account_ref: string | null;
@@ -915,11 +919,12 @@ export async function getNav(book: string): Promise<NavPoint[]> {
   );
 }
 
-/** SPY's raw 5-minute price, pooled across every published book's file.
+/** SPY's 5-minute level (`spy_close`: the price as fetched, split- and
+ *  dividend-adjusted), pooled across every published book's file.
  *
  *  SPY is one instrument with one tape, so a bar is the same price whichever
  *  book's file carries it — every shared timestamp agrees across the files. What
- *  differs between them is which bars have a raw price at all: rows a one-off
+ *  differs between them is which bars have a level at all: rows a one-off
  *  publisher migration could not recover a price for kept an empty `spy_close`,
  *  and different books lost different days. Pooling fills a bar missing from one
  *  file with the same bar from another; a bar no file carries stays missing. */
@@ -940,11 +945,12 @@ async function getSpyTape(books: string[]): Promise<Map<string, number>> {
   return tape;
 }
 
-/** SPY's level when this account was funded: the first row of its daily
+/** SPY's level on the date this account's curve starts from (its funding, or
+ *  the base close of a record that starts later): the first row of its daily
  *  `benchmark.csv`, dated at inception and carrying `spy_cum` 0. It is the same
- *  moment the account's own curve is measured from (its opening capital), so the
- *  two lines on a portfolio's chart start together. A first row that is not a
- *  zero is not an anchor, and none is invented. */
+ *  moment the account's own curve is measured from, so the two lines on a
+ *  portfolio's chart start together. A first row that is not a zero is not an
+ *  anchor, and none is invented. */
 async function getSpyAnchor(book: string): Promise<number | null> {
   const text = await getText(`books/${book}/benchmark.csv`);
   if (!text) return null;
@@ -957,19 +963,19 @@ async function getSpyAnchor(book: string): Promise<number | null> {
 /** Benchmarks on the same instants as the intraday equity, so both series span
  *  the axis instead of being joined across three points.
  *
- *  THE SPY LINE IS REBASED HERE, FROM RAW PRICES, ON ONE RULE: the price at that
+ *  THE SPY LINE IS REBASED HERE, FROM THE PUBLISHED LEVELS, ON ONE RULE: the price at that
  *  bar divided by the price when the account was funded, minus one. It used to be
  *  the published `spy_cum` column, which was anchored on whichever bar happened
  *  to be first with a price when the publisher migrated the files — so four
  *  accounts funded on the same day showed three different S&P 500 returns at the
  *  same minute (16:00 ET on 11 Sept: −1.19% on two, −1.15% on two, and −1.44% on
- *  the twins, against −1.15% and −1.74% on this rule). The raw price was right in
+ *  the twins, against −1.15% and −1.74% on this rule). The level was right in
  *  every file; only the base was not. The data repository's README gives the
  *  remedy itself: rebase `spy_close` for any other anchor.
  *
  *  Accounts funded on the same day now draw the identical line. A capital twin,
  *  funded later at a different SPY level, draws a different one — correctly, it
- *  measures a different window. A bar with no raw price in any file draws no
+ *  measures a different window. A bar with no level in any file draws no
  *  index point rather than an estimated one, and a book that publishes no equity
  *  benchmark at an instant (empty `spy_cum`) still draws none. */
 export async function getBenchmarkIntraday(

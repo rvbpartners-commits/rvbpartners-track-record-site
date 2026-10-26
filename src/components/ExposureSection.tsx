@@ -14,8 +14,11 @@ import { duration } from "@/lib/format";
  * The question that does apply: how much of the time is this book exposed, and
  * was it exposed at the last close. Every figure below is published data.
  *
- * The instrument, the venues and the size are not here, and will not be: they
- * are the strategy.
+ * The instruments and the sizes are not here, and will not be: they are the
+ * strategy. The venues are not shown either, but they are not secret: the
+ * source export's own identifiers, which the record publishes as they are,
+ * abbreviate the two platforms' names (`source_export.portfolio` in meta.json,
+ * and the `source` field of venue_a_pnl.json and venue_b_pnl.json).
  */
 export function ExposureSection({ exposure }: { exposure: Exposure }) {
   const flat = exposure.sessions_flat_at_close;
