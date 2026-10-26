@@ -963,8 +963,9 @@ async function getSpyAnchor(book: string): Promise<number | null> {
 /** Benchmarks on the same instants as the intraday equity, so both series span
  *  the axis instead of being joined across three points.
  *
- *  THE SPY LINE IS REBASED HERE, FROM THE PUBLISHED LEVELS, ON ONE RULE: the price at that
- *  bar divided by the price when the account was funded, minus one. It used to be
+ *  THE SPY LINE IS REBASED HERE, FROM THE PUBLISHED LEVELS, ON ONE RULE: the
+ *  price at that bar divided by the price when the account was funded, minus
+ *  one. It used to be
  *  the published `spy_cum` column, which was anchored on whichever bar happened
  *  to be first with a price when the publisher migrated the files — so four
  *  accounts funded on the same day showed three different S&P 500 returns at the
