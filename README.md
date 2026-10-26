@@ -16,8 +16,9 @@ so a route cannot appear in one and be forgotten in the others.
 
 > **Paper accounts and real capital.** Some portfolios in this record are
 > broker-simulated paper accounts, in which no capital is at risk and fills are
-> simulated; others trade the firm's own real capital. Each portfolio's page
-> states which it is, and the site reads that from `account_kind` rather than
+> simulated; one, RVB-MAKER-01, traded the firm's own capital until it closed on
+> 16 October 2026. Each portfolio's page states which it is, and the site reads
+> that from `account_kind`, and a closure from `closed_on`, rather than
 > asserting it. No third-party money is managed. Past performance is not
 > indicative of future results. Nothing here is investment advice.
 
@@ -40,9 +41,10 @@ figure.
 ## Stack
 
 Next.js, Tailwind, Recharts, deployed on Vercel. Pages render per request and
-fetch the public repository with `no-store`, memoised for 60 seconds; the desk
-publishes every 15 minutes during the session. **No environment variables and no
-secrets** — reading a public repository needs no credential.
+fetch the public repository with `no-store`, memoised for 60 seconds; the desk's
+publisher runs every five minutes, around the clock, and commits only when the
+published content has changed. **No environment variables and no secrets** —
+reading a public repository needs no credential.
 
 ```bash
 npm install
