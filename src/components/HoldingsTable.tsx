@@ -7,9 +7,15 @@ import { money, qty, signedPct } from "@/lib/format";
 /**
  * Holdings by strategy category, expandable.
  *
- * P&L is a category total, never a per-symbol line. A holding with no same-day
- * mark counts toward cost basis only and flags its group partial, rather than
- * being valued at a borrowed price.
+ * Open P&L is printed per category, which is how the desk publishes it. It is
+ * not hidden per position: each position row publishes its quantity, average
+ * price and mark, so its open P&L is quantity × (mark − average price), and the
+ * category figure is the sum over its rows that have a mark (checked against
+ * every paper book's detail file of 2026-10-22, to the cent). The position's
+ * own cell carries the absence marker because no per-position figure is
+ * published, and the section note states the derivation instead. A holding
+ * with no same-day mark counts toward cost basis only and flags its group
+ * partial, rather than being valued at a borrowed price.
  *
  * THE "SHARE" COLUMN IS GONE. It divided each group's signed net cost basis by
  * the signed sum of them all, so a book with a short sleeve printed shares of
@@ -149,7 +155,8 @@ export function HoldingsTable({
                           ? "no mark"
                           : money(p.qty * p.mark, currency, 0)}
                       </td>
-                      {/* No per-symbol P&L, by design. */}
+                      {/* No per-position P&L field is published; it follows
+                          from this row, as the section note says. */}
                       <td className="py-2 text-right text-fg-faint">—</td>
                     </tr>
                   ))}

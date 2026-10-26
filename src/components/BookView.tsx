@@ -1098,10 +1098,12 @@ function BookView({
         note={
           <>
             Positions are grouped by the category of strategy holding them;
-            individual strategies are not named. Each position shows its
-            quantity, cost basis and mark. Profit and loss by category is an
-            attribution model, while the account equity above is read from the
-            broker.
+            individual strategies are not named. Each position is published
+            with its quantity, average price and mark: its open profit and loss
+            is its value at the mark less its cost basis, and a
+            category&rsquo;s figure is the sum over its positions that have a
+            mark. Profit and loss by category is an attribution model, while
+            the account equity above is read from the broker.
           </>
         }
       >
