@@ -540,8 +540,9 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             title="A record cannot have been written later than its proof"
             body={
               <>
-                Each snapshot has an OpenTimestamps proof beside it, anchored in
-                the Bitcoin blockchain. Run{" "}
+                Each snapshot has an OpenTimestamps proof beside it, which gains
+                its Bitcoin block normally within hours of publication and is
+                reported as pending until then. Run{" "}
                 <Code>ots verify &lt;file&gt;.ots</Code>. A proof establishes
                 that the file existed no later than the block it is anchored in.
                 The Recorded column in the table below is the chain&rsquo;s own{" "}
