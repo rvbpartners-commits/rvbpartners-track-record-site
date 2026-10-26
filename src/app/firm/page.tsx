@@ -108,7 +108,7 @@ export default async function FirmPage() {
             A real broker account trading live market prices with simulated
             money: the orders and fills are the broker&rsquo;s, the money is
             not. Each portfolio&rsquo;s page states whether its account is a
-            paper account or trades the firm&rsquo;s own capital.
+            paper account or real capital.
           </Term>
 
           <Term id="marked" term="Marked">
@@ -133,10 +133,13 @@ export default async function FirmPage() {
 
           <Term id="attributed" term="Attributed">
             A per-strategy or per-category figure that is modelled rather than
-            measured. The broker nets the desk&rsquo;s orders, so each net fill
-            is attributed back to the strategies that contributed to it,
-            pro-rata by requested size. Account-level figures are read from the
-            broker and do not depend on the attribution.
+            measured: each fill is attributed to the strategies that own the
+            order it filled, by the rule set out under{" "}
+            <Link href="/methodology#attribution" className="text-accent hover:underline">
+              methodology
+            </Link>
+            . Account-level figures are read from the broker and do not depend
+            on the attribution.
           </Term>
         </dl>
       </Section>

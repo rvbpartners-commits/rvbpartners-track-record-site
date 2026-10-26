@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/data";
+import { CONTACT_EMAIL, LINKEDIN_URL, type LiveClosed } from "@/lib/data";
 import { navGroup, type NavItem } from "@/lib/nav";
 import { AccountDisclosure } from "./AccountDisclosure";
 
@@ -47,12 +47,16 @@ import { AccountDisclosure } from "./AccountDisclosure";
 export function Footer({
   hasLive,
   hasPaper,
+  liveClosed,
   hasResearch,
 }: {
   hasLive: boolean;
   /** Both flags, because "no paper account is published" is a state the site
    *  must be able to say — see `publishedKinds`. */
   hasPaper: boolean;
+  /** Set once every real-capital portfolio has closed, so the statement says
+   *  "traded" rather than "trade" — see `publishedKinds`. */
+  liveClosed: LiveClosed | null;
   /** Gates `/selection` in the footer exactly as it is gated in the masthead
    *  and in the sitemap. A footer that links a page rendering nothing is the
    *  reason the gate now lives in one file. */
@@ -83,7 +87,7 @@ export function Footer({
       </div>
 
       <div className="mx-auto max-w-[var(--column)] w-full px-5 sm:px-8 lg:px-12 py-10">
-        <AccountDisclosure hasLive={hasLive} hasPaper={hasPaper} />
+        <AccountDisclosure hasLive={hasLive} hasPaper={hasPaper} liveClosed={liveClosed} />
         {/* The line directly under the account statement, in the same
            measure as it: two disclaimers stacked with different right edges
            look like one of them was cut off. */}

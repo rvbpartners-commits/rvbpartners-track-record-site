@@ -12,7 +12,7 @@ import {
   getFeedByAccountKind,
   getIndex,
 } from "@/lib/data";
-import { NO_VALUE } from "@/lib/format";
+import { NO_VALUE, date } from "@/lib/format";
 
 // Rendered per request. A static prerender plus framework caching left the
 // site serving data hours old with no way for traffic to clear it; the data
@@ -80,6 +80,13 @@ export default async function MethodologyPage() {
   // to sit here counted "four Alpaca paper accounts" and was wrong by three
   // books and one account kind; nothing on this page counts anything now.
   const realCapital = (index?.books ?? []).filter((b) => b.capital_at_risk);
+  // And whether that money is still at work. Once every one of them carries
+  // `closed_on` the sentence is in the past tense, with the latest closing
+  // date: RVB-MAKER-01 closed on 16 Oct 2026, and "trades" was false after it.
+  const realClosedOn =
+    realCapital.length > 0 && realCapital.every((b) => b.closed_on)
+      ? realCapital.map((b) => b.closed_on as string).sort()[realCapital.length - 1]
+      : null;
   // The chain header as published: a count the publisher wrote, read out and
   // printed, never a length measured here. Absent with the index unread, and
   // the margin figure then does not render at all rather than showing a zero.
@@ -207,10 +214,19 @@ export default async function MethodologyPage() {
           {realCapital.length > 0 && (
             <p>
               {realCapital.length === 1
-                ? "One portfolio on this site trades"
-                : "Some portfolios on this site trade"}{" "}
-              the firm&rsquo;s own capital, on two venues and a calendar of its
-              own. Where{" "}
+                ? "One portfolio on this site"
+                : "Some portfolios on this site"}{" "}
+              {realClosedOn
+                ? "traded"
+                : realCapital.length === 1
+                  ? "trades"
+                  : "trade"}{" "}
+              the firm&rsquo;s own capital, on two venues and a calendar of{" "}
+              {realCapital.length === 1 ? "its" : "their"} own
+              {realClosedOn
+                ? `, until ${realCapital.length === 1 ? "it" : "the last of them"} closed on ${date(realClosedOn)}`
+                : ""}
+              . Where{" "}
               {realCapital.length === 1 ? "its" : "their"} conventions differ from
               the paper accounts&rsquo; (the calendar, the grid the cash line
               accrues on, and the unit annualised statistics are counted in), they
@@ -392,18 +408,25 @@ export default async function MethodologyPage() {
                   },
                   {
                     k: "Per strategy",
-                    v: "Each net fill attributed back pro-rata by requested size.",
+                    v: "Each fill attributed to the owners of the order it filled.",
                   },
                 ]}
               />
             </MarginBlock>
           }
         >
+          {/* THE OWNERS RULE, in force since 14 Sept 2026. The pro-rata rule this
+              paragraph described split a fill across every strategy on the
+              symbol; the published methodology and disclosure state the rule
+              below, and so does this page. */}
           <p>
             Account-level figures are exact: broker equity and broker fills.
-            Per-strategy figures are an attributed model: the broker nets the
-            desk&rsquo;s orders, so each net fill is attributed back to the
-            strategies that contributed to it, pro-rata by requested size.
+            Per-strategy figures are an attributed model. The broker holds one
+            net position per symbol, so they come from the desk&rsquo;s own
+            order record: every order is written with its owners before it is
+            submitted, and a fill goes to the owners of the order it filled, in
+            proportion to what each requested, never to a strategy that merely
+            shares the symbol.
           </p>
           <p>
             The per-category contributions in <Em>attributed.csv</Em> are

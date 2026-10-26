@@ -5,8 +5,8 @@ import { Next } from "@/components/Next";
 import { PipelineRail } from "@/components/PipelineRail";
 import { Note } from "@/components/Note";
 import { Section } from "@/components/Section";
-import { SITE_ORIGIN, getIndex, getResearch } from "@/lib/data";
-import { NO_VALUE } from "@/lib/format";
+import { SITE_ORIGIN, getIndex, getResearch, publishedKinds } from "@/lib/data";
+import { NO_VALUE, date } from "@/lib/format";
 
 /**
  * WHAT THE FIRM OPTIMISES FOR, AND HOW A RESULT BECOMES A PORTFOLIO.
@@ -26,10 +26,13 @@ import { NO_VALUE } from "@/lib/format";
  * to introduce anything new. If a line here is not evidenced by a page this
  * site already publishes, it does not belong on it.
  *
- * MARKETS ARE SPLIT IN TWO, DELIBERATELY. What is traded today is a fact the
+ * MARKETS ARE SPLIT IN TWO, DELIBERATELY. What the record covers is a fact the
  * portfolios page can be checked against; what the firm is building towards is
  * an intention. Printing them in one list would make the second read as the
  * first, which is the single most common way a firm's site stops being true.
+ * The first list said "what is traded today" until RVB-MAKER-01, the only
+ * crypto account in the record, closed on 16 Oct 2026; its line now reads the
+ * closure from the index.
  */
 export const dynamic = "force-dynamic";
 
@@ -37,8 +40,8 @@ export const metadata: Metadata = {
   title: "Approach",
   description:
     "How RVB Partners builds systematic strategies: what it optimises for " +
-    "beyond return, how a result becomes a portfolio, and which markets it " +
-    "trades today.",
+    "beyond return, how a result becomes a portfolio, and which markets its " +
+    "record covers.",
   alternates: { canonical: `${SITE_ORIGIN}/approach` },
 };
 
@@ -148,6 +151,7 @@ const PIPELINE: { n: string; name: string; body: string }[] = [
 export default async function ApproachPage() {
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
   const books = index?.books ?? [];
+  const { liveClosed } = publishedKinds(books);
   const trials = research?.search?.recorded_trials ?? null;
   const presented = research?.catalogue?.presented_folders ?? null;
 
@@ -160,7 +164,7 @@ export default async function ApproachPage() {
         <p className="mt-3 text-body text-fg-muted leading-relaxed">
           RVB builds diversified portfolios of systematic strategies. This page
           sets out the standards a result is held to, how an idea becomes a
-          funded account, and which markets the firm trades today. Each section
+          funded account, and which markets its record covers. Each section
           links to the page where the claim can be checked.
         </p>
       </header>
@@ -282,7 +286,7 @@ export default async function ApproachPage() {
           id="markets"
           wide
           title="Markets"
-          gloss="What is traded today, and what is not."
+          gloss="What the record covers, and what comes next."
           note={
             <>
               The first list can be checked against the published accounts. The
@@ -298,7 +302,14 @@ export default async function ApproachPage() {
               </h3>
               <ul className="mt-3 border-t hairline">
                 <Market name="US markets" what="Equities and ETFs, on paper accounts at a US broker." />
-                <Market name="Crypto" what="Including the portfolio that trades the firm's own real capital." />
+                <Market
+                  name="Crypto"
+                  what={
+                    liveClosed
+                      ? `Traded with the firm’s own capital in the real-capital portfolio, until it closed on ${date(liveClosed.on)}.`
+                      : "Including the portfolio that trades the firm’s own real capital."
+                  }
+                />
               </ul>
               <p className="mt-3 text-caption leading-relaxed text-fg-muted">
                 Every account behind these is listed, with its kind and its

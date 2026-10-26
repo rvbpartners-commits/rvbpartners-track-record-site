@@ -42,7 +42,7 @@ export async function Shell({ children }: { children: ReactNode }) {
   // payload for the same reason the footer disclosure is: a standing claim about
   // what the accounts ARE cannot be a constant once one of them changes.
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
-  const { hasLive, hasPaper } = publishedKinds(index?.books ?? []);
+  const { hasLive, hasPaper, liveClosed } = publishedKinds(index?.books ?? []);
   const hasResearch = research !== null;
   const nav = mastheadNav(hasResearch).map(({ href, label }) => ({ href, label }));
 
@@ -176,7 +176,12 @@ export async function Shell({ children }: { children: ReactNode }) {
       >
         {children}
       </main>
-      <Footer hasLive={hasLive} hasPaper={hasPaper} hasResearch={hasResearch} />
+      <Footer
+        hasLive={hasLive}
+        hasPaper={hasPaper}
+        liveClosed={liveClosed}
+        hasResearch={hasResearch}
+      />
     </div>
   );
 }

@@ -781,15 +781,33 @@ export function paperRecordStart(books: BookSummary[]): string | null {
  *  their first session.
  *
  *  Derived from `accountKind` so the two answers cannot disagree with the
- *  account label printed on each row. */
+ *  account label printed on each row.
+ *
+ *  `liveClosed` says whether the real money is still at work. RVB-MAKER-01
+ *  closed on 16 Oct 2026, and every sentence built on `hasLive` alone went on
+ *  saying that portfolios here "trade the firm's own capital" after none did.
+ *  It is set only when EVERY real-capital book carries `closed_on`, with their
+ *  number and the latest closing date; one that still trades leaves it null. */
+export type LiveClosed = { count: number; on: string };
+
 export function publishedKinds(books: BookSummary[]): {
   hasLive: boolean;
   hasPaper: boolean;
+  liveClosed: LiveClosed | null;
 } {
   const kinds = books.map(accountKind);
+  const live = books.filter((b) => accountKind(b) === "real_capital");
+  const closedOn = live
+    .map((b) => b.closed_on)
+    .filter((d): d is string => typeof d === "string" && d.length > 0)
+    .sort();
   return {
     hasLive: kinds.includes("real_capital"),
     hasPaper: kinds.includes("paper"),
+    liveClosed:
+      live.length > 0 && closedOn.length === live.length
+        ? { count: live.length, on: closedOn[closedOn.length - 1] }
+        : null,
   };
 }
 

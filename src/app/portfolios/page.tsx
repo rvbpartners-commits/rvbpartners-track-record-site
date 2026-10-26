@@ -153,7 +153,7 @@ export default async function Portfolios() {
   // DERIVED, NOT ASSERTED. The account-kind sentence below rewrites itself from
   // the same filtered index this table lists from, so a book withheld from the
   // site cannot leave the prose describing an account no page can show.
-  const { hasLive, hasPaper } = publishedKinds(books);
+  const { hasLive, hasPaper, liveClosed } = publishedKinds(books);
   const paperStart = paperRecordStart(books);
 
   // ── THE OVERVIEW CURVE ────────────────────────────────────────────────────
@@ -404,7 +404,13 @@ export default async function Portfolios() {
             DERIVED from the portfolios listed below it, so with none there is
             nothing it can honestly say, and the failure is reported once in the
             section that was going to hold the figures. */}
-        {loaded && <AccountDisclosureText hasLive={hasLive} hasPaper={hasPaper} />}
+        {loaded && (
+          <AccountDisclosureText
+            hasLive={hasLive}
+            hasPaper={hasPaper}
+            liveClosed={liveClosed}
+          />
+        )}
       </Section>
 
       {/* ─── THE RECORD ──────────────────────────────────────────────────

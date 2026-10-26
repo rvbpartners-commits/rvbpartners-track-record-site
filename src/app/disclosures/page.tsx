@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Next } from "@/components/Next";
 import { Section } from "@/components/Section";
-import { slugLabel } from "@/lib/format";
+import { date, slugLabel } from "@/lib/format";
 import {
   CONTACT_EMAIL,
   REPO_URL,
   SITE_ORIGIN,
   getFeedByAccountKind,
   getIndex,
+  publishedKinds,
   type BookSummary,
+  type LiveClosed,
 } from "@/lib/data";
 
 // Rendered per request. A static prerender plus framework caching left the
@@ -37,7 +39,12 @@ function kindOf(b: BookSummary): string {
   return b.account_kind ?? (b.capital_at_risk ? "real_capital" : "paper");
 }
 
-type Context = { gate: number | null; lagDays: number | null };
+type Context = {
+  gate: number | null;
+  lagDays: number | null;
+  /** Set once every real-capital portfolio has closed. */
+  liveClosed: LiveClosed | null;
+};
 
 /**
  * The firm's wording for each published disclosure, keyed by the id the data
@@ -53,8 +60,14 @@ const COPY: Record<string, { title: string; body: (c: Context) => string }> = {
   },
   real_capital_account: {
     title: "Real capital",
-    body: () =>
-      "One portfolio trades the firm’s own capital, with fills executed on its venues. The firm manages no third-party money. The capital is published beside the return, since a return on a smaller account does not scale directly to a larger one: costs do not scale with size.",
+    body: ({ liveClosed }) =>
+      `${
+        liveClosed === null
+          ? "One portfolio trades the firm’s own capital, with fills executed on its venues."
+          : liveClosed.count === 1
+            ? `One portfolio traded the firm’s own capital, with fills executed on its venues, until it closed on ${date(liveClosed.on)}; its record ends at that session.`
+            : `Some portfolios traded the firm’s own capital, with fills executed on their venues, until they closed, the last on ${date(liveClosed.on)}; each record ends at its closing session.`
+      } The firm manages no third-party money. The capital is published beside the return, since a return on a smaller account does not scale directly to a larger one: costs do not scale with size.`,
   },
   not_advice: {
     title: "Past performance",
@@ -64,7 +77,7 @@ const COPY: Record<string, { title: string; body: (c: Context) => string }> = {
   attributed_returns: {
     title: "Per-strategy figures",
     body: () =>
-      "Account-level equity and returns are read from the broker’s account. Per-strategy figures are modelled: the broker nets the desk’s orders, so each net fill is attributed back to the strategies that contributed to it, pro-rata by requested size. A different attribution rule would give different per-strategy figures from the same fills.",
+      "For the paper portfolios, account-level equity and returns are read from the broker’s account. Per-strategy figures are modelled: the broker holds one net position per symbol, so each fill is attributed to the owners of the order it filled, shared among them in proportion to what each requested; a strategy that merely shares the symbol gets none. A different attribution rule would give different per-strategy figures from the same fills.",
   },
   short_history: {
     title: "Annualised statistics",
@@ -90,7 +103,7 @@ const COPY: Record<string, { title: string; body: (c: Context) => string }> = {
   strategy_identity: {
     title: "Strategy categories",
     body: () =>
-      "Positions and attribution are grouped by strategy category, such as mean reversion, momentum, trend following or seasonal, rather than by individual strategy. The identity and logic of each strategy are not published.",
+      "Positions and attribution are grouped by strategy category, such as mean reversion, momentum, trend following or seasonal, rather than by individual strategy. Where a category holds a single strategy, its weight and attribution are that strategy’s. The identity and logic of each strategy are not published.",
   },
   not_gips: {
     title: "GIPS",
@@ -115,6 +128,7 @@ export default async function DisclosuresPage() {
         : null,
     lagDays:
       typeof index?.detail_lag_days === "number" ? index.detail_lag_days : null,
+    liveClosed: publishedKinds(books).liveClosed,
   };
 
   return (

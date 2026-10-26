@@ -61,7 +61,7 @@ export default async function Home() {
   const [index, research] = await Promise.all([getIndex(), getResearch()]);
 
   const books = index?.books ?? [];
-  const { hasLive, hasPaper } = publishedKinds(books);
+  const { hasLive, hasPaper, liveClosed } = publishedKinds(books);
 
   const tested = research?.search?.strategies_researched ?? null;
   const backtests = research?.search?.recorded_trials ?? null;
@@ -316,7 +316,11 @@ export default async function Home() {
             </p>
           ) : null}
           <div className={hasPaper ? "lg:border-l hairline lg:pl-16" : ""}>
-            <AccountDisclosureText hasLive={hasLive} hasPaper={hasPaper} />
+            <AccountDisclosureText
+              hasLive={hasLive}
+              hasPaper={hasPaper}
+              liveClosed={liveClosed}
+            />
           </div>
         </div>
 
