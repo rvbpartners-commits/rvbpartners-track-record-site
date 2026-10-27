@@ -1042,8 +1042,14 @@ function BookView({
         note={
           <>
             Computed by the firm&rsquo;s metrics module and published as data.
+            {/* A CLOSED RECORD IS NOT WAITING FOR ITS FIGURES (2026-10-27).
+                RVB-MAKER-01 closed at 37 of the 60 sessions the gate needs, so the
+                promise below would be false for it on every render: a closed book
+                keeps its withheld figures withheld and says nothing more here. */}
             {gate ? (
-              " Annualised figures are added here once they are published."
+              closedOn
+                ? null
+                : " Annualised figures are added here once they are published."
             ) : (
               <>
                 {" "}Sharpe, Sortino and Calmar are measured in excess of the

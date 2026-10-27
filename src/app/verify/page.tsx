@@ -184,8 +184,20 @@ export default async function VerifyPage({
   // is nothing to draw and the margin carries the note alone.
   const byHash = new Map(chain.map((e) => [e.hash, e] as const));
   // Drawn from the portfolio with the longest chain, so the example is a full
-  // record rather than whichever book happened to publish last.
-  const longest = [...ordered].sort((a, b) => countOf(b) - countOf(a))[0];
+  // record rather than whichever book happened to publish last — among the books
+  // still OPEN first. The longest chain was RVB-MAKER-01's, closed on 16 Oct 2026
+  // with 37 records against the paper books' 6, so the drawing sat on its last
+  // record while the record moved on, under a caption saying it follows the newest
+  // session (2026-10-27). A closed book is drawn only when no open one can be, and
+  // the caption then says the chain has ended.
+  const closedBooks = new Set(
+    (index?.books ?? []).filter((b) => b.closed_on).map((b) => b.book),
+  );
+  const longest = [...ordered].sort(
+    (a, b) =>
+      Number(closedBooks.has(a)) - Number(closedBooks.has(b)) ||
+      countOf(b) - countOf(a),
+  )[0];
   const linked =
     entries.find((e) => e.book === longest && byHash.has(e.prev_hash)) ??
     entries.find((e) => byHash.has(e.prev_hash)) ??
@@ -495,6 +507,7 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             genesis={genesisFor(linked.book)}
             label={labelFor(linked.book)}
             records={countOf(linked.book)}
+            closed={closedBooks.has(linked.book)}
           />
         </Section>
       )}

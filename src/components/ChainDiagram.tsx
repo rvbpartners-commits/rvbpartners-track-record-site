@@ -18,8 +18,9 @@ import { date, shortHash } from "@/lib/format";
  *
  * IT IS READ OFF THE CHAIN ON EVERY REQUEST, never typed. The page already
  * resolves the newest record whose `prev_hash` matches a published `hash`, that
- * record's predecessor, and the book's first entry. Publish a session and this
- * drawing moves to it on the next render; nothing here has to be remembered.
+ * record's predecessor, and the book's first entry. Publish a session and the
+ * drawing of an open portfolio moves to it on the next render; nothing here has to
+ * be remembered. A closed portfolio's chain has ended, and the caption says so.
  *
  * The monospace is the point in exactly two places — the linked pair — because
  * those are strings a reader compares character by character. Everything else
@@ -31,6 +32,7 @@ export function ChainDiagram({
   genesis,
   label,
   records,
+  closed = false,
 }: {
   /** The newest record whose `prev_hash` resolves to a published `hash`. */
   head: ChainEntry;
@@ -41,6 +43,10 @@ export function ChainDiagram({
   label: string;
   /** How many records this portfolio's chain carries. */
   records: number;
+  /** The portfolio is closed (`closed_on` in the index): its chain has ended, and
+   *  no later session will move the drawing. The page draws an open portfolio
+   *  whenever one can be drawn; this keeps the caption true when none can. */
+  closed?: boolean;
 }) {
   // Oldest first. A two-record chain resolves genesis and prev to the same
   // entry; drawing it twice would invent a link that is not there.
@@ -77,8 +83,10 @@ export function ChainDiagram({
         number cannot be edited and a session cannot be dropped without breaking
         every record after it. This portfolio&rsquo;s chain carries{" "}
         <span className="tnum text-fg">{records}</span> records; the drawing is
-        read from the published chain on every request, so it moves to the
-        newest session as soon as one is published.
+        read from the published chain on every request
+        {closed
+          ? ", and the chain ended when the portfolio closed."
+          : ", so it moves to the newest session as soon as one is published."}
       </figcaption>
     </figure>
   );
