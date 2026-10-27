@@ -610,7 +610,19 @@ export default async function MethodologyPage() {
               publisher's 2026-10-25 change; a record written since carries
               `basis` and `session_date`, and records are never rewritten to the
               newer rule. "Each snapshot publishes both", for one session, was
-              true of neither kind. */}
+              true of neither kind.
+
+              WHAT AN OLD-RULE DIFFERENCE IS MADE OF (2026-10-27). "Mostly that
+              session's own return" came from a median and read as an account of
+              every record; recomputed from the published snapshots and nav.csv,
+              each such difference is exactly the session's return compounded
+              with the previous session's own NAV-vs-broker gap, and the gap is
+              the larger term on 7 of the 24 records that carry a figure — five of
+              them the 21 October records, after 20 October's after-close move.
+              Those records also begin with each chain's 16 October base record,
+              not on 19 October. No end date is given: a record is written under
+              the old rule until the publishing box runs the new code, and each
+              record states its own rule. */}
           <p>
             Each paper-account snapshot also publishes the broker&rsquo;s daily
             portfolio-history figure beside the NAV, with the difference in
@@ -619,11 +631,14 @@ export default async function MethodologyPage() {
             session it names in <Em>session_date</Em>: its own, or the one
             before when the broker had not yet served that figure. For the same
             session the two differ when prices move after the official close,
-            because the desk marks after it. The first records, from 19 October
-            2026, carry no <Em>basis</Em> and compare the session&rsquo;s NAV
+            because the desk marks after it. The first records, from the
+            16 October 2026 record that opens each paper portfolio&rsquo;s
+            chain, carry no <Em>basis</Em> and compare the session&rsquo;s NAV
             with the broker&rsquo;s figure for the previous session, so their
-            difference is mostly that session&rsquo;s own return; the Monday
-            records carry no broker figure.
+            difference is that session&rsquo;s own return compounded with the
+            previous session&rsquo;s own difference between the two figures: on
+            five of the six 21 October records, 20 October&rsquo;s after-close
+            move is the larger part. The Monday records carry no broker figure.
           </p>
           <p>
             If a session was not recorded, the series has a gap: nothing is
