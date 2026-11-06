@@ -605,6 +605,33 @@ export type ChainEntry = {
   hash: string;
 };
 
+/** The records that joined a book's chain after the fact, and the day they
+ *  joined when it is one day.
+ *
+ *  A record is LATE when it joined more than a day after its session: a record
+ *  written the morning after a close is the ordinary cycle (the real-capital
+ *  book's day ends at 21:00 UTC, and the $100k twins publish after midnight
+ *  UTC). Every record that shares its `ts` with a late one joined the chain in
+ *  the same act and is counted with it. Counting by lag alone put five beside a
+ *  sentence saying they were added on 24 Oct 2026, when that act added six: the
+ *  23 October record was one day old and fell under the threshold. And /verify
+ *  counted every record whose `ts` fell on another UTC day, which is all 37 of
+ *  RVB-MAKER-01's, against the portfolio page's count for the same book. Both
+ *  pages now count here. Selection over published fields; nothing is derived. */
+export function lateRecords(entries: ChainEntry[]): {
+  late: ChainEntry[];
+  recordedOn: string | null;
+} {
+  const DAY_MS = 86_400_000;
+  const lag = (e: ChainEntry) =>
+    Date.parse(`${e.ts.slice(0, 10)}T00:00:00Z`) -
+    Date.parse(`${e.session_date}T00:00:00Z`);
+  const acts = new Set(entries.filter((e) => lag(e) > DAY_MS).map((e) => e.ts));
+  const late = entries.filter((e) => acts.has(e.ts));
+  const days = new Set(late.map((e) => e.ts.slice(0, 10)));
+  return { late, recordedOn: days.size === 1 ? [...days][0] : null };
+}
+
 /**
  * The fields this site reads out of a write-once chained snapshot.
  *

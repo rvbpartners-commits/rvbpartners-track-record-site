@@ -53,8 +53,9 @@ export type BookBundle = {
   daily: DailyPoint[];
   /** What this book's own chain entries say about WHEN the record was written.
    *
-   *  `backfilled` counts records whose chain timestamp falls on a different day
-   *  from the session they describe. It is the single most damaging thing a
+   *  `backfilled` counts records that joined the chain more than a day after
+   *  the session they describe, with every record chained in the same act
+   *  (lateRecords in lib/data). It is the single most damaging thing a
    *  sceptic can find unaided — a genesis entry dated after the record begins
    *  looks like a rewrite — and it is entirely benign once stated, because the
    *  chain publishes the recording date for every entry. Null when the chain

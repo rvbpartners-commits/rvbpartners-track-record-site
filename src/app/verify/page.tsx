@@ -14,6 +14,7 @@ import {
   getIndex,
   getMeta,
   getSupersededChain,
+  lateRecords,
 } from "@/lib/data";
 import { NO_VALUE, date, dateTime, prose, shortHash } from "@/lib/format";
 
@@ -134,12 +135,11 @@ export default async function VerifyPage({
   // a reader to notice a genesis entry dated after the record begins.
   const backfilledFor = (book: string) => {
     const rows = chain.filter((e) => e.book === book);
-    const late = rows.filter((e) => e.ts.slice(0, 10) !== e.session_date);
-    const days = new Set(late.map((e) => e.ts.slice(0, 10)));
+    const { late, recordedOn } = lateRecords(rows);
     return {
       records: rows.length,
       late: late.length,
-      onOneDay: days.size === 1 ? [...days][0] : null,
+      onOneDay: recordedOn,
     };
   };
 

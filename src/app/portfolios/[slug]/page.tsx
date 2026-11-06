@@ -18,6 +18,7 @@ import {
   getMeta,
   getNav,
   getSnapshot,
+  lateRecords,
   paperRecordStart,
 } from "@/lib/data";
 import { date, dateTime } from "@/lib/format";
@@ -97,17 +98,9 @@ export default async function Portfolio({
   // This book's own entries, oldest first, and what they say about WHEN the
   // record was written as against when it happened.
   const entries = chain.filter((e) => e.book === summary.book);
-  // Recorded more than a day after its session. A record written the morning
-  // after a close (the real-capital book's day ends at 21:00 UTC) is the normal
-  // cycle, not a backfill.
-  const DAY_MS = 86_400_000;
-  const backfilled = entries.filter(
-    (e) =>
-      Date.parse(`${e.ts.slice(0, 10)}T00:00:00Z`) -
-        Date.parse(`${e.session_date}T00:00:00Z`) >
-      DAY_MS,
-  );
-  const recordedOn = new Set(backfilled.map((e) => e.ts.slice(0, 10)));
+  // Recorded after the fact: more than a day after its session, or in the same
+  // act as a record that was (see lateRecords).
+  const { late: backfilled, recordedOn } = lateRecords(entries);
   const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null;
   // The final chained record itself. The page prints a headline and asserts it
   // is the chained one; on at least one book those are different numbers, and
@@ -132,7 +125,7 @@ export default async function Portfolio({
             // Named only when every late record joined on ONE day, which is
             // what a chain restart looks like. Several dates is an ordinary
             // trickle of backfills and gets a count without a date.
-            recordedOn: recordedOn.size === 1 ? [...recordedOn][0] : null,
+            recordedOn,
           }
         : null,
     lastSnapshot,
