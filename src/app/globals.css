@@ -60,9 +60,12 @@
   --bg-raised: #f0f0ef;
   --fg: #0a0a0a;
   --fg-muted: #4a4a48;
-  /* 4.6:1 on white — this token carries captions and withheld markers, which
-     is exactly the text a reader must not have to squint at. */
-  --fg-faint: #757471;
+  /* This token carries captions and withheld markers, which is exactly the
+     text a reader must not have to squint at, and it sits on every light
+     ground: 5.4:1 on white, 5.0:1 on --bg-subtle and --warn-bg, 4.7:1 on
+     --bg-raised (the chart tooltips and the portfolio menu). #757471 was 4.6:1
+     on white and 4.1:1 on --bg-raised, under WCAG AA's 4.5:1. */
+  --fg-faint: #6b6a67;
   --hairline: #e2e1de;
   /* Returns keep their sign in colour, but muted: a saturated green on white
      is a dashboard, and four saturated lines on one plot is a chart nobody can
