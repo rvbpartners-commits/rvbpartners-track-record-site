@@ -377,21 +377,32 @@ export default async function VerifyPage({
       >
         <p className="text-small text-fg-muted leading-relaxed">
           The first command copies the whole published record. The second
-          re-hashes every file the chain lists, compares each hash with the
-          chain&rsquo;s record of it, and follows each portfolio&rsquo;s{" "}
-          <Code>prev_hash</Code> back to its first record. It needs only{" "}
-          <Code>git</Code> and <Code>python</Code>.
+          re-hashes every file the chain lists against the chain&rsquo;s record
+          of it, recomputes each record&rsquo;s own <Code>hash</Code> from its
+          content, and follows each portfolio&rsquo;s <Code>prev_hash</Code>{" "}
+          back to its first record. It needs only <Code>git</Code> and{" "}
+          <Code>python3</Code>.
         </p>
+        {/* THE CONTENT HASH IS CHECK 1, and the command used to skip it: it
+            compared each file with its CHAIN line and followed prev_hash, so a
+            record whose NAV was edited, with its CHAIN line rehashed to match,
+            still printed "chain ok". The canonical form is VERIFY.md section
+            1's, exactly: sort_keys, indent 2, ensure_ascii False, default=str,
+            a trailing newline, UTF-8. `\\n` is escaped once for this template
+            literal, so the page prints `\n`. */}
         <pre className="scroll-x bg-bg-subtle border hairline p-3 sm:p-4 text-caption sm:text-small leading-relaxed">
           <code>{`git clone ${DATA_REPO_URL}.git
 cd ${CLONE_DIR}
-python -c "
+python3 -c "
 import json,hashlib,pathlib
 prev={}
 for line in open('CHAIN.jsonl',encoding='utf-8'):
     e=json.loads(line); p=pathlib.Path(e['file']); raw=p.read_bytes()
     assert hashlib.sha256(raw).hexdigest()==e['sha256'], p
-    rec=json.loads(raw.decode())
+    rec=json.loads(raw.decode('utf-8'))
+    body={k:v for k,v in rec.items() if k!='hash'}
+    canon=json.dumps(body,sort_keys=True,indent=2,ensure_ascii=False,default=str)+'\\n'
+    assert hashlib.sha256(canon.encode('utf-8')).hexdigest()==rec['hash']==e['hash'], p
     assert rec['prev_hash']==prev.get(e['book'],'0'*64), p
     prev[e['book']]=rec['hash']
 print('chain ok:', {k:v[:12] for k,v in prev.items()})
