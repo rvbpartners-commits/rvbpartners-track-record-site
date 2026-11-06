@@ -588,9 +588,19 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
             body={
               <>
                 <Code>nav.csv</Code> is the whole equity curve, and every metric
-                is computed from it with standard definitions. The convention and
-                the risk-free rate are published in <Code>metrics.json</Code>, so
-                any figure can be recomputed independently.
+                is computed from it with textbook definitions and one convention
+                of the firm&rsquo;s own: maximum drawdown and the Calmar ratios
+                are measured from the base close, which is the first high-water
+                mark (
+                <Link
+                  className="text-accent hover:underline"
+                  href="/methodology#metrics"
+                >
+                  methodology
+                </Link>
+                ). The convention and the risk-free rate are published in{" "}
+                <Code>metrics.json</Code>, so any figure can be recomputed
+                independently.
               </>
             }
           />

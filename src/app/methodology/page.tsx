@@ -373,12 +373,30 @@ export default async function MethodologyPage() {
               and its rate — because that lets a sceptic recompute with their
               own code rather than audit ours. Stating the weaker true thing and
               the stronger true thing together, rather than the false one. */}
+          {/* "STANDARD DEFINITIONS" WAS ONE CONVENTION SHORT. The drawdown is
+              measured with a zero return prepended, so the base close is the
+              first high-water mark; a textbook drawdown over daily returns
+              starts at the first return and can come out smaller. VERIFY.md
+              section 4 and METHODOLOGY.md section 3 in the data repository
+              state it, and a reader recomputing from nav.csv needs it. */}
           <p>
             Every metric is computed by one function in the firm&rsquo;s metrics
-            module, with standard definitions. The input is published in full:{" "}
-            <Em>nav.csv</Em> is the entire equity curve, and every figure is
-            published beside the convention and the risk-free rate it used, so
-            any number here can be recomputed independently.
+            module, with textbook definitions and one convention of the
+            firm&rsquo;s own: maximum drawdown, and the Calmar ratios that divide
+            by it, are measured from the base close, which is the first
+            high-water mark (
+            <a
+              className="text-accent hover:underline"
+              href={`${DATA_REPO_URL}/blob/main/VERIFY.md#4-the-numbers-follow-from-the-inputs`}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              VERIFY.md, section 4
+            </a>
+            ). The input is published in full: <Em>nav.csv</Em> is the entire
+            equity curve, and every figure is published beside the convention and
+            the risk-free rate it used, so any number here can be recomputed
+            independently.
           </p>
           <p>
             Sharpe, Sortino and Calmar are measured in excess of the risk-free
