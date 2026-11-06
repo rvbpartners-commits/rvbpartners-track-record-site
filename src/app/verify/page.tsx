@@ -294,7 +294,7 @@ export default async function VerifyPage({
             </p>
             <dl className="mt-2 border-t hairline">
               <Rests on="Hash chain" what="A clone of the data repository." />
-              <Rests on="Timestamps" what="A Bitcoin block, read with ots verify." />
+              <Rests on="Timestamps" what="A Bitcoin block header, from your own node or any block explorer." />
               <Rests on="Commit signatures" what="GitHub’s signature verification." />
               <Rests on="Branch ruleset" what="GitHub’s repository settings." />
             </dl>
@@ -409,9 +409,8 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
 "`}</code>
         </pre>
         <p className="text-small text-fg-muted leading-relaxed">
-          This runs checks 1 and 2 below. A timestamp is checked with{" "}
-          <Code>ots verify &lt;file&gt;.ots</Code>, and check 4 is a
-          recomputation from <Code>nav.csv</Code>.
+          This runs checks 1 and 2 below. Check 3 reads each file&rsquo;s
+          timestamp, and check 4 is a recomputation from <Code>nav.csv</Code>.
         </p>
       </Section>
 
@@ -566,9 +565,17 @@ print('chain ok:', {k:v[:12] for k,v in prev.items()})
               <>
                 Each snapshot has an OpenTimestamps proof beside it, which gains
                 its Bitcoin block normally within hours of publication and is
-                reported as pending until then. Run{" "}
-                <Code>ots verify &lt;file&gt;.ots</Code>. A proof establishes
-                that the file existed no later than the block it is anchored in.
+                reported as pending until then. A proof establishes that the file
+                existed no later than the block it is anchored in. With the
+                client installed (<Code>pip install opentimestamps-client</Code>
+                ), <Code>ots verify &lt;file&gt;.ots</Code> reads that block
+                from a Bitcoin node: your own, or one named with{" "}
+                <Code>--bitcoin-node &lt;url&gt;</Code>. Without a node,{" "}
+                <Code>ots info &lt;file&gt;.ots</Code> prints the file hash the
+                proof commits to, which must equal the file&rsquo;s own SHA-256,
+                and for each anchored attestation a block height and that
+                block&rsquo;s merkle root, which must equal the merkle root any
+                block explorer shows at that height.
                 The Recorded column in the table below is the chain&rsquo;s own{" "}
                 <Code>ts</Code> for each entry, the day the record joined the
                 chain, printed beside the session it covers.
