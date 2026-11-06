@@ -75,9 +75,33 @@ export function AnalyticsCharts({
   const firstDrawn = drawn.length > 0 ? drawn[0].date : null;
   const countsDiffer =
     typeof observations === "number" && observations !== drawnObs;
+  // PAST THE GATE, BEFORE THE FIRST WINDOW. The rolling panels need more history
+  // than the annualised gate: the publisher draws a window only once the record
+  // runs some way past it, and lists the windows it has not drawn yet in
+  // `rolling_windows_withheld`. From 60 sessions to the first 63-session window,
+  // the ledger above showed every annualised figure while the three rolling
+  // panels were simply absent, with nothing saying why. The window is the
+  // payload's; the page states it and the book's own count.
+  const rollingDrawn = [
+    analytics.rolling_sharpe,
+    analytics.rolling_volatility,
+    analytics.rolling_sortino,
+  ].some((s) => Object.keys(s ?? {}).length > 0);
+  const firstWindow = Math.min(...(analytics.rolling_windows_withheld ?? []));
+  const rollingPending =
+    !analytics.gated && !rollingDrawn && Number.isFinite(firstWindow);
+  const sessionsHeld = observations ?? drawnObs;
 
   return (
     <>
+      {rollingPending && (
+        <p className="mt-8 text-small text-fg-faint leading-relaxed">
+          Rolling Sharpe, volatility and Sortino are drawn over a trailing
+          {` ${firstWindow}-session`} window once the record is long enough to
+          draw one; this portfolio has {sessionsHeld} marked{" "}
+          {sessionsHeld === 1 ? "session" : "sessions"}.
+        </p>
+      )}
       {countsDiffer && (
         <p className="mt-8 text-small text-fg-faint leading-relaxed">
           These panels cover {drawnObs} daily{" "}
@@ -175,6 +199,10 @@ function Plot({
     </figure>
   );
 }
+
+/** An axis value at two decimals with trailing zeros dropped: 0.75, 1.5, 3. */
+const axisTick = (v: number) =>
+  v.toFixed(2).replace(/\.?0+$/, "").replace(/^-0$/, "0");
 
 const axis = { fill: "var(--fg-faint)", fontSize: 11 };
 const axisNarrow = { fill: "var(--fg-faint)", fontSize: 10 };
@@ -312,9 +340,13 @@ function Rolling({
           <LineChart data={data} margin={{ top: 4, right: 6, bottom: 0, left: 0 }}>
             <XAxis dataKey="date" tickFormatter={fmtDay} tickLine={false}
                    axisLine={false} tick={narrow ? axisNarrow : axis} minTickGap={narrow ? 52 : 30} />
+            {/* A tick prints its own value. One decimal printed the 0.75 and
+                2.25 ticks of a rolling Sharpe axis as "0.8" and "2.3"; two
+                decimals, trailing zeros dropped, print every step the axis
+                picks exactly. */}
             <YAxis
               tickFormatter={(v: number) =>
-                asPercent ? `${(v * 100).toFixed(1)}%` : v.toFixed(1)}
+                asPercent ? `${axisTick(v * 100)}%` : axisTick(v)}
               tickLine={false} axisLine={false} width={narrow ? 46 : 58} tick={narrow ? axisNarrow : axis} />
             <Tooltip content={<TinyTooltip format={(v) => format(v ?? null)} />}
                      cursor={{ stroke: "var(--hairline)" }} />
